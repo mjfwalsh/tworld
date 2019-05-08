@@ -4,7 +4,7 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include	"SDL.h"
+#include	<SDL.h>
 #include	"sdlgen.h"
 #include	"../defs.h"
 

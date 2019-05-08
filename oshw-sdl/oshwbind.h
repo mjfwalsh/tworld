@@ -7,7 +7,7 @@
 #ifndef	HEADER_sdl_oshwbind_h_
 #define	HEADER_sdl_oshwbind_h_
 
-#include	"SDL.h"
+#include	<SDL.h>
 #include	<stdint.h>
 
 /* Constants

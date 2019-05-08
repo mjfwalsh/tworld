@@ -7,7 +7,7 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	"SDL.h"
+#include	<SDL.h>
 #include	"sdlsfx.h"
 #include	"../err.h"
 #include	"../settings.h"

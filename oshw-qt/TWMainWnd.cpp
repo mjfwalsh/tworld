@@ -20,7 +20,7 @@
 
 extern int pedanticmode;
 
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include <QClipboard>
 
 #include <QEvent>
@@ -119,6 +119,8 @@ TWTableModel::TWTableModel(QObject* pParent)
 
 void TWTableModel::SetTableSpec(const tablespec* pSpec)
 {
+	beginResetModel();
+	
 	m_nRows = pSpec->rows;
 	m_nCols = pSpec->cols;
 	int n = m_nRows * m_nCols;
@@ -151,7 +153,8 @@ void TWTableModel::SetTableSpec(const tablespec* pSpec)
 		i += d;
 	}
 	
-	reset();
+	//reset();
+	endResetModel();
 }
 
 int TWTableModel::rowCount(const QModelIndex& parent) const
@@ -1314,7 +1317,7 @@ int TileWorldMainWnd::DisplayInputPrompt(const char* szPrompt, char* pInput, int
 			sText.truncate(nMaxLen);
 			if (eInputType == INPUT_ALPHA)
 				sText = sText.toUpper();
-			strcpy(pInput, sText.toAscii().constData());
+			strcpy(pInput, sText.toLatin1().constData());
 			return true;
 		}
 	}
@@ -1435,7 +1438,7 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 	
 	m_ccxLevelset.Clear();
 	if (!m_ccxLevelset.ReadFile(sFilePath, pSeries->count))
-		warn("%s: failed to read file", sFilePath.toAscii().constData());
+		warn("%s: failed to read file", sFilePath.toLatin1().constData());
 		
 	for (int i = 1; i <= pSeries->count; ++i)
 	{

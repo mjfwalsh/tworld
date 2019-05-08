@@ -22,15 +22,16 @@ ifdef QTDIR
 	UIC = $(QTDIR)/bin/uic
 	MOC = $(QTDIR)/bin/moc
 else
-	QTINCDIR = $(shell qmake -query QT_INSTALL_HEADERS)
-	UIC = uic
-	MOC = moc
+	QTINCDIR = $(shell /usr/local/Cellar/qt/5.12.3/bin/qmake -query QT_INSTALL_HEADERS)
+	UIC = /usr/local/Cellar/qt/5.12.3/bin/uic
+	MOC = /usr/local/Cellar/qt/5.12.3/bin/moc
 endif
 
 CXXFLAGS += -I$(QTINCDIR) \
             -I$(QTINCDIR)/QtCore \
             -I$(QTINCDIR)/QtGui \
-            -I$(QTINCDIR)/QtXml
+            -I$(QTINCDIR)/QtXml \
+            -I$(QTINCDIR)/QtWidgets
 
 ui_%.h: %.ui
 	@echo Compiling UI $<...

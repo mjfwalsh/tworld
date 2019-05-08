@@ -7,7 +7,7 @@
 #ifndef	HEADER_sdlgen_h_
 #define	HEADER_sdlgen_h_
 
-#include	"SDL.h"
+#include	<SDL.h>
 #include	"../gen.h"
 #include	"../oshw.h"
 #include	"../generic/generic.h"

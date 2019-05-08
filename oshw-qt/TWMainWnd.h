@@ -18,7 +18,7 @@
 #include "../series.h"
 #include "../oshw.h"
 
-#include <QMainWindow>
+#include <QtWidgets/QMainWindow>
 
 #include <QLocale>
 

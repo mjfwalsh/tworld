@@ -139,7 +139,10 @@ void copytoclipboard(char const *text)
 
 int TileWorldApp::RunTWorld()
 {
-    return tworld(argc(), argv());
+    //return tworld(argc(), argv());       
+    char *argv[] = {};
+    
+    return tworld(0, argv);
 }
 
 

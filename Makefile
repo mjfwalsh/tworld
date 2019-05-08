@@ -14,7 +14,7 @@ TWORLD = tworld2
 ifdef QTDIR
 	LOADLIBES += -L$(QTDIR)/lib
 else
-	LOADLIBES += -L$(shell qmake -query QT_INSTALL_LIBS)
+	LOADLIBES += -L$(shell /usr/local/opt/qt/bin/qmake -query QT_INSTALL_LIBS)
 endif
 
 QTMODULES := Core Gui Xml

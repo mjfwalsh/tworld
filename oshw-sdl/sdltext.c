@@ -8,7 +8,7 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
-#include	"SDL.h"
+#include	<SDL.h>
 #include	"sdlgen.h"
 #include	"../err.h"
 
