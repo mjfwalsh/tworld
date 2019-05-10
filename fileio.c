@@ -74,7 +74,24 @@ void clearfileinfo(fileinfo *file)
 /* Hack to get around MinGW (really msvcrt.dll) not supporting 'x' modifier
  * for fopen.
  */
+#if defined __MINGW32__
+#include <fcntl.h>
+static FILE *FOPEN(char const *name, char const *mode)
+{
+    FILE * file = NULL;
+    if (!strcmp(mode, "wx")) {
+        int fd = open(name, O_WRONLY | O_CREAT | O_EXCL);
+	if (fd != -1)
+	    file = fdopen(fd, "w");
+    }
+    else
+        file = fopen(name, mode);
+
+    return file;
+}
+#else
 #define FOPEN fopen
+#endif
 
 /* Open a file. If the fileinfo structure does not already have a
  * filename assigned to it, use name (after making an independent

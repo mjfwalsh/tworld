@@ -6,7 +6,7 @@
 #define TWDISPLAYWIDGET_H
 
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
 #include <QtGui/QPixmap>
 
 

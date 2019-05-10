@@ -20,7 +20,7 @@
 
 extern int pedanticmode;
 
-#include <QtWidgets/QApplication>
+#include <QApplication>
 #include <QClipboard>
 
 #include <QEvent>
@@ -40,7 +40,7 @@ extern int pedanticmode;
 
 #include <QStyle>
 #include <QStyledItemDelegate>
-#include <QStyleOptionViewItemV2>
+#include <QStyleOptionViewItem>
 
 #include <QPainter>
 #include <QPalette>
@@ -76,7 +76,7 @@ public:
 void TWStyledItemDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& _option,
 	const QModelIndex& index) const
 {
-	QStyleOptionViewItemV2 option = _option;
+	QStyleOptionViewItem option = _option;
 	option.state &= ~QStyle::State_HasFocus;
 	QStyledItemDelegate::paint(pPainter, option, index);
 }

@@ -7,7 +7,7 @@
 
 class TileWorldMainWnd;
 
-#include <QtWidgets/QApplication>
+#include <QApplication>
 
 class TileWorldApp : public QApplication
 {
@@ -17,7 +17,7 @@ public:
 	TileWorldApp(int& argc, char** argv);
 	~TileWorldApp();
 	
-	int RunTWorld();
+	int RunTWorld(int& argc, char** argv);
 	void ExitTWorld();
 	
 	bool Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram, bool bFullScreen);

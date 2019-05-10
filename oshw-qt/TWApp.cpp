@@ -137,12 +137,11 @@ void copytoclipboard(char const *text)
 	pClipboard->setText(text);
 }
 
-int TileWorldApp::RunTWorld()
+int TileWorldApp::RunTWorld(int& argc, char** argv)
 {
-    //return tworld(argc(), argv());       
-    char *argv[] = {};
-    
-    return tworld(0, argv);
+    // I'm not sure what these two functions were doing?
+    //return tworld(argc(), argv());           
+    return tworld(argc, argv);
 }
 
 
@@ -176,5 +175,5 @@ int main(int argc, char *argv[])
 	QApplication::setStyle(new QWindowsStyle());	// Vista / XP styles may mess up colors
 #endif
 
-	return app.RunTWorld();
+	return app.RunTWorld(argc, argv);
 }
