@@ -1,13 +1,14 @@
 #!/bin/bash
-OSHW=oshw-qt
 PATH=$PATH:/usr/local/opt/qt/bin
-
-ROOT='-DROOTDIR="/usr/local/share/tworld"'
-
-C_BASE="cc -Wall -pedantic -O2 -I. -DNDEBUG $ROOT -Dstricmp=strcasecmp -DTWPLUSPLUS -std=gnu11"
-CPP_BASE="c++ -Wall -pedantic -O2 -I. -DNDEBUG $ROOT -Dstricmp=strcasecmp -DTWPLUSPLUS -std=gnu++11"
+C_BASE="cc -Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -DTWPLUSPLUS -std=gnu11 -Werror"
+CPP_BASE="c++ -Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -DTWPLUSPLUS -std=gnu++11 -Werror"
 SDL_OPTS='-I/usr/local/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE'
 QT_OPTS='-I/usr/local/Cellar/qt/5.12.3/include -I/usr/local/Cellar/qt/5.12.3/include/QtCore -I/usr/local/Cellar/qt/5.12.3/include/QtGui -I/usr/local/Cellar/qt/5.12.3/include/QtXml -I/usr/local/Cellar/qt/5.12.3/include/QtWidgets'
+
+run () {
+	echo "$@"
+	"$@"
+}
 
 make_file2 () {
 	if [ -e $3 ]
@@ -17,8 +18,7 @@ make_file2 () {
 	fi
 
 	echo $1
-	echo $2 $3 $4
-	$2 $3 $4
+	run $2 $3 $4
 	if [ $? -ne 0 ]
 	then
 		echo Failed...
@@ -29,6 +29,7 @@ make_file2 () {
 make_file () {
 	make_file2 "Compiling $3..." "$@"
 }
+
 
 make_file "$C_BASE -c -o" tworld.o tworld.c
 make_file "$C_BASE -c -o" series.o series.c
@@ -62,6 +63,8 @@ make_file "$CPP_BASE $QT_OPTS -c -o" oshwbind.o oshwbind.cpp
 make_file "$CPP_BASE $QT_OPTS -c -o" CCMetaData.o CCMetaData.cpp
 make_file "$CPP_BASE $QT_OPTS -c -o" TWDisplayWidget.o TWDisplayWidget.cpp
 make_file "$CPP_BASE $QT_OPTS -c -o" TWProgressBar.o TWProgressBar.cpp
+
+
 make_file2 "Compiling UI TWMainWnd.ui..." "uic -o" ui_TWMainWnd.h TWMainWnd.ui
 make_file "$CPP_BASE $QT_OPTS -c -o" TWMainWnd.o TWMainWnd.cpp
 make_file2 "MOC-ing TWMainWnd.h..." "moc -o" moc_TWMainWnd.cpp TWMainWnd.h
@@ -69,7 +72,24 @@ make_file "$CPP_BASE $QT_OPTS -c -o" moc_TWMainWnd.o moc_TWMainWnd.cpp
 make_file "$CPP_BASE $QT_OPTS -c -o" TWApp.o TWApp.cpp
 echo ---
 cd ..
+mkdir -p Tile\ World.app/Contents/MacOS
+mkdir -p Tile\ World.app/Contents/Resources
+cp Info.plist Tile\ World.app/Contents/
+cp Tile\ World.icns Tile\ World.app/Contents/Resources/
+
+cd Tile\ World.app/Contents/Resources
+ln -s $OLDPWD/res .
+ln -s $OLDPWD/sets .
+ln -s $OLDPWD/data .
+cd $OLDPWD
+
 echo Linking tworld2...
-c++ -o tworld2 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o cmdline.o settings.o fileio.o err.o \
+run c++ -o ./Tile\ World.app/Contents/MacOS/Tile\ World tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o cmdline.o settings.o fileio.o err.o \
 oshw-qt/generic.o oshw-qt/tile.o oshw-qt/timer.o oshw-qt/_in.o oshw-qt/_sdlsfx.o oshw-qt/oshwbind.o oshw-qt/CCMetaData.o oshw-qt/TWDisplayWidget.o oshw-qt/TWProgressBar.o oshw-qt/TWMainWnd.o oshw-qt/moc_TWMainWnd.o oshw-qt/TWApp.o \
 -L/usr/local/Cellar/qt/5.12.3/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
+if [ $? -eq 0 ]
+then
+	echo Done...
+else
+	echo Failed...
+fi

@@ -8,6 +8,7 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
+#include	<libgen.h>
 #include	"defs.h"
 #include	"err.h"
 #include	"series.h"
@@ -1771,97 +1772,43 @@ static int choosegame(gamespec *gs, char const *lastseries)
  * Initialization functions.
  */
 
-/* Set the four directories that the program uses (the series
- * directory, the series data directory, the resource directory, and
- * the save directory).  Any or all of the arguments can be NULL,
- * indicating that the default value should be used. The environment
- * variables TWORLDDIR, TWORLDSAVEDIR, and HOME can define the default
- * values. If any or all of these are unset, the program will use the
- * default values it was compiled with.
+/*
+ * Set the four directories that the program uses (the series directory, the
+ * series data directory, the resource directory, and the save directory).
+ * On MacOSX the first three are fixed as subdirectories with the app bundle,
+ * while the last is set as ~/Library/Application Support/Tile World.
+ * It takes argv[0] as its sole parameter.
  */
-static void initdirs(char const *series, char const *seriesdat,
-		     char const *res, char const *save)
+static void initdirs(char *binary_path)
 {
-    unsigned int	maxpath;
-    char const	       *root = NULL;
-    char const	       *dir;
+	char *homedir;
+	char *path;
 
-    maxpath = getpathbufferlen();
-    if (series && strlen(series) >= maxpath) {
-	errmsg(NULL, "Data (-D) directory name is too long;"
-		     " using default value instead");
-	series = NULL;
-    }
-    if (seriesdat && strlen(seriesdat) >= maxpath) {
-	errmsg(NULL, "Configured data (-C) directory name is too long;"
-		     " using default value instead");
-	seriesdat = NULL;
-    }
-    if (res && strlen(res) >= maxpath) {
-	errmsg(NULL, "Resource (-R) directory name is too long;"
-		     " using default value instead");
-	res = NULL;
-    }
-    if (save && strlen(save) >= maxpath) {
-	errmsg(NULL, "Save (-S) directory name is too long;"
-		     " using default value instead");
-	save = NULL;
-    }
-    if (!save && (dir = getenv("TWORLDSAVEDIR")) && *dir) {
-	if (strlen(dir) < maxpath)
-	    save = dir;
-	else
-	    warn("Value of environment variable TWORLDSAVEDIR is too long");
-    }
+	//allocate memory
+	path = getpathbuffer();
+	resdir = getpathbuffer();
+	seriesdir = getpathbuffer();
+	seriesdatdir = getpathbuffer();
+	homedir = getpathbuffer();
+	savedir = getpathbuffer();
 
-    if (!res || !series || !seriesdat) {
-	if ((dir = getenv("TWORLDDIR")) && *dir) {
-	    if (strlen(dir) < maxpath - 8)
-		root = dir;
-	    else
-		warn("Value of environment variable TWORLDDIR is too long");
+	//Get Resources directory
+	path = dirname(binary_path);
+	strcat(path, "/../Resources");
+	char *resourcedir = realpath(path, NULL);
+	if (resourcedir == NULL) {
+		printf("Cannot find Resources Directory\n");
+		resourcedir = path;
 	}
-	if (!root) {
-#ifdef ROOTDIR
-	    root = ROOTDIR;
-#else
-	    root = ".";
-#endif
-	}
-    }
 
-    resdir = getpathbuffer();
-    if (res)
-	strcpy(resdir, res);
-    else
-	combinepath(resdir, root, "res");
+	//Sub dirs
+	combinepath(resdir, resourcedir, "res");
+	combinepath(seriesdir, resourcedir, "sets");
+	combinepath(seriesdatdir, resourcedir, "data");
 
-    seriesdir = getpathbuffer();
-    if (series)
-	strcpy(seriesdir, series);
-    else
-	combinepath(seriesdir, root, "sets");
-
-    seriesdatdir = getpathbuffer();
-    if (seriesdat)
-	strcpy(seriesdatdir, seriesdat);
-    else
-	combinepath(seriesdatdir, root, "data");
-
-    savedir = getpathbuffer();
-    if (!save) {
-#ifdef SAVEDIR
-	save = SAVEDIR;
-#else
-	if ((dir = getenv("HOME")) && *dir && strlen(dir) < maxpath - 8)
-	    combinepath(savedir, dir, ".tworld");
-	else
-	    combinepath(savedir, root, "save");
-
-#endif
-    } else {
-	strcpy(savedir, save);
-    }
+	//get Application Support Dir
+	homedir = getenv("HOME");
+	combinepath(savedir, homedir, "Library/Application Support/Tile World");
 }
 
 /* Parse the command-line options and arguments, and initialize the
@@ -1952,7 +1899,7 @@ static int initoptionswithcmdline(int argc, char *argv[], startupdata *start)
     if (pedantic)
 	setpedanticmode();
 
-    initdirs(optseriesdir, optseriesdatdir, optresdir, optsavedir);
+    initdirs(argv[0]);
     if (listdirs) {
 	printdirectories();
 	exit(EXIT_SUCCESS);
