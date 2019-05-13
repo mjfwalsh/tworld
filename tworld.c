@@ -1817,10 +1817,6 @@ static void initdirs(char *binary_path)
 static int initoptionswithcmdline(int argc, char *argv[], startupdata *start)
 {
     cmdlineinfo	opts;
-    char const *optresdir = NULL;
-    char const *optseriesdir = NULL;
-    char const *optseriesdatdir = NULL;
-    char const *optsavedir = NULL;
     char	buf[256];
     int		listdirs, pedantic;
     int		ch, n;
@@ -1860,10 +1856,6 @@ static int initoptionswithcmdline(int argc, char *argv[], startupdata *start)
 		sprintf(start->filename, "%.*s", getpathbufferlen(), opts.val);
 	    }
 	    break;
-	  case 'D':	optseriesdatdir = opts.val;			break;
-	  case 'L':	optseriesdir = opts.val;			break;
-	  case 'R':	optresdir = opts.val;				break;
-	  case 'S':	optsavedir = opts.val;				break;
 	  case 'H':	showhistogram = !showhistogram;			break;
 	  case 'f':	noframeskip = !noframeskip;			break;
 	  case 'F':	fullscreen = !fullscreen;			break;

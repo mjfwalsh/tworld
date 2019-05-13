@@ -21,10 +21,6 @@
 static char const *yowzitch_items[] = {
     "1-Usage:", "1!tworld [-hvVdlsbtpqrPFa] [-n N] [-DLRS DIR] "
 		"[NAME] [SNAME] [LEVEL]",
-    "1-   -D", "1!Read data files from DIR instead of the default.",
-    "1-   -L", "1!Read level sets from DIR instead of the default.",
-    "1-   -R", "1!Read resource files from DIR instead of the default.",
-    "1-   -S", "1!Save games and settings in DIR instead of the default.",
     "1-   -p", "1!Disable password checking.",
     "1-   -F", "1!Run in fullscreen mode.",
     "1-   -q", "1!Run quietly.",
