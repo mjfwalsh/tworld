@@ -40,7 +40,7 @@ static char const *yowzitch_items[] = {
     "2!LEVEL specifies which level to start at.",
     "2!SNAME specifies an alternate solution file."
 };
-static tablespec const yowzitch_table = { 23, 2, 2, -1, yowzitch_items };
+static tablespec const yowzitch_table = { 19, 2, 2, -1, yowzitch_items };
 tablespec const *yowzitch = &yowzitch_table;
 
 /* Version and license information.

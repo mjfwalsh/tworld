@@ -1782,33 +1782,63 @@ static int choosegame(gamespec *gs, char const *lastseries)
 static void initdirs(char *binary_path)
 {
 	char *homedir;
-	char *path;
+	char *resourcedir;
 
-	//allocate memory
-	path = getpathbuffer();
+	//allocate memory to global vars
 	resdir = getpathbuffer();
 	seriesdir = getpathbuffer();
 	seriesdatdir = getpathbuffer();
-	homedir = getpathbuffer();
 	savedir = getpathbuffer();
+	
+	// and local vars
+	homedir = getpathbuffer();
+	resourcedir = getpathbuffer();
 
 	//Get Resources directory
-	path = dirname(binary_path);
-	strcat(path, "/../Resources");
-	char *resourcedir = realpath(path, NULL);
-	if (resourcedir == NULL) {
-		printf("Cannot find Resources Directory\n");
-		resourcedir = path;
-	}
+	{
+		resourcedir = "./";
+		resdir = "./res";
+		
+		resdir = realpath(resdir, NULL);
 
-	//Sub dirs
-	combinepath(resdir, resourcedir, "res");
-	combinepath(seriesdir, resourcedir, "sets");
-	combinepath(seriesdatdir, resourcedir, "data");
+		if(resdir == NULL) {
+			resdir = "/usr/local/share/tworld/res";
+			resourcedir = "/usr/local/share/tworld";
+			
+			resdir = realpath(resdir, NULL);
+		}
+		
+		resourcedir = realpath(resourcedir, NULL);
+		
+		if(resdir == NULL || resourcedir == NULL) {
+			errmsg(NULL, "no resource files found");
+		}
+	}
 
 	//get Application Support Dir
 	homedir = getenv("HOME");
-	combinepath(savedir, homedir, "Library/Application Support/Tile World");
+	{
+		char *savedir1;
+		savedir1 = getpathbuffer();		
+		combinepath(savedir1, homedir, "Library/Application Support/Tile World");
+		savedir = realpath(savedir1, NULL);
+	
+		if(savedir == NULL) {
+			char *savedir2;
+			savedir2 = getpathbuffer();
+			combinepath(savedir2, homedir, ".tworld");
+			savedir = realpath(savedir2, NULL);
+	
+			if(savedir == NULL) {
+				// neither dir exists
+				savedir = savedir1;
+			}
+		}
+	}
+	
+	//Sub dirs
+	combinepath(seriesdir, resourcedir, "sets");
+	combinepath(seriesdatdir, resourcedir, "data");
 }
 
 /* Parse the command-line options and arguments, and initialize the
@@ -1836,7 +1866,7 @@ static int initoptionswithcmdline(int argc, char *argv[], startupdata *start)
     soundbufsize = 0;
     volumelevel = -1;
 
-    initoptions(&opts, argc - 1, argv + 1, "abD:dFfHhL:lm:n:PpqR:rS:stVv");
+    initoptions(&opts, argc - 1, argv + 1, "ab:dFfHh:lm:n:Ppq:r:stVv");
     while ((ch = readoption(&opts)) >= 0) {
 	switch (ch) {
 	  case 0:
