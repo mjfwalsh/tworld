@@ -639,9 +639,9 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pLCDNumber->display(pState->game->number);
 
 		QString sTitle = pState->game->name;
-		//m_pLblTitle->setText(sTitle);
-		//Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
-		//m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
+		m_pLblTitle->setText(sTitle);
+		Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
+		m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
 
 		m_pLblPassword->setText(pState->game->passwd);
 
@@ -1002,9 +1002,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
 	if (nCompleted > 0)	// Success
 	{
-		//QString sTitle = m_pLblTitle->text();
-		QString sTitle = "Placeholder Fix Me";
-		//pState->game->name;
+		QString sTitle = m_pLblTitle->text();
 		QString sAuthor = m_ccxLevelset.vecLevels[m_nLevelNum].sAuthor;
 		const char* szMsg = 0;
 		if (m_bReplay)
