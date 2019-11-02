@@ -46,7 +46,7 @@ typedef	struct gamespec {
 typedef	struct startupdata {
     char       *filename;	/* which data file to use */
     char       *savefilename;	/* an alternate solution file */
-    int		levelnum;	/* a selected initial level */ 
+    int		levelnum;	/* a selected initial level */
     int		listdirs;	/* TRUE if directories should be listed */
     int		listseries;	/* TRUE if the files should be listed */
     int		listscores;	/* TRUE if the scores should be listed */
@@ -764,10 +764,10 @@ static int loadhistory(void)
     char       *hdate, *htime, *hpasswd, *hnumber, *hname;
     int		hyear, hmon, hmday, hhour, hmin, hsec;
     history    *h;
-    
+
     historycount = 0;
     free(historylist);
-    
+
     clearfileinfo(&file);
     if (!openfileindir(&file, savedir, "history", "r", NULL))
 	return FALSE;
@@ -776,22 +776,22 @@ static int loadhistory(void)
 	n = sizeof buf - 1;
 	if (!filegetline(&file, buf, &n, NULL))
 	    break;
-	    
+
 	if (buf[0] == '#')
 	    continue;
-	    
+
 	hdate	= strtok(buf , " \t");
 	htime	= strtok(NULL, " \t");
 	hpasswd	= strtok(NULL, " \t");
 	hnumber	= strtok(NULL, " \t");
 	hname	= strtok(NULL, "\r\n");
-	
+
 	if ( ! (hdate && htime && hpasswd && hnumber && hname  &&
 		sscanf(hdate, "%d-%d-%d", &hyear, &hmon, &hmday) == 3  &&
 		sscanf(htime, "%d:%d:%d", &hhour, &hmin, &hsec) == 3  &&
 		*hpasswd  && *hnumber && *hname) )
 	    continue;
-	
+
 	++historycount;
 	x_alloc(historylist, historycount * sizeof *historylist);
 	h = historylist + historycount - 1;
@@ -807,9 +807,9 @@ static int loadhistory(void)
 	h->dt.tm_sec   = hsec;
 	h->dt.tm_isdst = -1;
     }
-    
+
     fileclose(&file, NULL);
-	
+
     return TRUE;
 }
 
@@ -820,13 +820,13 @@ static void updatehistory(char const *name, char const *passwd, int number)
     time_t	t = time(NULL);
     int		i, j;
     history    *h;
-    
+
     h = historylist;
     for (i = 0; i < historycount; ++i, ++h) {
 	if (stricmp(h->name, name) == 0)
 	    break;
     }
-    
+
     if (i == historycount) {
 	++historycount;
 	x_alloc(historylist, historycount * sizeof *historylist);
@@ -850,7 +850,7 @@ static void savehistory(void)
     fileinfo	file;
     history    *h;
     int		i;
-    
+
     clearfileinfo(&file);
     if (!openfileindir(&file, savedir, "history", "w", NULL))
 	return;
@@ -862,7 +862,7 @@ static void savehistory(void)
 		h->dt.tm_hour, h->dt.tm_min, h->dt.tm_sec,
 		h->passwd, h->levelnumber, h->name);
     }
-    
+
     fileclose(&file, NULL);
 }
 
@@ -1080,13 +1080,11 @@ static int finalinput(gamespec *gs)
 
 #define SETPAUSED(paused, shutter) do { \
     if (paused) { \
-	setdisplaymsg("(paused)", FOREVER, FOREVER); \
 	setgameplaymode((shutter) ? SuspendPlayShuttered : SuspendPlay); \
 	if (shutter) drawscreen(TRUE); \
 	gamepaused = TRUE; \
     } \
     else { \
-	setdisplaymsg(NULL, 0, 0); \
 	setgameplaymode(NormalPlay); \
 	gamepaused = FALSE; \
     } \
@@ -1132,7 +1130,6 @@ static int playgame(gamespec *gs, int firstcmd)
 	if (cmd == CmdQuitLevel) {
 	    quitgamestate();
 	    n = -2;
-	    setdisplaymsg(NULL, 0, 0);
 	    break;
 	}
 	if (!(cmd >= CmdMoveFirst && cmd <= CmdMoveLast)) {
@@ -1189,7 +1186,6 @@ static int playgame(gamespec *gs, int firstcmd)
     return TRUE;
 
   quitloop:
-    setdisplaymsg(NULL, 0, 0);
     if (!lastrendered)
 	drawscreen(TRUE);
     quitgamestate();
@@ -1341,7 +1337,6 @@ static int playbackgame(gamespec *gs, int initcmd)
 	    break;
 	}
     }
-    setdisplaymsg(NULL, 0, 0);
     if (!lastrendered)
 	drawscreen(TRUE);
     setgameplaymode(EndPlay);
@@ -1356,7 +1351,6 @@ static int playbackgame(gamespec *gs, int initcmd)
     return TRUE;
 
   quitloop:
-    setdisplaymsg(NULL, 0, 0);
     if (!lastrendered)
 	drawscreen(TRUE);
     quitgamestate();
@@ -1378,7 +1372,6 @@ static int verifyplayback(gamespec *gs)
     int	n;
 
     gs->status = 0;
-    setdisplaymsg("Verifying ...", FOREVER, 0);
     setgameplaymode(NonrenderPlay);
     for (;;) {
 	n = doturn(CmdNone);
@@ -1396,13 +1389,9 @@ static int verifyplayback(gamespec *gs)
     }
     gs->playmode = Play_None;
     quitgamestate();
-    setdisplaymsg(NULL, 0, 0);
     drawscreen(TRUE);
     setgameplaymode(EndPlay);
     if (n < 0) {
-#ifndef TWORLDPLUSPLUS
-	setdisplaymsg("Invalid solution!", 1, 1);
-#endif
 	replaceablesolution(gs, +1);
     }
     if (n > 0) {
@@ -1413,7 +1402,6 @@ static int verifyplayback(gamespec *gs)
     return TRUE;
 
   quitloop:
-    setdisplaymsg(NULL, 0, 0);
     gs->playmode = Play_None;
     setgameplaymode(EndPlay);
     return FALSE;
@@ -1604,7 +1592,7 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 {
 #ifndef TWPLUSPLUS
     return displaylist("   Welcome to Tile World. Type ? or F1 for help.",
-		&series->table, pn, LIST_SERIES, scrollinputcallback);    
+		&series->table, pn, LIST_SERIES, scrollinputcallback);
 #else
     tablespec mftable;
     PRODUCE_SINGLE_COLUMN_TABLE(mftable, "Levelset",
@@ -1789,7 +1777,7 @@ static void initdirs(char *binary_path)
 	seriesdir = getpathbuffer();
 	seriesdatdir = getpathbuffer();
 	savedir = getpathbuffer();
-	
+
 	// and local vars
 	homedir = getpathbuffer();
 	resourcedir = getpathbuffer();
@@ -1798,18 +1786,18 @@ static void initdirs(char *binary_path)
 	{
 		resourcedir = "./";
 		resdir = "./res";
-		
+
 		resdir = realpath(resdir, NULL);
 
 		if(resdir == NULL) {
 			resdir = "/usr/local/share/tworld/res";
 			resourcedir = "/usr/local/share/tworld";
-			
+
 			resdir = realpath(resdir, NULL);
 		}
-		
+
 		resourcedir = realpath(resourcedir, NULL);
-		
+
 		if(resdir == NULL || resourcedir == NULL) {
 			errmsg(NULL, "no resource files found");
 		}
@@ -1819,23 +1807,23 @@ static void initdirs(char *binary_path)
 	homedir = getenv("HOME");
 	{
 		char *savedir1;
-		savedir1 = getpathbuffer();		
+		savedir1 = getpathbuffer();
 		combinepath(savedir1, homedir, "Library/Application Support/Tile World");
 		savedir = realpath(savedir1, NULL);
-	
+
 		if(savedir == NULL) {
 			char *savedir2;
 			savedir2 = getpathbuffer();
 			combinepath(savedir2, homedir, ".tworld");
 			savedir = realpath(savedir2, NULL);
-	
+
 			if(savedir == NULL) {
 				// neither dir exists
 				savedir = savedir1;
 			}
 		}
 	}
-	
+
 	//Sub dirs
 	combinepath(seriesdir, resourcedir, "sets");
 	combinepath(seriesdatdir, resourcedir, "data");

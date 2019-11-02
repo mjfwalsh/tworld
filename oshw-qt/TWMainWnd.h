@@ -27,7 +27,7 @@ class QSortFilterProxyModel;
 class TileWorldMainWnd : public QMainWindow, protected Ui::TWMainWnd
 {
 	Q_OBJECT
-	
+
 public:
 	enum Page
 	{
@@ -41,16 +41,14 @@ public:
 
 	virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
 	virtual void closeEvent(QCloseEvent* pCloseEvent) override;
-	virtual void timerEvent(QTimerEvent*) override;
 
 	bool SetKeyboardRepeat(bool bEnable);
 	uint8_t* GetKeyState(int* pnNumKeys);
 	int GetReplaySecondsToSkip() const;
-	
+
 	bool CreateGameDisplay();
 	void ClearDisplay();
 	bool DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime, bool showinitgamestate);
-	bool SetDisplayMsg(const char* szMsg, int nMSecs, int nBoldMSecs);
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
 	int DisplayList(const char* szTitle, const tablespec* pTableSpec, int* pnIndex,
 			DisplayListType eListType, int (*pfnInputCallback)(int*));
@@ -58,10 +56,10 @@ public:
 			InputPromptType eInputType, int (*pfnInputCallback)());
 	int GetSelectedRuleset();
 	void SetSubtitle(const char* szSubtitle);
-	
+
 	void ReadExtensions(gameseries* pSeries);
 	void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
-	
+
 	void ShowAbout();
 
 private slots:
@@ -71,14 +69,14 @@ private slots:
 	void OnRulesetSwitched(bool mschecked);
 	void OnPlayback();
 	void OnSpeedValueChanged(int nValue);
-	void OnSpeedSliderReleased();	
+	void OnSpeedSliderReleased();
 	void OnSeekPosChanged(int nValue);
 	void OnTextNext();
 	void OnTextPrev();
 	void OnTextReturn();
 	void OnCopyText();
 	void OnMenuActionTriggered(QAction* pAction);
-	
+
 private:
 	bool HandleEvent(QObject* pObject, QEvent* pEvent);
 	void SetCurrentPage(Page ePage);
@@ -89,22 +87,22 @@ private:
 	void ReleaseAllKeys();
 	void PulseKey(int nTWKey);
 	int GetTWKeyForAction(QAction* pAction) const;
-	
+
 	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };
 	bool SetHintMode(HintMode newmode);
 
 	bool m_bSetupUi;
 	bool m_bWindowClosed;
-	
+
 	Qt_Surface* m_pSurface;
 	Qt_Surface* m_pInvSurface;
 	TW_Rect m_disploc;
-	
+
 	uint8_t m_nKeyState[TWK_LAST];
 
 	struct MessageData{ QString sMsg; uint32_t nMsgUntil, nMsgBoldUntil; };
 	QVector<MessageData> m_shortMessages;
-	
+
 	bool m_bKbdRepeatEnabled;
 
 	int m_nRuleset;
@@ -116,12 +114,12 @@ private:
 	int m_nTimeLeft;
 	bool m_bTimedLevel;
 	bool m_bReplay;
-	
+
 	QSortFilterProxyModel* m_pSortFilterProxyModel;
 	QLocale m_locale;
-	
+
 	CCX::Levelset m_ccxLevelset;
-	
+
 	QString m_sTextToCopy;
 };
 

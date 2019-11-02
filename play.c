@@ -223,7 +223,6 @@ int setstepping(int stepping, int display)
     state.stepping = stepping;
     if (display) {
 	writesteppingstring(msg, stepping);
-	setdisplaymsg(msg, 1000, 1000);
     }
     return TRUE;
 }
@@ -279,8 +278,7 @@ void advanceinitrandomff(int display)
         {
             char msg[32];
 	    writerandomffstring(msg, state.initrndslidedir);
-	    setdisplaymsg(msg, 1000, 1000);
-        }       
+        }
     }
 }
 
@@ -371,9 +369,6 @@ int drawscreen(int showframe)
     timeleft = starttime - currenttime / TICKS_PER_SECOND;
     if (state.game->time && timeleft <= 0) {
 	timeleft = 0;
-#ifndef TWPLUSPLUS
-	setdisplaymsg("Out of time", 2, 2);
-#endif
     }
 
     return displaygame(&state, timeleft, besttime, showinitstate);

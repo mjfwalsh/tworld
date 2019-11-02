@@ -185,12 +185,6 @@ OSHW_EXTERN int displaygame(struct gamestate const *state,
 OSHW_EXTERN int displayendmessage(int basescore, int timescore,
 			     long totalscore, int completed);
 
-/* Display a (very short) message for the given number of
- * milliseconds. bold indicates the number of milliseconds the
- * message is with highlighting. After that (if the message is
- * still visible) it is rendered as normal text.
- */
-OSHW_EXTERN int setdisplaymsg(char const *msg, int msecs, int bold);
 
 /* Types of lists that can be displayed.
  */

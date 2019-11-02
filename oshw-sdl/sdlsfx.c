@@ -86,23 +86,6 @@ static void initonomatopoeia(void)
     sounds[SND_FIREWALKING].textsfx     = "crackle crackle ...";
 }
 
-/* Display the onomatopoeia for the currently playing sound effect.
- * Only the first sound is used, since we can't display multiple
- * strings.
- */
-static void displaysoundeffects(unsigned long sfx)
-{
-    unsigned long	flag;
-    int			i;
-
-    for (flag = 1, i = 0 ; flag ; flag <<= 1, ++i) {
-	if (sfx & flag) {
-	    setdisplaymsg(sounds[i].textsfx, 500, 10);
-	    return;
-	}
-    }
-}
-
 /* The callback function that is called by the sound driver to supply
  * the latest sound effects. All the sound effects are checked, and
  * the ones that are being played get another chunk of their sound
@@ -262,7 +245,6 @@ void playsoundeffects(unsigned long sfx)
     int			i;
 
     if (!hasaudio || !volume) {
-	displaysoundeffects(sfx);
 	return;
     }
 
@@ -316,13 +298,10 @@ void freesfx(int index)
     }
 }
 
-/* Set the current volume level to v. If display is true, the
- * new volume level is displayed to the user.
+/* Set the current volume level to v.
  */
 int setvolume(int v, int display)
 {
-    char	buf[16];
-
     if (!hasaudio)
 	return FALSE;
     if (v < 0)
@@ -331,10 +310,6 @@ int setvolume(int v, int display)
 	v = 10;
     volume = (SDL_MIX_MAXVOLUME * v + 9) / 10;
     setintsetting("volume", v);
-    if (display) {
-	sprintf(buf, "Volume: %d", v);
-	setdisplaymsg(buf, 1000, 1000);
-    }
     return TRUE;
 }
 

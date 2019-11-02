@@ -206,7 +206,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	m_bWindowClosed(false),
 	m_pSurface(0),
 	m_pInvSurface(0),
-	m_shortMessages(),
 	m_bKbdRepeatEnabled(true),
 	m_nRuleset(Ruleset_None),
 	m_nLevelNum(0),
@@ -299,42 +298,6 @@ void TileWorldMainWnd::closeEvent(QCloseEvent* pCloseEvent)
 		g_pApp->ExitTWorld();
 	else
 		g_pApp->quit();
-}
-
-void TileWorldMainWnd::timerEvent(QTimerEvent*)
-{
-	if (m_shortMessages.empty())
-		return;
-
-	uint32_t nCurTime = TW_GetTicks();
-	QPalette::ColorRole style = QPalette::BrightText;
-	bool switchMessage = false;
-	while (!m_shortMessages.empty())
-	{
-		auto & mData = m_shortMessages.back();
-		if (nCurTime <= mData.nMsgUntil)
-		{
-			if (nCurTime > mData.nMsgBoldUntil)
-				style = QPalette::Text;
-			break;
-		}
-		else
-		{
-			m_shortMessages.pop_back();
-			switchMessage = true;
-		}
-	}
-	if (switchMessage)
-	{
-		if (m_shortMessages.empty())
-			m_pLblShortMsg->clear();
-		else
-		{
-			m_pLblShortMsg->setText(m_shortMessages.back().sMsg);
-		}
-	}
-	if (style != m_pLblShortMsg->foregroundRole())
-		m_pLblShortMsg->setForegroundRole(style);
 }
 
 bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
@@ -1142,36 +1105,6 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 	}
 
 	return CmdProceed;
-}
-
-
-/* Display a (very short) message for the given number of
- * milliseconds. bold indicates the number of milliseconds the
- * message is with highlighting. After that (if the message is
- * still visible) it is rendered as normal text.
- */
-int setdisplaymsg(char const *msg, int msecs, int bold)
-{
-	return g_pMainWnd->SetDisplayMsg(msg, msecs, bold);
-}
-
-bool TileWorldMainWnd::SetDisplayMsg(const char* szMsg, int nMSecs, int nBoldMSecs)
-{
-	if (szMsg == nullptr || *szMsg == '\0')
-	{
-		m_pLblShortMsg->clear();
-		m_shortMessages.clear();
-	}
-
-	uint32_t nCurTime = TW_GetTicks();
-	uint32_t msgUntil = nCurTime + nMSecs;
-	uint32_t boldUntil = nCurTime + nBoldMSecs;
-
-	m_pLblShortMsg->setForegroundRole(QPalette::BrightText);
-	m_pLblShortMsg->setText(szMsg);
-
-	m_shortMessages.push_back({szMsg, msgUntil, boldUntil});
-	return true;
 }
 
 

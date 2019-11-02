@@ -295,30 +295,6 @@ static void displaymsg(int update)
 				    messageloc.w, messageloc.h);
 }
 
-/* Change the current message-display message. msecs gives the number
- * of milliseconds to display the message, and bold specifies the
- * number of milliseconds to display the message highlighted.
- */
-int setdisplaymsg(char const *msg, int msecs, int bold)
-{
-    if (!msg || !*msg) {
-	*msgdisplay.msg = '\0';
-	msgdisplay.msglen = 0;
-	msgdisplay.until = 0;
-	msgdisplay.bolduntil = 0;
-    } else {
-	msgdisplay.msglen = strlen(msg);
-	if (msgdisplay.msglen >= sizeof msgdisplay.msg)
-	    msgdisplay.msglen = sizeof msgdisplay.msg - 1;
-	memcpy(msgdisplay.msg, msg, msgdisplay.msglen);
-	msgdisplay.msg[msgdisplay.msglen] = '\0';
-	msgdisplay.until = SDL_GetTicks() + msecs;
-	msgdisplay.bolduntil = SDL_GetTicks() + bold;
-    }
-    displaymsg(TRUE);
-    return TRUE;
-}
-
 /*
  * The main display functions.
  */
