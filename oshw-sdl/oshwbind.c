@@ -88,5 +88,12 @@ TW_Surface *TW_LoadBMP(char const *filename, int setscreenpalette)
 			  0, tiles->format->palette->ncolors);
     }
 
+	// untested
+    if(tiles->format->amask > 0) {
+		tiles->hasAlphaChannel = 1;
+    } else {
+		tiles->hasAlphaChannel = 0;
+    }
+
     return tiles;
 }

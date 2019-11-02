@@ -1,5 +1,5 @@
 /* oshwbind.h: Binds the generic module to the Qt OS/hardware layer.
- * 
+ *
  * Copyright (C) 2001-2010 by Madhav Shanbhag,
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
@@ -91,7 +91,7 @@ enum
 	TWK_RMETA,
 	TWK_MODE,
 	TWK_CTRL_C,
-	
+
     TWC_SEESCORES,
     TWC_SEESOLUTIONFILES,
     TWC_TIMESCLIPBOARD,
@@ -137,12 +137,12 @@ enum
 
 /* Types
  */
- 
+
 typedef struct TW_Rect
 {
 	int x, y;
 	int w, h;
-	
+
 #ifdef __cplusplus
 	TW_Rect() {}
 	TW_Rect(int _x, int _y, int _w, int _h) : x(_x), y(_y), w(_w), h(_h) {}
@@ -158,6 +158,7 @@ typedef struct TW_Surface
 	int bytesPerPixel;
 	int pitch;
 	void* pixels;
+	int hasAlphaChannel;
 } TW_Surface;
 
 
@@ -167,29 +168,29 @@ class Qt_Surface : public TW_Surface
 {
 public:
 	Qt_Surface();
-	
+
 	void SetPixmap(const QPixmap& pixmap);
 	void SetImage(const QImage& image);
-	
+
 	const QPixmap& GetPixmap();
 	const QImage& GetImage();
 
 	void Lock();
 	void Unlock();
-	
+
 	void FillRect(const TW_Rect* pDstRect, uint32_t nColor);
-	
+
 	static void BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 	                        Qt_Surface* pDst, const TW_Rect* pDstRect);
 
 	void SetColorKey(uint32_t nColorKey);
 	void ResetColorKey();
-	
+
 	inline bool IsColorKeySet() const
 		{return m_bColorKeySet;}
 	inline uint32_t GetColorKey() const
 		{return m_nColorKey;}
-	
+
 	Qt_Surface* DisplayFormat();
 
 	inline uint32_t PixelAt(int x, int y) const
@@ -201,10 +202,10 @@ public:
 private:
 	QPixmap m_pixmap;
 	QImage m_image;
-	
+
 	bool m_bColorKeySet;
 	uint32_t m_nColorKey;
-	
+
 	void Init(const QPaintDevice& dev);
 	void InitImage();
 };

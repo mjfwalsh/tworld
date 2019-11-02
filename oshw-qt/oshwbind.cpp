@@ -1,5 +1,5 @@
 /* oshwbind.cpp: Binds the generic module to the Qt OS/hardware layer.
- * 
+ *
  * Copyright (C) 2001-2010 by Madhav Shanbhag,
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
@@ -53,6 +53,16 @@ void Qt_Surface::InitImage()
 	bytesPerPixel = m_image.depth() / 8;
 	pitch = m_image.bytesPerLine();
 	pixels = m_image.bits();
+
+	// https://stackoverflow.com/questions/6157286/checking-if-a-qimage-has-an-alpha-channel
+	hasAlphaChannel = 0;
+	int bytes = m_image.sizeInBytes();
+	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
+		if (qAlpha(*pixel) != UCHAR_MAX) {
+			hasAlphaChannel = 1;
+			break;
+		}
+	}
 }
 
 
@@ -116,7 +126,7 @@ void Qt_Surface::FillRect(const TW_Rect* pDstRect, uint32_t nColor)
 		QPainter painter(&m_pixmap);
 		painter.fillRect(*pDstRect, QColor(nColor));
 	}
-	
+
 	m_image = QImage();
 	pixels = 0;
 }
@@ -146,14 +156,16 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 	if (pSrc->IsColorKeySet())
 	{
 		QImage image = pSrc->GetImage().copy(srcRect);
-		QImage imgMask = image.createMaskFromColor(pSrc->GetColorKey());
-		
 		srcPix = QPixmap::fromImage(image);
-		QBitmap bmpMask = QBitmap::fromImage(imgMask);
-		srcPix.setMask(bmpMask);
-		
+
+		if(pSrc->hasAlphaChannel == 0) {
+			QImage imgMask = image.createMaskFromColor(pSrc->GetColorKey());
+			QBitmap bmpMask = QBitmap::fromImage(imgMask);
+			srcPix.setMask(bmpMask);
+		}
+
 		srcRect.x = srcRect.y = 0;
-		
+
 		pDst->m_pixmap = srcPix;	// @#$
 		return;	// @#$
 	}
@@ -163,7 +175,7 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 	}
 
 	QPainter painter(&(pDst->m_pixmap));
-	painter.drawPixmap(QRect(dstRect).topLeft(), srcPix, srcRect);	
+	painter.drawPixmap(QRect(dstRect).topLeft(), srcPix, srcRect);
 }
 
 
@@ -210,7 +222,7 @@ extern "C" TW_Surface* TW_NewSurface(int w, int h, int bTransparent)
 		pixmap.fill(Qt::black);
 		pSurface->SetPixmap(pixmap);
 	}
-	
+
 	return pSurface;
 }
 
@@ -311,14 +323,14 @@ extern "C" TW_Surface* TW_LoadBMP(const char* szFilename, int bSetScreenPalette)
 	QImage image(szFilename);
 	if (image.isNull())
 		return 0;
-	
+
 	image = image.convertToFormat(QImage::Format_ARGB32);
 	// Doesn't seem to be necessary, but just in case...
-		
+
 	Qt_Surface* pSurface = new Qt_Surface();
 	pSurface->SetImage(image);
 	return pSurface;
-	
+
 	// TODO?: bSetScreenPalette?
 }
 
@@ -329,7 +341,7 @@ extern "C" void TW_DebugSurface(TW_Surface* s, const char* szFilename)
 	static int n = 0;
 	if (n == 10) return;
 	++n;
-	
+
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
 	QString sNFilename = QString::number(n) + szFilename;
 	pSurface->GetImage().save(sNFilename);
