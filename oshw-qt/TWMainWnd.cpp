@@ -232,6 +232,11 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 		pGameLayout->setAlignment(m_pMessagesFrame, Qt::AlignHCenter);
 	}
 
+	QFile File("stylesheet.qss");
+	File.open(QFile::ReadOnly);
+	QString StyleSheet = QLatin1String(File.readAll());
+	this->setStyleSheet(StyleSheet);
+
 	QPalette pal = m_pMainWidget->palette();
 	QLinearGradient gradient(0, 0, 1, 1);
 	gradient.setCoordinateMode(QGradient::StretchToDeviceMode);

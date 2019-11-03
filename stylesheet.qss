@@ -1,0 +1,26 @@
+#m_pMainWidget {
+	background-image:url("motherboard.svg"); background-position: center;
+	background-color: rgb(100,100,100);
+}
+
+#m_pPrgTime {
+	/*selection-background-color: rgb(179,215,255);*/
+}
+
+#m_pGameFrame, #m_pInfoFrame, #m_pObjectsFrame, #m_pMessagesFrame {
+	border-top: 5px outset rgb(70,70,70);
+	border-left: 5px outset rgb(70,70,70);
+
+	border-right: 5px outset rgb(55,55,55);
+	border-bottom: 5px outset rgb(55,55,55);
+	/*236*/
+}
+
+#m_pInfoFrame {
+	background-color: rgb(236,236,236);
+}
+
+QLCDNumber {
+	background-color: black;
+	color: white;
+}
