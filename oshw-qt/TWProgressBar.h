@@ -17,12 +17,12 @@ class TWProgressBar : public QProgressBar
 {
 public:
 	TWProgressBar(QWidget* pParent = 0);
-	
+
 	// These aren't virtual, but we can still get by...
 	void setValue(int nValue);
 	int value() const
 		{return m_nValue;}
-		
+
 	void setPar(int nPar);
 	int par() const
 		{return m_nPar;}
@@ -37,7 +37,8 @@ public:
 
 	virtual QString text() const;
 
-protected:		
+protected:
+	void paintBox(QPainter *p, QRect container, QRect box, QColor bgcl, QColor fgcl, QString t);
 	virtual void paintEvent(QPaintEvent* pPaintEvent);
 
 	int m_nValue, m_nPar;

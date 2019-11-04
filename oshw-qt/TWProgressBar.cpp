@@ -17,7 +17,7 @@ TWProgressBar::TWProgressBar(QWidget* pParent)
 	m_bFullBar(false)
 {
 }
-	
+
 
 void TWProgressBar::setValue(int nValue)
 {
@@ -54,39 +54,51 @@ QString TWProgressBar::text() const
 	return sText;
 }
 
+void TWProgressBar::paintBox(QPainter *p, QRect container, QRect box, QColor bgcl, QColor fgcl, QString t)
+{
+	p->fillRect(box, bgcl);
+	p->setClipRect(box);
+	p->setPen(fgcl);
+	p->drawText(container, Qt::AlignCenter, t);
+	p->setClipping(false);
+}
+
 
 void TWProgressBar::paintEvent(QPaintEvent* pPaintEvent)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing, false);
-	const QPalette& pal = this->palette();
+	painter.setRenderHint(QPainter::TextAntialiasing, false);
+
+	//const QPalette& pal = this->palette();
 	QRect rect = this->rect();
-	
-	static const int M = 2;
-	qDrawShadePanel(&painter, rect, pal, true, M);
-	rect.adjust(+M, +M, -M, -M);
-	painter.fillRect(rect, pal.window());
+	QString t = text();
+
+	//static const int M = 2;
+
+	//qDrawShadePanel(&painter, rect, pal, true, M);
+	//rect.adjust(+M, +M, -M, -M);
+	paintBox(&painter, rect, rect, QColor(255, 255, 255), QColor(0, 0, 0), t);
 
 	int d = maximum() - minimum();
+	double v;
 	if (d > 0)
 	{
 		bool bHasPar = (par() > minimum());
 		QRect rect2 = rect;
-		double v = ( isFullBar() ? 1.0 : (double(value() - minimum()) / d) );
+		v = ( isFullBar() ? 1.0 : (double(value() - minimum()) / d) );
 		rect2.setWidth(int(v * rect.width()));
-		painter.fillRect(rect2, (bHasPar && !m_bParBad) ? QColor(160, 32, 32) : pal.highlight());
+
+		QColor bc = (bHasPar && !m_bParBad) ? QColor(70, 70, 70) : QColor(0, 0, 0);
+		paintBox(&painter, rect, rect2, bc, QColor(255, 255, 255), t);
+
 		// qDrawShadePanel(&painter, rect2, pal, false, 1);
 		if (bHasPar  &&  par() < value())
 		{
 			double p = double(par() - minimum()) / d;
 			rect2.setLeft(int(p * rect.width()));
-			painter.fillRect(rect2, QColor(32, 160, 32));
+
+			paintBox(&painter, rect, rect2, QColor(0, 0, 0), QColor(255, 255, 255), t);
 		}
-	}
-	
-	if (isTextVisible())
-	{
-		painter.setRenderHint(QPainter::TextAntialiasing, false);
-		painter.drawText(rect, alignment(), text());
 	}
 }
