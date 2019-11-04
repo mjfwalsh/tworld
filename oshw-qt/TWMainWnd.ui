@@ -912,6 +912,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>&amp;Scores...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="action_SolutionFiles">
    <property name="text">
@@ -921,6 +924,9 @@ p, li { white-space: pre-wrap; }
   <action name="action_Levelsets">
    <property name="text">
     <string>&amp;Levelsets...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="action_Exit">
@@ -937,20 +943,32 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Pa&amp;use</string>
    </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
   </action>
   <action name="action_Restart">
    <property name="text">
     <string>&amp;Restart</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="action_Next">
    <property name="text">
     <string>&amp;Next</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="action_Previous">
    <property name="text">
     <string>&amp;Previous</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="action_GoTo">

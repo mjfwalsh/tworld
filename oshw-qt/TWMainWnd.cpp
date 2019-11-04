@@ -264,12 +264,12 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	connect( m_pBtnTextPrev, SIGNAL(clicked()), this, SLOT(OnTextPrev()) );
 	connect( m_pBtnTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
 
-	connect( new QShortcut(Qt::Key_Escape, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextReturn()) );
-	connect( new QShortcut(Qt::CTRL+Qt::Key_R, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextReturn()) );
-	connect( new QShortcut(Qt::CTRL+Qt::Key_N, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextNext()) );
-	connect( new QShortcut(Qt::CTRL+Qt::Key_P, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextPrev()) );
-	connect( new QShortcut(Qt::Key_N, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextNext()) );
-	connect( new QShortcut(Qt::Key_P, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextPrev()) );
+//	connect( new QShortcut(Qt::Key_Escape, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextReturn()) );
+//	connect( new QShortcut(Qt::CTRL+Qt::Key_R, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextReturn()) );
+//	connect( new QShortcut(Qt::CTRL+Qt::Key_N, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextNext()) );
+//	connect( new QShortcut(Qt::CTRL+Qt::Key_P, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextPrev()) );
+//	connect( new QShortcut(Qt::Key_N, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextNext()) );
+//	connect( new QShortcut(Qt::Key_P, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextPrev()) );
 
 	connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
 
@@ -374,6 +374,12 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 				}
 			}
 
+			// always let ctrl/apple key pass to the QWindow
+			// This makes lots of stuff downstream of here fairly pointless
+			if(pKeyEvent->modifiers() == Qt::ControlModifier) {
+				return false;
+			}
+
 			bool bConsume = (m_pMainWidget->currentIndex() == PAGE_GAME) &&
 							(QApplication::activeModalWidget() == 0);
 			// Only consume keys for the game, not for the tables or the message boxes
@@ -398,8 +404,8 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 					m_pRadioLynx->setChecked(true);
 				else if (nQtKey == Qt::Key_Left  && m_pRadioMs->isVisible() && pObject != m_pTxtFind)
 					m_pRadioMs->setChecked(true);
-				else if (nQtKey == Qt::Key_Escape)
-					g_pApp->exit(CmdQuitLevel);
+//				else if (nQtKey == Qt::Key_Escape)
+//					g_pApp->exit(CmdQuitLevel);
 				else
 					bConsume = false;
 			}
