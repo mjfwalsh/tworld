@@ -9,9 +9,9 @@
 #include	<string.h>
 #include	<SDL.h>
 #include	"sdlsfx.h"
-#include	"../err.h"
-#include	"../settings.h"
-#include	"../state.h"
+#include	"err.h"
+#include	"settings.h"
+#include	"state.h"
 
 /* Some generic default settings for the audio output.
  */

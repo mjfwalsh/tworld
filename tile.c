@@ -9,10 +9,10 @@
 #include	<string.h>
 #include	<assert.h>
 #include	"generic.h"
-#include	"../gen.h"
-#include	"../oshw.h"
-#include	"../err.h"
-#include	"../state.h"
+#include	"gen.h"
+#include	"oshw.h"
+#include	"err.h"
+#include	"state.h"
 
 /* Direction offsets.
  */

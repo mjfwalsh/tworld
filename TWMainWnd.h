@@ -10,13 +10,13 @@
 
 #include "CCMetaData.h"
 
-#include "../generic/generic.h"
+#include "generic.h"
 
-#include "../gen.h"
-#include "../defs.h"
-#include "../state.h"
-#include "../series.h"
-#include "../oshw.h"
+#include "gen.h"
+#include "defs.h"
+#include "state.h"
+#include "series.h"
+#include "oshw.h"
 
 #include <QMainWindow>
 

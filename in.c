@@ -1,15 +1,15 @@
 /* in.c: Reading the keyboard and mouse.
- * 
+ *
  * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
 #include	<string.h>
 #include	"generic.h"
-#include	"../gen.h"
-#include	"../oshw.h"
-#include	"../defs.h"
-#include	"../err.h"
+#include	"gen.h"
+#include	"oshw.h"
+#include	"defs.h"
+#include	"err.h"
 
 /* Structure describing a mapping of a key event to a game command.
  */
@@ -61,7 +61,7 @@ static int		joystickstyle = FALSE;
  * shift, ctl and alt are positive if the key must be down, zero if
  * the key must be up, or negative if it doesn't matter.
  */
-static keycmdmap const gamekeycmds[] = {        
+static keycmdmap const gamekeycmds[] = {
     { TWK_UP,                     0,  0,  0,   CmdNorth,              TRUE },
     { TWK_LEFT,                   0,  0,  0,   CmdWest,               TRUE },
     { TWK_DOWN,                   0,  0,  0,   CmdSouth,              TRUE },
@@ -496,7 +496,7 @@ static int _windowmappos(int x, int y)
     if (x < 0 || x >= CXGRID || y < 0 || y >= CYGRID) {
 	warn("mouse moved off the map: (%d %d)", x, y);
 	return -1;
-    }	    
+    }
     return y * CXGRID + x;
 }
 

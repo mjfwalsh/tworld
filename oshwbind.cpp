@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include	"../generic/generic.h"
-#include	"../gen.h"
+#include	"generic.h"
+#include	"gen.h"
 
 #include <QBitmap>
 #include <QPainter>

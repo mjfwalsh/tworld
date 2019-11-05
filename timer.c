@@ -6,8 +6,8 @@
 
 #include	<stdlib.h>
 #include	<stdio.h>
-#include	"../gen.h"
-#include	"../oshw.h"
+#include	"gen.h"
+#include	"oshw.h"
 #include	"generic.h"
 
 /* By default, a second of game time lasts for 1000 milliseconds of

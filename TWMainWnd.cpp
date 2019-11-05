@@ -5,18 +5,18 @@
 #include "TWMainWnd.h"
 #include "TWApp.h"
 
-#include "../generic/generic.h"
+#include "generic.h"
 
-#include "../gen.h"
-#include "../defs.h"
-#include "../messages.h"
-#include "../settings.h"
-#include "../score.h"
-#include "../state.h"
-#include "../play.h"
-#include "../oshw.h"
-#include "../err.h"
-#include "../help.h"
+#include "gen.h"
+#include "defs.h"
+#include "messages.h"
+#include "settings.h"
+#include "score.h"
+#include "state.h"
+#include "play.h"
+#include "oshw.h"
+#include "err.h"
+#include "help.h"
 
 extern int pedanticmode;
 

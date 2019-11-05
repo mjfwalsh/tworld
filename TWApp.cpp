@@ -5,12 +5,12 @@
 #include "TWApp.h"
 #include "TWMainWnd.h"
 
-#include "../generic/generic.h"
-#include "../oshw-sdl/sdlsfx.h"
+#include "generic.h"
+#include "sdlsfx.h"
 
-#include "../gen.h"
-#include "../defs.h"
-#include "../oshw.h"
+#include "gen.h"
+#include "defs.h"
+#include "oshw.h"
 
 #ifdef WIN32
 #include <QWindowsStyle>
@@ -83,7 +83,7 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 	m_bSilence = bSilence;
 	m_bShowHistogram = bShowHistogram;
 	m_bFullScreen = bFullScreen;
-	
+
 	g_pMainWnd = new TileWorldMainWnd;
 	g_pMainWnd->setWindowTitle(s_szTitle);
 
@@ -94,7 +94,7 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 		_sdlsfxinitialize(bSilence, nSoundBufSize)
 	   ) )
 		return false;
-	
+
 	if (bFullScreen)
 	{
 		g_pMainWnd->showFullScreen();
@@ -104,7 +104,7 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 		g_pMainWnd->adjustSize();
 		g_pMainWnd->show();
 	}
-		
+
 	return true;
 }
 
@@ -140,7 +140,7 @@ void copytoclipboard(char const *text)
 int TileWorldApp::RunTWorld(int& argc, char** argv)
 {
     // I'm not sure what these two functions were doing?
-    //return tworld(argc(), argv());           
+    //return tworld(argc(), argv());
     return tworld(argc, argv);
 }
 
@@ -148,10 +148,10 @@ int TileWorldApp::RunTWorld(int& argc, char** argv)
 void TileWorldApp::ExitTWorld()
 {
 	// Attempt to gracefully destroy application objects
-	
+
 	// throw 1;
 	// Can't throw C++ exceptions through C code
-	
+
 	// longjmp(m_jmpBuf, 1);
 	// Works, but needs to be cleaner
 	::exit(0);
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 		if (strlen(szArg) == 2  &&  szArg[0] == '-'  &&  strchr("lstbhdvV", szArg[1]) != 0)
 			return tworld(argc, argv);
 	}
-	
+
 	TileWorldApp app(argc, argv);
 #ifdef WIN32
 	QApplication::setStyle(new QWindowsStyle());	// Vista / XP styles may mess up colors

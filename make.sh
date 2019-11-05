@@ -13,7 +13,7 @@ run () {
 
 make_file () {
 	if [ -e $3 ]
-	then 
+	then
 		echo "Nothing to do for $4"
 		return
 	fi
@@ -53,29 +53,29 @@ compile () {
 	compile_file "$C_BASE" fileio.o fileio.c
 	compile_file "$C_BASE" err.o err.c
 
-	cd oshw-qt
-	PRINT_DIR='generic/'
-	compile_file "$C_BASE $SDL_OPTS" generic.o ../generic/generic.c
-	compile_file "$C_BASE $SDL_OPTS" tile.o ../generic/tile.c
-	compile_file "$C_BASE $SDL_OPTS" timer.o ../generic/timer.c
-	compile_file "$CPP_BASE $QT_OPTS" _in.o ../generic/_in.cpp
-	PRINT_DIR='oshw-qt/'
+	#cd oshw-qt
+	#PRINT_DIR='generic/'
+	compile_file "$C_BASE $SDL_OPTS" generic.o generic.c
+	compile_file "$C_BASE $SDL_OPTS" tile.o tile.c
+	compile_file "$C_BASE $SDL_OPTS" timer.o timer.c
+	compile_file "$CPP_BASE $QT_OPTS" _in.o _in.cpp
+	#PRINT_DIR='oshw-qt/'
 	compile_file "$C_BASE $SDL_OPTS" _sdlsfx.o _sdlsfx.c
 	compile_file "$CPP_BASE $QT_OPTS" oshwbind.o oshwbind.cpp
 	compile_file "$CPP_BASE $QT_OPTS" CCMetaData.o CCMetaData.cpp
 	compile_file "$CPP_BASE $QT_OPTS" TWDisplayWidget.o TWDisplayWidget.cpp
 	compile_file "$CPP_BASE $QT_OPTS" TWProgressBar.o TWProgressBar.cpp
-	make_file "Compiling UI oshw-qt/TWMainWnd.ui..." "uic -o" ui_TWMainWnd.h TWMainWnd.ui
+	make_file "Compiling UI TWMainWnd.ui..." "uic -o" ui_TWMainWnd.h TWMainWnd.ui
 	compile_file "$CPP_BASE $QT_OPTS" TWMainWnd.o TWMainWnd.cpp
-	make_file "MOC-ing oshw-qt/TWMainWnd.h..." "moc -o" moc_TWMainWnd.cpp TWMainWnd.h
+	make_file "MOC-ing TWMainWnd.h..." "moc -o" moc_TWMainWnd.cpp TWMainWnd.h
 	compile_file "$CPP_BASE $QT_OPTS" moc_TWMainWnd.o moc_TWMainWnd.cpp
 	compile_file "$CPP_BASE $QT_OPTS" TWApp.o TWApp.cpp
-	cd ..
-	PRINT_DIR=''
+	#cd ..
+	#PRINT_DIR=''
 
 	echo Linking tworld2...
 	run c++ -o tworld2 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o cmdline.o settings.o fileio.o err.o \
-	oshw-qt/generic.o oshw-qt/tile.o oshw-qt/timer.o oshw-qt/_in.o oshw-qt/_sdlsfx.o oshw-qt/oshwbind.o oshw-qt/CCMetaData.o oshw-qt/TWDisplayWidget.o oshw-qt/TWProgressBar.o oshw-qt/TWMainWnd.o oshw-qt/moc_TWMainWnd.o oshw-qt/TWApp.o \
+	generic.o tile.o timer.o _in.o _sdlsfx.o oshwbind.o CCMetaData.o TWDisplayWidget.o TWProgressBar.o TWMainWnd.o moc_TWMainWnd.o TWApp.o \
 	-L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
 	if [ $? -eq 0 ]
 	then
@@ -87,7 +87,7 @@ compile () {
 
 clean () {
 	rm -fR Tile\ World.app
-	rm -f cmdline.o comptime.h encoding.o err.o fileio.o help.o lxlogic.o messages.o mslogic.o oshw-qt/_in.o oshw-qt/_sdlsfx.o oshw-qt/CCMetaData.o oshw-qt/generic.o oshw-qt/moc_TWMainWnd.cpp oshw-qt/moc_TWMainWnd.o oshw-qt/oshwbind.o oshw-qt/tile.o oshw-qt/timer.o oshw-qt/TWApp.o oshw-qt/TWDisplayWidget.o oshw-qt/TWMainWnd.o oshw-qt/TWProgressBar.o oshw-qt/ui_TWMainWnd.h play.o random.o res.o score.o series.o settings.o solution.o tworld.o tworld2 unslist.o
+	rm -f cmdline.o comptime.h encoding.o err.o fileio.o help.o lxlogic.o messages.o mslogic.o _in.o _sdlsfx.o CCMetaData.o generic.o moc_TWMainWnd.cpp moc_TWMainWnd.o oshwbind.o tile.o timer.o TWApp.o TWDisplayWidget.o TWMainWnd.o TWProgressBar.o ui_TWMainWnd.h play.o random.o res.o score.o series.o settings.o solution.o tworld.o tworld2 unslist.o
 }
 
 mkapp () {
@@ -96,7 +96,7 @@ mkapp () {
 	cp Info.plist Tile\ World.app/Contents/
 	cp Tile\ World.icns Tile\ World.app/Contents/Resources/
 	cp tworld2 Tile\ World.app/Contents/MacOS/Tile\ World
-	
+
 	cp -R res Tile\ World.app/Contents/Resources/
 	cp -R sets Tile\ World.app/Contents/Resources/
 	cp -R data Tile\ World.app/Contents/Resources/
