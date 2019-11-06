@@ -264,13 +264,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	connect( m_pBtnTextPrev, SIGNAL(clicked()), this, SLOT(OnTextPrev()) );
 	connect( m_pBtnTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
 
-//	connect( new QShortcut(Qt::Key_Escape, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextReturn()) );
-//	connect( new QShortcut(Qt::CTRL+Qt::Key_R, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextReturn()) );
-//	connect( new QShortcut(Qt::CTRL+Qt::Key_N, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextNext()) );
-//	connect( new QShortcut(Qt::CTRL+Qt::Key_P, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextPrev()) );
-//	connect( new QShortcut(Qt::Key_N, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextNext()) );
-//	connect( new QShortcut(Qt::Key_P, m_pTextPage), SIGNAL(activated()), this, SLOT(OnTextPrev()) );
-
 	connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
 
 	action_displayCCX->setChecked(getintsetting("displayccx"));
@@ -387,27 +380,16 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 			QObjectList const & tableWidgets = m_pTablePage->children();
 			if (bPress && tableWidgets.contains(pObject) &&  pKeyEvent->modifiers() == Qt::NoModifier)
 			{
-				bConsume = true;
 				int currentrow = m_pTblList->selectionModel()->currentIndex().row();
-				int maxrow = m_pSortFilterProxyModel->rowCount()-1;
-				if (nQtKey == Qt::Key_Home)
-					m_pTblList->selectRow(0);
-				else if (nQtKey == Qt::Key_End)
-					m_pTblList->selectRow(maxrow);
-				else if (nQtKey == Qt::Key_Up)
-					m_pTblList->selectRow(currentrow - 1);
-				else if (nQtKey == Qt::Key_Down)
-					m_pTblList->selectRow(currentrow + 1);
-				else if ((nQtKey == Qt::Key_Return || nQtKey == Qt::Key_Enter) && currentrow >= 0)
+				if ((nQtKey == Qt::Key_Return || nQtKey == Qt::Key_Enter) && currentrow >= 0)
+				{
 					g_pApp->exit(CmdProceed);
-				else if (nQtKey == Qt::Key_Right && m_pRadioMs->isVisible() && pObject != m_pTxtFind)
-					m_pRadioLynx->setChecked(true);
-				else if (nQtKey == Qt::Key_Left  && m_pRadioMs->isVisible() && pObject != m_pTxtFind)
-					m_pRadioMs->setChecked(true);
-//				else if (nQtKey == Qt::Key_Escape)
-//					g_pApp->exit(CmdQuitLevel);
+					bConsume = true;
+				}
 				else
+				{
 					bConsume = false;
+				}
 			}
 
 			if (m_bKbdRepeatEnabled || !pKeyEvent->isAutoRepeat())

@@ -54,38 +54,6 @@ static int		volume = SDL_MIX_MAXVOLUME;
 static int		soundbufsize = 0;
 
 
-/* Initialize the textual sound effects.
- */
-static void initonomatopoeia(void)
-{
-    sounds[SND_CHIP_LOSES].textsfx      = "\"Bummer\"";
-    sounds[SND_CHIP_WINS].textsfx       = "Tadaa!";
-    sounds[SND_TIME_OUT].textsfx        = "Clang!";
-    sounds[SND_TIME_LOW].textsfx        = "Ktick!";
-    sounds[SND_DEREZZ].textsfx		= "Bzont!";
-    sounds[SND_CANT_MOVE].textsfx       = "Mnphf!";
-    sounds[SND_IC_COLLECTED].textsfx    = "Chack!";
-    sounds[SND_ITEM_COLLECTED].textsfx  = "Slurp!";
-    sounds[SND_BOOTS_STOLEN].textsfx    = "Flonk!";
-    sounds[SND_TELEPORTING].textsfx     = "Bamff!";
-    sounds[SND_DOOR_OPENED].textsfx     = "Spang!";
-    sounds[SND_SOCKET_OPENED].textsfx   = "Clack!";
-    sounds[SND_BUTTON_PUSHED].textsfx   = "Click!";
-    sounds[SND_BOMB_EXPLODES].textsfx   = "Booom!";
-    sounds[SND_WATER_SPLASH].textsfx    = "Plash!";
-    sounds[SND_TILE_EMPTIED].textsfx    = "Whisk!";
-    sounds[SND_WALL_CREATED].textsfx    = "Chunk!";
-    sounds[SND_TRAP_ENTERED].textsfx    = "Shunk!";
-    sounds[SND_SKATING_TURN].textsfx    = "Whing!";
-    sounds[SND_SKATING_FORWARD].textsfx = "Whizz ...";
-    sounds[SND_SLIDING].textsfx         = "Drrrr ...";
-    sounds[SND_BLOCK_MOVING].textsfx    = "Scrrr ...";
-    sounds[SND_SLIDEWALKING].textsfx    = "slurp slurp ...";
-    sounds[SND_ICEWALKING].textsfx      = "snick snick ...";
-    sounds[SND_WATERWALKING].textsfx    = "plip plip ...";
-    sounds[SND_FIREWALKING].textsfx     = "crackle crackle ...";
-}
-
 /* The callback function that is called by the sound driver to supply
  * the latest sound effects. All the sound effects are checked, and
  * the ones that are being played get another chunk of their sound
@@ -339,7 +307,6 @@ int _sdlsfxinitialize(int silence, int _soundbufsize)
     atexit(shutdown);
     enabled = !silence;
     soundbufsize = _soundbufsize;
-    initonomatopoeia();
     if (enabled)
 	setaudiosystem(TRUE);
     return TRUE;
