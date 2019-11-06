@@ -86,8 +86,12 @@ compile () {
 }
 
 clean () {
-	rm -fR Tile\ World.app
+	#rm -fR Tile\ World.app
 	rm -f cmdline.o comptime.h encoding.o err.o fileio.o help.o lxlogic.o messages.o mslogic.o _in.o _sdlsfx.o CCMetaData.o generic.o moc_TWMainWnd.cpp moc_TWMainWnd.o oshwbind.o tile.o timer.o TWApp.o TWDisplayWidget.o TWMainWnd.o TWProgressBar.o ui_TWMainWnd.h play.o random.o res.o score.o series.o settings.o solution.o tworld.o tworld2 unslist.o
+}
+
+cleanui () {
+	rm -f tworld2 ui_TWMainWnd.h TWMainWnd.o moc_TWMainWnd.cpp  moc_TWMainWnd.o
 }
 
 mkapp () {
@@ -114,6 +118,8 @@ elif [ "$1" = "mkapp" ]; then
 	mkapp
 elif [ "$1" = "clean" ]; then
 	clean
+elif [ "$1" = "cleanui" ]; then
+	cleanui
 else
 	compile
 fi
