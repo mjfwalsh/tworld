@@ -23,7 +23,7 @@ make_file () {
 	if [ $? -ne 0 ]
 	then
 		echo Failed...
-		exit
+		exit 1
 	fi
 }
 
@@ -55,9 +55,9 @@ compile () {
 
 	#cd oshw-qt
 	#PRINT_DIR='generic/'
-	compile_file "$C_BASE $SDL_OPTS" generic.o generic.c
-	compile_file "$C_BASE $SDL_OPTS" tile.o tile.c
-	compile_file "$C_BASE $SDL_OPTS" timer.o timer.c
+	compile_file "$C_BASE" generic.o generic.c
+	compile_file "$C_BASE" tile.o tile.c
+	compile_file "$C_BASE" timer.o timer.c
 	compile_file "$CPP_BASE $QT_OPTS" _in.o _in.cpp
 	#PRINT_DIR='oshw-qt/'
 	compile_file "$C_BASE $SDL_OPTS" _sdlsfx.o _sdlsfx.c
