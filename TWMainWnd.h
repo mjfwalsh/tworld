@@ -90,6 +90,7 @@ private:
 
 	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };
 	bool SetHintMode(HintMode newmode);
+	void setScale(int s);
 
 	bool m_bSetupUi;
 	bool m_bWindowClosed;

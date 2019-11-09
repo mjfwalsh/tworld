@@ -273,6 +273,18 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	else
 		m_pRadioMs->setChecked(true);
 
+	int percentZoom = getintsetting("zoom");
+	foreach (QAction *a, actiongroup_Zoom->actions()) {
+		if(a->data() == percentZoom) {
+			a->setChecked(true);
+			break;
+		}
+	}
+	if(actiongroup_Zoom->checkedAction() == nullptr) {
+		action_Zoom100->setChecked(true);
+		this->setScale(100);
+	}
+
 	int const tickMS = 1000 / TICKS_PER_SECOND;
 	startTimer(tickMS / 2);
 }
@@ -505,11 +517,16 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	m_pSurface = static_cast<Qt_Surface*>(TW_NewSurface(w, h, false));
 	m_pInvSurface = static_cast<Qt_Surface*>(TW_NewSurface(4*geng.wtile, 2*geng.htile, false));
 
+	// set minimum sizes
+	m_pGameWidget->setMinimumSize(w, h);
+	m_pObjectsWidget->setMinimumSize(4*geng.wtile, 2*geng.htile);
+
+	int percentZoom = getintsetting("zoom");
+	this->setScale(percentZoom);
+
+	// set game and objects
 	m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
 	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
-
-	m_pGameWidget->setFixedSize(m_pSurface->GetPixmap().size());
-	m_pObjectsWidget->setFixedSize(m_pInvSurface->GetPixmap().size());
 
 	geng.screen = m_pSurface;
 	m_disploc = TW_Rect(0, 0, w, h);
@@ -1517,6 +1534,14 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 		return;
 	}
 
+	if (pAction->actionGroup()  == actiongroup_Zoom)
+	{
+		int s = pAction->data().toInt();
+		setintsetting("zoom", s);
+		this->setScale(s);
+		return;
+	}
+
 	int nTWKey = GetTWKeyForAction(pAction);
 	if (nTWKey == TWK_dummy) return;
 	PulseKey(nTWKey);
@@ -1551,4 +1576,13 @@ bool TileWorldMainWnd::SetHintMode(HintMode newmode)
 	bool changed = (newmode != m_hintMode);
 	m_hintMode = newmode;
 	return changed;
+}
+
+void TileWorldMainWnd::setScale(int s)
+{
+	double scale = (double)s / 100;
+	m_pGameWidget->setScale(scale);
+	m_pObjectsWidget->setScale(scale);
+	m_pMessagesFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
+	m_pInfoFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
 }

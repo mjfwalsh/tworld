@@ -29,7 +29,6 @@
     </property>
     <item>
      <widget class="QStackedWidget" name="m_pMainWidget">
-
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
@@ -102,7 +101,6 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-
               <property name="font">
                <font>
                 <family>MS Sans Serif</family>
@@ -157,7 +155,6 @@
                 <height>0</height>
                </size>
               </property>
-
               <property name="font">
                <font>
                 <family>MS Sans Serif</family>
@@ -220,7 +217,6 @@
                <property name="arrowType">
                 <enum>Qt::RightArrow</enum>
                </property>
-
               </widget>
              </item>
              <item>
@@ -289,7 +285,7 @@
           <item>
            <widget class="QFrame" name="m_pInfoFrame">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -351,7 +347,6 @@
                  <height>37</height>
                 </size>
                </property>
-
                <property name="autoFillBackground">
                 <bool>true</bool>
                </property>
@@ -407,7 +402,6 @@
                  <height>37</height>
                 </size>
                </property>
-
                <property name="autoFillBackground">
                 <bool>true</bool>
                </property>
@@ -451,7 +445,6 @@
              </item>
              <item>
               <widget class="TWProgressBar" name="m_pPrgTime">
-
                <property name="font">
                 <font>
                  <family>MS Sans Serif</family>
@@ -598,7 +591,6 @@
                       <height>0</height>
                      </size>
                     </property>
-
                     <property name="font">
                      <font>
                       <family>Microsoft Sans Serif</family>
@@ -617,7 +609,6 @@
                     <property name="textFormat">
                      <enum>Qt::PlainText</enum>
                     </property>
-
                     <property name="wordWrap">
                      <bool>true</bool>
                     </property>
@@ -690,7 +681,6 @@
         </item>
         <item row="0" column="1" colspan="6">
          <widget class="QTableView" name="m_pTblList">
-
           <property name="font">
            <font>
             <pointsize>16</pointsize>
@@ -895,6 +885,17 @@ p, li { white-space: pre-wrap; }
     <addaction name="action_displayCCX"/>
     <addaction name="action_forceShowTimer"/>
    </widget>
+   <widget class="QMenu" name="menu_Zoom">
+    <property name="title">
+     <string>Zoom</string>
+    </property>
+    <addaction name="action_Zoom100"/>
+    <addaction name="action_Zoom110"/>
+    <addaction name="action_Zoom120"/>
+    <addaction name="action_Zoom130"/>
+    <addaction name="action_Zoom140"/>
+    <addaction name="action_Zoom150"/>
+   </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
      <string>Help</string>
@@ -906,6 +907,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="menu_Level"/>
    <addaction name="menu_Options"/>
    <addaction name="menu_Solution"/>
+   <addaction name="menu_Zoom"/>
    <addaction name="menu_Help"/>
   </widget>
   <action name="action_Scores">
@@ -1040,6 +1042,74 @@ p, li { white-space: pre-wrap; }
     <string>&amp;Keys...</string>
    </property>
   </action>
+  <actiongroup name="actiongroup_Zoom">
+   <action name="action_Zoom100">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>100%</string>
+    </property>
+    <property name="data">
+     <number>100</number>
+    </property>
+   </action>
+   <action name="action_Zoom110">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>110%</string>
+    </property>
+    <property name="data">
+     <number>110</number>
+    </property>
+   </action>
+   <action name="action_Zoom120">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>120%</string>
+    </property>
+    <property name="data">
+     <number>120</number>
+    </property>
+   </action>
+   <action name="action_Zoom130">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>130%</string>
+    </property>
+    <property name="data">
+     <number>130</number>
+    </property>
+   </action>
+   <action name="action_Zoom140">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>140%</string>
+    </property>
+    <property name="data">
+     <number>140</number>
+    </property>
+   </action>
+   <action name="action_Zoom150">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>150%</string>
+    </property>
+    <property name="data">
+     <number>150</number>
+    </property>
+   </action>
+  </actiongroup>
  </widget>
  <customwidgets>
   <customwidget>

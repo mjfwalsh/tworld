@@ -18,17 +18,20 @@ class TWDisplayWidget : public QWidget
 {
 public:
 	TWDisplayWidget(QWidget* pParent = 0);
-	
+
 	void setPixmap(const QPixmap& pixmap);
 	const QPixmap* pixmap() const
 		{return &m_pixmap;}
-		
+
 	virtual QSize sizeHint() const;
-		
-protected:		
+	void setScale(double s);
+
+protected:
 	virtual void paintEvent(QPaintEvent* pPaintEvent);
 
 	QPixmap m_pixmap;
+	QSize refSize;
+	double scale = 1;
 };
 
 
