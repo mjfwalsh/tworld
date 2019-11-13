@@ -3,10 +3,6 @@
 	background-color: rgb(100,100,100);
 }
 
-#m_pPrgTime {
-	/*selection-background-color: rgb(179,215,255);*/
-}
-
 #m_pGameFrame, #m_pInfoFrame, #m_pObjectsFrame, #m_pMessagesFrame {
 	border-top: 5px outset rgb(70,70,70);
 	border-left: 5px outset rgb(70,70,70);
@@ -23,4 +19,45 @@
 QLCDNumber {
 	background-color: black;
 	color: white;
+}
+
+#m_pLblFind, #m_pRadioMs, #m_pRadioLynx {
+	color: white;
+}
+
+#m_pControlsFrame {
+	border-radius: 8px;
+	background-color: rgba(255,255,255,0.5);
+	color: black;
+	height: 30px;
+	margin-bottom: 10px;
+	margin-right: 25px;
+	margin-left: 25px;
+
+}
+
+#m_pBtnPlay {
+	background-color: rgba(0,0,0,0);
+	border: 0;
+	margin: 0;
+	padding: 0
+}
+
+#m_pSldSpeed::handle {
+    image: url(ffrw.svg);
+    width: 34px;
+    margin: -10px 0px -10px 0px;
+}
+
+#m_pSldSpeed::groove {
+	background: rgb(184,184,184);
+	height: 0px;
+}
+
+#m_pSldSeek::add-page::groove {
+	background: red;
+}
+
+#m_pSldSeek::sub-page::groove {
+	background: green;
 }

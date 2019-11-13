@@ -61,6 +61,7 @@ public:
 	void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
 
 	void ShowAbout();
+	void SetPlayPauseButton(int p);
 
 private slots:
 	void OnListItemActivated(const QModelIndex& index);
@@ -122,6 +123,9 @@ private:
 	CCX::Levelset m_ccxLevelset;
 
 	QString m_sTextToCopy;
+
+	QIcon playIcon;
+	QIcon pauseIcon;
 };
 
 

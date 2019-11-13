@@ -1088,6 +1088,7 @@ static int finalinput(gamespec *gs)
 	setgameplaymode(NormalPlay); \
 	gamepaused = FALSE; \
     } \
+    setplaypausebutton(gamepaused); \
 } while (0)
 
 /* Play the current level, using firstcmd as the initial key command,
@@ -1115,6 +1116,7 @@ static int playgame(gamespec *gs, int firstcmd)
     render = lastrendered = TRUE;
 
     int gamepaused = FALSE;
+    setplaypausebutton(gamepaused);
     for (;;) {
 	if (gamepaused)
 	    cmd = input(TRUE);
@@ -1265,6 +1267,7 @@ static int playbackgame(gamespec *gs, int initcmd)
     int	render, lastrendered, n = 0, cmd;
     int secondstoskip;
     int gamepaused = FALSE;
+    setplaypausebutton(gamepaused);
 
     secondstoskip = getreplaysecondstoskip();
     if (secondstoskip > 0) {
@@ -1457,6 +1460,7 @@ static int runcurrentlevel(gamespec *gs)
 		  default:		f = FALSE;			break;
 		}
 		if (f)
+		    setplaypausebutton(TRUE);
 		    ret = endinput(gs);
 	    } else
 		bell();

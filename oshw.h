@@ -381,6 +381,10 @@ OSHW_EXTERN int getreplaysecondstoskip(void);
  */
 OSHW_EXTERN void copytoclipboard(char const *text);
 
+/* Change play button symbol
+ */
+OSHW_EXTERN void setplaypausebutton(int p);
+
 #undef OSHW_EXTERN
 
 #endif

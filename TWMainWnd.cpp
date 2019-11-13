@@ -287,6 +287,10 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	int const tickMS = 1000 / TICKS_PER_SECOND;
 	startTimer(tickMS / 2);
+
+	playIcon = QIcon("play.svg");
+	pauseIcon = QIcon("pause.svg");
+	m_pBtnPlay->setIcon(playIcon);
 }
 
 
@@ -1585,4 +1589,18 @@ void TileWorldMainWnd::setScale(int s)
 	m_pObjectsWidget->setScale(scale);
 	m_pMessagesFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
 	m_pInfoFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
+}
+
+void setplaypausebutton(int paused)
+{
+	g_pMainWnd->SetPlayPauseButton(paused);
+}
+
+void TileWorldMainWnd::SetPlayPauseButton(int paused)
+{
+	if(paused) {
+		m_pBtnPlay->setIcon(playIcon);
+	} else {
+		m_pBtnPlay->setIcon(pauseIcon);
+	}
 }
