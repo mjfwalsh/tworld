@@ -99,11 +99,6 @@ OSHW_EXTERN int input(int wait);
  */
 OSHW_EXTERN int anykey(void);
 
-/* Return a table suitable for displaying a help screen on the
- * available keyboard commands for the given context.
- */
-OSHW_EXTERN tablespec const *keyboardhelp(int context);
-
 /* Symbolic values for requesting a specific help table.
  */
 enum {
@@ -141,11 +136,7 @@ OSHW_EXTERN void freetileset(void);
 
 /* The font provides special monospaced digit characters at 144-153.
  */
-#ifndef TWPLUSPLUS
-        enum { CHAR_MZERO = 144 };
-#else
-        enum { CHAR_MZERO = '0' };
-#endif
+enum { CHAR_MZERO = '0' };
 
 /*
  * Video output functions.

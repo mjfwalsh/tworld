@@ -95,7 +95,6 @@ enum {
     CmdPrev10,
     CmdNext10,
     CmdPauseGame,
-    CmdHelp,
     CmdPlayback,
     CmdCheckSolution,
     CmdReplSolution,

@@ -1,7 +1,7 @@
 #!/bin/bash
 PATH=$PATH:/usr/local/opt/qt/bin
-C_BASE="cc -Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -DTWPLUSPLUS -std=gnu11 -Werror"
-CPP_BASE="c++ -Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -DTWPLUSPLUS -std=gnu++11 -Werror"
+C_BASE="cc -Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -std=gnu11 -Werror"
+CPP_BASE="c++ -Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -std=gnu++11 -Werror"
 SDL_OPTS='-I/usr/local/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE'
 QT_OPTS='-I/usr/local/opt/qt/include -I/usr/local/opt/qt/include/QtCore -I/usr/local/opt/qt/include/QtGui -I/usr/local/opt/qt/include/QtXml -I/usr/local/opt/qt/include/QtWidgets'
 PRINT_DIR=''

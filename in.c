@@ -290,26 +290,6 @@ static int retrievemousecommand(void)
  * Exported functions.
  */
 
-/* Wait for any non-shift key to be pressed down, ignoring any keys
- * that may be down at the time the function is called. Return FALSE
- * if the key pressed is suggestive of a desire to quit.
- */
-int anykey(void)
-{
-    int	n;
-
-    resetkeystates();
-    eventupdate(FALSE);
-    for (;;) {
-	resetkeystates();
-	eventupdate(TRUE);
-	for (n = 0 ; n < TWK_LAST ; ++n)
-	    if (keystates[n] == KS_STRUCK || keystates[n] == KS_PRESSED
-					  || keystates[n] == KS_REPEATING)
-		return n != 'q' && n != TWK_ESCAPE;
-    }
-}
-
 /* Poll the keyboard and return the command associated with the
  * selected key, if any. If no key is selected and wait is TRUE, block
  * until a key with an associated command is selected. In keyboard behavior

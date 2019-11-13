@@ -356,7 +356,6 @@ static int scrollinputcallback(int *move)
       case CmdNext10:		*move = SCROLL_HALFPAGE_DN;	break;
       case CmdProceed:		*move = CmdProceed;		return FALSE;
       case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
-      case CmdHelp:		*move = CmdHelp;		return FALSE;
       case CmdQuit:						exit(0);
 
     }
@@ -380,7 +379,6 @@ static int scorescrollinputcallback(int *move)
       case CmdProceed:		*move = CmdProceed;		return FALSE;
       case CmdSeeSolutionFiles:	*move = CmdSeeSolutionFiles;	return FALSE;
       case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
-      case CmdHelp:		*move = CmdHelp;		return FALSE;
       case CmdQuit:						exit(0);
     }
     return TRUE;
@@ -403,7 +401,6 @@ static int solutionscrollinputcallback(int *move)
       case CmdProceed:		*move = CmdProceed;		return FALSE;
       case CmdSeeScores:	*move = CmdSeeScores;		return FALSE;
       case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
-      case CmdHelp:		*move = CmdHelp;		return FALSE;
       case CmdQuit:						exit(0);
     }
     return TRUE;
@@ -579,26 +576,6 @@ static void changesubtitle(char const *subtitle)
     setsubtitle(subtitle);
 }
 
-/*
- *
- */
-
-static void dohelp(int topic)
-{
-    pushsubtitle("Help");
-    switch (topic) {
-      case Help_First:
-      case Help_FileListKeys:
-      case Help_ScoreListKeys:
-	onlinecontexthelp(topic);
-	break;
-      default:
-	onlinemainhelp(topic);
-	break;
-    }
-    popsubtitle();
-}
-
 /* Display a scrolling list of the available solution files, and allow
  * the user to select one. Return TRUE if the user selected a solution
  * file different from the current one. Do nothing if there is only
@@ -648,8 +625,6 @@ static int showsolutionfiles(gamespec *gs)
 	} else if (f == CmdQuitLevel) {
 	    n = -1;
 	    break;
-	} else if (f == CmdHelp) {
-	    dohelp(Help_FileListKeys);
 	}
     }
     popsubtitle();
@@ -711,8 +686,6 @@ static int showscores(gamespec *gs)
 	} else if (f == CmdQuitLevel) {
 	    n = -1;
 	    break;
-	} else if (f == CmdHelp) {
-	    dohelp(Help_ScoreListKeys);
 	}
     }
     popsubtitle();
@@ -906,7 +879,6 @@ static int startinput(gamespec *gs)
 	  case CmdRandomFF:     advanceinitrandomff(TRUE);	break;
 	  case CmdVolumeUp:	changevolume(+2, TRUE);		break;
 	  case CmdVolumeDown:	changevolume(-2, TRUE);		break;
-	  case CmdHelp:		dohelp(Help_KeysBetweenGames);	break;
 	  case CmdQuit:						exit(0);
 	  case CmdPlayback:
 	  case CmdAdvanceGame:
@@ -1148,12 +1120,6 @@ static int playgame(gamespec *gs, int firstcmd)
 		if (!gamepaused)
 		    cmd = CmdNone;
 		break;
-	      case CmdHelp:
-		setgameplaymode(SuspendPlay);
-		dohelp(Help_KeysDuringGame);
-		if (!gamepaused) setgameplaymode(NormalPlay);
-		cmd = CmdNone;
-		break;
 #ifndef NDEBUG
 	      case CmdDebugCmd1:				break;
 	      case CmdDebugCmd2:				break;
@@ -1326,11 +1292,6 @@ static int playbackgame(gamespec *gs, int initcmd)
 	  case CmdAdvanceGame:
 	  case CmdAdvanceMoveGame:
 	    ADVANCEGAME(cmd);
-	    break;
-	  case CmdHelp:
-	    setgameplaymode(SuspendPlay);
-	    dohelp(Help_None);
-	    if (!gamepaused) setgameplaymode(NormalPlay);
 	    break;
 	}
     }
@@ -1588,10 +1549,6 @@ static int findseries(seriesdata *series, int idx)
 /* Helper function for selectseriesandlevel */
 static int chooseseries(seriesdata *series, int *pn, int founddefault)
 {
-#ifndef TWPLUSPLUS
-    return displaylist("   Welcome to Tile World. Type ? or F1 for help.",
-		&series->table, pn, LIST_SERIES, scrollinputcallback);
-#else
     tablespec mftable;
     PRODUCE_SINGLE_COLUMN_TABLE(mftable, "Levelset",
 	series->mflist, series->mfcount, , .filename);
@@ -1633,7 +1590,6 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
     free_table(&mftable);
     *pn = chosenseries;
     return CmdProceed;
-#endif
 }
 
 /* Display the full selection of available series to the user as a
@@ -1682,10 +1638,6 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autosel,
 	    } else if (f == CmdQuitLevel) {
 		okay = FALSE;
 		break;
-	    } else if (f == CmdHelp) {
-		pushsubtitle("Help");
-		dohelp(Help_First);
-		popsubtitle();
 	    }
 	}
     }
@@ -1887,7 +1839,6 @@ static int initoptionswithcmdline(int argc, char *argv[], startupdata *start)
 	  case 'b':	start->batchverify = TRUE;			break;
 	  case 'm':	mudsucking = atoi(opts.val);			break;
 	  case 'n':	volumelevel = atoi(opts.val);			break;
-	  case 'h':	printtable(stdout, yowzitch); 	   exit(EXIT_SUCCESS);
 	  case 'v':	puts(VERSION);		 	   exit(EXIT_SUCCESS);
 	  case 'V':	printtable(stdout, vourzhon); 	   exit(EXIT_SUCCESS);
 	  case ':':

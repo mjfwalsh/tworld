@@ -1336,38 +1336,6 @@ void usermessage(int action, char const *prefix,
     fflush(stderr);
 }
 
-
-/* Displays a screenful of (hopefully) helpful information which
- * includes tile images. title provides the title of the display. rows
- * points to an array of tiletablerow structures. count specifies the
- * size of this array. The text of each row is displayed alongside one
- * or two tile images. completed controls the prompt that the user
- * sees at the bottom of the display. A positive value will indicate
- * that more text follows. A negative value will indicate that leaving
- * this screen will return to the prior display. A value of zero will
- * indicate that the current display is the end of a sequence.
- */
-int displaytiletable(char const *title, tiletablerow const *rows,
-			    int count, int completed)
-{
-	// TODO
-	return true;
-}
-
-
-/* Displays a screenful of (hopefully) helpful information. title
- * provides the title of the display. table points to a table that
- * contains the body of the text. completed controls the prompt that
- * the user sees at the bottom of the display; see the description of
- * displaytiletable() for details.
- */
-int displaytable(char const *title, tablespec const *table,
-			int completed)
-{
-	// TODO
-	return true;
-}
-
 int getselectedruleset()
 {
 	return g_pMainWnd->GetSelectedRuleset();

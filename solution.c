@@ -180,20 +180,6 @@ void addtomovelist(actlist *list, action move)
     list->list[list->count++] = move;
 }
 
-/* Make to an independent copy of from.
- */
-void copymovelist(actlist *to, actlist const *from)
-{
-    if (!to->allocated || !to->list)
-	to->allocated = 16;
-    while (to->allocated < from->count)
-	to->allocated *= 2;
-    x_alloc(to->list, to->allocated * sizeof *to->list);
-    to->count = from->count;
-    if (from->count)
-	memcpy(to->list, from->list, from->count * sizeof *from->list);
-}
-
 /* Deallocate list.
  */
 void destroymovelist(actlist *list)

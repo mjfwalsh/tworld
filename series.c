@@ -642,16 +642,6 @@ static int getmapfile(char const *filename, void *data)
     return 0;
 }
 
-#ifndef TWPLUSPLUS
-/* A callback function to compare two gameseries structures by
- * comparing their filenames.
- */
-static int gameseriescmp_name(void const *a, void const *b)
-{
-    return stricmp(((gameseries*)a)->name, ((gameseries*)b)->name);
-}
-#endif
-
 /* A callback function to compare two gameseries structures by
  * comparing their map filenames.
  */
@@ -825,7 +815,7 @@ static void warnaboutdoublemapfiles(mfinfovector *v)
     {
 	if (v->buf[i].locdirs == (LOC_SERIESDIR | LOC_SERIESDATDIR))
 	{
-	
+
 	    warn("The levelset \"%s\" is present in both \"%s\" and \"%s\"",
 	    	v->buf[i].filename, seriesdatdir, seriesdir);
 	    warnifversionsaredifferent(v->buf[i].filename);
@@ -898,13 +888,9 @@ static int getseriesfiles(char const *preferred, gameseries **list, int *count,
 	    }
 	}
 
-#ifndef TWPLUSPLUS
-	qsort(s.list, s.count, sizeof *s.list, gameseriescmp_name);
-#else
 	removefilenamesuffixes(&s.mfinfo);
 	qsort(s.mfinfo.buf, s.mfinfo.count,
 	    sizeof *s.mfinfo.buf, compare_mapfileinfo);
-#endif	
     }
     *list = s.list;
     *count = s.count;
