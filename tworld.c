@@ -964,11 +964,6 @@ static int startinput(gamespec *gs)
 	  case CmdGotoLevel:
 	    if (selectlevelbypassword(gs))
 		return CmdNone;
-	    break;
-	  case CmdKeys:
-	    n = 0;
-	    displaylist("", keyboardhelp(KEYHELP_TWPLUSPLUS), &n, LIST_HELP, NULL);
-	    return CmdNone;
 	  default:
 	    continue;
 	}
@@ -1028,7 +1023,6 @@ static int endinput(gamespec *gs)
 	  case CmdSeeScores:	showscores(gs);			return TRUE;
 	  case CmdSeeSolutionFiles: showsolutionfiles(gs);	return TRUE;
 	  case CmdKillSolution:					return TRUE;
-	  case CmdHelp:		dohelp(Help_KeysBetweenGames);	return TRUE;
 	  case CmdQuitLevel:					return FALSE;
 	  case CmdQuit:						exit(0);
 	  case CmdCheckSolution:
