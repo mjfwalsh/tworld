@@ -1595,100 +1595,105 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 /* Display the full selection of available series to the user as a
  * scrolling list, and permit one to be selected. When one is chosen,
  * pick one of levels to be the current level. All fields of the
- * gamespec structure are initialized. If autosel is TRUE, then the
+ * gamespec structure are initialized. If autoplay is TRUE, then the
  * function will skip the display if there is only one series
- * available. If defaultseries is not NULL, and matches the name of
- * one of the series in the array, then the scrolling list will be
+ * available or if defaultseries is not NULL and matches the name of
+ * one of the series in the array. Otherwise a scrolling list will be
  * initialized with that series selected. If defaultlevel is not zero,
  * and a level in the selected series that the user is permitted to
  * access matches it, then that level will be the initial current
  * level. The return value is zero if nothing was selected, negative
  * if an error occurred, or positive otherwise.
  */
-static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autosel,
-				char const *defaultseries, int defaultlevel)
+static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
+		     char const *defaultseries, int defaultlevel)
 {
-    int	okay, f, n;
+	int okay, f, n;
 
-    if (series->count < 1) {
-	errmsg(NULL, "no level sets found");
-	return -1;
-    }
+	if (series->count < 1) {
+		errmsg(NULL, "no level sets found");
+		return -1;
+	}
 
-    okay = TRUE;
-    if (series->count == 1 && autosel) {
-	getseriesfromlist(&gs->series, series->list, 0);
-    } else {
-	n = 0;
-	int founddefault = FALSE;
-	if (defaultseries) {
-	    n = series->count;
-	    while (n)
-		if (!strcmp(series->list[--n].filebase, defaultseries)) {
-		    founddefault = TRUE;
-		    break;
+	okay = TRUE;
+	if (series->count == 1 && autoplay) {
+		getseriesfromlist(&gs->series, series->list, 0);
+	} else {
+		n = 0;
+		int founddefault = FALSE;
+		if (defaultseries) {
+			n = series->count;
+			while (n)
+				if (!strcmp(series->list[--n].filebase, defaultseries)) {
+					founddefault = TRUE;
+					break;
+				}
+		}
+
+		if(founddefault && autoplay) {
+			getseriesfromlist(&gs->series, series->list, n);
+		} else {
+			for (;;) {
+				f = chooseseries(series, &n, founddefault);
+				if (f == CmdProceed) {
+					getseriesfromlist(&gs->series, series->list, n);
+					okay = TRUE;
+					break;
+				} else if (f == CmdQuitLevel) {
+					okay = FALSE;
+					break;
+				}
+			}
 		}
 	}
-	for (;;) {
-	    f = chooseseries(series, &n, founddefault);
-	    if (f == CmdProceed) {
-		getseriesfromlist(&gs->series, series->list, n);
-		okay = TRUE;
-		break;
-	    } else if (f == CmdQuitLevel) {
-		okay = FALSE;
-		break;
-	    }
-	}
-    }
-    freeserieslist(series->list, series->count,
+	freeserieslist(series->list, series->count,
 	series->mflist, series->mfcount, &series->table);
-    if (!okay)
-	return 0;
+	if (!okay)
+		return 0;
 
-    setstringsetting("selectedseries", gs->series.filebase);
+	setstringsetting("selectedseries", gs->series.filebase);
 
-    if (!readseriesfile(&gs->series)) {
-	errmsg(gs->series.filebase, "cannot read data file");
-	freeseriesdata(&gs->series);
-	return -1;
-    }
-    if (gs->series.count < 1) {
-	errmsg(gs->series.filebase, "no levels found in data file");
-	freeseriesdata(&gs->series);
-	return -1;
-    }
+	if (!readseriesfile(&gs->series)) {
+		errmsg(gs->series.filebase, "cannot read data file");
+		freeseriesdata(&gs->series);
+		return -1;
+	}
+	if (gs->series.count < 1) {
+		errmsg(gs->series.filebase, "no levels found in data file");
+		freeseriesdata(&gs->series);
+		return -1;
+	}
 
-    gs->enddisplay = FALSE;
-    gs->playmode = Play_None;
-    gs->usepasswds = usepasswds && !(gs->series.gsflags & GSF_IGNOREPASSWDS);
-    gs->currentgame = -1;
-    gs->melindacount = 0;
+	gs->enddisplay = FALSE;
+	gs->playmode = Play_None;
+	gs->usepasswds = usepasswds && !(gs->series.gsflags & GSF_IGNOREPASSWDS);
+	gs->currentgame = -1;
+	gs->melindacount = 0;
 
-    if (defaultlevel) {
+	if (defaultlevel) {
 	n = findlevelinseries(&gs->series, defaultlevel, NULL);
 	if (n >= 0) {
-	    gs->currentgame = n;
-	    if (gs->usepasswds &&
+		gs->currentgame = n;
+		if (gs->usepasswds &&
 			!(gs->series.games[n].sgflags & SGF_HASPASSWD))
-		changecurrentgame(gs, -1);
+			changecurrentgame(gs, -1);
 	}
-    }
+	}
 
-    if (gs->currentgame < 0)
-        findlevelfromhistory(gs, gs->series.filebase);
+	if (gs->currentgame < 0)
+		findlevelfromhistory(gs, gs->series.filebase);
 
-    if (gs->currentgame < 0) {
+	if (gs->currentgame < 0) {
 	gs->currentgame = 0;
 	for (n = 0 ; n < gs->series.count ; ++n) {
-	    if (!issolved(gs, n)) {
-		gs->currentgame = n;
-		break;
-	    }
+		if (!issolved(gs, n)) {
+			gs->currentgame = n;
+			break;
+		}
 	}
-    }
+	}
 
-    return +1;
+	return +1;
 }
 
 /* Get the list of available series and permit the user to select one
@@ -1943,58 +1948,58 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries,
     free(start->filename);
 
     if (series.count <= 0) {
-	errmsg(NULL, "no level sets found");
-	return -1;
+		errmsg(NULL, "no level sets found");
+		return -1;
     }
 
     if (start->listseries) {
-	printtable(stdout, &series.table);
-	if (!series.count)
-	    puts("(no files)");
-	return 0;
+		printtable(stdout, &series.table);
+		if (!series.count)
+	 	   puts("(no files)");
+		return 0;
     }
 
     if (series.count == 1) {
 	if (start->savefilename)
-	    series.list[0].savefilename = start->savefilename;
+		series.list[0].savefilename = start->savefilename;
 	if (!readseriesfile(series.list)) {
-	    errmsg(series.list[0].filebase, "cannot read level set");
-	    return -1;
+	   errmsg(series.list[0].filebase, "cannot read level set");
+ 	   return -1;
 	}
 	if (start->batchverify) {
-	    n = batchverify(series.list, !silence && !start->listtimes
+		n = batchverify(series.list, !silence && !start->listtimes
 						  && !start->listscores);
-	    if (silence)
+		if (silence)
 		exit(n > 100 ? 100 : n);
-	    else if (!start->listtimes && !start->listscores)
+		else if (!start->listtimes && !start->listscores)
 		return 0;
 	}
 	if (start->listscores) {
-	    if (!createscorelist(series.list, usepasswds, '0',
+		if (!createscorelist(series.list, usepasswds, '0',
 				 NULL, NULL, &table))
 		return -1;
-	    freeserieslist(series.list, series.count,
+		freeserieslist(series.list, series.count,
 		series.mflist, series.mfcount, &series.table);
-	    printtable(stdout, &table);
-	    freescorelist(NULL, &table);
-	    return 0;
+		printtable(stdout, &table);
+		freescorelist(NULL, &table);
+		return 0;
 	}
 	if (start->listtimes) {
-	    if (!createtimelist(series.list,
+		if (!createtimelist(series.list,
 				series.list->ruleset == Ruleset_MS ? 10 : 100,
 				'0', NULL, NULL, &table))
 		return -1;
-	    freeserieslist(series.list, series.count,
+		freeserieslist(series.list, series.count,
 		series.mflist, series.mfcount, &series.table);
-	    printtable(stdout, &table);
-	    freetimelist(NULL, &table);
-	    return 0;
+		printtable(stdout, &table);
+		freetimelist(NULL, &table);
+		return 0;
 	}
     }
 
     if (!initializesystem()) {
-	errmsg(NULL, "cannot initialize program due to previous errors");
-	return -1;
+		errmsg(NULL, "cannot initialize program due to previous errors");
+		return -1;
     }
 
     /* extensions cannot be read until the system is initialized */
