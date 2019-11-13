@@ -1,0 +1,7 @@
+.DS_Store
+Thumbs.db
+moc_TWMainWnd.cpp
+ui_TWMainWnd.h
+*.o
+tworld2
+comptime.h
