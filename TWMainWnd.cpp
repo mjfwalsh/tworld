@@ -291,6 +291,10 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	playIcon = QIcon("play.svg");
 	pauseIcon = QIcon("pause.svg");
 	m_pBtnPlay->setIcon(playIcon);
+
+	// place window near top left corner
+	move(30, 30);
+	show();
 }
 
 
