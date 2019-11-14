@@ -334,11 +334,11 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 
 			int nTWKey = -1;
 			if (nQtKey >= 0x01000000  &&  nQtKey <= 0x01000060) {
- 				nTWKey = ((nQtKey & 0xFF) | 0x100);
+				nTWKey = ((nQtKey & 0xFF) | 0x100);
 
- 				if(nTWKey > 273 && nTWKey < 278) nTWKey -= 273;
- 				else if(nTWKey == 260 || nTWKey == 261) nTWKey = 5;
- 				else return false;
+				if(nTWKey > 273 && nTWKey < 278) nTWKey -= 273;
+				else if(nTWKey == 260 || nTWKey == 261) nTWKey = 5;
+				else return false;
 			} else {
 				return false;
 			}
@@ -346,10 +346,6 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 			// record key state
 			bool bPress = (eType == QEvent::KeyPress);
 			m_nKeyState[nTWKey] = bPress;
-
-			// always let ctrl/apple key pass to the QWindow
-			// This makes lots of stuff downstream of here fairly pointless
-
 
 			bool bConsume = (m_pMainWidget->currentIndex() == PAGE_GAME) &&
 							(QApplication::activeModalWidget() == 0);
@@ -380,20 +376,8 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 			if (pObject != m_pGameWidget)
 				return false;
 			QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
-			mouseeventcallback(pMouseEvent->x(), pMouseEvent->y(), pMouseEvent->button(),
+			mouseeventcallback((int)pMouseEvent->x() / scale, (int)pMouseEvent->y() / scale, pMouseEvent->button(),
 				(eType == QEvent::MouseButtonPress));
-			return true;
-		}
-		break;
-
-		case QEvent::Wheel:
-		{
-			if (pObject != m_pGameWidget)
-				return false;
-			QWheelEvent* pWheelEvent = static_cast<QWheelEvent*>(pEvent);
-			mouseeventcallback(pWheelEvent->x(), pWheelEvent->y(),
-				(pWheelEvent->delta() > 0 ? TW_BUTTON_WHEELUP : TW_BUTTON_WHEELDOWN),
-				true);
 			return true;
 		}
 		break;
@@ -1503,7 +1487,7 @@ bool TileWorldMainWnd::SetHintMode(HintMode newmode)
 
 void TileWorldMainWnd::setScale(int s)
 {
-	double scale = (double)s / 100;
+	scale = (double)s / 100;
 	m_pGameWidget->setScale(scale);
 	m_pObjectsWidget->setScale(scale);
 	m_pMessagesFrame->setFixedWidth((4 * geng.wtile * scale) + 10);

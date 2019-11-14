@@ -213,10 +213,6 @@ static int retrievemousecommand(void)
     switch (mouseinfo.state) {
       case KS_PRESSED:
 	mouseinfo.state = KS_OFF;
-	if (mouseinfo.button == TW_BUTTON_WHEELDOWN)
-	    return CmdNext;
-	if (mouseinfo.button == TW_BUTTON_WHEELUP)
-	    return CmdPrev;
 	if (mouseinfo.button == TW_BUTTON_LEFT) {
 	    n = windowmappos(mouseinfo.x, mouseinfo.y);
 	    if (n >= 0) {

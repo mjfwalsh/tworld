@@ -77,13 +77,6 @@ enum
 	TW_BUTTON_MIDDLE	= Qt::MidButton
 };
 
-enum
-{
-	TW_BUTTON_dummy = 0x100,
-	TW_BUTTON_WHEELUP,
-	TW_BUTTON_WHEELDOWN
-};
-
 #endif
 
 

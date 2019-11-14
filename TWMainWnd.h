@@ -100,6 +100,8 @@ private:
 	Qt_Surface* m_pInvSurface;
 	TW_Rect m_disploc;
 
+	double scale = 1;
+
 	uint8_t m_nKeyState[TWK_LAST];
 
 	struct MessageData{ QString sMsg; uint32_t nMsgUntil, nMsgBoldUntil; };
