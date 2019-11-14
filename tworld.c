@@ -1377,6 +1377,8 @@ static int runcurrentlevel(gamespec *gs)
     int	valid, f;
     char const *name;
 
+	setplaypausebutton(TRUE);
+
     name = gs->series.filebase;
 
     updatehistory(skippathname(name),
@@ -1404,22 +1406,21 @@ static int runcurrentlevel(gamespec *gs)
     cmd = startinput(gs);
 
     if (cmd == CmdQuitLevel) {
-	ret = FALSE;
+		ret = FALSE;
     } else {
-	if (cmd != CmdNone) {
-	    if (valid) {
-		switch (gs->playmode) {
-		  case Play_Normal:	f = playgame(gs, cmd);		break;
-		  case Play_Back:	f = playbackgame(gs, cmd);	break;
-		  case Play_Verify:	f = verifyplayback(gs);		break;
-		  default:		f = FALSE;			break;
+		if (cmd != CmdNone) {
+			if (valid) {
+				switch (gs->playmode) {
+					case Play_Normal:	f = playgame(gs, cmd);		break;
+					case Play_Back:	f = playbackgame(gs, cmd);	break;
+					case Play_Verify:	f = verifyplayback(gs);		break;
+					default:			f = FALSE;			break;
+				}
+				if (f)
+					ret = endinput(gs);
+			} else
+				bell();
 		}
-		if (f)
-		    setplaypausebutton(TRUE);
-		    ret = endinput(gs);
-	    } else
-		bell();
-	}
     }
 
     endgamestate();
