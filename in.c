@@ -15,9 +15,6 @@
  */
 typedef	struct keycmdmap {
     int		scancode;	/* the key's scan code */
-    int		shift;		/* the shift key's state */
-    int		ctl;		/* the ctrl key's state */
-    int		alt;		/* the alt keys' state */
     int		cmd;		/* the command */
     int		hold;		/* TRUE for repeating joystick-mode keys */
 } keycmdmap;
@@ -62,69 +59,45 @@ static int		joystickstyle = FALSE;
  * the key must be up, or negative if it doesn't matter.
  */
 static keycmdmap const gamekeycmds[] = {
-    { TWK_UP,                     0,  0,  0,   CmdNorth,              TRUE },
-    { TWK_LEFT,                   0,  0,  0,   CmdWest,               TRUE },
-    { TWK_DOWN,                   0,  0,  0,   CmdSouth,              TRUE },
-    { TWK_RIGHT,                  0,  0,  0,   CmdEast,               TRUE },
-    { TWK_PAGEUP,                -1, -1,  0,   CmdPrev10,             FALSE },
-    { TWK_PAGEDOWN,              -1, -1,  0,   CmdNext10,             FALSE },
-    { TWK_BACKSPACE,             -1, -1,  0,   CmdPauseGame,          FALSE },
-    { TWK_RETURN,                -1, -1,  0,   CmdProceed,            FALSE },
-    { TWK_KP_ENTER,              -1, -1,  0,   CmdProceed,            FALSE },
-    { ' ',                       -1, -1,  0,   CmdProceed,            FALSE },
-#ifndef NDEBUG
-    { 'd',                        0, +1,  0,   CmdDebugCmd1,          FALSE },
-    { 'd',                       +1, +1,  0,   CmdDebugCmd2,          FALSE },
-    { TWK_UP,                    +1,  0,  0,   CmdCheatNorth,         TRUE },
-    { TWK_LEFT,                  +1,  0,  0,   CmdCheatWest,          TRUE },
-    { TWK_DOWN,                  +1,  0,  0,   CmdCheatSouth,         TRUE },
-    { TWK_RIGHT,                 +1,  0,  0,   CmdCheatEast,          TRUE },
-    { TWK_HOME,                  +1,  0,  0,   CmdCheatHome,          FALSE },
-    { TWK_F2,                     0,  0,  0,   CmdCheatICChip,        FALSE },
-    { TWK_F3,                     0,  0,  0,   CmdCheatKeyRed,        FALSE },
-    { TWK_F4,                     0,  0,  0,   CmdCheatKeyBlue,       FALSE },
-    { TWK_F5,                     0,  0,  0,   CmdCheatKeyYellow,     FALSE },
-    { TWK_F6,                     0,  0,  0,   CmdCheatKeyGreen,      FALSE },
-    { TWK_F7,                     0,  0,  0,   CmdCheatBootsIce,      FALSE },
-    { TWK_F8,                     0,  0,  0,   CmdCheatBootsSlide,    FALSE },
-    { TWK_F9,                     0,  0,  0,   CmdCheatBootsFire,     FALSE },
-    { TWK_F10,                    0,  0,  0,   CmdCheatBootsWater,    FALSE },
-#endif
+	{	TWK_UP,					CmdNorth,				TRUE	},
+	{	TWK_LEFT,				CmdWest,				TRUE	},
+	{	TWK_DOWN,				CmdSouth,				TRUE	},
+	{	TWK_RIGHT,				CmdEast,				TRUE	},
+	{	TWK_RETURN,				CmdProceed,				FALSE	},
+//	{	' ',					CmdProceed,				FALSE	},
 
-/* "Virtual" keys */
-    { TWC_SEESCORES,              0,  0,  0,   CmdSeeScores,          FALSE },
-    { TWC_SEESOLUTIONFILES,       0,  0,  0,   CmdSeeSolutionFiles,   FALSE },
-    { TWC_TIMESCLIPBOARD,         0,  0,  0,   CmdTimesClipboard,     FALSE },
-    { TWC_QUITLEVEL,              0,  0,  0,   CmdQuitLevel,          FALSE },
-    { TWC_QUIT,                   0,  0,  0,   CmdQuit,               FALSE },
+/*	"Virtual"	keys	*/
+	{	TWC_SEESCORES,			CmdSeeScores,			FALSE	},
+	{	TWC_SEESOLUTIONFILES,	CmdSeeSolutionFiles,	FALSE	},
+	{	TWC_TIMESCLIPBOARD,		CmdTimesClipboard,		FALSE	},
+	{	TWC_QUITLEVEL,			CmdQuitLevel,			FALSE	},
+	{	TWC_QUIT,				CmdQuit,				FALSE	},
 
-    { TWC_PROCEED,                0,  0,  0,   CmdProceed,            FALSE },
-    { TWC_PAUSEGAME,              0,  0,  0,   CmdPauseGame,          FALSE },
-    { TWC_SAMELEVEL,              0,  0,  0,   CmdSameLevel,          FALSE },
-    { TWC_NEXTLEVEL,              0,  0,  0,   CmdNextLevel,          FALSE },
-    { TWC_PREVLEVEL,              0,  0,  0,   CmdPrevLevel,          FALSE },
-    { TWC_GOTOLEVEL,              0,  0,  0,   CmdGotoLevel,          FALSE },
+	{	TWC_PROCEED,			CmdProceed,				FALSE	},
+	{	TWC_PAUSEGAME,			CmdPauseGame,			FALSE	},
+	{	TWC_SAMELEVEL,			CmdSameLevel,			FALSE	},
+	{	TWC_NEXTLEVEL,			CmdNextLevel,			FALSE	},
+	{	TWC_PREVLEVEL,			CmdPrevLevel,			FALSE	},
+	{	TWC_GOTOLEVEL,			CmdGotoLevel,			FALSE	},
 
-    { TWC_PLAYBACK,               0,  0,  0,   CmdPlayback,           FALSE },
-    { TWC_CHECKSOLUTION,          0,  0,  0,   CmdCheckSolution,      FALSE },
-    { TWC_REPLSOLUTION,           0,  0,  0,   CmdReplSolution,       FALSE },
-    { TWC_KILLSOLUTION,           0,  0,  0,   CmdKillSolution,       FALSE },
-    { TWC_SEEK,                   0,  0,  0,   CmdSeek,               FALSE },
-    { 0, 0, 0, 0, 0, 0 }
+	{	TWC_PLAYBACK,			CmdPlayback,			FALSE	},
+	{	TWC_CHECKSOLUTION,		CmdCheckSolution,		FALSE	},
+	{	TWC_REPLSOLUTION,		CmdReplSolution,		FALSE	},
+	{	TWC_KILLSOLUTION,		CmdKillSolution,		FALSE	},
+	{	TWC_SEEK,				CmdSeek,				FALSE	},
+	{	0,	0,	0	}
 };
 
 /* The list of key commands recognized when the program is obtaining
  * input from the user.
  */
 static keycmdmap const inputkeycmds[] = {
-    { TWK_UP,                    -1, -1,  0,   CmdNorth,              FALSE },
-    { TWK_LEFT,                  -1, -1,  0,   CmdWest,               FALSE },
-    { TWK_DOWN,                  -1, -1,  0,   CmdSouth,              FALSE },
-    { TWK_RIGHT,                 -1, -1,  0,   CmdEast,               FALSE },
-    { TWK_BACKSPACE,             -1, -1,  0,   CmdWest,               FALSE },
-    { TWK_RETURN,                -1, -1,  0,   CmdProceed,            FALSE },
-    { TWK_KP_ENTER,              -1, -1,  0,   CmdProceed,            FALSE },
-    { 0, 0, 0, 0, 0, 0 }
+    { TWK_UP,                    CmdNorth,              FALSE },
+    { TWK_LEFT,                  CmdWest,               FALSE },
+    { TWK_DOWN,                  CmdSouth,              FALSE },
+    { TWK_RIGHT,                 CmdEast,               FALSE },
+    { TWK_RETURN,                CmdProceed,            FALSE },
+    { 0, 0, 0 }
 };
 
 /* The current map of key commands.
@@ -149,32 +122,11 @@ static int mergeable[CmdKeyMoveLast + 1];
  */
 static void _keyeventcallback(int scancode, int down)
 {
-    switch (scancode) {
-      case TWK_LSHIFT:
-      case TWK_RSHIFT:
-      case TWK_LCTRL:
-      case TWK_RCTRL:
-      case TWK_LALT:
-      case TWK_RALT:
-      case TWK_LMETA:
-      case TWK_RMETA:
-      case TWK_NUMLOCK:
-      case TWK_CAPSLOCK:
-      case TWK_MODE:
-	keystates[scancode] = down ? KS_ON : KS_OFF;
-	break;
-      default:
-	if (scancode < TWK_LAST) {
-	    if (down) {
-		keystates[scancode] = keystates[scancode] == KS_OFF ?
-						KS_PRESSED : KS_REPEATING;
-	    } else {
-		keystates[scancode] = keystates[scancode] == KS_PRESSED ?
-						KS_STRUCK : KS_OFF;
-	    }
+	if (down) {
+		keystates[scancode] = keystates[scancode] == KS_OFF ? KS_PRESSED : KS_REPEATING;
+	} else {
+		keystates[scancode] = keystates[scancode] == KS_PRESSED ? KS_STRUCK : KS_OFF;
 	}
-	break;
-    }
 }
 
 /* Initialize (or re-initialize) all key states.
@@ -305,56 +257,41 @@ int input(int wait)
     int			cmd1, cmd, n;
 
     for (;;) {
-	resetkeystates();
-	eventupdate(wait);
+		resetkeystates();
+		eventupdate(wait);
 
-	cmd1 = cmd = 0;
-	for (kc = keycmds ; kc->scancode ; ++kc) {
-	    n = keystates[kc->scancode];
-	    if (!n)
-		continue;
-	    if (kc->shift != -1)
-		if (kc->shift !=
-			(keystates[TWK_LSHIFT] || keystates[TWK_RSHIFT]))
-		    continue;
-	    if (kc->ctl != -1)
-		if (kc->ctl !=
-			(keystates[TWK_LCTRL] || keystates[TWK_RCTRL]))
-		    continue;
-	    if (kc->alt != -1)
-		if (kc->alt != (keystates[TWK_LALT] || keystates[TWK_RALT]))
-		    continue;
-
-	    if (n == KS_PRESSED || (kc->hold && n == KS_DOWN)) {
-		if (!cmd1) {
-		    cmd1 = kc->cmd;
-		    if (!joystickstyle || cmd1 > CmdKeyMoveLast
-				       || !mergeable[cmd1])
-			return cmd1;
-		} else {
-		    if (cmd1 <= CmdKeyMoveLast
-				&& (mergeable[cmd1] & kc->cmd) == kc->cmd)
-			return cmd1 | kc->cmd;
+		cmd1 = cmd = 0;
+		for (kc = keycmds ; kc->scancode ; ++kc) {
+			n = keystates[kc->scancode];
+			if (!n) continue;
+			if (n == KS_PRESSED || (kc->hold && n == KS_DOWN)) {
+				if (!cmd1) {
+					cmd1 = kc->cmd;
+					if (!joystickstyle || cmd1 > CmdKeyMoveLast || !mergeable[cmd1])
+						return cmd1;
+				} else {
+					if (cmd1 <= CmdKeyMoveLast && (mergeable[cmd1] & kc->cmd) == kc->cmd)
+						return cmd1 | kc->cmd;
+				}
+			} else if (n == KS_STRUCK || n == KS_REPEATING) {
+				cmd = kc->cmd;
+			} else if (n == KS_DOWNBUTOFF1 || n == KS_DOWNBUTOFF2) {
+				lingerflag = TRUE;
+			}
 		}
-	    } else if (n == KS_STRUCK || n == KS_REPEATING) {
-		cmd = kc->cmd;
-	    } else if (n == KS_DOWNBUTOFF1 || n == KS_DOWNBUTOFF2) {
-		lingerflag = TRUE;
-	    }
+		if (cmd1)
+			return cmd1;
+		if (cmd)
+			return cmd;
+		cmd = retrievemousecommand();
+		if (cmd)
+			return cmd;
+		if (!wait)
+			break;
 	}
-	if (cmd1)
-	    return cmd1;
-	if (cmd)
-	    return cmd;
-	cmd = retrievemousecommand();
-	if (cmd)
-	    return cmd;
-	if (!wait)
-	    break;
-    }
-    if (!cmd && lingerflag)
-	cmd = CmdPreserve;
-    return cmd;
+	if (!cmd && lingerflag)
+		cmd = CmdPreserve;
+	return cmd;
 }
 
 /* Turn joystick behavior mode on or off. In joystick-behavior mode,

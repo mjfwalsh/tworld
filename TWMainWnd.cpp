@@ -223,28 +223,10 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	setupUi(this);
 	m_bSetupUi = true;
 
-	QLayout* pGameLayout = m_pGamePage->layout();
-	if (pGameLayout != 0)
-	{
-		pGameLayout->setAlignment(m_pGameFrame, Qt::AlignCenter);
-		pGameLayout->setAlignment(m_pInfoFrame, Qt::AlignCenter);
-		pGameLayout->setAlignment(m_pObjectsFrame, Qt::AlignCenter);
-		pGameLayout->setAlignment(m_pMessagesFrame, Qt::AlignHCenter);
-	}
-
 	QFile File("stylesheet.qss");
 	File.open(QFile::ReadOnly);
 	QString StyleSheet = QLatin1String(File.readAll());
 	this->setStyleSheet(StyleSheet);
-
-	QPalette pal = m_pMainWidget->palette();
-	QLinearGradient gradient(0, 0, 1, 1);
-	gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
-	QColor color = pal.window().color();
-	gradient.setColorAt(0, color.lighter(125));
-	gradient.setColorAt(1, color.darker(125));
-	pal.setBrush(QPalette::Window, QBrush(gradient));
-	m_pMainWidget->setPalette(pal);
 
 	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );
 
@@ -263,9 +245,9 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	connect( m_pBtnTextNext, SIGNAL(clicked()), this, SLOT(OnTextNext()) );
 	connect( m_pBtnTextPrev, SIGNAL(clicked()), this, SLOT(OnTextPrev()) );
 	connect( m_pBtnTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
-
 	connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
 
+	// change menu to reflect settings
 	action_displayCCX->setChecked(getintsetting("displayccx"));
 	action_forceShowTimer->setChecked(getintsetting("forceshowtimer") > 0);
 	if (getintsetting("selectedruleset") == Ruleset_Lynx)
@@ -273,6 +255,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	else
 		m_pRadioMs->setChecked(true);
 
+	// sert a zoom menu item as checked
 	int percentZoom = getintsetting("zoom");
 	foreach (QAction *a, actiongroup_Zoom->actions()) {
 		if(a->data() == percentZoom) {
@@ -288,9 +271,9 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	int const tickMS = 1000 / TICKS_PER_SECOND;
 	startTimer(tickMS / 2);
 
+	// play pause icon for replay controls
 	playIcon = QIcon("play.svg");
 	pauseIcon = QIcon("pause.svg");
-	m_pBtnPlay->setIcon(playIcon);
 
 	// place window near top left corner
 	move(30, 30);
@@ -331,14 +314,6 @@ struct QtModifier_TWKey
 	int nTWKey;
 };
 
-static const QtModifier_TWKey g_modKeys[] =
-{
-	{Qt::ShiftModifier,		TWK_LSHIFT},
-	{Qt::ControlModifier,	TWK_LCTRL},
-	{Qt::AltModifier,		TWK_LALT},
-	{Qt::MetaModifier,		TWK_LMETA}
-};
-
 bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 {
 	if (!m_bSetupUi) return false;
@@ -358,69 +333,42 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 				nQtKey = Qt::Key_Tab;
 
 			int nTWKey = -1;
-			if (nQtKey >= 0  &&  nQtKey <= 0xFF)
-				nTWKey = tolower(nQtKey);
-			else if (nQtKey >= 0x01000000  &&  nQtKey <= 0x01000060)
-				nTWKey = TWK_FUDGE(nQtKey);
-			else
+			if (nQtKey >= 0x01000000  &&  nQtKey <= 0x01000060) {
+ 				nTWKey = ((nQtKey & 0xFF) | 0x100);
+
+ 				if(nTWKey > 273 && nTWKey < 278) nTWKey -= 273;
+ 				else if(nTWKey == 260 || nTWKey == 261) nTWKey = 5;
+ 				else return false;
+			} else {
 				return false;
+			}
 
-			// Completely ignore multimedia keys, etc. and don't consume them
-
+			// record key state
 			bool bPress = (eType == QEvent::KeyPress);
 			m_nKeyState[nTWKey] = bPress;
-			// Always record the application key state
-
-			// Handle modifier keys falling out of sync due to some events never being received
-			// E.g., Windows 7 never sends Alt key-up after Alt+Tab
-			for (size_t m = 0; m < COUNTOF(g_modKeys); ++m)
-			{
-				const QtModifier_TWKey& mod = g_modKeys[m];
-				if (mod.nTWKey == nTWKey)
-					continue;
-				bool bModPressed = ((pKeyEvent->modifiers() & mod.nQtMod) != 0);
-				if (m_nKeyState[mod.nTWKey] != bModPressed)
-				{
-					m_nKeyState[mod.nTWKey] = bModPressed;
-					keyeventcallback(mod.nTWKey, bModPressed);
-					// printf("*** MOD 0x%X = %d\n", mod.nTWKey, int(bModPressed));
-				}
-			}
 
 			// always let ctrl/apple key pass to the QWindow
 			// This makes lots of stuff downstream of here fairly pointless
-			if(pKeyEvent->modifiers() == Qt::ControlModifier) {
-				return false;
-			}
+
 
 			bool bConsume = (m_pMainWidget->currentIndex() == PAGE_GAME) &&
 							(QApplication::activeModalWidget() == 0);
+
 			// Only consume keys for the game, not for the tables or the message boxes
 			//  with the exception of a few keys for the table
 			QObjectList const & tableWidgets = m_pTablePage->children();
-			if (bPress && tableWidgets.contains(pObject) &&  pKeyEvent->modifiers() == Qt::NoModifier)
-			{
+			if (bPress && tableWidgets.contains(pObject)) {
 				int currentrow = m_pTblList->selectionModel()->currentIndex().row();
-				if ((nQtKey == Qt::Key_Return || nQtKey == Qt::Key_Enter) && currentrow >= 0)
-				{
+				if ((nTWKey == 5) && currentrow >= 0) {
 					g_pApp->exit(CmdProceed);
 					bConsume = true;
-				}
-				else
-				{
+				} else {
 					bConsume = false;
 				}
 			}
 
-			if (m_bKbdRepeatEnabled || !pKeyEvent->isAutoRepeat())
-			{
-				// if (bConsume)
-				// Always pass the key events so that the game's internal key state is in sync
-				//  otherwise, Ctrl/Shift remain "pressed" after Ctrl+S / Shift+Tab / etc.
-				{
-					// printf("nTWKey=0x%03X bPress=%d bConsume=%d\n", nTWKey, int(bPress), int(bConsume));
-					keyeventcallback(nTWKey, bPress);
-				}
+			if (m_bKbdRepeatEnabled || !pKeyEvent->isAutoRepeat()) {
+				keyeventcallback(nTWKey, bPress);
 			}
 			return bConsume;
 		}

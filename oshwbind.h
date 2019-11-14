@@ -34,63 +34,18 @@ enum
 
 #ifdef __cplusplus
 
-#define TWK_FUDGE(k)   (((k) & 0xFF) | 0x100)
-#define TWK_UNFUDGE(k) (((k) & 0xFF) | 0x1000000)
-
 enum
 {
-	TWK_BACKSPACE  = TWK_FUDGE(Qt::Key_Backspace),
-	TWK_TAB        = TWK_FUDGE(Qt::Key_Tab),
-	TWK_RETURN     = TWK_FUDGE(Qt::Key_Return),
-	TWK_KP_ENTER   = TWK_FUDGE(Qt::Key_Enter),
-	TWK_ESCAPE     = TWK_FUDGE(Qt::Key_Escape),
-
-	TWK_UP         = TWK_FUDGE(Qt::Key_Up),
-	TWK_LEFT       = TWK_FUDGE(Qt::Key_Left),
-	TWK_DOWN       = TWK_FUDGE(Qt::Key_Down),
-	TWK_RIGHT      = TWK_FUDGE(Qt::Key_Right),
-
-	TWK_INSERT     = TWK_FUDGE(Qt::Key_Insert),
-	TWK_DELETE     = TWK_FUDGE(Qt::Key_Delete),
-	TWK_HOME       = TWK_FUDGE(Qt::Key_Home),
-	TWK_END        = TWK_FUDGE(Qt::Key_End),
-	TWK_PAGEUP     = TWK_FUDGE(Qt::Key_PageUp),
-	TWK_PAGEDOWN   = TWK_FUDGE(Qt::Key_PageDown),
-
-	TWK_F1         = TWK_FUDGE(Qt::Key_F1),
-	TWK_F2         = TWK_FUDGE(Qt::Key_F2),
-	TWK_F3         = TWK_FUDGE(Qt::Key_F3),
-	TWK_F4         = TWK_FUDGE(Qt::Key_F4),
-	TWK_F5         = TWK_FUDGE(Qt::Key_F5),
-	TWK_F6         = TWK_FUDGE(Qt::Key_F6),
-	TWK_F7         = TWK_FUDGE(Qt::Key_F7),
-	TWK_F8         = TWK_FUDGE(Qt::Key_F8),
-	TWK_F9         = TWK_FUDGE(Qt::Key_F9),
-	TWK_F10        = TWK_FUDGE(Qt::Key_F10),
-
-	TWK_LSHIFT     = TWK_FUDGE(Qt::Key_Shift),
-	TWK_LCTRL      = TWK_FUDGE(Qt::Key_Control),
-	TWK_LALT       = TWK_FUDGE(Qt::Key_Alt),
-	TWK_LMETA      = TWK_FUDGE(Qt::Key_Meta),
-	TWK_CAPSLOCK   = TWK_FUDGE(Qt::Key_CapsLock),
-	TWK_NUMLOCK    = TWK_FUDGE(Qt::Key_NumLock),
-	TWK_SCROLLLOCK = TWK_FUDGE(Qt::Key_ScrollLock)
+	TWK_LEFT = 1,
+	TWK_UP,
+	TWK_RIGHT,
+	TWK_DOWN,
+	TWK_RETURN,
 };
 
 enum
 {
-	TWK_dummy = 0x200,
-
-	TWK_KP8,
-	TWK_KP4,
-	TWK_KP2,
-	TWK_KP6,
-	TWK_RSHIFT,
-	TWK_RCTRL,
-	TWK_RALT,
-	TWK_RMETA,
-	TWK_MODE,
-	TWK_CTRL_C,
+	TWK_dummy = 10,
 
     TWC_SEESCORES,
     TWC_SEESOLUTIONFILES,
@@ -110,9 +65,6 @@ enum
     TWC_REPLSOLUTION,
     TWC_KILLSOLUTION,
     TWC_SEEK,
-
-    TWC_HELP,
-    TWC_KEYS,
 
 	TWK_LAST
 };
