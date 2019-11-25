@@ -1487,9 +1487,14 @@ bool TileWorldMainWnd::SetHintMode(HintMode newmode)
 
 void TileWorldMainWnd::setScale(int s)
 {
-	scale = (double)s / 100;
-	m_pGameWidget->setScale(scale);
-	m_pObjectsWidget->setScale(scale);
+	double newScale = (double)s / 100;
+	if(newScale == scale) return;
+
+	scale = newScale;
+
+	m_pGameWidget->setPixmap(m_pSurface->GetPixmap(), scale);
+	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap(), scale);
+
 	m_pMessagesFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
 	m_pInfoFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
 }

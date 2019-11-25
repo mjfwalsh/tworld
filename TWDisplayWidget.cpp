@@ -13,8 +13,10 @@ TWDisplayWidget::TWDisplayWidget(QWidget* pParent)
 }
 
 
-void TWDisplayWidget::setPixmap(const QPixmap& pixmap)
+void TWDisplayWidget::setPixmap(const QPixmap& pixmap, double s)
 {
+	if(s > 0) scale = s;
+
 	if(pixmap.width() < 1 || pixmap.height() < 1) return;
 
 	QSize prevSize = m_pixmap.size();
@@ -22,10 +24,15 @@ void TWDisplayWidget::setPixmap(const QPixmap& pixmap)
 	if(refSize.width() < 1 || refSize.height() < 1)
 		refSize = pixmap.size();
 
-	QSize vector = refSize * scale;
-	m_pixmap = pixmap.scaled(vector, Qt::KeepAspectRatio);
+	QSize newSize = refSize * scale;
+	QSize oldSize = pixmap.size();
+	if(newSize == oldSize) {
+		m_pixmap = pixmap;
+	} else {
+		m_pixmap = pixmap.scaled(newSize, Qt::KeepAspectRatio);
+	}
 
-	QSize newSize = m_pixmap.size();
+	newSize = m_pixmap.size();
 
 	if(prevSize != newSize) updateGeometry();
 
@@ -42,18 +49,4 @@ void TWDisplayWidget::paintEvent(QPaintEvent* pPaintEvent)
 {
 	QPainter painter(this);
 	painter.drawPixmap(0, 0, m_pixmap);
-}
-
-void TWDisplayWidget::setScale(double s)
-{
-	if(scale == s) return;
-
-	scale = s;
-
-	if(refSize.width() < 1 || refSize.height() < 1 || m_pixmap.width() < 1 || m_pixmap.height() < 1) return;
-
-	QSize vector = refSize * scale;
-	m_pixmap = m_pixmap.scaled(vector, Qt::KeepAspectRatio);
-	updateGeometry();
-	repaint();
 }

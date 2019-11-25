@@ -19,7 +19,7 @@ class TWDisplayWidget : public QWidget
 public:
 	TWDisplayWidget(QWidget* pParent = 0);
 
-	void setPixmap(const QPixmap& pixmap);
+	void setPixmap(const QPixmap& pixmap, double s = 0);
 	const QPixmap* pixmap() const
 		{return &m_pixmap;}
 
