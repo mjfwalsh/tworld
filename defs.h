@@ -260,6 +260,5 @@ typedef struct mapfileinfo {
 #define	GSF_NODEFAULTSAVE	0x0004	/* don't use default tws filename */
 #define	GSF_IGNOREPASSWDS	0x0008	/* don't require passwords */
 #define	GSF_LYNXFIXES		0x0010	/* changes MS data into Lynx levels */
-#define GSF_DATFORDACSERIESDIR	0x0020	/* datfile for .dac is in seriesdir */
 
 #endif

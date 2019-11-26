@@ -13,9 +13,10 @@
  */
 extern char    *seriesdir;
 
-/* The directory containing the configured data files.
+/* The directories containing the configured data files.
  */
-extern char    *seriesdatdir;
+extern char    *user_seriesdatdir;
+extern char    *global_seriesdatdir;
 
 /* Load all levels of the given series.
  */

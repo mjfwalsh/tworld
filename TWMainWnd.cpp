@@ -230,7 +230,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );
 
-	m_pTextBrowser->setSearchPaths(QStringList(seriesdatdir));
+	QStringList sPaths = {global_seriesdatdir, user_seriesdatdir};
+	m_pTextBrowser->setSearchPaths(sPaths);
 
 	g_pApp->installEventFilter(this);
 
@@ -1292,9 +1293,20 @@ void readextensions(gameseries *series)
 
 void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 {
-	QDir dataDir(seriesdatdir);
+	QDir dataDir;
+	QFile sFile;
+	QString sFilePath;
+
 	QString sSetName = QFileInfo(pSeries->mapfilename).completeBaseName();
-	QString sFilePath = dataDir.filePath(sSetName + ".ccx");
+
+	dataDir.setPath(global_seriesdatdir);
+	sFilePath = dataDir.filePath(sSetName + ".ccx");
+	sFile.setFileName(sFilePath);
+
+	if(!sFile.exists()) {
+		dataDir.setPath(user_seriesdatdir);
+		sFilePath = dataDir.filePath(sSetName + ".ccx");
+	}
 
 	m_ccxLevelset.Clear();
 	if (!m_ccxLevelset.ReadFile(sFilePath, pSeries->count))

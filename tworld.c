@@ -295,10 +295,11 @@ void printtable(FILE *out, tablespec const *table)
  */
 static void printdirectories(void)
 {
-    printf("Resource files read from:        %s\n", resdir);
-    printf("Level sets read from:            %s\n", seriesdir);
-    printf("Configured data files read from: %s\n", seriesdatdir);
-    printf("Solution files saved in:         %s\n", savedir);
+    printf("Resource files read from:               %s\n", resdir);
+    printf("Level sets read from:                   %s\n", seriesdir);
+    printf("Configured user data files read from:   %s\n", user_seriesdatdir);
+    printf("Configured global data files read from: %s\n", global_seriesdatdir);
+    printf("Solution files saved in:                %s\n", savedir);
 }
 
 /*
@@ -1725,64 +1726,42 @@ static int choosegame(gamespec *gs, char const *lastseries)
  */
 static void initdirs(char *binary_path)
 {
-	char *homedir;
-	char *resourcedir;
-
 	//allocate memory to global vars
 	resdir = getpathbuffer();
 	seriesdir = getpathbuffer();
-	seriesdatdir = getpathbuffer();
+	user_seriesdatdir = getpathbuffer();
+	global_seriesdatdir = getpathbuffer();
 	savedir = getpathbuffer();
 
 	// and local vars
-	homedir = getpathbuffer();
-	resourcedir = getpathbuffer();
+	char *homedir = getpathbuffer();
+	char *resourcedir = getpathbuffer();
 
-	//Get Resources directory
-	{
-		resourcedir = "./";
-		resdir = "./res";
+	//Get .app/Contents/Resources directory
+	resourcedir = "./";
+	resdir = "./res";
 
-		resdir = realpath(resdir, NULL);
+	resdir = realpath(resdir, NULL);
+	resourcedir = realpath(resourcedir, NULL);
 
-		if(resdir == NULL) {
-			resdir = "/usr/local/share/tworld/res";
-			resourcedir = "/usr/local/share/tworld";
-
-			resdir = realpath(resdir, NULL);
-		}
-
-		resourcedir = realpath(resourcedir, NULL);
-
-		if(resdir == NULL || resourcedir == NULL) {
-			errmsg(NULL, "no resource files found");
-		}
+	if(resdir == NULL || resourcedir == NULL) {
+		errmsg(NULL, "no resource files found");
 	}
 
-	//get Application Support Dir
+	//get Application Support Dir - create if necessary
 	homedir = getenv("HOME");
-	{
-		char *savedir1;
-		savedir1 = getpathbuffer();
-		combinepath(savedir1, homedir, "Library/Application Support/Tile World");
-		savedir = realpath(savedir1, NULL);
-
-		if(savedir == NULL) {
-			char *savedir2;
-			savedir2 = getpathbuffer();
-			combinepath(savedir2, homedir, ".tworld");
-			savedir = realpath(savedir2, NULL);
-
-			if(savedir == NULL) {
-				// neither dir exists
-				savedir = savedir1;
-			}
-		}
-	}
+	savedir = getpathbuffer();
+	combinepath(savedir, homedir, "Library/Application Support/Tile World");
+	if (!finddir(savedir)) errmsg(NULL, "Couldn't create savedir");
 
 	//Sub dirs
-	combinepath(seriesdir, resourcedir, "sets");
-	combinepath(seriesdatdir, resourcedir, "data");
+	combinepath(seriesdir, savedir, "sets");
+	combinepath(global_seriesdatdir, resourcedir, "data");
+	combinepath(user_seriesdatdir, savedir, "data");
+
+	// create user dirs if necessar
+	if (!finddir(seriesdir)) errmsg(NULL, "Couldn't create seriesdir");
+	if (!finddir(user_seriesdatdir)) errmsg(NULL, "Couldn't create user seriesdatdir");
 }
 
 /* Parse the command-line options and arguments, and initialize the
@@ -1917,7 +1896,8 @@ static void shutdownsystem(void)
     freeallresources();
     free(resdir);
     free(seriesdir);
-    free(seriesdatdir);
+    free(user_seriesdatdir);
+    free(global_seriesdatdir);
     free(savedir);
 }
 

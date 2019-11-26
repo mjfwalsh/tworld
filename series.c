@@ -95,9 +95,10 @@ typedef	struct seriesdata {
  */
 char	       *seriesdir = NULL;
 
-/* The directory containing the configured data files.
+/* The directories containing the configured data files.
  */
-char	       *seriesdatdir = NULL;
+char	       *user_seriesdatdir = NULL;
+char	       *global_seriesdatdir = NULL;
 
 /* Calculate a hash value for the given block of data.
  */
@@ -482,11 +483,6 @@ static char *readconfigfile(fileinfo *file, gameseries *series)
 		series->gsflags &= ~GSF_LYNXFIXES;
 	    else
 		series->gsflags |= GSF_LYNXFIXES;
-	} else if (!strcmp(name, "fileinsetsdir")) {
-	    if (tolower(*value) == 'n')
-		series->gsflags &= ~GSF_DATFORDACSERIESDIR;
-	    else
-		series->gsflags |= GSF_DATFORDACSERIESDIR;
 	} else {
 	    warn("line %d: directive \"%s\" unknown", lineno, name);
 	    fileerr(file, "unrecognized setting in configuration file");
@@ -565,13 +561,19 @@ static int getseriesfile(char const *filename, void *data)
 	datfilename = readconfigfile(&file, series);
 	fileclose(&file, NULL);
 	if (datfilename) {
-	    char const *datdir = ((series->gsflags & GSF_DATFORDACSERIESDIR)
-		? seriesdir : seriesdatdir);
-	    if (openfileindir(&series->mapfile, datdir,
-			      datfilename, "rb", NULL))
-		f = readseriesheader(series);
-	    else
-		warn("cannot use %s: %s unavailable", filename, datfilename);
+		char *datdir;
+	    if (openfileindir(&series->mapfile, global_seriesdatdir, datfilename, "rb", NULL)) {
+			f = readseriesheader(series);
+			datdir = global_seriesdatdir;
+		} else {
+			datdir = user_seriesdatdir;
+			if (openfileindir(&series->mapfile, user_seriesdatdir, datfilename, "rb", NULL)) {
+				f = readseriesheader(series);
+			}
+		}
+
+		if(!f) warn("cannot use %s: %s unavailable", filename, datfilename);
+
 	    fileclose(&series->mapfile, NULL);
 	    clearfileinfo(&series->mapfile);
 	    if (f)
@@ -683,12 +685,10 @@ static int createnewdacfile
     if (!openfileindir(&file, seriesdir, name, "wx", "unknown error"))
 	return FALSE;
 
-    char const *locstr =
-	(datfile->locdirs & LOC_SERIESDATDIR ? "" : "fileinsetsdir=y\n");
     char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
     errno = 0;
-    int status = fprintf(file.fp, "file=%s\n%sruleset=%s\n",
-	datfile->filename, locstr, rulesetstr);
+    int status = fprintf(file.fp, "file=%s\nruleset=%s\n",
+	datfile->filename, rulesetstr);
     if (status < 0) {
 	fileerr(&file, "write error");
 	return FALSE;
@@ -734,8 +734,7 @@ static gameseries* createnewseries
 				      newdacname);
     sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
 				      newdacname);
-    char *datfileloc =
-	(datfile->locdirs & LOC_SERIESDATDIR ? seriesdatdir : seriesdir);
+    char *datfileloc = seriesdir;
     series->mapfilename = getpathforfileindir(datfileloc, datfile->filename);
     ++s->count;
     free(newdacname);
@@ -770,55 +769,6 @@ static void createallmissingseries(seriesdata *s)
 		    addgameseries(s->mfinfo.buf[n].sfilelst,
 			newseries - s->list, k);
 	    }
-	}
-    }
-}
-
-/* Produce a warning if the versions of the named file in both seriesdir and
- * seriesdatdir are different.
- */
-static void warnifversionsaredifferent(char const *fname)
-{
-    fileinfo file1;
-    clearfileinfo(&file1);
-    if (!openfileindir(&file1, seriesdir, fname, "rb", "unknown error"))
-    	return;
-
-    fileinfo file2;
-    clearfileinfo(&file2);
-    if (!openfileindir(&file2, seriesdatdir, fname, "rb", "unknown error")) {
-	fileclose(&file1, NULL);
-    	return;
-    }
-
-    for (;;) {
-	int c1 = getc(file1.fp);
-	int c2 = getc(file2.fp);
-	if (c1 != c2)
-	{
-	    warn("Additionally, the two files are different!");
-	    break;
-	}
-	if (c1 == EOF)
-	    break;
-    }
-    fileclose(&file1, NULL);
-    fileclose(&file2, NULL);
-}
-
-/* Produce warnings about all cases where seriesdir and seriesdatdir contain
- * a mapfile of the same name.
- */
-static void warnaboutdoublemapfiles(mfinfovector *v)
-{
-    for (int i = 0; i < v->count; ++i)
-    {
-	if (v->buf[i].locdirs == (LOC_SERIESDIR | LOC_SERIESDATDIR))
-	{
-
-	    warn("The levelset \"%s\" is present in both \"%s\" and \"%s\"",
-	    	v->buf[i].filename, seriesdatdir, seriesdir);
-	    warnifversionsaredifferent(v->buf[i].filename);
 	}
     }
 }
@@ -863,10 +813,11 @@ static int getseriesfiles(char const *preferred, gameseries **list, int *count,
 	    sizeof *s.mfinfo.buf, compare_mapfileinfo);
 	s.mfinfo.datdircount = s.mfinfo.count;
 
-	s.curdir = seriesdatdir;
+	s.curdir = global_seriesdatdir;
 	findfiles(s.curdir, &s, getmapfile);
 
-	warnaboutdoublemapfiles(&s.mfinfo);
+	s.curdir = user_seriesdatdir;
+	findfiles(s.curdir, &s, getmapfile);
 
 	createallmissingseries(&s);
 	if (!s.count) {
