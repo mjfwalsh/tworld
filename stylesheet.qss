@@ -61,3 +61,7 @@ QLCDNumber {
 #m_pSldSeek::sub-page::groove {
 	background: green;
 }
+
+#m_pTextBrowser {
+	color: black;
+}

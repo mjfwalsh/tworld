@@ -1332,16 +1332,6 @@ void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 
 		CCX::Page& rPage = rText.vecPages[nPage];
 
-		m_pTextBrowser->setAlignment(rPage.pageProps.align | rPage.pageProps.valign);
-		// TODO: not working!
-
-		// m_pTextBrowser->setTextBackgroundColor(rPage.pageProps.bgcolor);
-		// m_pTextBrowser->setTextColor(rPage.pageProps.color);
-		QPalette pal = m_pTextBrowser->palette();
-		pal.setColor(QPalette::Base, rPage.pageProps.bgcolor);
-		pal.setColor(QPalette::Text, rPage.pageProps.color);
-		m_pTextBrowser->setPalette(pal);
-
 		QTextDocument* pDoc = m_pTextBrowser->document();
 		if (pDoc != 0)
 		{
