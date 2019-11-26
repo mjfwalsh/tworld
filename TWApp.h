@@ -17,7 +17,7 @@ public:
 	TileWorldApp(int& argc, char** argv);
 	~TileWorldApp();
 	
-	int RunTWorld(int& argc, char** argv);
+	int RunTWorld();
 	void ExitTWorld();
 	
 	bool Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram, bool bFullScreen);

@@ -137,11 +137,9 @@ void copytoclipboard(char const *text)
 	pClipboard->setText(text);
 }
 
-int TileWorldApp::RunTWorld(int& argc, char** argv)
+int TileWorldApp::RunTWorld()
 {
-    // I'm not sure what these two functions were doing?
-    //return tworld(argc(), argv());
-    return tworld(argc, argv);
+    return tworld();
 }
 
 
@@ -163,17 +161,11 @@ void TileWorldApp::ExitTWorld()
  */
 int main(int argc, char *argv[])
 {
-	for (int i = 1; i < argc; ++i)
-	{
-		const char* szArg = argv[i];
-		if (strlen(szArg) == 2  &&  szArg[0] == '-'  &&  strchr("lstbhdvV", szArg[1]) != 0)
-			return tworld(argc, argv);
-	}
-
 	TileWorldApp app(argc, argv);
+
 #ifdef WIN32
 	QApplication::setStyle(new QWindowsStyle());	// Vista / XP styles may mess up colors
 #endif
 
-	return app.RunTWorld(argc, argv);
+	return app.RunTWorld();
 }

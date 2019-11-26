@@ -20,7 +20,6 @@
 #include	"unslist.h"
 #include	"help.h"
 #include	"oshw.h"
-#include	"cmdline.h"
 #include	"ver.h"
 
 /* Bell-ringing macro.
@@ -40,19 +39,6 @@ typedef	struct gamespec {
     int		enddisplay;	/* TRUE if the final level was completed */
     int		melindacount;	/* count for Melinda's free pass */
 } gamespec;
-
-/* Structure used to hold data collected by initoptionswithcmdline().
- */
-typedef	struct startupdata {
-    char       *filename;	/* which data file to use */
-    char       *savefilename;	/* an alternate solution file */
-    int		levelnum;	/* a selected initial level */
-    int		listdirs;	/* TRUE if directories should be listed */
-    int		listseries;	/* TRUE if the files should be listed */
-    int		listscores;	/* TRUE if the scores should be listed */
-    int		listtimes;	/* TRUE if the times should be listed */
-    int		batchverify;	/* TRUE to enter batch verification */
-} startupdata;
 
 /* History of levelsets in order of last used date/time.
  */
@@ -291,16 +277,6 @@ void printtable(FILE *out, tablespec const *table)
     free(colsizes);
 }
 
-/* Display directory settings.
- */
-static void printdirectories(void)
-{
-    printf("Resource files read from:               %s\n", resdir);
-    printf("Level sets read from:                   %s\n", seriesdir);
-    printf("Configured user data files read from:   %s\n", user_seriesdatdir);
-    printf("Configured global data files read from: %s\n", global_seriesdatdir);
-    printf("Solution files saved in:                %s\n", savedir);
-}
 
 /*
  * Callback functions for oshw.
@@ -1428,7 +1404,8 @@ static int runcurrentlevel(gamespec *gs)
     return ret;
 }
 
-static int batchverify(gameseries *series, int display)
+// TODO rewrite with GUI
+/*static int batchverify(gameseries *series, int display)
 {
     gamesetup  *game;
     int		valid = 0, invalid = 0;
@@ -1466,7 +1443,7 @@ static int batchverify(gameseries *series, int display)
 	}
     }
     return invalid;
-}
+}*/
 
 /*
  * Game selection functions
@@ -1608,7 +1585,7 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
  * if an error occurred, or positive otherwise.
  */
 static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
-		     char const *defaultseries, int defaultlevel)
+		     char const *defaultseries)
 {
 	int okay, f, n;
 
@@ -1672,16 +1649,6 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 	gs->currentgame = -1;
 	gs->melindacount = 0;
 
-	if (defaultlevel) {
-	n = findlevelinseries(&gs->series, defaultlevel, NULL);
-	if (n >= 0) {
-		gs->currentgame = n;
-		if (gs->usepasswds &&
-			!(gs->series.games[n].sgflags & SGF_HASPASSWD))
-			changecurrentgame(gs, -1);
-	}
-	}
-
 	if (gs->currentgame < 0)
 		findlevelfromhistory(gs, gs->series.filebase);
 
@@ -1707,10 +1674,10 @@ static int choosegame(gamespec *gs, char const *lastseries)
 {
     seriesdata	s;
 
-    if (!createserieslist(NULL, &s.list, &s.count, &s.mflist, &s.mfcount,
+	if (!createserieslist(&s.list, &s.count, &s.mflist, &s.mfcount,
       &s.table))
 	return -1;
-    return selectseriesandlevel(gs, &s, FALSE, lastseries, 0);
+	return selectseriesandlevel(gs, &s, FALSE, lastseries);
 }
 
 /*
@@ -1724,7 +1691,7 @@ static int choosegame(gamespec *gs, char const *lastseries)
  * while the last is set as ~/Library/Application Support/Tile World.
  * It takes argv[0] as its sole parameter.
  */
-static void initdirs(char *binary_path)
+static void initdirs()
 {
 	//allocate memory to global vars
 	resdir = getpathbuffer();
@@ -1762,108 +1729,8 @@ static void initdirs(char *binary_path)
 	// create user dirs if necessar
 	if (!finddir(seriesdir)) errmsg(NULL, "Couldn't create seriesdir");
 	if (!finddir(user_seriesdatdir)) errmsg(NULL, "Couldn't create user seriesdatdir");
-}
-
-/* Parse the command-line options and arguments, and initialize the
- * user-controlled options.
- */
-static int initoptionswithcmdline(int argc, char *argv[], startupdata *start)
-{
-    cmdlineinfo	opts;
-    char	buf[256];
-    int		listdirs, pedantic;
-    int		ch, n;
-    char       *p;
-
-    start->filename = getpathbuffer();
-    *start->filename = '\0';
-    start->savefilename = NULL;
-    start->levelnum = 0;
-    start->listseries = FALSE;
-    start->listscores = FALSE;
-    start->listtimes = FALSE;
-    start->batchverify = FALSE;
-    listdirs = FALSE;
-    pedantic = FALSE;
-    mudsucking = 1;
-    soundbufsize = 0;
-    volumelevel = -1;
-
-    initoptions(&opts, argc - 1, argv + 1, "ab:dFfHh:lm:n:Ppq:r:stVv");
-    while ((ch = readoption(&opts)) >= 0) {
-	switch (ch) {
-	  case 0:
-	    if (start->savefilename && start->levelnum) {
-		fprintf(stderr, "too many arguments: %s\n", opts.val);
-		printtable(stderr, yowzitch);
-		return FALSE;
-	    }
-	    if (!start->levelnum && (n = (int)strtol(opts.val, &p, 10)) > 0
-				 && *p == '\0') {
-		start->levelnum = n;
-	    } else if (*start->filename) {
-		start->savefilename = getpathbuffer();
-		sprintf(start->savefilename, "%.*s", getpathbufferlen(),
-						     opts.val);
-	    } else {
-		sprintf(start->filename, "%.*s", getpathbufferlen(), opts.val);
-	    }
-	    break;
-	  case 'H':	showhistogram = !showhistogram;			break;
-	  case 'f':	noframeskip = !noframeskip;			break;
-	  case 'F':	fullscreen = !fullscreen;			break;
-	  case 'p':	usepasswds = !usepasswds;			break;
-	  case 'q':	silence = !silence;				break;
-	  case 'r':	readonly = !readonly;				break;
-	  case 'P':	pedantic = !pedantic;				break;
-	  case 'a':	++soundbufsize;					break;
-	  case 'd':	listdirs = TRUE;				break;
-	  case 'l':	start->listseries = TRUE;			break;
-	  case 's':	start->listscores = TRUE;			break;
-	  case 't':	start->listtimes = TRUE;			break;
-	  case 'b':	start->batchverify = TRUE;			break;
-	  case 'm':	mudsucking = atoi(opts.val);			break;
-	  case 'n':	volumelevel = atoi(opts.val);			break;
-	  case 'v':	puts(VERSION);		 	   exit(EXIT_SUCCESS);
-	  case 'V':	printtable(stdout, vourzhon); 	   exit(EXIT_SUCCESS);
-	  case ':':
-	    fprintf(stderr, "option requires an argument: -%c\n", opts.opt);
-	    printtable(stderr, yowzitch);
-	    return FALSE;
-	  case '?':
-	    fprintf(stderr, "unrecognized option: -%c\n", opts.opt);
-	    printtable(stderr, yowzitch);
-	    return FALSE;
-	  default:
-	    printtable(stderr, yowzitch);
-	    return FALSE;
-	}
     }
 
-    if (pedantic)
-	setpedanticmode();
-
-    initdirs(argv[0]);
-    if (listdirs) {
-	printdirectories();
-	exit(EXIT_SUCCESS);
-    }
-
-    if (*start->filename && !start->savefilename) {
-	if (loadsolutionsetname(start->filename, buf) > 0) {
-	    start->savefilename = getpathbuffer();
-	    strcpy(start->savefilename, start->filename);
-	    strcpy(start->filename, buf);
-	}
-    }
-
-    if (start->listscores || start->listtimes || start->batchverify
-					      || start->levelnum)
-	if (!*start->filename)
-	    strcpy(start->filename, "chips.dat");
-
-    return TRUE;
-}
 
 /* Run the initialization routines of oshw and the resource module.
  */
@@ -1913,69 +1780,17 @@ static void shutdownsystem(void)
  * the user returns to the series list later on, the choosegame()
  * function is called instead.
  */
-static int choosegameatstartup(gamespec *gs, char const *lastseries,
-	startupdata const *start)
+static int choosegameatstartup(gamespec *gs, char const *lastseries)
 {
     seriesdata	series;
-    tablespec	table;
-    int		n;
 
-    if (!createserieslist(start->filename,
-			  &series.list, &series.count,
-			  &series.mflist, &series.mfcount,
-			  &series.table))
+	if (!createserieslist(&series.list, &series.count,
+				  &series.mflist, &series.mfcount, &series.table))
 	return -1;
-
-    free(start->filename);
 
     if (series.count <= 0) {
 		errmsg(NULL, "no level sets found");
 		return -1;
-    }
-
-    if (start->listseries) {
-		printtable(stdout, &series.table);
-		if (!series.count)
-	 	   puts("(no files)");
-		return 0;
-    }
-
-    if (series.count == 1) {
-	if (start->savefilename)
-		series.list[0].savefilename = start->savefilename;
-	if (!readseriesfile(series.list)) {
-	   errmsg(series.list[0].filebase, "cannot read level set");
- 	   return -1;
-	}
-	if (start->batchverify) {
-		n = batchverify(series.list, !silence && !start->listtimes
-						  && !start->listscores);
-		if (silence)
-		exit(n > 100 ? 100 : n);
-		else if (!start->listtimes && !start->listscores)
-		return 0;
-	}
-	if (start->listscores) {
-		if (!createscorelist(series.list, usepasswds, '0',
-				 NULL, NULL, &table))
-		return -1;
-		freeserieslist(series.list, series.count,
-		series.mflist, series.mfcount, &series.table);
-		printtable(stdout, &table);
-		freescorelist(NULL, &table);
-		return 0;
-	}
-	if (start->listtimes) {
-		if (!createtimelist(series.list,
-				series.list->ruleset == Ruleset_MS ? 10 : 100,
-				'0', NULL, NULL, &table))
-		return -1;
-		freeserieslist(series.list, series.count,
-		series.mflist, series.mfcount, &series.table);
-		printtable(stdout, &table);
-		freetimelist(NULL, &table);
-		return 0;
-	}
     }
 
     if (!initializesystem()) {
@@ -1987,23 +1802,20 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries,
     if (series.count == 1)
     	readextensions(series.list);
 
-    return selectseriesandlevel(gs, &series, TRUE, lastseries, start->levelnum);
+	return selectseriesandlevel(gs, &series, TRUE, lastseries);
 }
 
 /*
  * The main function.
  */
 
-int tworld(int argc, char *argv[])
+int tworld()
 {
-    startupdata	start;
     gamespec	spec;
     char	lastseries[sizeof spec.series.filebase];
     int		f;
 
-    if (!initoptionswithcmdline(argc, argv, &start))
-	return EXIT_FAILURE;
-
+	initdirs();
     loadhistory();
     loadsettings();
 
@@ -2018,7 +1830,7 @@ int tworld(int argc, char *argv[])
     if (getintsetting("showinitstate") > 0)
 	toggleshowinitstate();
 
-    f = choosegameatstartup(&spec, lastseries, &start);
+	f = choosegameatstartup(&spec, lastseries);
     if (f < 0)
 	return EXIT_FAILURE;
     else if (f == 0)

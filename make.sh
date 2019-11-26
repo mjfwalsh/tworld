@@ -48,7 +48,6 @@ compile () {
 	compile_file "$C_BASE" help.o help.c
 	compile_file "$CPP_BASE" score.o score.cpp
 	compile_file "$C_BASE" random.o random.c
-	compile_file "$C_BASE" cmdline.o cmdline.c
 	compile_file "$CPP_BASE" settings.o settings.cpp
 	compile_file "$C_BASE" fileio.o fileio.c
 	compile_file "$C_BASE" err.o err.c
@@ -74,7 +73,7 @@ compile () {
 	#PRINT_DIR=''
 
 	echo Linking tworld2...
-	run c++ -o tworld2 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o cmdline.o settings.o fileio.o err.o \
+	run c++ -o tworld2 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o settings.o fileio.o err.o \
 	generic.o tile.o timer.o _in.o _sdlsfx.o oshwbind.o CCMetaData.o TWDisplayWidget.o TWProgressBar.o TWMainWnd.o moc_TWMainWnd.o TWApp.o \
 	-L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
 	if [ $? -eq 0 ]

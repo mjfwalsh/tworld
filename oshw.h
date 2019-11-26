@@ -22,7 +22,7 @@ struct gameseries;
 /* This is the declaration of the top layer's main function. It is
  * called directly from the real main() inside the OS/hardware layer.
  */
-OSHW_EXTERN int tworld(int argc, char *argv[]);
+OSHW_EXTERN int tworld();
 
 /* Initialize the OS/hardware interface. This function must be called
  * before any others in the oshw library. If silence is TRUE, the

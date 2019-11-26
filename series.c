@@ -776,16 +776,13 @@ static void createallmissingseries(seriesdata *s)
 /* Search the series directory and generate an array of gameseries
  * structures corresponding to the data files found there. The array
  * is returned through list, and the size of the array is returned
- * through count. If preferred is not NULL, then the array returned
- * will only contain the series with that string as its filename
- * (presuming it can be found). The program will be aborted if a
- * serious error occurs or if no series can be found.
+ * through count. The program will be aborted if a serious error
+ * occurs or if no series can be found.
  */
-static int getseriesfiles(char const *preferred, gameseries **list, int *count,
+static int getseriesfiles(gameseries ** list, int *count,
 			  mapfileinfo **mflist, int *mfcount)
 {
     seriesdata	s;
-    int		n;
 
     s.mfinfo.buf = NULL;
     x_alloc(s.mfinfo.buf, sizeof *s.mfinfo.buf); /* Ensure buf not null */
@@ -793,18 +790,8 @@ static int getseriesfiles(char const *preferred, gameseries **list, int *count,
     s.list = NULL;
     s.allocated = 0;
     s.count = 0;
-    if (preferred && *preferred && haspathname(preferred)) {
-	if (getseriesfile(preferred, &s) < 0)
-	    return FALSE;
-	if (!s.count) {
-	    errmsg(preferred, "couldn't read data file");
-	    return FALSE;
-	}
-	*seriesdir = '\0';
-	s.list[0].gsflags |= GSF_NODEFAULTSAVE;
-    } else {
-	if (!*seriesdir)
-	    return FALSE;
+
+	if (!*seriesdir) return FALSE;
 	s.curdir = seriesdir;
 	findfiles(s.curdir, &s, getseriesfile);
 
@@ -824,25 +811,11 @@ static int getseriesfiles(char const *preferred, gameseries **list, int *count,
 	    errmsg(NULL, "no series files found");
 	    return FALSE;
 	}
-	if (preferred && *preferred) {
-	    for (n = 0 ; n < s.count ; ++n) {
-		if (!strcmp(s.list[n].name, preferred)) {
-		    s.list[0] = s.list[n];
-		    s.count = 1;
-		    n = 0;
-		    break;
-		}
-	    }
-	    if (n == s.count) {
-		errmsg(preferred, "no such data file");
-		return FALSE;
-	    }
-	}
 
 	removefilenamesuffixes(&s.mfinfo);
 	qsort(s.mfinfo.buf, s.mfinfo.count,
 	    sizeof *s.mfinfo.buf, compare_mapfileinfo);
-    }
+
     *list = s.list;
     *count = s.count;
     *mflist = s.mfinfo.buf;
@@ -858,7 +831,7 @@ static int getseriesfiles(char const *preferred, gameseries **list, int *count,
  * the gameseries filenames is returned through table. preferredfile, if not
  * NULL, limits the results to just the series with that filename.
  */
-int createserieslist(char const *preferredfile, gameseries **pserieslist,
+int createserieslist(gameseries **pserieslist,
 		     int *pcount, mapfileinfo **pmflist, int *pmfcount,
 		     tablespec *table)
 {
@@ -871,7 +844,7 @@ int createserieslist(char const *preferredfile, gameseries **pserieslist,
     int			mapfilelistsize;
     int			used, col, n, y;
 
-    if (!getseriesfiles(preferredfile, &serieslist, &listsize, &mapfilelist, &mapfilelistsize))
+    if (!getseriesfiles(&serieslist, &listsize, &mapfilelist, &mapfilelistsize))
 	return FALSE;
     *pserieslist = serieslist;
     *pcount = listsize;
