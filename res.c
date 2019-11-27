@@ -21,17 +21,9 @@
 
 #define	RES_IMG_BASE		0
 #define	RES_IMG_TILES		(RES_IMG_BASE + 0)
-#define	RES_IMG_FONT		(RES_IMG_BASE + 1)
-#define	RES_IMG_LAST		RES_IMG_FONT
+#define	RES_IMG_LAST		RES_IMG_TILES
 
-#define	RES_CLR_BASE		(RES_IMG_LAST + 1)
-#define	RES_CLR_BKGND		(RES_CLR_BASE + 0)
-#define	RES_CLR_TEXT		(RES_CLR_BASE + 1)
-#define	RES_CLR_BOLD		(RES_CLR_BASE + 2)
-#define	RES_CLR_DIM		(RES_CLR_BASE + 3)
-#define	RES_CLR_LAST		RES_CLR_DIM
-
-#define	RES_TXT_BASE		(RES_CLR_LAST + 1)
+#define	RES_TXT_BASE		(RES_IMG_LAST + 1)
 #define	RES_TXT_UNSLIST		(RES_TXT_BASE + 0)
 #define RES_TXT_MESSAGE		(RES_TXT_BASE + 1)
 #define	RES_TXT_LAST		RES_TXT_MESSAGE
@@ -85,11 +77,6 @@ typedef union resourceitem {
  */
 static rcitem rclist[RES_COUNT] = {
     { "tileimages",		FALSE },
-    { "font",			FALSE },
-    { "backgroundcolor",	FALSE },
-    { "textcolor",		FALSE },
-    { "boldtextcolor",		FALSE },
-    { "dimtextcolor",		FALSE },
     { "unsolvablelist",		FALSE },
     { "endmessages",		FALSE },
     { "chipdeathsound",		FALSE },
@@ -145,11 +132,6 @@ char		       *resdir = NULL;
 static void initresourcedefaults(void)
 {
     strcpy(allresources[Ruleset_None][RES_IMG_TILES].str, "tiles.bmp");
-    strcpy(allresources[Ruleset_None][RES_IMG_FONT].str, "font.bmp");
-    strcpy(allresources[Ruleset_None][RES_CLR_BKGND].str, "000000");
-    strcpy(allresources[Ruleset_None][RES_CLR_TEXT].str, "FFFFFF");
-    strcpy(allresources[Ruleset_None][RES_CLR_BOLD].str, "FFFF00");
-    strcpy(allresources[Ruleset_None][RES_CLR_DIM].str, "C0C0C0");
     memcpy(&allresources[Ruleset_MS], globalresources,
 				sizeof allresources[Ruleset_MS]);
     memcpy(&allresources[Ruleset_Lynx], globalresources,
@@ -227,37 +209,6 @@ static int readrcfile(void)
  * Resource-loading functions
  */
 
-/* Parse the color-definition resource values.
- */
-static int loadcolors(void)
-{
-    long	bkgnd, text, bold, dim;
-    char       *end;
-
-    bkgnd = strtol(resources[RES_CLR_BKGND].str, &end, 16);
-    if (*end || bkgnd < 0 || bkgnd > 0xFFFFFF) {
-	warn("rc: invalid color ID for background");
-	bkgnd = -1;
-    }
-    text = strtol(resources[RES_CLR_TEXT].str, &end, 16);
-    if (*end || text < 0 || text > 0xFFFFFF) {
-	warn("rc: invalid color ID for text");
-	text = -1;
-    }
-    bold = strtol(resources[RES_CLR_BOLD].str, &end, 16);
-    if (*end || bold < 0 || bold > 0xFFFFFF) {
-	warn("rc: invalid color ID for bold text");
-	bold = -1;
-    }
-    dim = strtol(resources[RES_CLR_DIM].str, &end, 16);
-    if (*end || dim < 0 || dim > 0xFFFFFF) {
-	warn("rc: invalid color ID for dim text");
-	dim = -1;
-    }
-
-    setcolors(bkgnd, text, bold, dim);
-    return TRUE;
-}
 
 /* Attempt to load the tile images.
  */
@@ -281,31 +232,6 @@ static int loadimages(void)
 
     if (!f)
 	errmsg(resdir, "no valid tilesets found");
-    return f;
-}
-
-/* Load the font resource.
- */
-static int loadfont(void)
-{
-    char       *path;
-    int		f;
-
-    f = FALSE;
-    path = getpathbuffer();
-    if (*resources[RES_IMG_FONT].str) {
-	combinepath(path, resdir, resources[RES_IMG_FONT].str);
-	f = loadfontfromfile(path, TRUE);
-    }
-    if (!f && resources != globalresources
-	   && *globalresources[RES_IMG_FONT].str) {
-	combinepath(path, resdir, globalresources[RES_IMG_FONT].str);
-	f = loadfontfromfile(path, TRUE);
-    }
-    free(path);
-
-    if (!f)
-	errmsg(resdir, "no valid font found");
     return f;
 }
 
@@ -357,15 +283,12 @@ static int loadsounds(void)
 
 /* Load all resources that are available. FALSE is returned if the
  * tile images could not be loaded. (Sounds are not required in order
- * to run, and by this point we should already have a valid font and
- * color scheme set.)
+ * to run.)
  */
 int loadgameresources(int ruleset)
 {
     currentruleset = ruleset;
     resources = allresources[ruleset];
-    loadcolors();
-    loadfont();
     if (!loadimages())
 	return FALSE;
     if (loadsounds() == 0)
@@ -373,14 +296,14 @@ int loadgameresources(int ruleset)
     return TRUE;
 }
 
-/* Parse the rc file and load the font and color scheme. FALSE is returned
+/* Parse the rc file. FALSE is returned
  * if an error occurs.
  */
 int initresources(void)
 {
     initresourcedefaults();
     resources = allresources[Ruleset_None];
-    if (!readrcfile() || !loadcolors() || !loadfont())
+    if (!readrcfile())
 	return FALSE;
     loadtxtresource(RES_TXT_UNSLIST, loadunslistfromfile);
     loadtxtresource(RES_TXT_MESSAGE, loadmessagesfromfile);
@@ -392,7 +315,6 @@ int initresources(void)
 void freeallresources(void)
 {
     int	n;
-    freefont();
     freetileset();
     clearunslist();
     for (n = 0 ; n < SND_COUNT ; ++n)

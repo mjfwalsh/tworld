@@ -495,17 +495,6 @@ void TileWorldMainWnd::SetCurrentPage(Page ePage)
 }
 
 
-
-/* Select the colors used for drawing the display background, normal
- * text, bold (highlighted) text, and dim (grayed) text. The color
- * values are of the form 0x00RRGGBB.
- */
-void setcolors(long bkgnd, long text, long bold, long dim)
-{
-	// N/A?
-}
-
-
 /* Fill the display with the background color.
  */
 void cleardisplay(void)

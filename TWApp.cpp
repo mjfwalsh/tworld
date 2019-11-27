@@ -113,23 +113,6 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
  * Resource-loading functions.
  */
 
-/* Extract the font stored in the given file and make it the current
- * font. FALSE is returned if the attempt was unsuccessful. If
- * complain is FALSE, no error messages will be displayed.
- */
-int loadfontfromfile(char const *filename, int complain)
-{
-	// N/A
-	return true;
-}
-
-/* Free all memory associated with the current font.
- */
-void freefont(void)
-{
-	// N/A
-}
-
 void copytoclipboard(char const *text)
 {
 	QClipboard* pClipboard = QApplication::clipboard();

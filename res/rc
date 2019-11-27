@@ -1,8 +1,3 @@
-Font=font.bmp
-BackgroundColor=000000
-TextColor=CCCCCC
-BoldTextColor=FFFFFF
-DimTextColor=999999
 UnsolvableList=unslist.txt
 EndMessages=messages.txt
 LevelCompleteSound=tada.wav

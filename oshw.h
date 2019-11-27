@@ -113,16 +113,6 @@ enum {
  * Resource-loading functions.
  */
 
-/* Extract the font stored in the given file and make it the current
- * font. FALSE is returned if the attempt was unsuccessful. If
- * complain is FALSE, no error messages will be displayed.
- */
-OSHW_EXTERN int loadfontfromfile(char const *filename, int complain);
-
-/* Free all memory associated with the current font.
- */
-OSHW_EXTERN void freefont(void);
-
 /* Extract the tile images stored in the given file and use them as
  * the current tile set. FALSE is returned if the attempt was
  * unsuccessful. If complain is FALSE, no error messages will be
