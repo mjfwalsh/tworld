@@ -191,10 +191,6 @@ static int readrcfile(void)
 	    warn("rc:%d: illegal resource name \"%s\"", lineno, name);
 	    continue;
 	}
-	if (rclist[i].numeric) {
-	    i = atoi(item.str);
-	    item.num = i;
-	}
 	allresources[ruleset][i] = item;
 	if (ruleset == Ruleset_None)
 	    for (j = Ruleset_None ; j < Ruleset_Count ; ++j)
@@ -221,11 +217,6 @@ static int loadimages(void)
     path = getpathbuffer();
     if (*resources[RES_IMG_TILES].str) {
 	combinepath(path, resdir, resources[RES_IMG_TILES].str);
-	f = loadtileset(path, TRUE);
-    }
-    if (!f && resources != globalresources
-	   && *globalresources[RES_IMG_TILES].str) {
-	combinepath(path, resdir, globalresources[RES_IMG_TILES].str);
 	f = loadtileset(path, TRUE);
     }
     free(path);
@@ -267,11 +258,6 @@ static int loadsounds(void)
 	f = FALSE;
 	if (*resources[RES_SND_BASE + n].str) {
 	    combinepath(path, resdir, resources[RES_SND_BASE + n].str);
-	    f = loadsfxfromfile(n, path);
-	}
-	if (!f && resources != globalresources
-	       && *globalresources[RES_SND_BASE + n].str) {
-	    combinepath(path, resdir, globalresources[RES_SND_BASE + n].str);
 	    f = loadsfxfromfile(n, path);
 	}
 	if (f)
