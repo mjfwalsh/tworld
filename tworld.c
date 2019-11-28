@@ -18,7 +18,6 @@
 #include	"settings.h"
 #include	"solution.h"
 #include	"unslist.h"
-#include	"help.h"
 #include	"oshw.h"
 #include	"ver.h"
 
