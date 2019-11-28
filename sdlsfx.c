@@ -26,7 +26,6 @@ typedef	struct sfxinfo {
     Uint32		len;		/* size of the wave data */
     int			pos;		/* how much has been played already */
     int			playing;	/* is the wave currently playing? */
-    char const	       *textsfx;	/* the onomatopoeia string */
 } sfxinfo;
 
 /* The data needed to talk to the sound output device.
@@ -158,7 +157,7 @@ int loadsfxfromfile(int index, char const *filename)
     Uint8	       *wavecvt;
     Uint32		lengthin;
 
-    if (!filename) {
+    if (!filename || filename[0] == '\0') {
 	freesfx(index);
 	return TRUE;
     }
@@ -170,6 +169,7 @@ int loadsfxfromfile(int index, char const *filename)
 	    return FALSE;
 
     if (!SDL_LoadWAV(filename, &specin, &wavein, &lengthin)) {
+    freesfx(index);
 	warn("can't load %s: %s", filename, SDL_GetError());
 	return FALSE;
     }
