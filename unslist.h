@@ -9,11 +9,17 @@
 
 #include	"defs.h"
 
+#ifdef __cplusplus
+	#define OSHW_EXTERN extern "C"
+#else
+	#define OSHW_EXTERN extern
+#endif
+
 /* Read the list of unsolvable levels from the given filename. If the
  * filename does not contain a path, then the function looks for the
  * file in the resource directory and the user's save directory.
  */
-extern int loadunslistfromfile(char const *filename);
+OSHW_EXTERN int loadunslistfromfile(char const *filename);
 
 /* Look up the given level in the list of unsolvable levels. TRUE is
  * returned if the level is found in the list, FALSE otherwise. (Since
@@ -34,6 +40,8 @@ extern int markunsolvablelevels(gameseries *series);
 
 /* Free all memory associated with the list of unsolvable levels.
  */
-extern void clearunslist(void);
+OSHW_EXTERN void clearunslist(void);
+
+#undef OSHW_EXTERN
 
 #endif

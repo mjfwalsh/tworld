@@ -37,7 +37,7 @@ compile () {
 	compile_file "$C_BASE" play.o play.c
 	compile_file "$C_BASE" encoding.o encoding.c
 	compile_file "$C_BASE" solution.o solution.c
-	compile_file "$C_BASE" res.o res.c
+	compile_file "$CPP_BASE $QT_OPTS" res.o res.cpp
 	compile_file "$C_BASE" lxlogic.o lxlogic.c
 	compile_file "$C_BASE" mslogic.o mslogic.c
 	compile_file "$C_BASE" unslist.o unslist.c
