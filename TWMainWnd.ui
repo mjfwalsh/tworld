@@ -14,7 +14,7 @@
    <string notr="true">#m_pMainWidget {background-image:url("motherboard.svg"); background-position: center;} </string>
   </property -->
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QGridLayout" name="cwlayout">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -30,7 +30,7 @@
     <property name="sizeConstraint">
      <enum>QLayout::SetFixedSize</enum>
     </property>
-    <item>
+    <item row="0" column="0">
      <widget class="QStackedWidget" name="m_pMainWidget">
       <property name="autoFillBackground">
        <bool>true</bool>
@@ -813,6 +813,55 @@ p, li { white-space: pre-wrap; }
       </widget>
      </widget>
     </item>
+    <item row="0" column="0" alignment="Qt::AlignCenter">
+     <widget class="QFrame" name="m_pPrgVolFrame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="visible">
+       <bool>false</bool>
+      </property>
+      <property name="attribute">
+       <set>Qt::WA_TransparentForMouseEvents</set>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_478">
+       <property name="topMargin">
+        <number>4</number>
+       </property>
+       <property name="bottomMargin">
+        <number>4</number>
+       </property>
+       <item>
+        <widget class="QProgressBar" name="m_pPrgVolume">
+         <property name="TextVisible">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="maximum">
+          <number>10</number>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="m_pMenuBar">
@@ -870,6 +919,13 @@ p, li { white-space: pre-wrap; }
     <addaction name="action_Zoom140"/>
     <addaction name="action_Zoom150"/>
    </widget>
+   <widget class="QMenu" name="menu_Audio">
+    <property name="title">
+     <string>Audio</string>
+    </property>
+    <addaction name="action_VolumeUp"/>
+    <addaction name="action_VolumeDown"/>
+   </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
      <string>Help</string>
@@ -881,6 +937,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="menu_Options"/>
    <addaction name="menu_Solution"/>
    <addaction name="menu_Zoom"/>
+   <addaction name="menu_Audio"/>
    <addaction name="menu_Help"/>
   </widget>
   <action name="action_Scores">
@@ -1078,6 +1135,22 @@ p, li { white-space: pre-wrap; }
     </property>
    </action>
   </actiongroup>
+  <action name="action_VolumeUp">
+   <property name="text">
+    <string>Volume Up</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="action_VolumeDown">
+   <property name="text">
+    <string>Volume Down</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

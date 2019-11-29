@@ -52,6 +52,7 @@ extern int pedanticmode;
 
 #include <QString>
 #include <QTextStream>
+#include <QTimer>
 
 #include <vector>
 
@@ -279,6 +280,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	// place window near top left corner
 	move(30, 30);
 	show();
+
+	volTimer = new QTimer(this);
 }
 
 
@@ -1441,6 +1444,18 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 		return;
 	}
 
+	if (pAction == action_VolumeUp)
+	{
+		this->SetVolume(+2);
+		return;
+	}
+
+	if (pAction == action_VolumeDown)
+	{
+		this->SetVolume(-2);
+		return;
+	}
+
 	int nTWKey = GetTWKeyForAction(pAction);
 	if (nTWKey == TWK_dummy) return;
 	PulseKey(nTWKey);
@@ -1502,4 +1517,22 @@ void TileWorldMainWnd::SetPlayPauseButton(int paused)
 	} else {
 		m_pBtnPlay->setIcon(pauseIcon);
 	}
+}
+
+void TileWorldMainWnd::SetVolume(int volume)
+{
+	if(volTimer->isActive()) volTimer->stop();
+
+	m_pPrgVolFrame->setVisible(true);
+	m_pPrgVolume->setValue(changevolume(volume));
+
+	connect(volTimer, SIGNAL(timeout()), this, SLOT(HideVolumeWidget()));
+
+    volTimer->setSingleShot(true);
+    volTimer->start(2000);
+}
+
+void TileWorldMainWnd::HideVolumeWidget()
+{
+	m_pPrgVolFrame->setVisible(false);
 }

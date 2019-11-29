@@ -65,3 +65,11 @@ QLCDNumber {
 #m_pTextBrowser {
 	color: black;
 }
+
+#m_pPrgVolFrame {
+	border-radius: 8px;
+	background-color: rgba(255,255,255,0.5);
+	margin-left: 20px;
+	margin-right: 20px;
+	color: black;
+}

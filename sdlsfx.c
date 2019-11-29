@@ -268,25 +268,24 @@ void freesfx(int index)
 
 /* Set the current volume level to v.
  */
-int setvolume(int v, int display)
+int setvolume(int v)
 {
     if (!hasaudio)
-	return FALSE;
+	return 0;
     if (v < 0)
 	v = 0;
     else if (v > 10)
 	v = 10;
     volume = (SDL_MIX_MAXVOLUME * v + 9) / 10;
     setintsetting("volume", v);
-    return TRUE;
+    return v;
 }
 
-/* Change the current volume level by delta. If display is true, the
- * new volume level is displayed to the user.
+/* Change the current volume level by delta. Returns the resulting volume level
  */
-int changevolume(int delta, int display)
+int changevolume(int delta)
 {
-    return setvolume(((10 * volume) / SDL_MIX_MAXVOLUME) + delta, display);
+    return setvolume(((10 * volume) / SDL_MIX_MAXVOLUME) + delta);
 }
 
 /* Shut down the sound system.

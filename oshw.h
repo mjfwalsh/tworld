@@ -272,11 +272,11 @@ OSHW_EXTERN void setsoundeffects(int action);
  * volume level will be displayed to the user. FALSE is returned if
  * the sound system is not currently active.
  */
-OSHW_EXTERN int setvolume(int volume, int display);
+OSHW_EXTERN int setvolume(int volume);
 
 /* Alters the current volume level by delta.
  */
-OSHW_EXTERN int changevolume(int delta, int display);
+OSHW_EXTERN int changevolume(int delta);
 
 /* Release all memory used for the given sound effect's wave data.
  */

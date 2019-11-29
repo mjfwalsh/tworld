@@ -666,8 +666,6 @@ static int startinput(gamespec *gs)
 	  case CmdStepping:	changestepping(4, TRUE);	break;
 	  case CmdSubStepping:	changestepping(1, TRUE);	break;
 	  case CmdRandomFF:     advanceinitrandomff(TRUE);	break;
-	  case CmdVolumeUp:	changevolume(+2, TRUE);		break;
-	  case CmdVolumeDown:	changevolume(-2, TRUE);		break;
 	  case CmdQuit:						exit(0);
 	  case CmdPlayback:
 	  case CmdAdvanceGame:
@@ -896,14 +894,6 @@ static int playgame(gamespec *gs, int firstcmd)
 	      case CmdNextLevel:		n = +1;		goto quitloop;
 	      case CmdSameLevel:		n = 0;		goto quitloop;
 	      case CmdQuit:					exit(0);
-	      case CmdVolumeUp:
-		changevolume(+2, TRUE);
-		cmd = CmdNone;
-		break;
-	      case CmdVolumeDown:
-		changevolume(-2, TRUE);
-		cmd = CmdNone;
-		break;
 	      case CmdPauseGame:
 	        SETPAUSED(!gamepaused, TRUE);
 		if (!gamepaused)
@@ -1065,12 +1055,6 @@ static int playbackgame(gamespec *gs, int initcmd)
 	  case CmdPlayback:					goto quitloop;
 	  case CmdQuitLevel:					goto quitloop;
 	  case CmdQuit:						exit(0);
-	  case CmdVolumeUp:
-	    changevolume(+2, TRUE);
-	    break;
-	  case CmdVolumeDown:
-	    changevolume(-2, TRUE);
-	    break;
 	  case CmdPauseGame:
 	    SETPAUSED(!gamepaused, FALSE);
 	    break;
@@ -1560,7 +1544,7 @@ static int initializesystem(void)
     if (volumelevel < 0)
         volumelevel = getintsetting("volume");
     if (volumelevel >= 0)
-	setvolume(volumelevel, FALSE);
+	setvolume(volumelevel);
 
     return TRUE;
 }

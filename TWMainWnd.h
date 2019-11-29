@@ -63,6 +63,9 @@ public:
 	void ShowAbout();
 	void SetPlayPauseButton(int p);
 
+public slots:
+	void HideVolumeWidget();
+
 private slots:
 	void OnListItemActivated(const QModelIndex& index);
 	void OnFindTextChanged(const QString& sText);
@@ -88,6 +91,7 @@ private:
 	void ReleaseAllKeys();
 	void PulseKey(int nTWKey);
 	int GetTWKeyForAction(QAction* pAction) const;
+	void SetVolume(int volume);
 
 	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };
 	bool SetHintMode(HintMode newmode);
@@ -128,6 +132,8 @@ private:
 
 	QIcon playIcon;
 	QIcon pauseIcon;
+
+	QTimer *volTimer;
 };
 
 
