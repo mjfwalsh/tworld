@@ -4,14 +4,9 @@
  * General Public License. No warranty. See COPYING for details.
  */
 
-#include	<QObject>
-#include	<QSettings>
-#include	<QStringList>
 #include	<QFile>
 #include	<QString>
-#include	<QRegularExpression>
 #include	<QHash>
-#include	<QDebug>
 
 #include	<stdlib.h>
 #include	<string.h>
@@ -26,90 +21,61 @@
 
 /* The directory containing all the resource files.
  */
-char		       *resdir = NULL;
-
-// The complete list of rulesets.
-QStringList rulesets = {"", "Lynx", "MS"};
+char		 *resdir = NULL;
 
 // The active ruleset.
-QString         currentRuleset = "";
+int         currentRuleset;
 
 // 2D Array for resources
-QHash<QString, QHash<QString, QString> > allResources;
+QHash<int, QHash<QString, QString>> allResources;
+
+// sounds
+QString sounds[SND_COUNT];
 
 // to pass functions as params
 typedef int (*txtloader)(char const * fname);
 
-// res keys
-QStringList resKeys = {
-"tileimages",
-"unsolvablelist",
-"endmessages",
-"chipdeathsound",
-"levelcompletesound",
-"chipdeathbytimesound",
-"ticksound",
-"derezzsound",
-"blockedmovesound",
-"pickupchipsound",
-"pickuptoolsound",
-"thiefsound",
-"teleportsound",
-"opendoorsound",
-"socketsound",
-"switchsound",
-"tileemptiedsound",
-"wallcreatedsound",
-"trapenteredsound",
-"bombsound",
-"splashsound",
-"blockmovingsound",
-"skatingforwardsound",
-"skatingturnsound",
-"slidingsound",
-"slidewalkingsound",
-"icewalkingsound",
-"waterwalkingsound",
-"firewalkingsound"};
-
-
-/* Iterate through the lines of the rc file, storing the values in the
- * allresources array. Lines consisting only of whitespace, or with an
- * octothorpe as the first non-whitespace character, are skipped over.
- * Lines containing a ruleset in brackets introduce ruleset-specific
- * resource values. Ruleset-independent values are copied into each of
- * the ruleset-specific entries.
- */
-bool ReadRCFile()
+void addResource(int soundIndex, QString key, QString all, QString ms, QString lynx)
 {
-	QString rcFile(resdir);
-	rcFile += "/rc";
+	key = key.toLower();
 
-	QSettings rc(rcFile, QSettings::IniFormat);
+	if(!all.isEmpty()) allResources[Ruleset_None][key] = all;
+	if(!ms.isEmpty()) allResources[Ruleset_MS][key] = ms;
+	if(!lynx.isEmpty()) allResources[Ruleset_Lynx][key] = lynx;
 
-	QStringList rs = rc.childGroups();
-	for (int i = -1; i < rs.size(); ++i) {
-		QString g;
-		if(i == -1) {
-			g = "all";
-		} else {
-			rc.beginGroup(rs[i]); // case sensitive
-			g = rs[i].toLower();
-		}
+	if(soundIndex > -1) sounds[soundIndex] = key;
+}
 
-		QStringList ruleset = rc.childKeys();
-		for (int j = 0; j < ruleset.size(); ++j) {
-			QString k = ruleset[j].toLower();
-			QString v = rc.value(ruleset[j]).toString().toLower(); // case sensitive
-
-			allResources[g][k] = v;
-		}
-		if(i > -1) rc.endGroup();
-	}
-
-    if(allResources.contains("all") && allResources.contains("ms")
-    	&& allResources.contains("lynx")) return TRUE;
-    else return FALSE;
+void initres()
+{
+	addResource(-1,                  "TileImages",           "",               "tiles.bmp",   "atiles.bmp");
+	addResource(-1,                  "UnsolvableList",       "unslist.txt",    "",            "");
+	addResource(-1,                  "EndMessages",          "messages.txt",   "",            "");
+	addResource(SND_CHIP_LOSES,      "ChipDeathSound",       "",               "death.wav",   "derezz.wav");
+	addResource(SND_CHIP_WINS,       "LevelCompleteSound",   "tada.wav",       "",            "");
+	addResource(SND_TIME_OUT,        "ChipDeathByTimeSound", "",               "ding.wav",    "");
+	addResource(SND_TIME_LOW,        "TickSound",            "",               "tick.wav",    "");
+	addResource(SND_CANT_MOVE,       "BlockedMoveSound",     "",               "oof.wav",     "bump.wav");
+	addResource(SND_IC_COLLECTED,    "PickupChipSound",      "",               "chack.wav",   "ting.wav");
+	addResource(SND_ITEM_COLLECTED,  "PickupToolSound",      "ting.wav",       "",            "");
+	addResource(SND_BOOTS_STOLEN,    "ThiefSound",           "thief.wav",      "",            "");
+	addResource(SND_TELEPORTING,     "TeleportSound",        "teleport.wav",   "",            "");
+	addResource(SND_DOOR_OPENED,     "OpenDoorSound",        "door.wav",       "",            "");
+	addResource(SND_SOCKET_OPENED,   "SocketSound",          "",               "socket.wav",  "door.wav");
+	addResource(SND_BUTTON_PUSHED,   "SwitchSound",          "click.wav",      "",            "");
+	addResource(SND_TILE_EMPTIED,    "TileEmptiedSound",     "",               "",            "whisk.wav");
+	addResource(SND_WALL_CREATED,    "WallCreatedSound",     "",               "",            "popup.wav");
+	addResource(SND_TRAP_ENTERED,    "TrapEnteredSound",     "",               "",            "bump.wav");
+	addResource(SND_BOMB_EXPLODES,   "BombSound",            "bomb.wav",       "",            "");
+	addResource(SND_WATER_SPLASH,    "SplashSound",          "splash.wav",     "",            "");
+	addResource(SND_BLOCK_MOVING,    "BlockMovingSound",     "",               "",            "block.wav");
+	addResource(SND_SKATING_FORWARD, "SkatingForwardSound",  "",               "",            "skate.wav");
+	addResource(SND_SKATING_TURN,    "SkatingTurnSound",     "",               "",            "skaturn.wav");
+	addResource(SND_SLIDING,         "SlidingSound",         "",               "",            "force.wav");
+	addResource(SND_SLIDEWALKING,    "SlideWalkingSound",    "",               "",            "slurp.wav");
+	addResource(SND_ICEWALKING,      "IceWalkingSound",      "",               "",            "snick.wav");
+	addResource(SND_WATERWALKING,    "WaterWalkingSound",    "",               "",            "plip.wav");
+	addResource(SND_FIREWALKING,     "FireWalkingSound",     "",               "",            "crackle.wav");
 }
 
 /*
@@ -121,10 +87,9 @@ QString GetResource(QString resid)
 	if(allResources[currentRuleset].contains(resid)) {
 		return allResources[currentRuleset][resid];
 	} else {
-		return allResources["all"][resid];
+		return allResources[Ruleset_None][resid];
 	}
 }
-
 
 QString GetResourcePath(QString resid)
 {
@@ -164,14 +129,10 @@ int LoadTextResource(QString resid, txtloader loadfunc)
  */
 int LoadSounds()
 {
-    QRegularExpression re("sound$");
-    int		count = 0;
-
-    QStringList sounds = resKeys.filter(re);
-        for (int i = 0; i < sounds.size(); ++i) {
-        QString fp = GetResourcePath(sounds.at(i));
-
-		if(loadsfxfromfile(i, fp.toStdString().c_str())) ++count;
+    int	count = 0;
+    for(int i = 0; i < SND_COUNT; i++) {
+    	QString file = GetResourcePath(sounds[i]);
+    	if(loadsfxfromfile(i, file.toStdString().c_str())) ++count;
 	}
 
     return count;
@@ -184,7 +145,7 @@ int LoadSounds()
  */
 int loadgameresources(int ruleset)
 {
-        currentRuleset = rulesets.at(ruleset).toLower();
+	    currentRuleset = ruleset;
         if (!LoadImages()) return FALSE;
         if (LoadSounds() == 0) setaudiosystem(FALSE);
         return TRUE;
@@ -195,7 +156,7 @@ int loadgameresources(int ruleset)
  */
 int initresources()
 {
-    if (!ReadRCFile()) return FALSE;
+    initres();
     LoadTextResource("unsolvablelist", loadunslistfromfile);
     LoadTextResource("endmessages", loadmessagesfromfile);
     return TRUE;
