@@ -64,7 +64,6 @@ static keycmdmap const gamekeycmds[] = {
 	{	TWK_DOWN,				CmdSouth,				TRUE	},
 	{	TWK_RIGHT,				CmdEast,				TRUE	},
 	{	TWK_RETURN,				CmdProceed,				FALSE	},
-//	{	' ',					CmdProceed,				FALSE	},
 
 /*	"Virtual"	keys	*/
 	{	TWC_SEESCORES,			CmdSeeScores,			FALSE	},

@@ -41,6 +41,9 @@ enum
 	TWK_RIGHT,
 	TWK_DOWN,
 	TWK_RETURN,
+	TWK_ESCAPE,
+	TWK_HOME,
+	TWK_END,
 };
 
 enum

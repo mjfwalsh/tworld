@@ -333,16 +333,21 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 			QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
 
 			int nQtKey = pKeyEvent->key();
-			if (nQtKey == Qt::Key_Backtab)
-				nQtKey = Qt::Key_Tab;
 
 			int nTWKey = -1;
 			if (nQtKey >= 0x01000000  &&  nQtKey <= 0x01000060) {
-				nTWKey = ((nQtKey & 0xFF) | 0x100);
-
-				if(nTWKey > 273 && nTWKey < 278) nTWKey -= 273;
-				else if(nTWKey == 260 || nTWKey == 261) nTWKey = 5;
-				else return false;
+				switch (nQtKey) {
+					case Qt::Key_Return:
+					case Qt::Key_Enter:  nTWKey = TWK_RETURN; break;
+					case Qt::Key_Escape: nTWKey = TWK_ESCAPE; break;
+					case Qt::Key_Up:     nTWKey = TWK_UP;     break;
+					case Qt::Key_Left:   nTWKey = TWK_LEFT;   break;
+					case Qt::Key_Down:   nTWKey = TWK_DOWN;   break;
+					case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
+					case Qt::Key_Home:   nTWKey = TWK_HOME;   break;
+					case Qt::Key_End:    nTWKey = TWK_END;    break;
+					default: return false;
+				}
 			} else {
 				return false;
 			}
@@ -354,17 +359,26 @@ bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 			bool bConsume = (m_pMainWidget->currentIndex() == PAGE_GAME) &&
 							(QApplication::activeModalWidget() == 0);
 
-			// Only consume keys for the game, not for the tables or the message boxes
-			//  with the exception of a few keys for the table
+			// List view
 			QObjectList const & tableWidgets = m_pTablePage->children();
 			if (bPress && tableWidgets.contains(pObject)) {
 				int currentrow = m_pTblList->selectionModel()->currentIndex().row();
-				if ((nTWKey == 5) && currentrow >= 0) {
+				if ((nTWKey == TWK_RETURN) && currentrow >= 0) {
 					g_pApp->exit(CmdProceed);
+					bConsume = true;
+				} else if(nTWKey == TWK_ESCAPE) {
+					g_pApp->exit(CmdQuitLevel);
 					bConsume = true;
 				} else {
 					bConsume = false;
 				}
+			}
+
+			// Text view
+			if(m_pMainWidget->currentIndex() == PAGE_TEXT) {
+				bConsume = true;
+				if (nTWKey == TWK_RETURN) g_pApp->exit(+1);
+				else if(nTWKey == TWK_ESCAPE) g_pApp->exit(CmdQuitLevel);
 			}
 
 			if (m_bKbdRepeatEnabled || !pKeyEvent->isAutoRepeat()) {
