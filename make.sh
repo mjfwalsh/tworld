@@ -52,14 +52,11 @@ compile () {
 	compile_file "$C_BASE" fileio.o fileio.c
 	compile_file "$C_BASE" err.o err.c
 
-	#cd oshw-qt
-	#PRINT_DIR='generic/'
 	compile_file "$C_BASE" generic.o generic.c
 	compile_file "$C_BASE" tile.o tile.c
 	compile_file "$C_BASE" timer.o timer.c
 	compile_file "$CPP_BASE $QT_OPTS" _in.o _in.cpp
-	#PRINT_DIR='oshw-qt/'
-	compile_file "$C_BASE $SDL_OPTS" _sdlsfx.o _sdlsfx.c
+	compile_file "$C_BASE $SDL_OPTS" sdlsfx.o sdlsfx.c
 	compile_file "$CPP_BASE $QT_OPTS" oshwbind.o oshwbind.cpp
 	compile_file "$CPP_BASE $QT_OPTS" CCMetaData.o CCMetaData.cpp
 	compile_file "$CPP_BASE $QT_OPTS" TWDisplayWidget.o TWDisplayWidget.cpp
@@ -69,13 +66,12 @@ compile () {
 	make_file "MOC-ing TWMainWnd.h..." "moc -o" moc_TWMainWnd.cpp TWMainWnd.h
 	compile_file "$CPP_BASE $QT_OPTS" moc_TWMainWnd.o moc_TWMainWnd.cpp
 	compile_file "$CPP_BASE $QT_OPTS" TWApp.o TWApp.cpp
-	#cd ..
-	#PRINT_DIR=''
 
 	echo Linking tworld2...
-	run c++ -o tworld2 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o settings.o fileio.o err.o \
-	generic.o tile.o timer.o _in.o _sdlsfx.o oshwbind.o CCMetaData.o TWDisplayWidget.o TWProgressBar.o TWMainWnd.o moc_TWMainWnd.o TWApp.o \
-	-L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
+	run c++ -o tworld2 *.o -L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
+#	run c++ -o tworld2 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o settings.o fileio.o err.o \
+#	generic.o tile.o timer.o _in.o sdlsfx.o oshwbind.o CCMetaData.o TWDisplayWidget.o TWProgressBar.o TWMainWnd.o moc_TWMainWnd.o TWApp.o \
+#	-L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
 	if [ $? -eq 0 ]
 	then
 		echo Done...
@@ -86,7 +82,8 @@ compile () {
 
 clean () {
 	#rm -fR Tile\ World.app
-	rm -f cmdline.o comptime.h encoding.o err.o fileio.o help.o lxlogic.o messages.o mslogic.o _in.o _sdlsfx.o CCMetaData.o generic.o moc_TWMainWnd.cpp moc_TWMainWnd.o oshwbind.o tile.o timer.o TWApp.o TWDisplayWidget.o TWMainWnd.o TWProgressBar.o ui_TWMainWnd.h play.o random.o res.o score.o series.o settings.o solution.o tworld.o tworld2 unslist.o
+	rm -f *.o
+	rm -f comptime.h moc_TWMainWnd.cpp ui_TWMainWnd.h tworld2
 }
 
 cleanui () {

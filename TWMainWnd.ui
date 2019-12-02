@@ -471,7 +471,7 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QWidget" name="containerWidget_2">
+             <widget class="QWidget" name="m_pObjectsContainer">
               <layout class="QVBoxLayout" name="verticalLayout_5030">
                <property name="alignment">
                 <set>Qt::AlignTop</set>
@@ -536,7 +536,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="containerWidget_203">
+             <widget class="QWidget" name="m_pMessagesContainer">
               <layout class="QVBoxLayout" name="verticalLayout_5036">
                <property name="alignment">
                 <set>Qt::AlignTop</set>

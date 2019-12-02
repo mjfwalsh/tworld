@@ -48,7 +48,7 @@ public:
 
 	bool CreateGameDisplay();
 	void ClearDisplay();
-	bool DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime, bool showinitgamestate);
+	bool DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
 	int DisplayList(const char* szTitle, const tablespec* pTableSpec, int* pnIndex,
 			DisplayListType eListType, int (*pfnInputCallback)(int*));

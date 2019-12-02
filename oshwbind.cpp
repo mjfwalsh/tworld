@@ -143,7 +143,7 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 	if (dstRect.h == 0) dstRect.h = srcRect.h;
 	if (!pDstRect)
 		{dstRect.w = srcRect.w; dstRect.h = srcRect.h;}
-	else if (pDstRect && !pSrcRect)
+	else if (!pSrcRect)
 		{srcRect.w = dstRect.w; srcRect.h = dstRect.h;}
 
 	// TODO?: don't force image -> pixmap?

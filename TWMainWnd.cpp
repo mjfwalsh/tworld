@@ -312,12 +312,6 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
 	return QMainWindow::eventFilter(pObject, pEvent);
 }
 
-struct QtModifier_TWKey
-{
-	Qt::KeyboardModifier nQtMod;
-	int nTWKey;
-};
-
 bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 {
 	if (!m_bSetupUi) return false;
@@ -504,11 +498,6 @@ bool TileWorldMainWnd::CreateGameDisplay()
 void TileWorldMainWnd::SetCurrentPage(Page ePage)
 {
 	m_pMainWidget->setCurrentIndex(ePage);
-	bool const showMenus = (ePage == PAGE_GAME);
-	m_pMenuBar->setVisible(showMenus);
-
-	// Menus won't disappear on some systems. Do the next best thing.
-	m_pMenuBar->setEnabled(showMenus);
 }
 
 
@@ -530,12 +519,12 @@ void TileWorldMainWnd::ClearDisplay()
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-int displaygame(gamestate const *state, int timeleft, int besttime, int showinitstate)
+int displaygame(gamestate const *state, int timeleft, int besttime)
 {
-	return g_pMainWnd->DisplayGame(state, timeleft, besttime, showinitstate);
+	return g_pMainWnd->DisplayGame(state, timeleft, besttime);
 }
 
-bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime, bool bShowInitState)
+bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime)
 {
 	bool const bInit = (pState->currenttime == -1);
 	bool const bTimedLevel = (pState->game->time > 0);
@@ -698,14 +687,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		// Call setText / clear only when really required
 		// See comments about QLabel in TWDisplayWidget.h
 		bool bShowHint = (pState->statusflags & SF_SHOWHINT) != 0;
-		if (bShowInitState && m_bReplay)
-		{
-			if (SetHintMode(HINT_INITSTATE)) {
-				m_pInfoPane->setCurrentIndex(1);
-				m_pLblHint->setText(getinitstatestring());
-			}
-		}
-		else if (bShowHint)
+		if (bShowHint)
 		{
 			if (SetHintMode(HINT_TEXT)) {
 				m_pLblHint->setText(pState->hinttext);

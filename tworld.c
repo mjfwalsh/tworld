@@ -135,14 +135,12 @@ static int scrollinputcallback(int *move)
     int cmd;
 
     switch ((cmd = input(TRUE))) {
-      case CmdPrev10:		*move = SCROLL_HALFPAGE_UP;	break;
       case CmdNorth:		*move = SCROLL_UP;		break;
       case CmdPrev:		*move = SCROLL_UP;		break;
       case CmdPrevLevel:	*move = SCROLL_UP;		break;
       case CmdSouth:		*move = SCROLL_DN;		break;
       case CmdNext:		*move = SCROLL_DN;		break;
       case CmdNextLevel:	*move = SCROLL_DN;		break;
-      case CmdNext10:		*move = SCROLL_HALFPAGE_DN;	break;
       case CmdProceed:		*move = CmdProceed;		return FALSE;
       case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
       case CmdQuit:						exit(0);
@@ -157,14 +155,12 @@ static int scorescrollinputcallback(int *move)
 {
     int cmd;
     switch ((cmd = input(TRUE))) {
-      case CmdPrev10:		*move = SCROLL_HALFPAGE_UP;	break;
       case CmdNorth:		*move = SCROLL_UP;		break;
       case CmdPrev:		*move = SCROLL_UP;		break;
       case CmdPrevLevel:	*move = SCROLL_UP;		break;
       case CmdSouth:		*move = SCROLL_DN;		break;
       case CmdNext:		*move = SCROLL_DN;		break;
       case CmdNextLevel:	*move = SCROLL_DN;		break;
-      case CmdNext10:		*move = SCROLL_HALFPAGE_DN;	break;
       case CmdProceed:		*move = CmdProceed;		return FALSE;
       case CmdSeeSolutionFiles:	*move = CmdSeeSolutionFiles;	return FALSE;
       case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
@@ -179,14 +175,12 @@ static int solutionscrollinputcallback(int *move)
 {
     int cmd;
     switch ((cmd = input(TRUE))) {
-      case CmdPrev10:		*move = SCROLL_HALFPAGE_UP;	break;
       case CmdNorth:		*move = SCROLL_UP;		break;
       case CmdPrev:		*move = SCROLL_UP;		break;
       case CmdPrevLevel:	*move = SCROLL_UP;		break;
       case CmdSouth:		*move = SCROLL_DN;		break;
       case CmdNext:		*move = SCROLL_DN;		break;
       case CmdNextLevel:	*move = SCROLL_DN;		break;
-      case CmdNext10:		*move = SCROLL_HALFPAGE_DN;	break;
       case CmdProceed:		*move = CmdProceed;		return FALSE;
       case CmdSeeScores:	*move = CmdSeeScores;		return FALSE;
       case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
@@ -657,19 +651,12 @@ static int startinput(gamespec *gs)
 	switch (cmd) {
 	  case CmdProceed:	gs->playmode = Play_Normal;	return cmd;
 	  case CmdQuitLevel:					return cmd;
-	  case CmdPrev10:	leveldelta(-10);		return CmdNone;
 	  case CmdPrev:		leveldelta(-1);			return CmdNone;
 	  case CmdPrevLevel:	leveldelta(-1);			return CmdNone;
 	  case CmdNextLevel:	leveldelta(+1);			return CmdNone;
 	  case CmdNext:		leveldelta(+1);			return CmdNone;
-	  case CmdNext10:	leveldelta(+10);		return CmdNone;
-	  case CmdStepping:	changestepping(4, TRUE);	break;
-	  case CmdSubStepping:	changestepping(1, TRUE);	break;
-	  case CmdRandomFF:     advanceinitrandomff(TRUE);	break;
 	  case CmdQuit:						exit(0);
 	  case CmdPlayback:
-	  case CmdAdvanceGame:
-	  case CmdAdvanceMoveGame:
 	    if (prepareplayback()) {
 		gs->playmode = Play_Back;
 		return cmd;
@@ -769,14 +756,12 @@ static int endinput(gamespec *gs)
 	if (cmd == CmdNone)
 	    cmd = input(TRUE);
 	switch (cmd) {
-	  case CmdPrev10:	changecurrentgame(gs, -10);	return TRUE;
 	  case CmdPrevLevel:	changecurrentgame(gs, -1);	return TRUE;
 	  case CmdPrev:		changecurrentgame(gs, -1);	return TRUE;
 	  case CmdSameLevel:					return TRUE;
 	  case CmdSame:						return TRUE;
 	  case CmdNextLevel:	changecurrentgame(gs, +1);	return TRUE;
 	  case CmdNext:		changecurrentgame(gs, +1);	return TRUE;
-	  case CmdNext10:	changecurrentgame(gs, +10);	return TRUE;
 	  case CmdGotoLevel:	selectlevelbypassword(gs);	return TRUE;
 	  case CmdPlayback:					return TRUE;
 	  case CmdSeeScores:	showscores(gs);			return TRUE;
@@ -966,36 +951,6 @@ static int hideandseek(gamespec *gs, int secondstoskip)
     return n;
 }
 
-/* Advance play by numticks ticks. */
-static int advancegame(gamespec *gs, int numticks)
-{
-    int n = 0;
-    setgameplaymode(NonrenderPlay);
-    while (numticks--) {
-	n = doturn(CmdNone);
-	if (n)
-	    break;
-	advancetick();
-    }
-    drawscreen(TRUE);
-    setsoundeffects(-1);
-    setgameplaymode(SuspendPlay);
-    return n;
-}
-
-#define ADVANCEGAME(cmd) do { \
-    int skipticks; \
-    if ((cmd) == CmdAdvanceMoveGame) \
-	skipticks = 4; \
-    else if (gs->series.ruleset == Ruleset_MS) \
-	skipticks = 2; \
-    else \
-	skipticks = 1; \
-    n = advancegame(gs, skipticks); \
-    lastrendered = TRUE; \
-    SETPAUSED(TRUE, FALSE); \
-} while (0)
-
 /* Play back the user's best solution for the current level in real
  * time. Other than the fact that this function runs from a
  * prerecorded series of moves, it has the same behavior as
@@ -1013,8 +968,6 @@ static int playbackgame(gamespec *gs, int initcmd)
 	n = hideandseek(gs, secondstoskip);
 	SETPAUSED(TRUE, FALSE);
     }
-    else if ((initcmd == CmdAdvanceGame) || (initcmd == CmdAdvanceMoveGame))
-	ADVANCEGAME(initcmd);
     else {
 	drawscreen(TRUE);
 	gs->status = 0;
@@ -1039,32 +992,24 @@ static int playbackgame(gamespec *gs, int initcmd)
 	}
 	switch (cmd) {
 	  case CmdSeek:
-	  case CmdPrev10:
-	  case CmdNext10:
+	  case CmdWest:
+	  case CmdEast:
 	    if (cmd == CmdSeek) {
 	        secondstoskip = getreplaysecondstoskip();
 	    } else {
-	        secondstoskip = secondsplayed() + ((cmd == CmdNext10) ? +10 : -10);
+	        secondstoskip = secondsplayed() + ((cmd == CmdEast) ? +3 : -3);
 	    }
 	    n = hideandseek(gs, secondstoskip);
 	    lastrendered = TRUE;
 	    break;
 	  case CmdPrevLevel:	changecurrentgame(gs, -1);	goto quitloop;
 	  case CmdNextLevel:	changecurrentgame(gs, +1);	goto quitloop;
-	  case CmdSameLevel:					goto quitloop;
-	  case CmdPlayback:					goto quitloop;
-	  case CmdQuitLevel:					goto quitloop;
-	  case CmdQuit:						exit(0);
+	  case CmdSameLevel:
+	  case CmdPlayback:
+	  case CmdQuitLevel:	goto quitloop;
+	  case CmdQuit:			exit(0);
 	  case CmdPauseGame:
 	    SETPAUSED(!gamepaused, FALSE);
-	    break;
-	  case CmdShowInitState:
-	    toggleshowinitstate();
-	    drawscreen(TRUE);
-	    break;
-	  case CmdAdvanceGame:
-	  case CmdAdvanceMoveGame:
-	    ADVANCEGAME(cmd);
 	    break;
 	}
     }
@@ -1090,7 +1035,6 @@ static int playbackgame(gamespec *gs, int initcmd)
     return FALSE;
 }
 
-#undef ADVANCEGAME
 #undef SETPAUSED
 
 /* Quickly play back the user's best solution for the current level
@@ -1481,8 +1425,8 @@ static int choosegame(gamespec *gs, char const *lastseries)
  */
 
 /*
- * Set the four directories that the program uses (the series directory, the
- * series data directory, the resource directory, and the save directory).
+ * Set the five directories that the program uses (the series directory, two
+ * series data directories, the resource directory, and the save directory).
  * On MacOSX the first three are fixed as subdirectories with the app bundle,
  * while the last is set as ~/Library/Application Support/Tile World.
  * It takes argv[0] as its sole parameter.
@@ -1522,10 +1466,10 @@ static void initdirs()
 	combinepath(global_seriesdatdir, resourcedir, "data");
 	combinepath(user_seriesdatdir, savedir, "data");
 
-	// create user dirs if necessar
+	// create user dirs if necessary
 	if (!finddir(seriesdir)) errmsg(NULL, "Couldn't create seriesdir");
 	if (!finddir(user_seriesdatdir)) errmsg(NULL, "Couldn't create user seriesdatdir");
-    }
+}
 
 
 /* Run the initialization routines of oshw and the resource module.
@@ -1622,9 +1566,6 @@ int tworld()
 	strcpy(lastseries, selectedseries);
     else
 	lastseries[0] = '\0';
-
-    if (getintsetting("showinitstate") > 0)
-	toggleshowinitstate();
 
 	f = choosegameatstartup(&spec, lastseries);
     if (f < 0)

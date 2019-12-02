@@ -153,7 +153,7 @@ OSHW_EXTERN void cleardisplay(void);
  * measured in seconds.
  */
 OSHW_EXTERN int displaygame(struct gamestate const *state,
-			    int timeleft, int besttime, int showinitstate);
+			    int timeleft, int besttime);
 
 /* Display a short message appropriate to the end of a level's game
  * play. If the level was completed successfully, completed is TRUE,

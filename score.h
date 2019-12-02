@@ -34,15 +34,6 @@ extern int createscorelist(gameseries const *series,
 			   int usepasswds, char zchar,
 			   int **plevellist, int *pcount, tablespec *table);
 
-/* Produce a table showing the player's times for the given series. If
- * showpartial is zero, the times will be rounded to second values.
- * Otherwise, showpartial should be a power of ten, and the function
- * will attempt to provide fractional amounts to the appropriate
- * number of digits.
- */
-extern int createtimelist(gameseries const *series,
-			  int showpartial, char zchar,
-			  int **plevellist, int *pcount, tablespec *table);
 
 /* Free all memory allocated by the above functions.
  */

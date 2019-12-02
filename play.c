@@ -35,11 +35,6 @@ int			batchmode = FALSE;
  */
 static int		mudsucking = 1;
 
-/* Whether to show steppping and initial random force floor direction during
- * solution playback.
- */
-static int		showinitstate = FALSE;
-
 /* Turn on the pedantry.
  */
 void setpedanticmode(void)
@@ -55,12 +50,6 @@ int setmudsuckingfactor(int mud)
 	return FALSE;
     mudsucking = mud;
     return TRUE;
-}
-
-void toggleshowinitstate(void)
-{
-    showinitstate = !showinitstate;
-    setintsetting("showinitstate", showinitstate);
 }
 
 /* Configure the game logic, and some of the OS/hardware layer, as
@@ -227,72 +216,13 @@ int setstepping(int stepping, int display)
     return TRUE;
 }
 
-/* Alter the stepping by a delta. Force the stepping to be appropriate
- * to the current ruleset.
- */
-int changestepping(int delta, int display)
-{
-    int	n;
-
-    if (state.stepping < 0)
-	state.stepping = 0;
-    n = (state.stepping + delta) % 8;
-    if (state.ruleset == Ruleset_MS)
-	n &= ~3;
-    if (state.stepping != n)
-	return setstepping(n, display);
-    return TRUE;
-}
 
 /* Append a string literal and update pointer to refer to end. */
 #define APPEND(p, strliteral) do { \
     strcpy(p, strliteral); \
     p += strlen(strliteral); \
-    } while (0)
+} while (0)
 
-/* Write a string representing the random force floor direction. Returns
- * a pointer to the terminating null character.
- */
-static char *writerandomffstring(char *buf, int rndslidedir)
-{
-    char *p = buf;
-    APPEND(p, "random FF ");
-    switch (rndslidedir)
-    {
-	/* The direction will be cycled again before being used */
-	case NORTH: APPEND(p, "east");  break;
-	case EAST:  APPEND(p, "south"); break;
-	case SOUTH: APPEND(p, "west");  break;
-	case WEST:  APPEND(p, "north"); break;
-    }
-    return p;
-}
-
-/* Advance initial random force floor direction (in Lynx mode) */
-void advanceinitrandomff(int display)
-{
-    if (state.ruleset == Ruleset_Lynx)
-    {
-        state.initrndslidedir = right(state.initrndslidedir);
-        if (display)
-        {
-            char msg[32];
-	    writerandomffstring(msg, state.initrndslidedir);
-        }
-    }
-}
-
-char const *getinitstatestring(void)
-{
-    static char buf[64];
-    char *p = buf;
-    p = writesteppingstring(p, state.stepping);
-    if (state.ruleset == Ruleset_Lynx) {
-	*p++ = '\n';
-	p = writerandomffstring(p, state.initrndslidedir);
-    }
-    return buf;
-}
 
 /* Advance the game one tick and update the game state. cmd is the
  * current keyboard command supplied by the user. The return value is
@@ -371,7 +301,7 @@ int drawscreen(int showframe)
 	timeleft = 0;
     }
 
-    return displaygame(&state, timeleft, besttime, showinitstate);
+    return displaygame(&state, timeleft, besttime);
 }
 
 /* Stop game play and clean up.
