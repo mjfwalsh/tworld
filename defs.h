@@ -89,9 +89,6 @@ enum {
     CmdSameLevel,
     CmdQuitLevel,
     CmdGotoLevel,
-    CmdPrev,
-    CmdNext,
-    CmdSame,
     CmdPauseGame,
     CmdPlayback,
     CmdCheckSolution,
@@ -120,7 +117,6 @@ enum {
     CmdCheatBootsWater,
     CmdCheatICChip,
 #endif
-    CmdCount
 };
 
 /* True if cmd is a simple directional command, i.e. a single

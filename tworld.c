@@ -135,15 +135,9 @@ static int scrollinputcallback(int *move)
     int cmd;
 
     switch ((cmd = input(TRUE))) {
-      case CmdNorth:		*move = SCROLL_UP;		break;
-      case CmdPrev:		*move = SCROLL_UP;		break;
-      case CmdPrevLevel:	*move = SCROLL_UP;		break;
-      case CmdSouth:		*move = SCROLL_DN;		break;
-      case CmdNext:		*move = SCROLL_DN;		break;
-      case CmdNextLevel:	*move = SCROLL_DN;		break;
       case CmdProceed:		*move = CmdProceed;		return FALSE;
-      case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
-      case CmdQuit:						exit(0);
+      case CmdQuitLevel:	*move = CmdQuitLevel;	return FALSE;
+      case CmdQuit:			exit(0);
 
     }
     return TRUE;
@@ -155,16 +149,10 @@ static int scorescrollinputcallback(int *move)
 {
     int cmd;
     switch ((cmd = input(TRUE))) {
-      case CmdNorth:		*move = SCROLL_UP;		break;
-      case CmdPrev:		*move = SCROLL_UP;		break;
-      case CmdPrevLevel:	*move = SCROLL_UP;		break;
-      case CmdSouth:		*move = SCROLL_DN;		break;
-      case CmdNext:		*move = SCROLL_DN;		break;
-      case CmdNextLevel:	*move = SCROLL_DN;		break;
-      case CmdProceed:		*move = CmdProceed;		return FALSE;
+      case CmdProceed:			*move = CmdProceed;				return FALSE;
       case CmdSeeSolutionFiles:	*move = CmdSeeSolutionFiles;	return FALSE;
-      case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
-      case CmdQuit:						exit(0);
+      case CmdQuitLevel:		*move = CmdQuitLevel;			return FALSE;
+      case CmdQuit:				exit(0);
     }
     return TRUE;
 }
@@ -175,12 +163,6 @@ static int solutionscrollinputcallback(int *move)
 {
     int cmd;
     switch ((cmd = input(TRUE))) {
-      case CmdNorth:		*move = SCROLL_UP;		break;
-      case CmdPrev:		*move = SCROLL_UP;		break;
-      case CmdPrevLevel:	*move = SCROLL_UP;		break;
-      case CmdSouth:		*move = SCROLL_DN;		break;
-      case CmdNext:		*move = SCROLL_DN;		break;
-      case CmdNextLevel:	*move = SCROLL_DN;		break;
       case CmdProceed:		*move = CmdProceed;		return FALSE;
       case CmdSeeScores:	*move = CmdSeeScores;		return FALSE;
       case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
@@ -651,10 +633,8 @@ static int startinput(gamespec *gs)
 	switch (cmd) {
 	  case CmdProceed:	gs->playmode = Play_Normal;	return cmd;
 	  case CmdQuitLevel:					return cmd;
-	  case CmdPrev:		leveldelta(-1);			return CmdNone;
 	  case CmdPrevLevel:	leveldelta(-1);			return CmdNone;
 	  case CmdNextLevel:	leveldelta(+1);			return CmdNone;
-	  case CmdNext:		leveldelta(+1);			return CmdNone;
 	  case CmdQuit:						exit(0);
 	  case CmdPlayback:
 	    if (prepareplayback()) {
@@ -757,14 +737,11 @@ static int endinput(gamespec *gs)
 	    cmd = input(TRUE);
 	switch (cmd) {
 	  case CmdPrevLevel:	changecurrentgame(gs, -1);	return TRUE;
-	  case CmdPrev:		changecurrentgame(gs, -1);	return TRUE;
-	  case CmdSameLevel:					return TRUE;
-	  case CmdSame:						return TRUE;
+	  case CmdSameLevel:								return TRUE;
 	  case CmdNextLevel:	changecurrentgame(gs, +1);	return TRUE;
-	  case CmdNext:		changecurrentgame(gs, +1);	return TRUE;
 	  case CmdGotoLevel:	selectlevelbypassword(gs);	return TRUE;
-	  case CmdPlayback:					return TRUE;
-	  case CmdSeeScores:	showscores(gs);			return TRUE;
+	  case CmdPlayback:									return TRUE;
+	  case CmdSeeScores:	showscores(gs);				return TRUE;
 	  case CmdSeeSolutionFiles: showsolutionfiles(gs);	return TRUE;
 	  case CmdKillSolution:					return TRUE;
 	  case CmdQuitLevel:					return FALSE;
@@ -800,12 +777,9 @@ static int finalinput(gamespec *gs)
 	cmd = input(TRUE);
 	switch (cmd) {
 	  case CmdSameLevel:
-	  case CmdSame:
 	    return TRUE;
 	  case CmdPrevLevel:
-	  case CmdPrev:
 	  case CmdNextLevel:
-	  case CmdNext:
 	    setcurrentgame(gs, 0);
 	    return TRUE;
 	  case CmdQuit:
