@@ -231,7 +231,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );
 
-	QStringList sPaths = {global_seriesdatdir, user_seriesdatdir};
+	QStringList sPaths = {g_pApp->appDataDir, g_pApp->userDataDir};
 	m_pTextBrowser->setSearchPaths(sPaths);
 
 	g_pApp->installEventFilter(this);
@@ -1287,12 +1287,12 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 
 	QString sSetName = QFileInfo(pSeries->mapfilename).completeBaseName();
 
-	dataDir.setPath(global_seriesdatdir);
+	dataDir.setPath(g_pApp->appDataDir);
 	sFilePath = dataDir.filePath(sSetName + ".ccx");
 	sFile.setFileName(sFilePath);
 
 	if(!sFile.exists()) {
-		dataDir.setPath(user_seriesdatdir);
+		dataDir.setPath(g_pApp->userDataDir);
 		sFilePath = dataDir.filePath(sSetName + ".ccx");
 	}
 

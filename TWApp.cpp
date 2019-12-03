@@ -11,12 +11,15 @@
 #include "gen.h"
 #include "defs.h"
 #include "oshw.h"
+#include "res.h"
 
 #ifdef WIN32
 #include <QWindowsStyle>
 #endif
 
 #include <QClipboard>
+#include <QDir>
+#include <QStandardPaths>
 
 #include <string.h>
 #include <stdlib.h>
@@ -126,6 +129,61 @@ int TileWorldApp::RunTWorld()
 }
 
 
+void initdirs()
+{
+	resdir = (char *) malloc(g_pApp->appResDir.length() + 1);
+	seriesdir = (char *) malloc(g_pApp->userSetsDir.length() + 1);
+	user_seriesdatdir = (char *) malloc(g_pApp->userDataDir.length() + 1);
+	global_seriesdatdir = (char *) malloc(g_pApp->appDataDir.length() + 1);
+	savedir = (char *) malloc(g_pApp->userDir.length() + 1);
+
+	strcpy(resdir, g_pApp->appResDir.toStdString().c_str());
+	strcpy(seriesdir, g_pApp->userSetsDir.toStdString().c_str());
+	strcpy(user_seriesdatdir, g_pApp->userDataDir.toStdString().c_str());
+	strcpy(global_seriesdatdir, g_pApp->appDataDir.toStdString().c_str());
+	strcpy(savedir, g_pApp->userDir.toStdString().c_str());
+}
+
+void TileWorldApp::InitDirs()
+{
+	auto checkDir = [](QString d)
+    {
+		QDir dir(d);
+		if (!dir.exists()) dir.mkdir(".");
+    };
+
+	// Get the app resources
+	QString appRootDir = QApplication::applicationDirPath();
+	#if defined Q_OS_OSX || Q_OS_LINUX
+	{
+		#if defined Q_OS_OSX
+		QString appResDir = appRootDir + "/../Resources";
+		#elif defined Q_OS_LINUX
+		QString appResDir = appRootDir + "/../share/tworld";
+		#endif
+
+		QDir dir(appResDir);
+		if (dir.exists()) appRootDir = appResDir;
+	}
+	#endif
+
+	// these should already exist
+	appResDir =  QString(appRootDir + "/res");
+	appDataDir =  QString(appRootDir + "/data");
+
+	// get user directory
+	userDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	checkDir(userDir);
+
+	// ~/Library/Application Support/Tile World/sets
+	userSetsDir = QString(userDir + "/sets");
+	checkDir(userSetsDir);
+
+	// ~/Library/Application Support/Tile World/data
+	userDataDir = QString(userDir + "/data");
+	checkDir(userDataDir);
+}
+
 void TileWorldApp::ExitTWorld()
 {
 	// Attempt to gracefully destroy application objects
@@ -145,10 +203,13 @@ void TileWorldApp::ExitTWorld()
 int main(int argc, char *argv[])
 {
 	TileWorldApp app(argc, argv);
+	app.setApplicationName("Tile World");
 
 #ifdef WIN32
 	QApplication::setStyle(new QWindowsStyle());	// Vista / XP styles may mess up colors
 #endif
+
+	app.InitDirs();
 
 	return app.RunTWorld();
 }

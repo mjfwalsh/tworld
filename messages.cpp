@@ -7,7 +7,7 @@
 #include "messages.h"
 
 #include "fileio.h"
-#include "res.h"
+#include "oshw.h"
 
 #include <algorithm>
 #include <bitset>
@@ -100,7 +100,7 @@ char const *getmessage(int type)
 {
     static char buf[maxMessageSize+1];
 
-    if ((type < 0) || (type >= MessageTypeCount) 
+    if ((type < 0) || (type >= MessageTypeCount)
         || typeindex[type].size() == 0)
         return NULL;
 

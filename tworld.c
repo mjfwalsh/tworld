@@ -12,7 +12,6 @@
 #include	"defs.h"
 #include	"err.h"
 #include	"series.h"
-#include	"res.h"
 #include	"play.h"
 #include	"score.h"
 #include	"settings.h"
@@ -1397,54 +1396,6 @@ static int choosegame(gamespec *gs, char const *lastseries)
 /*
  * Initialization functions.
  */
-
-/*
- * Set the five directories that the program uses (the series directory, two
- * series data directories, the resource directory, and the save directory).
- * On MacOSX the first three are fixed as subdirectories with the app bundle,
- * while the last is set as ~/Library/Application Support/Tile World.
- * It takes argv[0] as its sole parameter.
- */
-static void initdirs()
-{
-	//allocate memory to global vars
-	resdir = getpathbuffer();
-	seriesdir = getpathbuffer();
-	user_seriesdatdir = getpathbuffer();
-	global_seriesdatdir = getpathbuffer();
-	savedir = getpathbuffer();
-
-	// and local vars
-	char *homedir = getpathbuffer();
-	char *resourcedir = getpathbuffer();
-
-	//Get .app/Contents/Resources directory
-	resourcedir = "./";
-	resdir = "./res";
-
-	resdir = realpath(resdir, NULL);
-	resourcedir = realpath(resourcedir, NULL);
-
-	if(resdir == NULL || resourcedir == NULL) {
-		errmsg(NULL, "no resource files found");
-	}
-
-	//get Application Support Dir - create if necessary
-	homedir = getenv("HOME");
-	savedir = getpathbuffer();
-	combinepath(savedir, homedir, "Library/Application Support/Tile World");
-	if (!finddir(savedir)) errmsg(NULL, "Couldn't create savedir");
-
-	//Sub dirs
-	combinepath(seriesdir, savedir, "sets");
-	combinepath(global_seriesdatdir, resourcedir, "data");
-	combinepath(user_seriesdatdir, savedir, "data");
-
-	// create user dirs if necessary
-	if (!finddir(seriesdir)) errmsg(NULL, "Couldn't create seriesdir");
-	if (!finddir(user_seriesdatdir)) errmsg(NULL, "Couldn't create user seriesdatdir");
-}
-
 
 /* Run the initialization routines of oshw and the resource module.
  */

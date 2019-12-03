@@ -366,6 +366,31 @@ OSHW_EXTERN void copytoclipboard(char const *text);
  */
 OSHW_EXTERN void setplaypausebutton(int p);
 
+/* get app and config folders, create latter if necessary
+ */
+OSHW_EXTERN void initdirs();
+
+
+/* The directory containing all the resource files.
+ */
+OSHW_EXTERN char	       *resdir;
+
+/* Parse the rc file and initialize the resources that are needed at
+ * the start of the program (i.e., the font and color settings).
+ * FALSE is returned if the rc file contained errors or if a resource
+ * could not be loaded.
+ */
+OSHW_EXTERN int initresources(void);
+
+/* Load all resources, using the settings for the given ruleset. FALSE
+ * is returned if any critical resources could not be loaded.
+ */
+OSHW_EXTERN int loadgameresources(int ruleset);
+
+/* Release all memory allocated for the resources.
+ */
+OSHW_EXTERN void freeallresources(void);
+
 #undef OSHW_EXTERN
 
 #endif

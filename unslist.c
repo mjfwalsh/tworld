@@ -11,7 +11,7 @@
 #include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"
-#include	"res.h"
+#include	"oshw.h"
 #include	"solution.h"
 #include	"unslist.h"
 

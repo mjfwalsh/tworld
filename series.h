@@ -17,6 +17,7 @@ extern char    *seriesdir;
  */
 extern char    *user_seriesdatdir;
 extern char    *global_seriesdatdir;
+extern char    *savedir;
 
 /* Load all levels of the given series.
  */
