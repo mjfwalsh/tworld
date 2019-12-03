@@ -37,7 +37,6 @@ compile () {
 	compile_file "$C_BASE" play.o play.c
 	compile_file "$C_BASE" encoding.o encoding.c
 	compile_file "$C_BASE" solution.o solution.c
-	compile_file "$CPP_BASE $QT_OPTS" res.o res.cpp
 	compile_file "$C_BASE" lxlogic.o lxlogic.c
 	compile_file "$C_BASE" mslogic.o mslogic.c
 	compile_file "$C_BASE" unslist.o unslist.c
@@ -51,11 +50,12 @@ compile () {
 	compile_file "$CPP_BASE" settings.o settings.cpp
 	compile_file "$C_BASE" fileio.o fileio.c
 	compile_file "$C_BASE" err.o err.c
-
 	compile_file "$C_BASE" generic.o generic.c
 	compile_file "$C_BASE" tile.o tile.c
 	compile_file "$C_BASE" timer.o timer.c
-	compile_file "$CPP_BASE $QT_OPTS" _in.o _in.cpp
+
+	compile_file "$CPP_BASE $QT_OPTS" res.o res.cpp
+	compile_file "$CPP_BASE $QT_OPTS" in.o in.cpp
 	compile_file "$C_BASE $SDL_OPTS" sdlsfx.o sdlsfx.c
 	compile_file "$CPP_BASE $QT_OPTS" oshwbind.o oshwbind.cpp
 	compile_file "$CPP_BASE $QT_OPTS" CCMetaData.o CCMetaData.cpp
@@ -69,9 +69,6 @@ compile () {
 
 	echo Linking tworld2...
 	run c++ -o tworld2 *.o -L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
-#	run c++ -o tworld2 tworld.o series.o play.o encoding.o solution.o res.o lxlogic.o mslogic.o unslist.o messages.o help.o score.o random.o settings.o fileio.o err.o \
-#	generic.o tile.o timer.o _in.o sdlsfx.o oshwbind.o CCMetaData.o TWDisplayWidget.o TWProgressBar.o TWMainWnd.o moc_TWMainWnd.o TWApp.o \
-#	-L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
 	if [ $? -eq 0 ]
 	then
 		echo Done...
