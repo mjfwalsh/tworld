@@ -104,8 +104,8 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 	}
 	else
 	{
-		g_pMainWnd->adjustSize();
-		g_pMainWnd->show();
+		//g_pMainWnd->adjustSize();
+		//g_pMainWnd->hide(); start hidden
 	}
 
 	return true;
@@ -149,7 +149,7 @@ void TileWorldApp::InitDirs()
 	auto checkDir = [](QString d)
     {
 		QDir dir(d);
-		if (!dir.exists()) dir.mkdir(".");
+		if (!dir.exists()) dir.mkpath(".");
     };
 
 	// Get the app resources

@@ -203,7 +203,6 @@ QVariant TWTableModel::headerData(int section, Qt::Orientation orientation, int 
 TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	:
 	QMainWindow(pParent, flags/*|Qt::FramelessWindowHint*/),
-	m_bSetupUi(false),
 	m_bWindowClosed(false),
 	m_pSurface(0),
 	m_pInvSurface(0),
@@ -221,9 +220,13 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 {
 	memset(m_nKeyState, 0, TWK_LAST*sizeof(uint8_t));
 
+	// load ui
 	setupUi(this);
-	m_bSetupUi = true;
 
+	// disable manual window resizing
+	layout()->setSizeConstraint(QLayout::SetFixedSize);
+
+	// load style sheet
 	QFile File("stylesheet.qss");
 	File.open(QFile::ReadOnly);
 	QString StyleSheet = QLatin1String(File.readAll());
@@ -231,8 +234,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );
 
-	QStringList sPaths = {g_pApp->appDataDir, g_pApp->userDataDir};
-	m_pTextBrowser->setSearchPaths(sPaths);
+	//QStringList sPaths = {g_pApp->appDataDir, g_pApp->userDataDir};
+	//m_pTextBrowser->setSearchPaths(sPaths);
 
 	g_pApp->installEventFilter(this);
 
@@ -257,7 +260,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	else
 		m_pRadioMs->setChecked(true);
 
-	// sert a zoom menu item as checked
+	// set a zoom menu item as checked
 	int percentZoom = getintsetting("zoom");
 	foreach (QAction *a, actiongroup_Zoom->actions()) {
 		if(a->data() == percentZoom) {
@@ -267,7 +270,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	}
 	if(actiongroup_Zoom->checkedAction() == nullptr) {
 		action_Zoom100->setChecked(true);
-		this->setScale(100);
 	}
 
 	int const tickMS = 1000 / TICKS_PER_SECOND;
@@ -314,7 +316,7 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
 
 bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
 {
-	if (!m_bSetupUi) return false;
+	if (!isVisible()) return false;
 
 	QEvent::Type eType = pEvent->type();
 	// if (eType == QEvent::LayoutRequest) puts("QEvent::LayoutRequest");
@@ -470,15 +472,15 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	m_pInvSurface = static_cast<Qt_Surface*>(TW_NewSurface(4*geng.wtile, 2*geng.htile, false));
 
 	// set minimum sizes
-	m_pGameWidget->setMinimumSize(w, h);
-	m_pObjectsWidget->setMinimumSize(4*geng.wtile, 2*geng.htile);
+	//m_pGameWidget->setMinimumSize(w, h);
+	//m_pObjectsWidget->setMinimumSize(4*geng.wtile, 2*geng.htile);
 
+	// get zoom
 	int percentZoom = getintsetting("zoom");
-	this->setScale(percentZoom);
+	if(percentZoom == -1) percentZoom = 100;
 
-	// set game and objects
-	m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
-	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
+	// this func also sets the pixmap
+	this->SetScale(percentZoom, false);
 
 	geng.screen = m_pSurface;
 	m_disploc = TW_Rect(0, 0, w, h);
@@ -1343,13 +1345,6 @@ void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 		QString sText = rPage.sText;
 		if (rPage.pageProps.eFormat == CCX::TEXT_PLAIN)
 		{
-			/*
-			sText.replace("&", "&amp;");
-			sText.replace("<", "&lt;");
-			sText.replace(">", "&gt;");
-			sText.replace("\n", "<br>");
-			m_pTextBrowser->setHtml(sText);
-			*/
 			m_pTextBrowser->setPlainText(sText);
 		}
 		else
@@ -1436,7 +1431,7 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 	{
 		int s = pAction->data().toInt();
 		setintsetting("zoom", s);
-		this->setScale(s);
+		this->SetScale(s);
 		return;
 	}
 
@@ -1487,16 +1482,24 @@ bool TileWorldMainWnd::SetHintMode(HintMode newmode)
 	return changed;
 }
 
-void TileWorldMainWnd::setScale(int s)
+void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 {
 	double newScale = (double)s / 100;
-	if(newScale == scale) return;
+	if(checkPrevScale && newScale == scale) return;
 
 	scale = newScale;
 
+	if(m_pSurface == 0 || m_pInvSurface == 0 || geng.wtile < 1) {
+		warn("Attempt to set pixmap and scale without setting pixmap first");
+		return;
+	}
+
+	// this sets the game and objects box
 	m_pGameWidget->setPixmap(m_pSurface->GetPixmap(), scale);
 	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap(), scale);
 
+	// this aligns the width of the objects box with the other elements
+	// in the right column
 	m_pMessagesFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
 	m_pInfoFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
 }

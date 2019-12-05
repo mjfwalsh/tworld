@@ -95,9 +95,8 @@ private:
 
 	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };
 	bool SetHintMode(HintMode newmode);
-	void setScale(int s);
+	void SetScale(int s, bool checkPrevScale = true);
 
-	bool m_bSetupUi;
 	bool m_bWindowClosed;
 
 	Qt_Surface* m_pSurface;
