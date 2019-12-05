@@ -357,7 +357,7 @@ int readseriesfile(gameseries *series)
     }
 
     if (!series->mapfile.fp) {
-	if (!openfileindir(&series->mapfile, seriesdir,
+	if (!openfileindir(&series->mapfile, NULL,
 			   series->mapfilename, "rb", "unknown error"))
 	    return FALSE;
 	if (!readseriesheader(series))
@@ -510,7 +510,7 @@ static int getseriesfile(char const *filename, void *data)
     gameseries	       *series;
     unsigned long	magic;
     char	       *datfilename;
-    int			config, f;
+    int			f;
 
     clearfileinfo(&file);
     if (!openfileindir(&file, sdata->curdir, filename, "rb", "unknown error"))
@@ -520,12 +520,8 @@ static int getseriesfile(char const *filename, void *data)
 	return 0;
     }
     filerewind(&file, NULL);
-    if (magic == SIG_DACFILE) {
-	config = TRUE;
-    } else if ((magic & 0xFFFF) == SIG_DATFILE) {
-	config = FALSE;
-    } else {
-	fileerr(&file, "not a valid data file or configuration file");
+    if (magic != SIG_DACFILE) {
+    fileerr(&file, "not a valid data file");
 	fileclose(&file, NULL);
 	return 0;
     }
@@ -551,7 +547,7 @@ static int getseriesfile(char const *filename, void *data)
 				  skippathname(filename));
 
     f = FALSE;
-    if (config) {
+
 	fileclose(&file, NULL);
 	if (!openfileindir(&file, sdata->curdir, filename, "r", "unknown error"))
 	    return 0;
@@ -580,20 +576,6 @@ static int getseriesfile(char const *filename, void *data)
 		series->mapfilename = getpathforfileindir(datdir,
 							  datfilename);
 	}
-    } else {
-	series->mapfile = file;
-	f = readseriesheader(series);
-	fileclose(&series->mapfile, NULL);
-	clearfileinfo(&series->mapfile);
-	if (f) {
-	    series->mapfilename = getpathforfileindir(sdata->curdir, filename);
-		char *dup_filename = strdup(filename);
-		if (dup_filename == NULL) memerrexit();
-		char *dup_path = strdup(sdata->curdir);
-		if (dup_path == NULL) memerrexit();
-	    addlevelfile(&sdata->mfinfo, dup_filename, series->count, dup_path);
-	}
-    }
     if (f)
 	++sdata->count;
     return 0;
@@ -619,6 +601,7 @@ static int getmapfile(char const *filename, void *data)
     }
     filerewind(&file, NULL);
     if ((magic & 0xFFFF) != SIG_DATFILE) {
+    fileerr(&file, "not a valid configuration file");
 	fileclose(&file, NULL);
 	return 0;
     }
