@@ -220,19 +220,14 @@ typedef struct intlist {
     int		 count;		/* size of list */
 } intlist;
 
-/* The possible locations for a levelset.
- */
-#define LOC_SERIESDIR		0x01
-#define LOC_SERIESDATDIR	0x02
-
 /* Information associated with a levelset. Contains the information about
  * all gameseries that use the levelset.
  */
 typedef struct mapfileinfo {
     char *filename;
+    char *path;
     intlist sfilelst[Ruleset_Count]; /* indices for series files per ruleset */
     int levelcount;
-    int locdirs;	   /* Flags indicating which dirs the set is in */
 } mapfileinfo;
 
 /* Flags associated with a series.

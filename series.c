@@ -45,7 +45,7 @@ static void addgameseries(intlist *g, int gameseriesindex, int ruleset)
 /* Add a level file to a mfinfovector. The vector takes ownership of the
  * filename string.
  */
-static void addlevelfile(mfinfovector *v, char *filename, int levelcount, int locdirs)
+static void addlevelfile(mfinfovector *v, char *filename, int levelcount, char *path)
 {
     ++v->count;
     x_alloc(v->buf, v->count * sizeof *v->buf);
@@ -56,7 +56,7 @@ static void addlevelfile(mfinfovector *v, char *filename, int levelcount, int lo
     }
 
     v->buf[v->count-1].levelcount = levelcount;
-    v->buf[v->count-1].locdirs = locdirs;
+    v->buf[v->count-1].path = path;
 }
 
 /* A callback function to compare mapfileinfo structs */
@@ -587,9 +587,11 @@ static int getseriesfile(char const *filename, void *data)
 	clearfileinfo(&series->mapfile);
 	if (f) {
 	    series->mapfilename = getpathforfileindir(sdata->curdir, filename);
-	    char *dup = strdup(filename);
-	    if (dup == NULL) memerrexit();
-	    addlevelfile(&sdata->mfinfo, dup, series->count, LOC_SERIESDIR);
+		char *dup_filename = strdup(filename);
+		if (dup_filename == NULL) memerrexit();
+		char *dup_path = strdup(sdata->curdir);
+		if (dup_path == NULL) memerrexit();
+	    addlevelfile(&sdata->mfinfo, dup_filename, series->count, dup_path);
 	}
     }
     if (f)
@@ -633,12 +635,14 @@ static int getmapfile(char const *filename, void *data)
 	mapfileinfo *existingmf =
  	    bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
 	if (existingmf) {
-	    existingmf->locdirs |= LOC_SERIESDATDIR;
+	    existingmf->path = (char*)sdata->curdir;
 	    existingmf->levelcount = s.count;
 	} else {
-	    char *dup = strdup(filename);
-	    if (dup == NULL) memerrexit();
-	    addlevelfile(v, dup, s.count, LOC_SERIESDATDIR);
+		char *dup_filename = strdup(filename);
+		if (dup_filename == NULL) memerrexit();
+		char *dup_path = strdup(sdata->curdir);
+		if (dup_path == NULL) memerrexit();
+	    addlevelfile(v, dup_filename, s.count, dup_path);
 	}
     }
     return 0;
@@ -734,8 +738,7 @@ static gameseries* createnewseries
 				      newdacname);
     sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
 				      newdacname);
-    char *datfileloc = seriesdir;
-    series->mapfilename = getpathforfileindir(datfileloc, datfile->filename);
+    series->mapfilename = getpathforfileindir(datfile->path, datfile->filename);
     ++s->count;
     free(newdacname);
     return series;
