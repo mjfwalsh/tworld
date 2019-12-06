@@ -209,6 +209,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	m_bKbdRepeatEnabled(true),
 	m_nRuleset(Ruleset_None),
 	m_nLevelNum(0),
+	m_nLevelName(""),
 	m_bProblematic(false),
 	m_bOFNT(false),
 	m_nBestTime(TIME_NIL),
@@ -549,14 +550,18 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
 		m_pLCDNumber->display(pState->game->number);
 
-		QString sTitle = pState->game->name;
-		m_pLblTitle->setText(sTitle);
+		m_nLevelName = pState->game->name;
+		QString levelPackName(getstringsetting("selectedseries"));
+		int p = levelPackName.lastIndexOf(".");
+		if(p > 0) levelPackName = levelPackName.replace(p, 10, "");
+		m_pLblTitle->setText(levelPackName + " - " + m_nLevelName);
+
 		Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
 		m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
 
 		m_pLblPassword->setText(pState->game->passwd);
 
-		m_bOFNT = (sTitle.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
+		m_bOFNT = (m_nLevelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 
 		m_pSldSeek->setValue(0);
 		bool bHasSolution = hassolution(pState->game);
@@ -906,7 +911,6 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
 	if (nCompleted > 0)	// Success
 	{
-		QString sTitle = m_pLblTitle->text();
 		QString sAuthor = m_ccxLevelset.vecLevels[m_nLevelNum].sAuthor;
 		const char* szMsg = 0;
 		if (m_bReplay)
@@ -924,7 +928,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		strm
 			<< "<table>"
 			// << "<tr><td><hr></td></tr>"
-			<< "<tr><td><big><b>" << sTitle << "</b></big></td></tr>"
+			<< "<tr><td><big><b>" << m_nLevelName << "</b></big></td></tr>"
 			// << "<tr><td><hr></td></tr>"
 			;
 		if (!sAuthor.isEmpty())
@@ -981,7 +985,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
 		m_sTextToCopy = timestring
 			(m_nLevelNum,
-			 sTitle.toLatin1().constData(),
+			 m_nLevelName.toLatin1().constData(),
 			 m_nTimeLeft, m_bTimedLevel, false);
 
 		msgBox.addButton("&Onward!", QMessageBox::AcceptRole);
