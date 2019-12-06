@@ -22,7 +22,7 @@ public:
 	void ExitTWorld();
 	void InitDirs();
 
-	bool Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram, bool bFullScreen);
+	bool Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram);
 
 	QString appResDir;
 	QString userSetsDir;
@@ -31,7 +31,7 @@ public:
 	QString userDir;
 
 private:
-	bool m_bSilence, m_bShowHistogram, m_bFullScreen;
+	bool m_bSilence, m_bShowHistogram;
 };
 
 

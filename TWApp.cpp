@@ -36,8 +36,7 @@ TileWorldApp::TileWorldApp(int& argc, char** argv)
 	:
 	QApplication(argc, argv),
 	m_bSilence(false),
-	m_bShowHistogram(false),
-	m_bFullScreen(false)
+	m_bShowHistogram(false)
 {
 	g_pApp = this;
 }
@@ -72,20 +71,18 @@ static void _eventupdate(int wait)
  * more efficient, but pushes the sound effects farther out of
  * synchronization with the video.
  */
-int oshwinitialize(int silence, int soundbufsize,
-                   int showhistogram, int fullscreen)
+int oshwinitialize(int silence, int soundbufsize, int showhistogram)
 {
-	return g_pApp->Initialize(silence, soundbufsize, showhistogram, fullscreen);
+	return g_pApp->Initialize(silence, soundbufsize, showhistogram);
 }
 
 bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
-                              bool bShowHistogram, bool bFullScreen)
+                              bool bShowHistogram)
 {
     geng.eventupdatefunc = _eventupdate;
 
 	m_bSilence = bSilence;
 	m_bShowHistogram = bShowHistogram;
-	m_bFullScreen = bFullScreen;
 
 	g_pMainWnd = new TileWorldMainWnd;
 	g_pMainWnd->setWindowTitle(s_szTitle);
@@ -97,16 +94,6 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 		_sdlsfxinitialize(bSilence, nSoundBufSize)
 	   ) )
 		return false;
-
-	if (bFullScreen)
-	{
-		g_pMainWnd->showFullScreen();
-	}
-	else
-	{
-		//g_pMainWnd->adjustSize();
-		//g_pMainWnd->hide(); start hidden
-	}
 
 	return true;
 }

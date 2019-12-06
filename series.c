@@ -601,7 +601,6 @@ static int getmapfile(char const *filename, void *data)
     }
     filerewind(&file, NULL);
     if ((magic & 0xFFFF) != SIG_DATFILE) {
-    fileerr(&file, "not a valid configuration file");
 	fileclose(&file, NULL);
 	return 0;
     }

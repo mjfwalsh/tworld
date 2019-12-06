@@ -57,10 +57,6 @@ typedef	struct seriesdata {
  */
 static int	silence = FALSE;
 
-/* TRUE means the program should attempt to run in fullscreen mode.
- */
-static int	fullscreen = FALSE;
-
 /* FALSE suppresses all password checking.
  */
 static int	usepasswds = TRUE;
@@ -1405,7 +1401,7 @@ static int initializesystem(void)
     mudsucking = 1;
 #endif
     setmudsuckingfactor(mudsucking);
-    if (!oshwinitialize(silence, soundbufsize, showhistogram, fullscreen))
+    if (!oshwinitialize(silence, soundbufsize, showhistogram))
 	return FALSE;
     if (!initresources())
 	return FALSE;

@@ -36,7 +36,7 @@ OSHW_EXTERN int tworld();
  * synchronization with the video.
  */
 OSHW_EXTERN int oshwinitialize(int silence, int soundbufsize,
-			  int showhistogram, int fullscreen);
+			  int showhistogram);
 
 /*
  * Timer functions.
