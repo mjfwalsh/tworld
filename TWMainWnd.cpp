@@ -560,8 +560,8 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
 		m_nLevelName = pState->game->name;
 		QString levelPackName(getstringsetting("selectedseries"));
-		int p = levelPackName.lastIndexOf(".");
-		if(p > 0) levelPackName = levelPackName.replace(p, 10, "");
+		int p = levelPackName.indexOf(".");
+		if(p > 0) levelPackName = levelPackName.left(p);
 		m_pLblTitle->setText(levelPackName + " - " + m_nLevelName);
 
 		Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
