@@ -94,14 +94,6 @@ extern int haspathname(char const *name);
  */
 extern char *skippathname(char const *name);
 
-/* Append the path and/or file contained in path to dir, storing the
- * result in dest. dest and dir can point to the same buffer. dest is
- * assumed to be a buffer of size getpathbufferlen(). If the resulting
- * path is longer than this, FALSE is returned and errno is set to
- * ENAMETOOLONG.
- */
-extern int combinepath(char *dest, char const *dir, char const *path);
-
 /* Return the pathname for a directory and/or filename, using the same
  * algorithm to construct the path as openfileindir(). The caller must
  * free the returned buffer.

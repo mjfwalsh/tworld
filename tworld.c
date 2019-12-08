@@ -467,10 +467,8 @@ static int selectlevelbypassword(gamespec *gs)
     char	passwd[5] = "";
     int		n;
 
-    setkeyboardinputmode(TRUE);
     n = displayinputprompt("Enter Password", passwd, 4,
 			   INPUT_ALPHA, keyinputcallback);
-    setkeyboardinputmode(FALSE);
     if (!n)
 	return FALSE;
 
@@ -663,10 +661,8 @@ static int startinput(gamespec *gs)
 		break;
 	    }
 	    yn[0] = '\0';
-	    setkeyboardinputmode(TRUE);
 	    n = displayinputprompt("Really delete solution?",
 				   yn, 1, INPUT_YESNO, yninputcallback);
-	    setkeyboardinputmode(FALSE);
 	    if (n && *yn == 'Y')
 		if (deletesolution())
 		    savesolutions(&gs->series);
@@ -708,10 +704,8 @@ static int endinput(gamespec *gs)
 	    ++gs->melindacount;
 	    if (gs->melindacount >= 10) {
 		yn[0] = '\0';
-		setkeyboardinputmode(TRUE);
 		n = displayinputprompt("Skip level?", yn, 1,
 				       INPUT_YESNO, yninputcallback);
-		setkeyboardinputmode(FALSE);
 		if (n && *yn == 'Y') {
 		    passwordseen(gs, gs->currentgame + 1);
 		    changecurrentgame(gs, +1);
@@ -786,16 +780,18 @@ static int finalinput(gamespec *gs)
 }
 
 #define SETPAUSED(paused, shutter) do { \
-    if (paused) { \
-	setgameplaymode((shutter) ? SuspendPlayShuttered : SuspendPlay); \
-	if (shutter) drawscreen(TRUE); \
-	gamepaused = TRUE; \
-    } \
-    else { \
-	setgameplaymode(NormalPlay); \
-	gamepaused = FALSE; \
-    } \
-    setplaypausebutton(gamepaused); \
+	if(!paused) { \
+		setgameplaymode(NormalPlay); \
+		gamepaused = FALSE; \
+	} else if(shutter) { \
+		setgameplaymode(SuspendPlayShuttered); \
+		drawscreen(TRUE); \
+		gamepaused = TRUE; \
+	} else { \
+		setgameplaymode(SuspendPlay); \
+		gamepaused = TRUE; \
+	} \
+	setplaypausebutton(gamepaused); \
 } while (0)
 
 /* Play the current level, using firstcmd as the initial key command,
@@ -1358,8 +1354,7 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 	gs->currentgame = -1;
 	gs->melindacount = 0;
 
-	if (gs->currentgame < 0)
-		findlevelfromhistory(gs, gs->series.filebase);
+	findlevelfromhistory(gs, gs->series.filebase);
 
 	if (gs->currentgame < 0) {
 	gs->currentgame = 0;

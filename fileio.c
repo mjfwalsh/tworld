@@ -375,40 +375,6 @@ char *skippathname(char const *name)
     return (char*)(p ? p + 1 : name);
 }
 
-/* Append the path and/or file contained in path to dir. If path is
- * an absolute path, the contents of dir are ignored.
- */
-int combinepath(char *dest, char const *dir, char const *path)
-{
-    int	m, n;
-
-    if (path[0] == DIRSEP_CHAR) {
-	n = strlen(path);
-	if (n > PATH_MAX) {
-	    errno = ENAMETOOLONG;
-	    return FALSE;
-	}
-	strcpy(dest, path);
-	return TRUE;
-    }
-    n = strlen(dir);
-    if (n >= PATH_MAX) {
-	errno = ENAMETOOLONG;
-	return FALSE;
-    }
-    if (dest != dir)
-	memcpy(dest, dir, n);
-    if (dest[n - 1] != DIRSEP_CHAR)
-	dest[n++] = DIRSEP_CHAR;
-    m = strlen(path);
-    if (m + n + 1 > PATH_MAX) {
-	errno = ENAMETOOLONG;
-	return FALSE;
-    }
-    memcpy(dest + n, path, m + 1);
-    return TRUE;
-}
-
 /* Create the directory dir if it doesn't already exist.
  */
 int finddir(char const *dir)

@@ -82,11 +82,6 @@ OSHW_EXTERN int setkeyboardrepeat(int enable);
  */
 OSHW_EXTERN int setkeyboardarrowsrepeat(int enable);
 
-/* Turn input mode on or off. In input mode, only the arrow and letter
- * keys are recognized.
- */
-OSHW_EXTERN int setkeyboardinputmode(int enable);
-
 /* Return the latest/current keystroke. If wait is TRUE and no
  * keystrokes are pending, the function blocks until a keystroke
  * arrives.

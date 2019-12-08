@@ -58,7 +58,7 @@ static int		joystickstyle = FALSE;
  * shift, ctl and alt are positive if the key must be down, zero if
  * the key must be up, or negative if it doesn't matter.
  */
-static keycmdmap const gamekeycmds[] = {
+static keycmdmap const keycmds[] = {
 	{	TWK_UP,					CmdNorth,				TRUE	},
 	{	TWK_LEFT,				CmdWest,				TRUE	},
 	{	TWK_DOWN,				CmdSouth,				TRUE	},
@@ -86,22 +86,6 @@ static keycmdmap const gamekeycmds[] = {
 	{	TWC_SEEK,				CmdSeek,				FALSE	},
 	{	0,	0,	0	}
 };
-
-/* The list of key commands recognized when the program is obtaining
- * input from the user.
- */
-static keycmdmap const inputkeycmds[] = {
-    { TWK_UP,                    CmdNorth,              FALSE },
-    { TWK_LEFT,                  CmdWest,               FALSE },
-    { TWK_DOWN,                  CmdSouth,              FALSE },
-    { TWK_RIGHT,                 CmdEast,               FALSE },
-    { TWK_RETURN,                CmdProceed,            FALSE },
-    { 0, 0, 0 }
-};
-
-/* The current map of key commands.
- */
-static keycmdmap const *keycmds = gamekeycmds;
 
 /* A map of keys that can be held down simultaneously to produce
  * multiple commands.
@@ -301,15 +285,6 @@ int setkeyboardarrowsrepeat(int enable)
 {
     joystickstyle = enable;
     restartkeystates();
-    return TRUE;
-}
-
-/* Turn input mode on or off. When input mode is on, the input key
- * command map is used instead of the game key command map.
- */
-int setkeyboardinputmode(int enable)
-{
-    keycmds = enable ? inputkeycmds : gamekeycmds;
     return TRUE;
 }
 
