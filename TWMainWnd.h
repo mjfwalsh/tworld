@@ -21,6 +21,7 @@
 #include <QMainWindow>
 
 #include <QLocale>
+#include <QInputDialog>
 
 class QSortFilterProxyModel;
 
@@ -80,6 +81,7 @@ private slots:
 	void OnTextReturn();
 	void OnCopyText();
 	void OnMenuActionTriggered(QAction* pAction);
+	void ChangeStep(QString step);
 
 private:
 	bool HandleEvent(QObject* pObject, QEvent* pEvent);
@@ -134,6 +136,17 @@ private:
 	QIcon pauseIcon;
 
 	QTimer *volTimer;
+	QInputDialog* stepDialog;
+
+	QStringList stepDialogOptions = {
+	"Even Step",
+	"Even Step +1",
+	"Even Step +2",
+	"Even Step +3",
+	"Odd Step",
+	"Odd Step +1",
+	"Odd Step +2",
+	"Odd Step +3"};
 };
 
 

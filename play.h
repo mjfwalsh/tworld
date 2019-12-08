@@ -41,8 +41,13 @@ extern int initgamestate(gamesetup *game, int ruleset);
  */
 extern int prepareplayback(void);
 
-extern int setstepping(int stepping, int display);
+/* Change the step value.
+ */
+extern void setstepping(int step);
 
+/* Get the step value.
+ */
+extern int getstepping();
 
 /* Return the amount of time passed in the current game, in seconds.
  */

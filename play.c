@@ -190,39 +190,26 @@ void setgameplaymode(int mode)
     }
 }
 
-/* Write a string representing the stepping to a buffer. Returns
- * a pointer to the terminating null character.
+/* Alter the stepping. Force the stepping to be appropriate
+ * to the current ruleset.
  */
-static char *writesteppingstring(char *buf, int stepping)
+void setstepping(int step)
 {
-    char *p = buf;
-    p += sprintf(p, "%s-step", state.stepping & 4 ? "odd" : "even");
-    if (state.stepping & 3)
-	p += sprintf(p, " +%d", state.stepping & 3);
-    return p;
+	if(state.ruleset == Ruleset_MS) {
+		if(step > 3) step = 4;
+		else step = 0;
+	} else {
+		if(step < 0) step = 0;
+		else if(step > 7) step = 7;
+	}
+
+	state.stepping = step;
 }
 
-/* Alter the stepping. If display is true, update the screen to
- * reflect the change.
- */
-int setstepping(int stepping, int display)
+int getstepping()
 {
-    char	msg[32];
-
-    state.stepping = stepping;
-    if (display) {
-	writesteppingstring(msg, stepping);
-    }
-    return TRUE;
+	return state.stepping;
 }
-
-
-/* Append a string literal and update pointer to refer to end. */
-#define APPEND(p, strliteral) do { \
-    strcpy(p, strliteral); \
-    p += strlen(strliteral); \
-} while (0)
-
 
 /* Advance the game one tick and update the game state. cmd is the
  * current keyboard command supplied by the user. The return value is

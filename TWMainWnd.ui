@@ -849,6 +849,7 @@
     </property>
     <addaction name="action_displayCCX"/>
     <addaction name="action_forceShowTimer"/>
+    <addaction name="action_Step"/>
    </widget>
    <widget class="QMenu" name="menu_Zoom">
     <property name="title">
@@ -1002,6 +1003,11 @@
   <action name="action_TimesClipboard">
    <property name="text">
     <string>&amp;Copy Best Times to Clipboard</string>
+   </property>
+  </action>
+  <action name="action_Step">
+   <property name="text">
+    <string>Change Level Step...</string>
    </property>
   </action>
   <action name="action_About">

@@ -615,7 +615,7 @@ static int startinput(gamespec *gs)
 
     if (gs->currentgame != lastlevel) {
 	lastlevel = gs->currentgame;
-	setstepping(0, FALSE);
+	setstepping(0);
     }
     drawscreen(TRUE);
     gs->playmode = Play_None;

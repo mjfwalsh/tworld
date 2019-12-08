@@ -284,7 +284,15 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	move(30, 30);
 	show();
 
+	// timer for display of volume widegt
 	volTimer = new QTimer(this);
+
+	// step dialog
+	stepDialog = new QInputDialog(this);
+	stepDialog->setWindowTitle("Step");
+	stepDialog->setLabelText("Set level step value");
+	connect(stepDialog, SIGNAL(textValueSelected(const QString &)),
+			   this, SLOT(ChangeStep(const QString &)));
 }
 
 
@@ -1450,10 +1458,31 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 		this->SetVolume(-2);
 		return;
 	}
+	
+	if (pAction == action_Step)
+	{
+		if (getintsetting("selectedruleset") == Ruleset_Lynx) {
+			stepDialog->setComboBoxItems(stepDialogOptions);
+		} else {
+			stepDialog->setComboBoxItems({stepDialogOptions[0], stepDialogOptions[4]});
+		}
+
+		int step = getstepping();
+		stepDialog->setTextValue(stepDialogOptions[step]);
+
+		stepDialog->open();
+		return;
+	}
 
 	int nTWKey = GetTWKeyForAction(pAction);
 	if (nTWKey == TWK_dummy) return;
 	PulseKey(nTWKey);
+}
+
+void TileWorldMainWnd::ChangeStep(QString step)
+{
+	int stepIndex = stepDialogOptions.indexOf(step);
+	setstepping(stepIndex);
 }
 
 int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
