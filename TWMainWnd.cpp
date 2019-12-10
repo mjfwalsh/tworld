@@ -286,13 +286,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	// timer for display of volume widegt
 	volTimer = new QTimer(this);
-
-	// step dialog
-	stepDialog = new QInputDialog(this);
-	stepDialog->setWindowTitle("Step");
-	stepDialog->setLabelText("Set level step value");
-	connect(stepDialog, SIGNAL(textValueSelected(const QString &)),
-			   this, SLOT(ChangeStep(const QString &)));
 }
 
 
@@ -1182,40 +1175,32 @@ void TileWorldMainWnd::OnRulesetSwitched(bool mschecked) {
  * returns FALSE. All other return values from the callback are
  * ignored.
  */
-int displayinputprompt(char const *prompt, char *input, int maxlen,
-			      InputPromptType inputtype, int (*inputcallback)(void))
+int displayyesnoprompt(char const *prompt)
 {
-	return g_pMainWnd->DisplayInputPrompt(prompt, input, maxlen, inputtype, inputcallback);
+	return (int)g_pMainWnd->DisplayYesNoPrompt(prompt);
 }
 
-int TileWorldMainWnd::DisplayInputPrompt(const char* szPrompt, char* pInput, int nMaxLen,
-		InputPromptType eInputType, int (*pfnInputCallback)())
+bool TileWorldMainWnd::DisplayYesNoPrompt(const char* prompt)
 {
-	switch (eInputType)
-	{
-		case INPUT_YESNO:
-		{
-			QMessageBox::StandardButton eBtn = QMessageBox::question(
-				this, TileWorldApp::s_szTitle, szPrompt, QMessageBox::Yes|QMessageBox::No);
-			pInput[0] = (eBtn==QMessageBox::Yes) ? 'Y' : 'N';
-			pInput[1] = '\0';
-			return true;
-		}
+	QMessageBox::StandardButton eBtn = QMessageBox::question(
+		this, TileWorldApp::s_szTitle, prompt, QMessageBox::Yes|QMessageBox::No);
+	return eBtn == QMessageBox::Yes;
+}
 
-		case INPUT_ALPHA:
-		default:
-		{
-			// TODO: proper validation, maybe embedded prompt
-			QString sText = QInputDialog::getText(this, TileWorldApp::s_szTitle, szPrompt);
-			if (sText.isEmpty())
-				return false;
-			sText.truncate(nMaxLen);
-			if (eInputType == INPUT_ALPHA)
-				sText = sText.toUpper();
-			strcpy(pInput, sText.toLatin1().constData());
-			return true;
-		}
-	}
+
+const char *displaypasswordprompt()
+{
+	QString p = g_pMainWnd->DisplayPasswordPrompt();
+	return p.toStdString().c_str();
+}
+
+QString TileWorldMainWnd::DisplayPasswordPrompt()
+{
+	QString password = QInputDialog::getText(this, TileWorldApp::s_szTitle, "Enter Password");
+	if (password.isEmpty()) return "";
+	password.truncate(4);
+	password = password.toUpper();
+	return password;
 }
 
 /*
@@ -1461,28 +1446,30 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 	
 	if (pAction == action_Step)
 	{
+		// step dialog
+		QInputDialog stepDialog(this);
+		stepDialog.setWindowTitle("Step");
+		stepDialog.setLabelText("Set level step value");
+
 		if (getintsetting("selectedruleset") == Ruleset_Lynx) {
-			stepDialog->setComboBoxItems(stepDialogOptions);
+			stepDialog.setComboBoxItems(stepDialogOptions);
 		} else {
-			stepDialog->setComboBoxItems({stepDialogOptions[0], stepDialogOptions[4]});
+			stepDialog.setComboBoxItems({stepDialogOptions[0], stepDialogOptions[4]});
 		}
 
 		int step = getstepping();
-		stepDialog->setTextValue(stepDialogOptions[step]);
+		stepDialog.setTextValue(stepDialogOptions[step]);
 
-		stepDialog->open();
+		stepDialog.exec();
+
+		int stepIndex = stepDialogOptions.indexOf(stepDialog.textValue());
+		setstepping(stepIndex);
 		return;
 	}
 
 	int nTWKey = GetTWKeyForAction(pAction);
 	if (nTWKey == TWK_dummy) return;
 	PulseKey(nTWKey);
-}
-
-void TileWorldMainWnd::ChangeStep(QString step)
-{
-	int stepIndex = stepDialogOptions.indexOf(step);
-	setstepping(stepIndex);
 }
 
 int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const

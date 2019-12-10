@@ -21,7 +21,6 @@
 #include <QMainWindow>
 
 #include <QLocale>
-#include <QInputDialog>
 
 class QSortFilterProxyModel;
 
@@ -53,8 +52,8 @@ public:
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
 	int DisplayList(const char* szTitle, const tablespec* pTableSpec, int* pnIndex,
 			DisplayListType eListType, int (*pfnInputCallback)(int*));
-	int DisplayInputPrompt(const char* szPrompt, char* pInput, int nMaxLen,
-			InputPromptType eInputType, int (*pfnInputCallback)());
+	bool DisplayYesNoPrompt(const char* prompt);
+	QString DisplayPasswordPrompt();
 	int GetSelectedRuleset();
 	void SetSubtitle(const char* szSubtitle);
 
@@ -81,7 +80,6 @@ private slots:
 	void OnTextReturn();
 	void OnCopyText();
 	void OnMenuActionTriggered(QAction* pAction);
-	void ChangeStep(QString step);
 
 private:
 	bool HandleEvent(QObject* pObject, QEvent* pEvent);
@@ -136,7 +134,6 @@ private:
 	QIcon pauseIcon;
 
 	QTimer *volTimer;
-	QInputDialog* stepDialog;
 
 	QStringList stepDialogOptions = {
 	"Even Step",

@@ -205,31 +205,16 @@ enum {
     SCROLL_ALLTHEWAY_DN		= -9
 };
 
-/* Types of input prompts.
+/* Input prompts.
  */
-typedef enum {
-    INPUT_YESNO,	// Yes or No question
-    INPUT_ALPHA		// Alphabets only (lowercase folded to uppercase)
-} InputPromptType;
 
-/* Display an input prompt to the user. prompt supplies the prompt to
- * display, and input points to a buffer to hold the user's input.
- * maxlen sets a maximum length to the input that will be accepted.
- * Either inputtype or inputcallback must be used to validate input.
- * inputtype indicates the type of input desired.
- * The supplied callback function is called repeatedly to obtain
- * input. If the callback function returns a printable ASCII
- * character, the function will automatically append it to the string
- * stored in input. If '\b' is returned, the function will erase the
- * last character in input, if any. If '\f' is returned the function
- * will set input to "". If '\n' is returned, the input prompt is
- * erased and displayinputprompt() returns TRUE. If a negative value
- * is returned, the input prompt is erased and displayinputprompt()
- * returns FALSE. All other return values from the callback are
- * ignored.
+/* Display an confirm yes/no dialog
  */
-OSHW_EXTERN int displayinputprompt(char const *prompt, char *input, int maxlen,
-			      InputPromptType inputtype, int (*inputcallback)(void));
+OSHW_EXTERN int displayyesnoprompt(const char* prompt);
+
+/* Display an text prompt for a password
+ */
+OSHW_EXTERN const char *displaypasswordprompt();
 
 /*
  * Sound functions.

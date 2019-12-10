@@ -89,40 +89,6 @@ static void   **subtitlestack = NULL;
  * Callback functions for oshw.
  */
 
-/* An input callback that only accepts the characters Y and N.
- */
-static int yninputcallback(void)
-{
-    switch (input(TRUE)) {
-      case 'Y': case 'y':	return 'Y';
-      case 'N': case 'n':	return 'N';
-      case CmdWest:		return '\b';
-      case CmdProceed:		return '\n';
-      case CmdQuitLevel:	return -1;
-      case CmdQuit:		exit(0);
-    }
-    return 0;
-}
-
-/* An input callback that accepts only alphabetic characters.
- */
-static int keyinputcallback(void)
-{
-    int	ch;
-
-    ch = input(TRUE);
-    switch (ch) {
-        case CmdWest:		return '\b';
-        case CmdProceed:	return '\n';
-        case CmdQuitLevel:	return -1;
-        case CmdQuit:		exit(0);
-        default:
-	  if (isalpha(ch))
-	      return toupper(ch);
-    }
-    return 0;
-}
-
 /* An input callback used while displaying a scrolling list.
  */
 static int scrollinputcallback(int *move)
@@ -464,13 +430,11 @@ static int showscores(gamespec *gs)
  */
 static int selectlevelbypassword(gamespec *gs)
 {
-    char	passwd[5] = "";
     int		n;
 
-    n = displayinputprompt("Enter Password", passwd, 4,
-			   INPUT_ALPHA, keyinputcallback);
-    if (!n)
-	return FALSE;
+    const char *passwd = displaypasswordprompt();
+
+    if (strlen(passwd) != 4) return FALSE;
 
     n = findlevelinseries(&gs->series, 0, passwd);
     if (n < 0) {
@@ -608,8 +572,7 @@ static void savehistory(void)
 static int startinput(gamespec *gs)
 {
     static int	lastlevel = -1;
-    char	yn[2];
-    int		cmd, n;
+    int		cmd;
 
     if (gs->currentgame != lastlevel) {
 	lastlevel = gs->currentgame;
@@ -660,11 +623,7 @@ static int startinput(gamespec *gs)
 		bell();
 		break;
 	    }
-	    yn[0] = '\0';
-	    n = displayinputprompt("Really delete solution?",
-				   yn, 1, INPUT_YESNO, yninputcallback);
-	    if (n && *yn == 'Y')
-		if (deletesolution())
+	    if (displayyesnoprompt("Really delete solution?") && deletesolution())
 		    savesolutions(&gs->series);
 	    break;
 	  case CmdSeeScores:
@@ -693,20 +652,15 @@ static int startinput(gamespec *gs)
  */
 static int endinput(gamespec *gs)
 {
-    char	yn[2];
     int		bscore = 0, tscore = 0;
     long	gscore = 0;
-    int		n;
     int		cmd = CmdNone;
 
     if (gs->status < 0) {
 	if (melindawatching(gs) && secondsplayed() >= 10) {
 	    ++gs->melindacount;
 	    if (gs->melindacount >= 10) {
-		yn[0] = '\0';
-		n = displayinputprompt("Skip level?", yn, 1,
-				       INPUT_YESNO, yninputcallback);
-		if (n && *yn == 'Y') {
+		if (displayyesnoprompt("Skip level?")) {
 		    passwordseen(gs, gs->currentgame + 1);
 		    changecurrentgame(gs, +1);
 		}
