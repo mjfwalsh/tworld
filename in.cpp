@@ -103,7 +103,7 @@ static int mergeable[CmdKeyMoveLast + 1];
  * current behavior settings. Shift-type keys are always either on or
  * off.
  */
-static void _keyeventcallback(int scancode, int down)
+void keyeventcallback(int scancode, int down)
 {
 	if (down) {
 		keystates[scancode] = keystates[scancode] == KS_OFF ? KS_PRESSED : KS_REPEATING;
@@ -125,7 +125,7 @@ static void restartkeystates(void)
 	count = TWK_LAST;
     for (n = 0 ; n < count ; ++n)
 	if (keyboard[n])
-	    _keyeventcallback(n, TRUE);
+	    keyeventcallback(n, TRUE);
 }
 
 /* Update the key states. This is done at the start of each polling
@@ -177,7 +177,7 @@ static void resetkeystates(void)
  * mouse buttons. Up events are ignored. Down events are stored to
  * be examined later.
  */
-static void _mouseeventcallback(int xpos, int ypos, int button, int down)
+void mouseeventcallback(int xpos, int ypos, int button, int down)
 {
     if (down) {
 	mouseinfo.state = KS_PRESSED;
@@ -291,7 +291,7 @@ int setkeyboardarrowsrepeat(int enable)
 /* Given a pixel's coordinates, return the integer identifying the
  * tile's position in the map, or -1 if the pixel is not on the map view.
  */
-static int _windowmappos(int x, int y)
+int windowmappos(int x, int y)
 {
     if (geng.mapvieworigin < 0)
 	return -1;
@@ -312,12 +312,8 @@ static int _windowmappos(int x, int y)
 
 /* Initialization.
  */
-int _genericinputinitialize(void)
+int genericinputinitialize(void)
 {
-    geng.keyeventcallbackfunc = _keyeventcallback;
-    geng.mouseeventcallbackfunc = _mouseeventcallback;
-    geng.windowmapposfunc = _windowmappos;
-
     mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
     mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
 

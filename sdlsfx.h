@@ -19,7 +19,7 @@
 
 /* The initialization function for the sound module.
  */
-OSHW_EXTERN int _sdlsfxinitialize(int silence, int soundbufsize);
+OSHW_EXTERN int sdlsfxinitialize(int silence, int soundbufsize);
 
 #undef OSHW_EXTERN
 

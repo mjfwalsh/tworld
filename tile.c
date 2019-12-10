@@ -383,7 +383,7 @@ static void drawfulltile(TW_Surface *dest, int xpos, int ypos,
 
 /* Draw a tile of the given id at the position (xpos, ypos).
  */
-static void _drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id)
+void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id)
 {
     drawfulltile(dest, xpos, ypos, gettileimage(id));
 }
@@ -426,7 +426,7 @@ extern int pedanticmode;
  * gamestate's map and the list of creatures are consulted to
  * determine what to render.
  */
-static void _displaymapview(gamestate const *state, TW_Rect displayloc)
+void displaymapview(gamestate const *state, TW_Rect displayloc)
 {
     TW_Rect		rect;
     TW_Surface	       *s;
@@ -1177,10 +1177,8 @@ int loadtileset(char const *filename, int complain)
 
 /* Initialization.
  */
-int _generictileinitialize(void)
+int generictileinitialize(void)
 {
     geng.mapvieworigin = -1;
-    geng.displaymapviewfunc = _displaymapview;
-    geng.drawfulltileidfunc = _drawfulltileid;
     return TRUE;
 }

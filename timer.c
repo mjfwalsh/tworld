@@ -127,7 +127,7 @@ static void shutdown(void)
 
 /* Initialize and reset the timer.
  */
-int _generictimerinitialize(int _showhistogram)
+int generictimerinitialize(int _showhistogram)
 {
     showhistogram = _showhistogram;
     atexit(shutdown);

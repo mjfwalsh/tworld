@@ -54,7 +54,7 @@ TileWorldApp::~TileWorldApp()
 /* Process all pending events. If wait is TRUE and no events are
  * currently pending, the function blocks until an event arrives.
  */
-static void _eventupdate(int wait)
+void eventupdate(int wait)
 {
 	QApplication::processEvents(wait ? QEventLoop::WaitForMoreEvents : QEventLoop::AllEvents);
 }
@@ -79,8 +79,6 @@ int oshwinitialize(int silence, int soundbufsize, int showhistogram)
 bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
                               bool bShowHistogram)
 {
-    geng.eventupdatefunc = _eventupdate;
-
 	m_bSilence = bSilence;
 	m_bShowHistogram = bShowHistogram;
 
@@ -88,10 +86,10 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 	g_pMainWnd->setWindowTitle(s_szTitle);
 
 	if ( ! (
-		_generictimerinitialize(bShowHistogram) &&
-		_generictileinitialize() &&
-		_genericinputinitialize() &&
-		_sdlsfxinitialize(bSilence, nSoundBufSize)
+		generictimerinitialize(bShowHistogram) &&
+		generictileinitialize() &&
+		genericinputinitialize() &&
+		sdlsfxinitialize(bSilence, nSoundBufSize)
 	   ) )
 		return false;
 
