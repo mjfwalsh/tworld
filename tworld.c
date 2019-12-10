@@ -86,53 +86,6 @@ static int	volumelevel = -1;
 static void   **subtitlestack = NULL;
 
 /*
- * Callback functions for oshw.
- */
-
-/* An input callback used while displaying a scrolling list.
- */
-static int scrollinputcallback(int *move)
-{
-    int cmd;
-
-    switch ((cmd = input(TRUE))) {
-      case CmdProceed:		*move = CmdProceed;		return FALSE;
-      case CmdQuitLevel:	*move = CmdQuitLevel;	return FALSE;
-      case CmdQuit:			exit(0);
-
-    }
-    return TRUE;
-}
-
-/* An input callback used while displaying the scrolling list of scores.
- */
-static int scorescrollinputcallback(int *move)
-{
-    int cmd;
-    switch ((cmd = input(TRUE))) {
-      case CmdProceed:			*move = CmdProceed;				return FALSE;
-      case CmdSeeSolutionFiles:	*move = CmdSeeSolutionFiles;	return FALSE;
-      case CmdQuitLevel:		*move = CmdQuitLevel;			return FALSE;
-      case CmdQuit:				exit(0);
-    }
-    return TRUE;
-}
-
-/* An input callback used while displaying the scrolling list of solutions.
- */
-static int solutionscrollinputcallback(int *move)
-{
-    int cmd;
-    switch ((cmd = input(TRUE))) {
-      case CmdProceed:		*move = CmdProceed;		return FALSE;
-      case CmdSeeScores:	*move = CmdSeeScores;		return FALSE;
-      case CmdQuitLevel:	*move = CmdQuitLevel;		return FALSE;
-      case CmdQuit:						exit(0);
-    }
-    return TRUE;
-}
-
-/*
  * Basic game activities.
  */
 
@@ -340,8 +293,7 @@ static int showsolutionfiles(gamespec *gs)
 
     pushsubtitle(gs->series.name);
     for (;;) {
-	f = displaylist("SOLUTION FILES", &table, &n,
-			LIST_SOLUTIONFILES, solutionscrollinputcallback);
+	f = displaylist(&table, &n, LIST_SOLUTIONFILES);
 	if (f == CmdProceed) {
 	    readonly = FALSE;
 	    break;
@@ -389,8 +341,8 @@ static int showscores(gamespec *gs)
     int		count, f, n;
 
   restart:
-    if (!createscorelist(&gs->series, gs->usepasswds, CHAR_MZERO,
-			 &levellist, &count, &table)) {
+    if (!createscorelist(&gs->series, gs->usepasswds, &levellist,
+			 &count, &table)) {
 	bell();
 	return ret;
     }
@@ -399,8 +351,7 @@ static int showscores(gamespec *gs)
 	    break;
     pushsubtitle(gs->series.name);
     for (;;) {
-	f = displaylist(gs->series.filebase, &table, &n,
-			LIST_SCORES, scorescrollinputcallback);
+	f = displaylist(&table, &n, LIST_SCORES);
 	if (f == CmdProceed) {
 	    n = levellist[n];
 	    break;
@@ -875,7 +826,7 @@ static int hideandseek(gamespec *gs, int secondstoskip)
  * prerecorded series of moves, it has the same behavior as
  * playgame().
  */
-static int playbackgame(gamespec *gs, int initcmd)
+static int playbackgame(gamespec *gs)
 {
     int	render, lastrendered, n = 0, cmd;
     int secondstoskip;
@@ -1048,7 +999,7 @@ static int runcurrentlevel(gamespec *gs)
 			if (valid) {
 				switch (gs->playmode) {
 					case Play_Normal:	f = playgame(gs, cmd);		break;
-					case Play_Back:	f = playbackgame(gs, cmd);	break;
+					case Play_Back:	f = playbackgame(gs);	break;
 					case Play_Verify:	f = verifyplayback(gs);		break;
 					default:			f = FALSE;			break;
 				}
@@ -1196,7 +1147,7 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 
     int chosenseries = -1;
     while (chosenseries < 0) {
-	int f = displaylist("", &mftable, &n, LIST_MAPFILES, scrollinputcallback);
+	int f = displaylist(&mftable, &n, LIST_MAPFILES);
 	if (f != CmdProceed) {
 	    free_table(&mftable);
 	    return f;
@@ -1214,7 +1165,7 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 		chosengsl->list, chosengsl->count, series->list[,].filebase);
 	    int m = 0;
 	    for (;;) {
-		f = displaylist("", &gstable, &m, LIST_SERIES, scrollinputcallback);
+		f = displaylist(&gstable, &m, LIST_SERIES);
 		if (f == CmdProceed) {
 		    chosenseries = chosengsl->list[m];
 		    break;

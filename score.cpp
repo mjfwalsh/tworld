@@ -20,10 +20,9 @@
 using std::ostringstream;
 using std::string;
 
-/* Translate a number into a string. The second argument supplies the
- * character value to use for the zero digit.
+/* Translate a number into a string.
  */
-static char const *decimal(long number, char zero)
+static char const *decimal(long number)
 {
     static char		buf[32];
     char	       *dest = buf + sizeof buf;
@@ -32,7 +31,7 @@ static char const *decimal(long number, char zero)
     n = number >= 0 ? (unsigned long)number : (unsigned long)-(number + 1) + 1;
     *--dest = '\0';
     do {
-	*--dest = zero + n % 10;
+	*--dest = '0' + n % 10;
 	n /= 10;
     } while (n);
     if (number < 0)
@@ -40,10 +39,9 @@ static char const *decimal(long number, char zero)
     return dest;
 }
 
-/* Translate a number into a string, complete with commas. The second
- * argument supplies the character value to use for the zero digit.
+/* Translate a number into a string, complete with commas.
  */
-static char const *cdecimal(long number, char zero)
+static char const *cdecimal(long number)
 {
     static char		buf[32];
     char	       *dest = buf + sizeof buf;
@@ -58,7 +56,7 @@ static char const *cdecimal(long number, char zero)
 	    *--dest = ',';
 	    ++i;
 	}
-	*--dest = zero + n % 10;
+	*--dest = '0' + n % 10;
 	n /= 10;
     } while (n);
     if (number < 0)
@@ -107,8 +105,8 @@ int getscoresforlevel(gameseries const *series, int level,
  * which the user doesn't know the password are in the table, but
  * without any information besides the level's number.
  */
-int createscorelist(gameseries const *series, int usepasswds, char zchar,
-		    int **plevellist, int *pcount, tablespec *table)
+int createscorelist(gameseries const *series, int usepasswds, int **plevellist,
+			int *pcount, tablespec *table)
 {
     gamesetup  *game;
     char const **ptrs;
@@ -154,7 +152,7 @@ int createscorelist(gameseries const *series, int usepasswds, char zchar,
 
 	ptrs[n++] = textheap + used;
 	used += 1 + sprintf(textheap + used, "1+%s",
-			    decimal(game->number, zchar));
+			    decimal(game->number));
 	if (hassolution(game)) {
 	    ptrs[n++] = textheap + used;
 	    used += 1 + sprintf(textheap + used, "1-%.64s", game->name);
@@ -165,13 +163,13 @@ int createscorelist(gameseries const *series, int usepasswds, char zchar,
 		levelscore = 500 * game->number;
 		ptrs[n++] = textheap + used;
 		used += 1 + sprintf(textheap + used, "1+%s",
-				    cdecimal(levelscore, zchar));
+				    cdecimal(levelscore));
 		ptrs[n++] = textheap + used;
 		if (game->time) {
 		    timescore = 10 * (game->time
 					- game->besttime / TICKS_PER_SECOND);
 		    used += 1 + sprintf(textheap + used, "1+%s",
-					cdecimal(timescore, zchar));
+					cdecimal(timescore));
 		} else {
 		    timescore = 0;
 		    strcpy(textheap + used, "1+---");
@@ -179,7 +177,7 @@ int createscorelist(gameseries const *series, int usepasswds, char zchar,
 		}
 		ptrs[n++] = textheap + used;
 		used += 1 + sprintf(textheap + used, "1+%s",
-				    cdecimal(levelscore + timescore, zchar));
+				    cdecimal(levelscore + timescore));
 		totalscore += levelscore + timescore;
 	    }
 	    if (plevellist)
@@ -208,7 +206,7 @@ int createscorelist(gameseries const *series, int usepasswds, char zchar,
     ptrs[n++] = textheap + used;
     used += 1 + sprintf(textheap + used, "2-Total Score");
     ptrs[n++] = textheap + used;
-    used += 1 + sprintf(textheap + used, "3+%s", cdecimal(totalscore, zchar));
+    used += 1 + sprintf(textheap + used, "3+%s", cdecimal(totalscore));
     if (plevellist)
 	levellist[count] = -1;
     ++count;

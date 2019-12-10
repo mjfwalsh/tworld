@@ -30,8 +30,7 @@ extern int getscoresforlevel(gameseries const *series, int level,
  * password will either not be included or will show no title. FALSE
  * is returned if an error occurs.
  */
-extern int createscorelist(gameseries const *series,
-			   int usepasswds, char zchar,
+extern int createscorelist(gameseries const *series, int usepasswds,
 			   int **plevellist, int *pcount, tablespec *table);
 
 

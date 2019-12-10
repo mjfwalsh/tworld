@@ -50,8 +50,7 @@ public:
 	void ClearDisplay();
 	bool DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
-	int DisplayList(const char* szTitle, const tablespec* pTableSpec, int* pnIndex,
-			DisplayListType eListType, int (*pfnInputCallback)(int*));
+	int DisplayList(const tablespec* pTableSpec, int* pnIndex, DisplayListType eListType);
 	bool DisplayYesNoPrompt(const char* prompt);
 	QString DisplayPasswordPrompt();
 	int GetSelectedRuleset();
@@ -91,7 +90,7 @@ private:
 	void ReleaseAllKeys();
 	void PulseKey(int nTWKey);
 	int GetTWKeyForAction(QAction* pAction) const;
-	void SetVolume(int volume);
+	void ChangeVolume(int volume);
 
 	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };
 	bool SetHintMode(HintMode newmode);

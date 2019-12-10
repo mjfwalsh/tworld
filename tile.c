@@ -530,7 +530,7 @@ static TW_Surface *extractkeyedtile(TW_Surface *src,
     TW_Rect		rect;
 
     dest = TW_NewSurface(wimg, himg, TRUE);
-    TW_FillRect(dest, NULL, TW_MapRGBA(dest, 0, 0, 0, TW_ALPHA_TRANSPARENT));
+    TW_FillRect(dest, NULL, TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT));
     TW_SetColorKey(src, transpclr);
     rect.x = ximg;
     rect.y = yimg;
@@ -601,8 +601,8 @@ static TW_Surface *extractmaskedtile(TW_Surface *src,
     dest = TW_NewSurface(rect.w, rect.h, TRUE);
     TW_BlitSurface(src, &rect, dest, NULL);
 
-    black = TW_MapRGB(src, 0, 0, 0);
-    transp = TW_MapRGBA(dest, 0, 0, 0, TW_ALPHA_TRANSPARENT);
+    black = TW_MapRGB(0, 0, 0);
+    transp = TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT);
 
     if (TW_MUSTLOCK(src))
 	TW_LockSurface(src);
@@ -648,7 +648,7 @@ static int initsmalltileset(TW_Surface *tiles)
     uint32_t		magenta;
     int			id, n;
 
-    magenta = TW_MapRGB(tiles, 255, 0, 255);
+    magenta = TW_MapRGB(255, 0, 255);
 
     for (n = 0 ; n < (int)(sizeof tileidmap / sizeof *tileidmap) ; ++n) {
 	id = tileidmap[n].id;
@@ -1144,7 +1144,7 @@ int loadtileset(char const *filename, int complain)
     TW_Surface	       *tiles = NULL;
     int			f, w, h;
 
-    tiles = TW_LoadBMP(filename, TRUE);
+    tiles = TW_LoadBMP(filename);
     if (!tiles) {
 	if (complain)
 	    errmsg(filename, "cannot read bitmap: %s", TW_GetError());

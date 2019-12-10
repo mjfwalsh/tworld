@@ -24,13 +24,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 TileWorldApp* g_pApp = 0;
 TileWorldMainWnd* g_pMainWnd = 0;
-
-
-const char TileWorldApp::s_szTitle[] = "Tile World";
-
 
 TileWorldApp::TileWorldApp(int& argc, char** argv)
 	:
@@ -83,7 +78,7 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 	m_bShowHistogram = bShowHistogram;
 
 	g_pMainWnd = new TileWorldMainWnd;
-	g_pMainWnd->setWindowTitle(s_szTitle);
+	g_pMainWnd->setWindowTitle(applicationName());
 
 	if ( ! (
 		generictimerinitialize(bShowHistogram) &&

@@ -1069,14 +1069,14 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-int displaylist(char const *title, tablespec const *table, int *index,
-		       DisplayListType listtype, int (*inputcallback)(int*))
+int displaylist(tablespec const *table, int *index,
+		       DisplayListType listtype)
 {
-	return g_pMainWnd->DisplayList(title, table, index, listtype, inputcallback);
+	return g_pMainWnd->DisplayList(table, index, listtype);
 }
 
-int TileWorldMainWnd::DisplayList(const char* szTitle, const tablespec* pTableSpec, int* pnIndex,
-		DisplayListType eListType, int (*pfnInputCallback)(int*))
+int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
+		DisplayListType eListType)
 {
   int nCmd = 0;
 
@@ -1183,7 +1183,7 @@ int displayyesnoprompt(char const *prompt)
 bool TileWorldMainWnd::DisplayYesNoPrompt(const char* prompt)
 {
 	QMessageBox::StandardButton eBtn = QMessageBox::question(
-		this, TileWorldApp::s_szTitle, prompt, QMessageBox::Yes|QMessageBox::No);
+		this, TileWorldApp::applicationName(), prompt, QMessageBox::Yes|QMessageBox::No);
 	return eBtn == QMessageBox::Yes;
 }
 
@@ -1196,7 +1196,7 @@ const char *displaypasswordprompt()
 
 QString TileWorldMainWnd::DisplayPasswordPrompt()
 {
-	QString password = QInputDialog::getText(this, TileWorldApp::s_szTitle, "Enter Password");
+	QString password = QInputDialog::getText(this, TileWorldApp::applicationName(), "Enter Password");
 	if (password.isEmpty()) return "";
 	password.truncate(4);
 	password = password.toUpper();
@@ -1226,7 +1226,7 @@ void setsubtitle(char const *subtitle)
 
 void TileWorldMainWnd::SetSubtitle(const char* szSubtitle)
 {
-	QString sTitle = TileWorldApp::s_szTitle;
+	QString sTitle = TileWorldApp::applicationName();
 	if (szSubtitle && *szSubtitle)
 		sTitle += " - " + QString(szSubtitle);
 	setWindowTitle(sTitle);
@@ -1434,13 +1434,13 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 
 	if (pAction == action_VolumeUp)
 	{
-		this->SetVolume(+2);
+		this->ChangeVolume(+2);
 		return;
 	}
 
 	if (pAction == action_VolumeDown)
 	{
-		this->SetVolume(-2);
+		this->ChangeVolume(-2);
 		return;
 	}
 	
@@ -1538,7 +1538,7 @@ void TileWorldMainWnd::SetPlayPauseButton(int paused)
 	}
 }
 
-void TileWorldMainWnd::SetVolume(int volume)
+void TileWorldMainWnd::ChangeVolume(int volume)
 {
 	if(volTimer->isActive()) volTimer->stop();
 

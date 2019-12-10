@@ -185,10 +185,10 @@ OSHW_EXTERN TW_Surface* TW_DisplayFormatAlpha(TW_Surface* pSurface);
 #define  TW_BytesPerPixel(pSurface)  ((pSurface)->bytesPerPixel)
 OSHW_EXTERN uint32_t TW_PixelAt(const TW_Surface* pSurface, int x, int y);
 
-OSHW_EXTERN uint32_t TW_MapRGB(const TW_Surface* pSurface, uint8_t r, uint8_t g, uint8_t b);
-OSHW_EXTERN uint32_t TW_MapRGBA(const TW_Surface* pSurface, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+OSHW_EXTERN uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b);
+OSHW_EXTERN uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
-OSHW_EXTERN TW_Surface* TW_LoadBMP(const char* szFilename, int bSetScreenPalette);
+OSHW_EXTERN TW_Surface* TW_LoadBMP(const char* szFilename);
 
 OSHW_EXTERN void TW_DebugSurface(TW_Surface* pSurface, const char* szFilename);	// @#$
 

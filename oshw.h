@@ -35,8 +35,7 @@ OSHW_EXTERN int tworld();
  * more efficient, but pushes the sound effects farther out of
  * synchronization with the video.
  */
-OSHW_EXTERN int oshwinitialize(int silence, int soundbufsize,
-			  int showhistogram);
+OSHW_EXTERN int oshwinitialize(int silence, int soundbufsize, int showhistogram);
 
 /*
  * Timer functions.
@@ -88,22 +87,6 @@ OSHW_EXTERN int setkeyboardarrowsrepeat(int enable);
  */
 OSHW_EXTERN int input(int wait);
 
-/* Wait for a key to be pressed (any key, not just one recognized by
- * the program). The return value is FALSE if the key pressed is a
- * "quit" key.
- */
-OSHW_EXTERN int anykey(void);
-
-/* Symbolic values for requesting a specific help table.
- */
-enum {
-    KEYHELP_INGAME,
-    KEYHELP_TWIXTGAMES,
-    KEYHELP_FILELIST,
-    KEYHELP_SCORELIST,
-    KEYHELP_TWPLUSPLUS
-};
-
 /*
  * Resource-loading functions.
  */
@@ -119,10 +102,6 @@ OSHW_EXTERN int loadtileset(char const *filename, int complain);
  */
 OSHW_EXTERN void freetileset(void);
 
-/* The font provides special monospaced digit characters at 144-153.
- */
-enum { CHAR_MZERO = '0' };
-
 /*
  * Video output functions.
  */
@@ -132,12 +111,6 @@ enum { CHAR_MZERO = '0' };
  * returned on error.
  */
 OSHW_EXTERN int creategamedisplay(void);
-
-/* Select the colors used for drawing the display background, normal
- * text, bold (highlighted) text, and dim (grayed) text. The color
- * values are of the form 0x00RRGGBB.
- */
-OSHW_EXTERN void setcolors(long bkgnd, long text, long bold, long dim);
 
 /* Fill the display with the background color.
  */
@@ -168,8 +141,7 @@ typedef enum {
     LIST_MAPFILES,
     LIST_SERIES,
     LIST_SCORES,
-    LIST_SOLUTIONFILES,
-    LIST_HELP
+    LIST_SOLUTIONFILES
 } DisplayListType;
 
 /* Display a scrollable table. title provides a title to display. The
@@ -187,23 +159,7 @@ typedef enum {
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-OSHW_EXTERN int displaylist(char const *title, tablespec const *table,
-			    int *index, DisplayListType listtype,
-			    int (*inputcallback)(int*));
-
-/* Symbolic values for requesting relative movement of the selection.
- */
-enum {
-    SCROLL_NOP			= -1,
-    SCROLL_UP			= -2,
-    SCROLL_DN			= -3,
-    SCROLL_PAGE_UP		= -4,
-    SCROLL_PAGE_DN		= -5,
-    SCROLL_HALFPAGE_UP		= -6,
-    SCROLL_HALFPAGE_DN		= -7,
-    SCROLL_ALLTHEWAY_UP		= -8,
-    SCROLL_ALLTHEWAY_DN		= -9
-};
+OSHW_EXTERN int displaylist(tablespec const *table, int *index, DisplayListType listtype);
 
 /* Input prompts.
  */
@@ -294,37 +250,6 @@ OSHW_EXTERN void usermessage(int action, char const *prefix,
 /* Values used for the first argument of usermessage().
  */
 enum { NOTIFY_DIE, NOTIFY_ERR, NOTIFY_LOG };
-
-/* Structure used to define text with illustrations.
- */
-typedef	struct tiletablerow {
-    int		isfloor;	/* TRUE if the images are floor tiles */
-    int		item1;		/* first illustration */
-    int		item2;		/* second illustration */
-    char const *desc;		/* text */
-} tiletablerow;
-
-/* Displays a screenful of (hopefully) helpful information which
- * includes tile images. title provides the title of the display. rows
- * points to an array of tiletablerow structures. count specifies the
- * size of this array. The text of each row is displayed alongside one
- * or two tile images. completed controls the prompt that the user
- * sees at the bottom of the display. A positive value will indicate
- * that more text follows. A negative value will indicate that leaving
- * this screen will return to the prior display. A value of zero will
- * indicate that the current display is the end of a sequence.
- */
-OSHW_EXTERN int displaytiletable(char const *title, tiletablerow const *rows,
-			    int count, int completed);
-
-/* Displays a screenful of (hopefully) helpful information. title
- * provides the title of the display. table points to a table that
- * contains the body of the text. completed controls the prompt that
- * the user sees at the bottom of the display; see the description of
- * displaytiletable() for details.
- */
-OSHW_EXTERN int displaytable(char const *title, tablespec const *table,
-			int completed);
 
 /* Get the selected ruleset.
  */

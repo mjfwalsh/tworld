@@ -301,24 +301,23 @@ extern "C" uint32_t TW_PixelAt(const TW_Surface* s, int x, int y)
 }
 
 
-extern "C" uint32_t TW_MapRGB(const TW_Surface* pSurface, uint8_t r, uint8_t g, uint8_t b)
+extern "C" uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b)
 {
 	// TODO: for 8-bit
 	return qRgb(r, g, b);
 }
 
 
-extern "C" uint32_t TW_MapRGBA(const TW_Surface* pSurface, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+extern "C" uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	// TODO: for 8-bit
 	return qRgba(r, g, b, a);
 }
 
 
-/* Load the given bitmap file. If setscreenpalette is true, the screen palette
- * will be synchronized to the bitmap's palette.
+/* Load the given bitmap file.
  */
-extern "C" TW_Surface* TW_LoadBMP(const char* szFilename, int bSetScreenPalette)
+extern "C" TW_Surface* TW_LoadBMP(const char* szFilename)
 {
 	QImage image(szFilename);
 	if (image.isNull())
@@ -330,8 +329,6 @@ extern "C" TW_Surface* TW_LoadBMP(const char* szFilename, int bSetScreenPalette)
 	Qt_Surface* pSurface = new Qt_Surface();
 	pSurface->SetImage(image);
 	return pSurface;
-
-	// TODO?: bSetScreenPalette?
 }
 
 
