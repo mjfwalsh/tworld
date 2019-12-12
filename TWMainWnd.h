@@ -114,6 +114,7 @@ private:
 	int m_nRuleset;
 	int m_nLevelNum;
 	QString m_nLevelName;
+	QString m_nLevelPackName;
 	bool m_bProblematic;
 	bool m_bOFNT;
 	int m_nBestTime;

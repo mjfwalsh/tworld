@@ -31,7 +31,7 @@ extern int pedanticmode;
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QPushButton>
-#include <QDebug>
+
 #include <QTextDocument>
 
 #include <QSortFilterProxyModel>
@@ -66,6 +66,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	m_nRuleset(Ruleset_None),
 	m_nLevelNum(0),
 	m_nLevelName(""),
+	m_nLevelPackName(""),
 	m_bProblematic(false),
 	m_bOFNT(false),
 	m_nBestTime(TIME_NIL),
@@ -408,10 +409,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pLCDNumber->display(pState->game->number);
 
 		m_nLevelName = pState->game->name;
-		QString levelPackName(getstringsetting("selectedseries"));
-		int p = levelPackName.indexOf(".");
-		if(p > 0) levelPackName = levelPackName.left(p);
-		m_pLblTitle->setText(levelPackName + " - " + m_nLevelName);
+		m_pLblTitle->setText(m_nLevelPackName + " - " + m_nLevelName);
 
 		Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
 		m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
@@ -1141,6 +1139,9 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 	QString sFilePath;
 
 	QString sSetName = QFileInfo(pSeries->mapfilename).completeBaseName();
+
+	// save for use on display
+	m_nLevelPackName = sSetName;
 
 	dataDir.setPath(g_pApp->appDataDir);
 	sFilePath = dataDir.filePath(sSetName + ".ccx");
