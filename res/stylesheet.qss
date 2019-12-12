@@ -1,5 +1,5 @@
 #m_pMainWidget {
-	background-image:url("motherboard.svg"); background-position: center;
+	background-image:url("res/motherboard.svg"); background-position: center;
 	background-color: rgb(100,100,100);
 }
 
@@ -44,7 +44,7 @@ QLCDNumber {
 }
 
 #m_pSldSpeed::handle {
-    image: url(ffrw.svg);
+    image: url("res/ffrw.svg");
     width: 34px;
     margin: -10px 0px -10px 0px;
 }

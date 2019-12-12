@@ -85,15 +85,12 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
 	// load style sheet
-	QFile File("stylesheet.qss");
+	QFile File(g_pApp->appResDir + "/stylesheet.qss");
 	File.open(QFile::ReadOnly);
 	QString StyleSheet = QLatin1String(File.readAll());
 	this->setStyleSheet(StyleSheet);
 
 	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );
-
-	//QStringList sPaths = {g_pApp->appDataDir, g_pApp->userDataDir};
-	//m_pTextBrowser->setSearchPaths(sPaths);
 
 	g_pApp->installEventFilter(this);
 
@@ -134,8 +131,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	startTimer(tickMS / 2);
 
 	// play pause icon for replay controls
-	playIcon = QIcon("play.svg");
-	pauseIcon = QIcon("pause.svg");
+	playIcon = QIcon(g_pApp->appResDir + "/play.svg");
+	pauseIcon = QIcon(g_pApp->appResDir + "/pause.svg");
 
 	// place window near top left corner
 	move(30, 30);

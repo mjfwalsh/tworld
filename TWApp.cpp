@@ -147,6 +147,9 @@ void TileWorldApp::InitDirs()
 	}
 	#endif
 
+	// change pwd to appRootDir
+	QDir::setCurrent(appRootDir);
+
 	// these should already exist
 	appResDir =  QString(appRootDir + "/res");
 	appDataDir =  QString(appRootDir + "/data");

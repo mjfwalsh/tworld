@@ -83,7 +83,7 @@ compile () {
 }
 
 clean () {
-	#rm -fR Tile\ World.app
+	rm -fR Tile\ World.app
 	rm -f *.o
 	rm -f comptime.h moc_TWMainWnd.cpp ui_TWMainWnd.h tworld2
 }
@@ -100,7 +100,6 @@ mkapp () {
 	cp tworld2 Tile\ World.app/Contents/MacOS/Tile\ World
 
 	cp -R res Tile\ World.app/Contents/Resources/
-	cp -R sets Tile\ World.app/Contents/Resources/
 	cp -R data Tile\ World.app/Contents/Resources/
 }
 
