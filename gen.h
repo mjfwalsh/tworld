@@ -30,8 +30,6 @@
 typedef	struct tablespec {
     short	rows;		/* number of rows */
     short	cols;		/* number of columns */
-    short	sep;		/* amount of space between columns */
-    short	collapse;	/* the column to squeeze if necessary */
     char const  **items;	/* the table's contents */
 } tablespec;
 

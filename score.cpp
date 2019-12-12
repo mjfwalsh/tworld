@@ -218,8 +218,6 @@ int createscorelist(gameseries const *series, int usepasswds, int **plevellist,
 
     table->rows = count + 1;
     table->cols = 5;
-    table->sep = 2;
-    table->collapse = 1;
     table->items = ptrs;
 
     return TRUE;

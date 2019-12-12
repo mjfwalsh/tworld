@@ -1105,8 +1105,6 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
     } \
     (table).rows = (count) + 1; \
     (table).cols = 1; \
-    (table).sep = 0; \
-    (table).collapse = 0; \
     (table).items = _ptrs; \
 } while (0)
 

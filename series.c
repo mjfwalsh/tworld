@@ -870,8 +870,6 @@ int createserieslist(gameseries **pserieslist,
 
     table->rows = listsize + 1;
     table->cols = 2;
-    table->sep = 2;
-    table->collapse = 0;
     table->items = ptrs;
     return TRUE;
 }

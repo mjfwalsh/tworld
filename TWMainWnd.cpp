@@ -1369,7 +1369,7 @@ void TileWorldMainWnd::ShowAbout()
 	{
 		if (i > 0)
 			text += "\n\n";
-	    char const *item = vourzhon->items[2*i + 1];
+	    char const *item = vourzhon->items[i];
 		text += (item + 2);  // skip over formatting chars
 	}
 	QMessageBox::about(this, "About", text);
