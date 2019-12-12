@@ -4,7 +4,7 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include	"defs.h"
+#include	"gen.h"
 #include	"ver.h"
 #include	"comptime.h"
 #include	"help.h"

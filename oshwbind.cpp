@@ -10,12 +10,6 @@
 #include <QBitmap>
 #include <QPainter>
 
-// #include <QTime>
-/*
-#include <QWaitCondition>
-#include <QMutex>
-*/
-
 #ifdef WIN32
 	#include <windows.h>
 #else

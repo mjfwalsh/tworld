@@ -8,7 +8,6 @@
 #define	HEADER_solution_h_
 
 #include	"defs.h"
-#include	"fileio.h"
 
 /* A structure holding all the data needed to reconstruct a solution.
  */

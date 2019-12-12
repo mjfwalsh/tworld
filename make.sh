@@ -3,10 +3,10 @@ PATH=$PATH:/usr/local/opt/qt/bin
 
 COMMON_PARAMS="-Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp"
 COMMON_PARAMS+=" -Wunused-function -Wunused-label -Wunused-value"
-COMMON_PARAMS+=" -Wunused-variable -Wunused-parameter"
+COMMON_PARAMS+=" -Wunused-variable" # -Wunused-parameter
 
 CC="cc -std=gnu11 $COMMON_PARAMS"
-CCP="c++ -std=gnu++11 $COMMON_PARAMS"
+CPP="c++ -std=gnu++11 $COMMON_PARAMS"
 SDL_OPTS='-I/usr/local/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE'
 QT_OPTS='-I/usr/local/opt/qt/include -I/usr/local/opt/qt/include/QtCore -I/usr/local/opt/qt/include/QtGui -I/usr/local/opt/qt/include/QtXml -I/usr/local/opt/qt/include/QtWidgets'
 PRINT_DIR=''
@@ -45,32 +45,32 @@ compile () {
 	compile_file "$CC" lxlogic.o lxlogic.c
 	compile_file "$CC" mslogic.o mslogic.c
 	compile_file "$CC" unslist.o unslist.c
-	compile_file "$CCP" messages.o messages.cpp
+	compile_file "$CPP" messages.o messages.cpp
 	echo Generating comptime.h...
 	echo \#define COMPILE_TIME \"`date '+%Y %b %e %T %Z'`\" \> comptime.h
 	echo \#define COMPILE_TIME \"`date '+%Y %b %e %T %Z'`\" > comptime.h
 	compile_file "$CC" help.o help.c
-	compile_file "$CCP" score.o score.cpp
+	compile_file "$CPP" score.o score.cpp
 	compile_file "$CC" random.o random.c
-	compile_file "$CCP" settings.o settings.cpp
+	compile_file "$CPP" settings.o settings.cpp
 	compile_file "$CC" fileio.o fileio.c
 	compile_file "$CC" err.o err.c
 	compile_file "$CC" generic.o generic.c
 	compile_file "$CC" tile.o tile.c
 	compile_file "$CC" timer.o timer.c
 
-	compile_file "$CCP $QT_OPTS" res.o res.cpp
-	compile_file "$CCP $QT_OPTS" in.o in.cpp
+	compile_file "$CPP $QT_OPTS" res.o res.cpp
+	compile_file "$CPP $QT_OPTS" in.o in.cpp
 	compile_file "$CC $SDL_OPTS" sdlsfx.o sdlsfx.c
-	compile_file "$CCP $QT_OPTS" oshwbind.o oshwbind.cpp
-	compile_file "$CCP $QT_OPTS" CCMetaData.o CCMetaData.cpp
-	compile_file "$CCP $QT_OPTS" TWDisplayWidget.o TWDisplayWidget.cpp
-	compile_file "$CCP $QT_OPTS" TWProgressBar.o TWProgressBar.cpp
+	compile_file "$CPP $QT_OPTS" oshwbind.o oshwbind.cpp
+	compile_file "$CPP $QT_OPTS" CCMetaData.o CCMetaData.cpp
+	compile_file "$CPP $QT_OPTS" TWDisplayWidget.o TWDisplayWidget.cpp
+	compile_file "$CPP $QT_OPTS" TWProgressBar.o TWProgressBar.cpp
 	make_file "Compiling UI TWMainWnd.ui..." "uic -o" ui_TWMainWnd.h TWMainWnd.ui
-	compile_file "$CCP $QT_OPTS" TWMainWnd.o TWMainWnd.cpp
+	compile_file "$CPP $QT_OPTS" TWMainWnd.o TWMainWnd.cpp
 	make_file "MOC-ing TWMainWnd.h..." "moc -o" moc_TWMainWnd.cpp TWMainWnd.h
-	compile_file "$CCP $QT_OPTS" moc_TWMainWnd.o moc_TWMainWnd.cpp
-	compile_file "$CCP $QT_OPTS" TWApp.o TWApp.cpp
+	compile_file "$CPP $QT_OPTS" moc_TWMainWnd.o moc_TWMainWnd.cpp
+	compile_file "$CPP $QT_OPTS" TWApp.o TWApp.cpp
 
 	echo Linking tworld2...
 	run c++ -o tworld2 *.o -L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa

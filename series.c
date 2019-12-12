@@ -4,11 +4,11 @@
  * General Public License. No warranty. See COPYING for details.
  */
 
-#include	<errno.h>
+#include	<sys/errno.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
+#include	<_ctype.h>
 #include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"

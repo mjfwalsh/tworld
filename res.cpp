@@ -12,7 +12,6 @@
 #include	<string.h>
 #include	<ctype.h>
 #include	"defs.h"
-#include	"fileio.h"
 #include	"err.h"
 #include	"oshw.h"
 #include	"messages.h"

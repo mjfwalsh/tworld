@@ -6,8 +6,6 @@
 
 #include	<stdio.h>
 #include	<stdlib.h>
-#include	<string.h>
-#include	<assert.h>
 #include	"generic.h"
 #include	"gen.h"
 #include	"oshw.h"

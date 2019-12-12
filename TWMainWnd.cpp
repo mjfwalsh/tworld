@@ -26,26 +26,18 @@ extern int pedanticmode;
 #include <QEvent>
 #include <QKeyEvent>
 #include <QMouseEvent>
-#include <QWheelEvent>
-#include <QShortcut>
 
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QPushButton>
-
+#include <QDebug>
 #include <QTextDocument>
 
-#include <QAbstractTableModel>
 #include <QSortFilterProxyModel>
 
 #include <QStyle>
-#include <QStyledItemDelegate>
-#include <QStyleOptionViewItem>
 
 #include <QPainter>
-#include <QPalette>
-#include <QBrush>
-#include <QLinearGradient>
 
 #include <QDir>
 #include <QFileInfo>

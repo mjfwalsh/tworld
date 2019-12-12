@@ -7,8 +7,6 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<ctype.h>
-#include	<libgen.h>
 #include	"defs.h"
 #include	"err.h"
 #include	"series.h"
@@ -16,9 +14,8 @@
 #include	"score.h"
 #include	"settings.h"
 #include	"solution.h"
-#include	"unslist.h"
 #include	"oshw.h"
-#include	"ver.h"
+#include	"fileio.h"
 
 /* Bell-ringing macro.
  */
