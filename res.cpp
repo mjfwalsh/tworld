@@ -109,9 +109,9 @@ bool LoadImages()
 	QString fp = GetResourcePath("tileimages");
 	bool f;
 
-	f = loadtileset(fp.toStdString().c_str(), TRUE);
+	f = loadtileset(fp.toUtf8().constData(), TRUE);
 
-	if (!f) errmsg(fp.toStdString().c_str(), "no valid tilesets found");
+	if (!f) errmsg(fp.toUtf8().constData(), "no valid tilesets found");
 
 	return f;
 }
@@ -121,7 +121,7 @@ bool LoadImages()
  */
 int LoadTextResource(QString resid, txtloader loadfunc)
 {
-	return loadfunc(GetResource(resid).toStdString().c_str());
+	return loadfunc(GetResource(resid).toUtf8().constData());
 }
 
 /* Load all of the sound resources.
@@ -131,7 +131,7 @@ int LoadSounds()
     int	count = 0;
     for(int i = 0; i < SND_COUNT; i++) {
     	QString file = GetResourcePath(sounds[i]);
-    	if(loadsfxfromfile(i, file.toStdString().c_str())) ++count;
+    	if(loadsfxfromfile(i, file.toUtf8().constData())) ++count;
 	}
 
     return count;

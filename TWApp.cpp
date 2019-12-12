@@ -117,11 +117,11 @@ void initdirs()
 	global_seriesdatdir = (char *) malloc(g_pApp->appDataDir.length() + 1);
 	savedir = (char *) malloc(g_pApp->userDir.length() + 1);
 
-	strcpy(resdir, g_pApp->appResDir.toStdString().c_str());
-	strcpy(seriesdir, g_pApp->userSetsDir.toStdString().c_str());
-	strcpy(user_seriesdatdir, g_pApp->userDataDir.toStdString().c_str());
-	strcpy(global_seriesdatdir, g_pApp->appDataDir.toStdString().c_str());
-	strcpy(savedir, g_pApp->userDir.toStdString().c_str());
+	strcpy(resdir, g_pApp->appResDir.toUtf8().constData());
+	strcpy(seriesdir, g_pApp->userSetsDir.toUtf8().constData());
+	strcpy(user_seriesdatdir, g_pApp->userDataDir.toUtf8().constData());
+	strcpy(global_seriesdatdir, g_pApp->appDataDir.toUtf8().constData());
+	strcpy(savedir, g_pApp->userDir.toUtf8().constData());
 }
 
 void TileWorldApp::InitDirs()
