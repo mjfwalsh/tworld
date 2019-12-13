@@ -15,7 +15,7 @@
 #include <sstream>
 #include <utility>
 
-extern char *savedir;
+char *settingsdir;
 
 using std::free;
 using std::getline;
@@ -36,7 +36,7 @@ char const * sfname = "settings";
 
 void loadsettings()
 {
-    char *fname = getpathforfileindir(savedir, sfname);
+    char *fname = getpathforfileindir(settingsdir, sfname);
     ifstream in(fname);
     free(fname);
 
@@ -60,7 +60,7 @@ void loadsettings()
 
 void savesettings()
 {
-    char *fname = getpathforfileindir(savedir, sfname);
+    char *fname = getpathforfileindir(settingsdir, sfname);
     ofstream out(fname);
     free(fname);
 

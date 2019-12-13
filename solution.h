@@ -21,7 +21,7 @@ typedef	struct solutioninfo {
 
 /* The path of the directory containing the user's solution files.
  */
-extern char    *savedir;
+extern char    *solutiondir;
 
 /* No file modification will be done unless this variable is FALSE.
  */

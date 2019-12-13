@@ -26,6 +26,7 @@ public:
 	QString userSetsDir;
 	QString userDataDir;
 	QString appDataDir;
+	QString userSolDir;
 	QString userDir;
 
 private:

@@ -12,6 +12,8 @@
 #include "defs.h"
 #include "oshw.h"
 #include "res.h"
+#include "solution.h"
+#include "settings.h"
 
 #ifdef WIN32
 #include <QWindowsStyle>
@@ -115,13 +117,15 @@ void initdirs()
 	seriesdir = (char *) malloc(g_pApp->userSetsDir.length() + 1);
 	user_seriesdatdir = (char *) malloc(g_pApp->userDataDir.length() + 1);
 	global_seriesdatdir = (char *) malloc(g_pApp->appDataDir.length() + 1);
-	savedir = (char *) malloc(g_pApp->userDir.length() + 1);
+	solutiondir = (char *) malloc(g_pApp->userSolDir.length() + 1);
+	settingsdir = (char *) malloc(g_pApp->userDir.length() + 1);
 
 	strcpy(resdir, g_pApp->appResDir.toUtf8().constData());
 	strcpy(seriesdir, g_pApp->userSetsDir.toUtf8().constData());
 	strcpy(user_seriesdatdir, g_pApp->userDataDir.toUtf8().constData());
 	strcpy(global_seriesdatdir, g_pApp->appDataDir.toUtf8().constData());
-	strcpy(savedir, g_pApp->userDir.toUtf8().constData());
+	strcpy(solutiondir, g_pApp->userSolDir.toUtf8().constData());
+	strcpy(settingsdir, g_pApp->userDir.toUtf8().constData());
 }
 
 void TileWorldApp::InitDirs()
@@ -165,6 +169,10 @@ void TileWorldApp::InitDirs()
 	// ~/Library/Application Support/Tile World/data
 	userDataDir = QString(userDir + "/data");
 	checkDir(userDataDir);
+
+	// ~/Library/Application Support/Tile World/solutions
+	userSolDir = QString(userDir + "/solutions");
+	checkDir(userSolDir);
 }
 
 void TileWorldApp::ExitTWorld()

@@ -12,7 +12,7 @@
 #include	"err.h"
 #include	"fileio.h"
 #include	"oshw.h"
-#include	"solution.h"
+#include	"settings.h"
 #include	"unslist.h"
 
 /* The information comprising one entry in the list of unsolvable
@@ -259,7 +259,7 @@ int loadunslistfromfile(char const *filename)
     }
     if (!haspathname(filename)) {
 	clearfileinfo(&file);
-	if (openfileindir(&file, savedir, filename, "r", NULL)) {
+	if (openfileindir(&file, settingsdir, filename, "r", NULL)) {
 	    readunslist(&file);
 	    fileclose(&file, NULL);
 	}
