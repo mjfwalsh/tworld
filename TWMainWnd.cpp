@@ -53,8 +53,6 @@ extern int pedanticmode;
 
 using namespace std;
 
-#define COUNTOF(a) (sizeof(a) / sizeof(a[0]))
-
 TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	:
 	QMainWindow(pParent, flags/*|Qt::FramelessWindowHint*/),

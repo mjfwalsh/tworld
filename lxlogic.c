@@ -104,7 +104,6 @@ static gamestate       *state;
 #define	xviewpos()		(state->xviewpos)
 #define	yviewpos()		(state->yviewpos)
 
-#define	setnosaving()		(state->statusflags |= SF_NOSAVING)
 #define	showhint()		(state->statusflags |= SF_SHOWHINT)
 #define	hidehint()		(state->statusflags &= ~SF_SHOWHINT)
 #define	markinvalid()		(state->statusflags |= SF_INVALID)

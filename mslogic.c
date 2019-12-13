@@ -50,7 +50,6 @@ static gamestate       *state;
 
 #define	getchip()		(creatures[0])
 #define	chippos()		(getchip()->pos)
-#define	chipdir()		(getchip()->dir)
 
 #define	chipsneeded()		(state->chipsneeded)
 
@@ -75,7 +74,6 @@ static gamestate       *state;
 
 #define	cellat(pos)		(&state->map[pos])
 
-#define	setnosaving()		(state->statusflags |= SF_NOSAVING)
 #define	showhint()		(state->statusflags |= SF_SHOWHINT)
 #define	hidehint()		(state->statusflags &= ~SF_SHOWHINT)
 

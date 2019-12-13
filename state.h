@@ -164,18 +164,6 @@ typedef	struct mapcell {
 
 /* A creature.
  */
-#if 0
-typedef	struct creature {
-    signed int		pos   : 11;	/* creature's location */
-    signed int		dir   : 5;	/* current direction of creature */
-    signed int		id    : 8;	/* type of creature */
-    signed int		state : 8;	/* internal state value */
-    signed int		hidden: 1;	/* TRUE if creature is invisible */
-    signed int		moving: 5;	/* positional offset of creature */
-    signed int		frame : 5;	/* explicit animation index */
-    signed int		tdir  : 5;	/* internal state value */
-} creature;
-#else
 typedef struct creature {
     short		pos;		/* creature's location */
     unsigned char	id;		/* type of creature */
@@ -186,7 +174,6 @@ typedef struct creature {
     unsigned char	state;		/* internal state value */
     unsigned char	tdir;		/* internal state value */
 } creature;
-#endif
 
 /* Status information specific to the MS game logic.
  */
@@ -273,16 +260,5 @@ typedef struct gamestate {
 #define	SF_SHOWHINT		0x0008		/* display the hint text */
 #define	SF_NOANIMATION		0x0010		/* suppress tile animation */
 #define	SF_SHUTTERED		0x0020		/* hide map view */
-
-/* Macros for the keys and boots.
- */
-#define	redkeys(st)		((st)->keys[0])
-#define	bluekeys(st)		((st)->keys[1])
-#define	yellowkeys(st)		((st)->keys[2])
-#define	greenkeys(st)		((st)->keys[3])
-#define	iceboots(st)		((st)->boots[0])
-#define	slideboots(st)		((st)->boots[1])
-#define	fireboots(st)		((st)->boots[2])
-#define	waterboots(st)		((st)->boots[3])
 
 #endif
