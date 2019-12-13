@@ -127,6 +127,12 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 		action_Zoom100->setChecked(true);
 	}
 
+	// 48 is the magic number
+	double dZoom = (double)percentZoom / 100;
+	double magicTile = (double)dZoom * 48;
+	m_pGameWidget->setFixedSize(magicTile * 9, magicTile * 9);
+	m_pObjectsWidget->setFixedSize(magicTile * 4, magicTile * 2);
+
 	int const tickMS = 1000 / TICKS_PER_SECOND;
 	startTimer(tickMS / 2);
 
@@ -326,10 +332,6 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	int w = NXTILES*geng.wtile, h = NYTILES*geng.htile;
 	m_pSurface = static_cast<Qt_Surface*>(TW_NewSurface(w, h, false));
 	m_pInvSurface = static_cast<Qt_Surface*>(TW_NewSurface(4*geng.wtile, 2*geng.htile, false));
-
-	// set minimum sizes
-	//m_pGameWidget->setMinimumSize(w, h);
-	//m_pObjectsWidget->setMinimumSize(4*geng.wtile, 2*geng.htile);
 
 	// get zoom
 	int percentZoom = getintsetting("zoom");
@@ -1365,6 +1367,10 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 		warn("Attempt to set pixmap and scale without setting pixmap first");
 		return;
 	}
+
+	// not more magic numbers!
+	m_pGameWidget->setFixedSize(scale * geng.wtile * 9, scale * geng.htile * 9);
+	m_pObjectsWidget->setFixedSize(scale * geng.wtile * 4, scale * geng.htile * 2);
 
 	// this sets the game and objects box
 	m_pGameWidget->setPixmap(m_pSurface->GetPixmap(), scale);
