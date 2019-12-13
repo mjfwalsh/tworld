@@ -5,7 +5,7 @@
  */
 
 #include	"generic.h"
-#include	"gen.h"
+#include	"defs.h"
 
 #include <QBitmap>
 #include <QPainter>

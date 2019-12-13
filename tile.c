@@ -6,9 +6,9 @@
 
 #include	<stdio.h>
 #include	<stdlib.h>
+#include	"tile.h"
 #include	"generic.h"
-#include	"gen.h"
-#include	"oshw.h"
+#include	"defs.h"
 #include	"err.h"
 #include	"state.h"
 

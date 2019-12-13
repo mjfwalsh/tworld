@@ -6,13 +6,44 @@
 
 #include	<stdlib.h>
 #include	<stdarg.h>
-#include	"oshw.h"
+#include	<stdio.h>
 #include	"err.h"
 
 /* "Hidden" arguments to warn_, errmsg_, and die_.
  */
 char const      *err_cfile_ = NULL;
 unsigned long	err_lineno_ = 0;
+
+/* Values used for the first argument of usermessage().
+ */
+enum { NOTIFY_DIE, NOTIFY_ERR, NOTIFY_LOG };
+
+/* Display a message to the user. cfile and lineno can be NULL and 0
+ * respectively; otherwise, they identify the source code location
+ * where this function was called from. prefix is an optional string
+ * that is displayed before and/or apart from the body of the message.
+ * fmt and args define the formatted text of the message body. action
+ * indicates how the message should be presented. NOTIFY_LOG causes
+ * the message to be displayed in a way that does not interfere with
+ * the program's other activities. NOTIFY_ERR presents the message as
+ * an error condition. NOTIFY_DIE should indicate to the user that the
+ * program is about to shut down.
+ */
+static void usermessage(int action, char const *prefix,
+                 char const *cfile, unsigned long lineno,
+                 char const *fmt, va_list args)
+{
+	fprintf(stderr, "%s: ", action == NOTIFY_DIE ? "FATAL" :
+	                        action == NOTIFY_ERR ? "error" : "warning");
+	if (prefix)
+		fprintf(stderr, "%s: ", prefix);
+	if (fmt)
+		vfprintf(stderr, fmt, args);
+	if (cfile)
+		fprintf(stderr, " [%s:%lu] ", cfile, lineno);
+    fputc('\n', stderr);
+    fflush(stderr);
+}
 
 /* Log a warning message.
  */

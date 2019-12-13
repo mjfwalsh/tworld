@@ -5,22 +5,15 @@
 #ifndef TWMAINWND_H
 #define TWMAINWND_H
 
-
+#include <QMainWindow>
+#include <QLocale>
 #include "ui_TWMainWnd.h"
-
 #include "CCMetaData.h"
-
 #include "generic.h"
-
-#include "gen.h"
 #include "defs.h"
 #include "state.h"
 #include "series.h"
 #include "oshw.h"
-
-#include <QMainWindow>
-
-#include <QLocale>
 
 class QSortFilterProxyModel;
 

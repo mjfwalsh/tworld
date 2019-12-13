@@ -7,13 +7,13 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<_ctype.h>
+#include	<ctype.h>
 #include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"
-#include	"oshw.h"
 #include	"settings.h"
 #include	"unslist.h"
+#include	"res.h"
 
 /* The information comprising one entry in the list of unsolvable
  * levels.

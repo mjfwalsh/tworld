@@ -18,7 +18,7 @@
 
 #include	<stdlib.h>
 #include	<time.h>
-#include	"gen.h"
+#include	"defs.h"
 #include	"random.h"
 
 /* The most recently generated random number is stashed here, so that

@@ -7,16 +7,14 @@
 #include	<QFile>
 #include	<QString>
 #include	<QHash>
-
 #include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
 #include	"defs.h"
 #include	"err.h"
-#include	"oshw.h"
 #include	"messages.h"
 #include	"unslist.h"
 #include	"res.h"
+#include	"tile.h"
+#include	"sdlsfx.h"
 
 /* The directory containing all the resource files.
  */

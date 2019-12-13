@@ -16,6 +16,9 @@
 #include	"solution.h"
 #include	"oshw.h"
 #include	"fileio.h"
+#include	"timer.h"
+#include	"sdlsfx.h"
+#include	"res.h"
 
 /* Bell-ringing macro.
  */

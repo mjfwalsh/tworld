@@ -5,10 +5,7 @@
 #include "TWMainWnd.h"
 #include "TWApp.h"
 #include "TWTableModel.h"
-
 #include "generic.h"
-
-#include "gen.h"
 #include "defs.h"
 #include "messages.h"
 #include "settings.h"
@@ -18,6 +15,8 @@
 #include "oshw.h"
 #include "err.h"
 #include "help.h"
+#include "timer.h"
+#include "sdlsfx.h"
 
 extern int pedanticmode;
 
@@ -1083,33 +1082,6 @@ void TileWorldMainWnd::SetSubtitle(const char* szSubtitle)
 	setWindowTitle(sTitle);
 }
 
-
-/* Display a message to the user. cfile and lineno can be NULL and 0
- * respectively; otherwise, they identify the source code location
- * where this function was called from. prefix is an optional string
- * that is displayed before and/or apart from the body of the message.
- * fmt and args define the formatted text of the message body. action
- * indicates how the message should be presented. NOTIFY_LOG causes
- * the message to be displayed in a way that does not interfere with
- * the program's other activities. NOTIFY_ERR presents the message as
- * an error condition. NOTIFY_DIE should indicate to the user that the
- * program is about to shut down.
- */
-void usermessage(int action, char const *prefix,
-                 char const *cfile, unsigned long lineno,
-                 char const *fmt, va_list args)
-{
-	fprintf(stderr, "%s: ", action == NOTIFY_DIE ? "FATAL" :
-	                        action == NOTIFY_ERR ? "error" : "warning");
-	if (prefix)
-		fprintf(stderr, "%s: ", prefix);
-	if (fmt)
-		vfprintf(stderr, fmt, args);
-	if (cfile)
-		fprintf(stderr, " [%s:%lu] ", cfile, lineno);
-    fputc('\n', stderr);
-    fflush(stderr);
-}
 
 int getselectedruleset()
 {

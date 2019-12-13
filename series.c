@@ -8,7 +8,7 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<_ctype.h>
+#include	<ctype.h>
 #include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"

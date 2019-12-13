@@ -16,6 +16,8 @@
 #include	"random.h"
 #include	"solution.h"
 #include	"play.h"
+#include	"timer.h"
+#include	"sdlsfx.h"
 
 /* The current state of the current game.
  */

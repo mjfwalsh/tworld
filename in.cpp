@@ -6,7 +6,6 @@
 
 #include	<string.h>
 #include	"generic.h"
-#include	"gen.h"
 #include	"oshw.h"
 #include	"defs.h"
 #include	"err.h"

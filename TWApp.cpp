@@ -4,11 +4,8 @@
 
 #include "TWApp.h"
 #include "TWMainWnd.h"
-
 #include "generic.h"
 #include "sdlsfx.h"
-
-#include "gen.h"
 #include "defs.h"
 #include "oshw.h"
 #include "res.h"

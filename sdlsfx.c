@@ -11,7 +11,7 @@
 #include	"sdlsfx.h"
 #include	"err.h"
 #include	"settings.h"
-#include	"state.h"
+#include	"defs.h"
 
 /* Some generic default settings for the audio output.
  */
