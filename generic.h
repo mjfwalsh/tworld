@@ -59,24 +59,11 @@ extern genericglobals geng;
  */
 OSHW_EXTERN void eventupdate(int wait);
 
-/* A callback function, to be called every time a keyboard key is
- * pressed or released. scancode is an SDL key symbol. down is
- * TRUE if the key was pressed or FALSE if it was released.
- */
-OSHW_EXTERN void keyeventcallback(int scancode, int down);
-
 /* A callback function, to be called when a mouse button is
  * pressed or released. xpos and ypos give the mouse's location.
- * button is the number of the mouse button. down is TRUE if the
- * button was pressed or FALSE if it was released.
+ * button is the number of the mouse button.
  */
-OSHW_EXTERN void mouseeventcallback(int xpos, int ypos, int button, int down);
-
-/* Given a pixel's coordinates, return an integer identifying the
- * tile on the map view display under that pixel, or -1 if the
- * pixel is not within the map view.
- */
-OSHW_EXTERN int windowmappos(int x, int y);
+//OSHW_EXTERN void mouseeventcallback(int xpos, int ypos, int button);
 
 /* Render the view of the visible area of the map to the display, with
  * the view position centered on the display as much as possible. The
@@ -94,7 +81,7 @@ OSHW_EXTERN void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id);
  */
 OSHW_EXTERN int generictimerinitialize(int showhistogram);
 OSHW_EXTERN int generictileinitialize(void);
-OSHW_EXTERN int genericinputinitialize(void);
+//OSHW_EXTERN int genericinputinitialize(void);
 
 #undef OSHW_EXTERN
 

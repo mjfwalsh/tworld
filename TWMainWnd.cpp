@@ -53,6 +53,10 @@ extern int pedanticmode;
 
 using namespace std;
 
+#define CONTINUE_PROPRGATION false
+#define STOP_PROPRGATION true
+
+
 TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	:
 	QMainWindow(pParent, flags/*|Qt::FramelessWindowHint*/),
@@ -168,118 +172,99 @@ void TileWorldMainWnd::closeEvent(QCloseEvent* pCloseEvent)
 
 bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
 {
-	if (HandleEvent(pObject, pEvent))
-		return true;
-	return QMainWindow::eventFilter(pObject, pEvent);
-}
-
-bool TileWorldMainWnd::HandleEvent(QObject* pObject, QEvent* pEvent)
-{
-	if (!isVisible()) return false;
-
-	QEvent::Type eType = pEvent->type();
-	// if (eType == QEvent::LayoutRequest) puts("QEvent::LayoutRequest");
-
-	switch (eType)
-	{
-		case QEvent::KeyPress:
-		case QEvent::KeyRelease:
-		{
-			QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
-
-			int nQtKey = pKeyEvent->key();
-
-			int nTWKey = -1;
-			if (nQtKey >= 0x01000000  &&  nQtKey <= 0x01000060) {
-				switch (nQtKey) {
-					case Qt::Key_Return:
-					case Qt::Key_Enter:  nTWKey = TWK_RETURN; break;
-					case Qt::Key_Escape: nTWKey = TWK_ESCAPE; break;
-					case Qt::Key_Up:     nTWKey = TWK_UP;     break;
-					case Qt::Key_Left:   nTWKey = TWK_LEFT;   break;
-					case Qt::Key_Down:   nTWKey = TWK_DOWN;   break;
-					case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
-					case Qt::Key_Home:   nTWKey = TWK_HOME;   break;
-					case Qt::Key_End:    nTWKey = TWK_END;    break;
-					default: return false;
-				}
-			} else {
-				return false;
-			}
-
-			// record key state
-			bool bPress = (eType == QEvent::KeyPress);
-			m_nKeyState[nTWKey] = bPress;
-
-			bool bConsume = (m_pMainWidget->currentIndex() == PAGE_GAME) &&
-							(QApplication::activeModalWidget() == 0);
-
-			// List view
-			QObjectList const & tableWidgets = m_pTablePage->children();
-			if (bPress && tableWidgets.contains(pObject)) {
-				int currentrow = m_pTblList->selectionModel()->currentIndex().row();
-				if ((nTWKey == TWK_RETURN) && currentrow >= 0) {
-					g_pApp->exit(CmdProceed);
-					bConsume = true;
-				} else if(nTWKey == TWK_ESCAPE) {
-					g_pApp->exit(CmdQuitLevel);
-					bConsume = true;
-				} else {
-					bConsume = false;
-				}
-			}
-
-			// Text view
-			if(m_pMainWidget->currentIndex() == PAGE_TEXT) {
-				bConsume = true;
-				if (nTWKey == TWK_RETURN) g_pApp->exit(+1);
-				else if(nTWKey == TWK_ESCAPE) g_pApp->exit(CmdQuitLevel);
-			}
-
-			if (m_bKbdRepeatEnabled || !pKeyEvent->isAutoRepeat()) {
-				keyeventcallback(nTWKey, bPress);
-			}
-			return bConsume;
+	if (isVisible()) {
+		switch(pEvent->type()) {
+			case QEvent::KeyPress:
+			case QEvent::KeyRelease:
+				return HandleKeyEvent(pObject, pEvent);
+			case QEvent::MouseButtonPress:
+			case QEvent::MouseButtonRelease:
+				return HandleMouseEvent(pObject, pEvent);
+			default: break;
 		}
-		break;
-
-		case QEvent::MouseButtonPress:
-		case QEvent::MouseButtonRelease:
-		{
-			if (pObject != m_pGameWidget)
-				return false;
-			QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
-			mouseeventcallback((int)pMouseEvent->x() / scale, (int)pMouseEvent->y() / scale, pMouseEvent->button(),
-				(eType == QEvent::MouseButtonPress));
-			return true;
-		}
-		break;
-
-		default:
-			break;
 	}
 
-	return false;
+	return CONTINUE_PROPRGATION;
+}
+
+bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
+{
+	QEvent::Type eType = pEvent->type();
+
+	QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+
+	int nQtKey = pKeyEvent->key();
+
+	if (nQtKey < 0x01000000 || nQtKey > 0x01000060) {
+		return false;
+	}
+
+	int nTWKey = -1;
+	switch (nQtKey) {
+		case Qt::Key_Return:
+		case Qt::Key_Enter:  nTWKey = TWK_RETURN; break;
+		case Qt::Key_Escape: nTWKey = TWK_ESCAPE; break;
+		case Qt::Key_Up:     nTWKey = TWK_UP;     break;
+		case Qt::Key_Left:   nTWKey = TWK_LEFT;   break;
+		case Qt::Key_Down:   nTWKey = TWK_DOWN;   break;
+		case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
+		case Qt::Key_Home:   nTWKey = TWK_HOME;   break;
+		case Qt::Key_End:    nTWKey = TWK_END;    break;
+		default: return CONTINUE_PROPRGATION;
+	}
+
+	// record key state
+	bool bPress = (eType == QEvent::KeyPress);
+
+	// List view
+	QObjectList const & tableWidgets = m_pTablePage->children();
+	if (bPress && tableWidgets.contains(pObject)) {
+		int currentrow = m_pTblList->selectionModel()->currentIndex().row();
+		if ((nTWKey == TWK_RETURN) && currentrow >= 0) {
+			g_pApp->exit(CmdProceed);
+			return STOP_PROPRGATION;
+		} else if(nTWKey == TWK_ESCAPE) {
+			g_pApp->exit(CmdQuitLevel);
+			return STOP_PROPRGATION;
+		} else {
+			return CONTINUE_PROPRGATION;
+		}
+	}
+
+	// Text view
+	if(m_pMainWidget->currentIndex() == PAGE_TEXT) {
+		if (nTWKey == TWK_RETURN) g_pApp->exit(+1);
+		else if(nTWKey == TWK_ESCAPE) g_pApp->exit(CmdQuitLevel);
+		return STOP_PROPRGATION;
+	}
+
+	if (m_bKbdRepeatEnabled || !pKeyEvent->isAutoRepeat()) {
+		KeyEventCallback(nTWKey, bPress);
+	}
+
+	// Stop propagating events when the PAGE_GAME is active and no dialogs are active
+	return (m_pMainWidget->currentIndex() == PAGE_GAME &&
+		QApplication::activeModalWidget() == 0);
 }
 
 
-extern "C" uint8_t* TW_GetKeyState(int* pnNumKeys)
+bool TileWorldMainWnd::HandleMouseEvent(QObject* pObject, QEvent* pEvent)
 {
-	return g_pMainWnd->GetKeyState(pnNumKeys);
-}
+	if(pObject != m_pGameWidget) return CONTINUE_PROPRGATION;
 
-uint8_t* TileWorldMainWnd::GetKeyState(int* pnNumKeys)
-{
-	if (pnNumKeys != 0)
-		*pnNumKeys = TWK_LAST;
-	return m_nKeyState;
+	if(pEvent->type() == QEvent::MouseButtonPress) {
+		QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
+		MouseEventCallback((int)pMouseEvent->x() / scale, (int)pMouseEvent->y() / scale, pMouseEvent->button());
+	}
+
+	return true;
 }
 
 
 void TileWorldMainWnd::PulseKey(int nTWKey)
 {
-	keyeventcallback(nTWKey, true);
-	keyeventcallback(nTWKey, false);
+	KeyEventCallback(nTWKey, true);
+	KeyEventCallback(nTWKey, false);
 }
 
 
@@ -305,6 +290,23 @@ bool TileWorldMainWnd::SetKeyboardRepeat(bool bEnable)
 {
 	m_bKbdRepeatEnabled = bEnable;
 	return true;
+}
+
+
+void TileWorldMainWnd::ReleaseAllKeys()
+{
+	// On X11, it seems that the last key-up event (for the arrow key that resulted in completion)
+	//  is never sent (neither to the main widget, nor to the message box).
+	// So pretend that all keys being held down were released.
+	for (int k = 0; k < TWK_LAST; ++k)
+	{
+		if (m_nKeyState[k])
+		{
+			m_nKeyState[k] = false;
+			KeyEventCallback(k, false);
+			// printf("*** RESET 0x%X\n", k);
+		}
+	}
 }
 
 
@@ -734,21 +736,6 @@ int displayendmessage(int basescore, int timescore, long totalscore,
 	return g_pMainWnd->DisplayEndMessage(basescore, timescore, totalscore, completed);
 }
 
-void TileWorldMainWnd::ReleaseAllKeys()
-{
-	// On X11, it seems that the last key-up event (for the arrow key that resulted in completion)
-	//  is never sent (neither to the main widget, nor to the message box).
-	// So pretend that all keys being held down were released.
-	for (int k = 0; k < TWK_LAST; ++k)
-	{
-		if (m_nKeyState[k])
-		{
-			m_nKeyState[k] = false;
-			keyeventcallback(k, false);
-			// printf("*** RESET 0x%X\n", k);
-		}
-	}
-}
 
 int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted)
 {
@@ -1008,20 +995,7 @@ void TileWorldMainWnd::OnRulesetSwitched(bool mschecked) {
 }
 
 /* Display an input prompt to the user. prompt supplies the prompt to
- * display, and input points to a buffer to hold the user's input.
- * maxlen sets a maximum length to the input that will be accepted.
- * Either inputtype or inputcallback must be used to validate input.
- * inputtype indicates the type of input desired.
- * The supplied callback function is called repeatedly to obtain
- * input. If the callback function returns a printable ASCII
- * character, the function will automatically append it to the string
- * stored in input. If '\b' is returned, the function will erase the
- * last character in input, if any. If '\f' is returned the function
- * will set input to "". If '\n' is returned, the input prompt is
- * erased and displayinputprompt() returns TRUE. If a negative value
- * is returned, the input prompt is erased and displayinputprompt()
- * returns FALSE. All other return values from the callback are
- * ignored.
+ * display.
  */
 int displayyesnoprompt(char const *prompt)
 {
@@ -1382,4 +1356,210 @@ void TileWorldMainWnd::ChangeVolume(int volume)
 void TileWorldMainWnd::HideVolumeWidget()
 {
 	m_pPrgVolFrame->setVisible(false);
+}
+
+
+
+
+/* This callback is called whenever the state of any keyboard key
+ * changes. It records this change in the keystates array. The key can
+ * be recorded as being struck, pressed, repeating, held down, or down
+ * but ignored, as appropriate to when they were first pressed and the
+ * current behavior settings. Shift-type keys are always either on or
+ * off.
+ */
+void TileWorldMainWnd::KeyEventCallback(int scancode, int down)
+{
+	if (down) {
+		keystates[scancode] = keystates[scancode] == KS_OFF ? KS_PRESSED : KS_REPEATING;
+	} else {
+		keystates[scancode] = keystates[scancode] == KS_PRESSED ? KS_STRUCK : KS_OFF;
+	}
+}
+
+/* Initialize (or re-initialize) all key states.
+ */
+void TileWorldMainWnd::RestartKeystates(void)
+{
+    memset(keystates, KS_OFF, sizeof keystates);
+    for (int n = 0 ; n < TWK_LAST ; ++n)
+	if (m_nKeyState[n])
+	    KeyEventCallback(n, TRUE);
+}
+
+/* Update the key states. This is done at the start of each polling
+ * cycle. The state changes that occur depend on the current behavior
+ * settings.
+ */
+void TileWorldMainWnd::ResetKeyStates(void)
+{
+    for (int n = 0 ; n < TWK_LAST ; ++n) {
+		int x = (int)keystates[n];
+
+		if(x == KS_STRUCK) {
+			keystates[n] = KS_OFF;
+		} else if(x == KS_DOWNBUTOFF2 || x == KS_DOWNBUTOFF3 || x == KS_REPEATING) {
+			keystates[n] = KS_DOWN;
+		} else if(x == KS_PRESSED) {
+			keystates[n] = joystickstyle ? KS_DOWN : KS_DOWNBUTOFF1;
+		} else if(x == KS_DOWNBUTOFF1) {
+			keystates[n] = joystickstyle ? KS_DOWN : KS_DOWNBUTOFF2;
+		}
+	}
+}
+
+/*
+ * Mouse event functions.
+ */
+
+/* This callback is called whenever there is a state change in the
+ * mouse buttons. Up events are ignored. Down events are stored to
+ * be examined later.
+ */
+void TileWorldMainWnd::MouseEventCallback(int xpos, int ypos, int button)
+{
+	mouseinfo.state = KS_PRESSED;
+	mouseinfo.x = xpos;
+	mouseinfo.y = ypos;
+	mouseinfo.button = button;
+}
+
+/* Given a pixel's coordinates, return the integer identifying the
+ * tile's position in the map, or -1 if the pixel is not on the map view.
+ */
+int TileWorldMainWnd::WindowMapPos(int x, int y)
+{
+    if (geng.mapvieworigin < 0)
+	return -1;
+    if (x < geng.maploc.x || y < geng.maploc.y)
+	return -1;
+    x = (x - geng.maploc.x) * 4 / geng.wtile;
+    y = (y - geng.maploc.y) * 4 / geng.htile;
+    if (x >= NXTILES * 4 || y >= NYTILES * 4)
+	return -1;
+    x = (x + geng.mapvieworigin % (CXGRID * 4)) / 4;
+    y = (y + geng.mapvieworigin / (CXGRID * 4)) / 4;
+    if (x < 0 || x >= CXGRID || y < 0 || y >= CYGRID) {
+	warn("mouse moved off the map: (%d %d)", x, y);
+	return -1;
+    }
+    return y * CXGRID + x;
+}
+
+/* Return the command appropriate to the most recent mouse activity.
+ */
+int TileWorldMainWnd::RetrieveMouseCommand(void)
+{
+    int	n;
+
+    switch (mouseinfo.state) {
+      case KS_PRESSED:
+	mouseinfo.state = KS_OFF;
+	if (mouseinfo.button == TW_BUTTON_LEFT) {
+	    n = WindowMapPos(mouseinfo.x, mouseinfo.y);
+	    if (n >= 0) {
+		mouseinfo.state = KS_DOWNBUTOFF1;
+		return CmdAbsMouseMoveFirst + n;
+	    }
+	}
+	break;
+      case KS_DOWNBUTOFF1:
+	mouseinfo.state = KS_DOWNBUTOFF2;
+	return CmdPreserve;
+      case KS_DOWNBUTOFF2:
+	mouseinfo.state = KS_DOWNBUTOFF3;
+	return CmdPreserve;
+      case KS_DOWNBUTOFF3:
+	mouseinfo.state = KS_OFF;
+	return CmdPreserve;
+    }
+    return 0;
+}
+
+/* Poll the keyboard and return the command associated with the
+ * selected key, if any. If no key is selected and wait is TRUE, block
+ * until a key with an associated command is selected. In keyboard behavior
+ * mode, the function can return CmdPreserve, indicating that if the key
+ * command from the previous poll has not been processed, it should still
+ * be considered active. If two mergeable keys are selected, the return
+ * value will be the bitwise-or of their command values.
+ */
+int input(int wait)
+{
+	return g_pMainWnd->Input(wait);
+}
+
+int TileWorldMainWnd::Input(int wait)
+{
+    keycmdmap const    *kc;
+    int			lingerflag = FALSE;
+    int			cmd1, cmd, n;
+
+    for (;;) {
+		ResetKeyStates();
+		eventupdate(wait);
+
+		cmd1 = cmd = 0;
+		for (kc = keycmds ; kc->scancode ; ++kc) {
+			n = keystates[kc->scancode];
+			if (!n) continue;
+			if (n == KS_PRESSED || (kc->hold && n == KS_DOWN)) {
+				if (!cmd1) {
+					cmd1 = kc->cmd;
+					if (!joystickstyle || cmd1 > CmdKeyMoveLast || !mergeable[cmd1])
+						return cmd1;
+				} else {
+					if (cmd1 <= CmdKeyMoveLast && (mergeable[cmd1] & kc->cmd) == kc->cmd)
+						return cmd1 | kc->cmd;
+				}
+			} else if (n == KS_STRUCK || n == KS_REPEATING) {
+				cmd = kc->cmd;
+			} else if (n == KS_DOWNBUTOFF1 || n == KS_DOWNBUTOFF2) {
+				lingerflag = TRUE;
+			}
+		}
+		if (cmd1)
+			return cmd1;
+		if (cmd)
+			return cmd;
+		cmd = RetrieveMouseCommand();
+		if (cmd)
+			return cmd;
+		if (!wait)
+			break;
+	}
+	if (!cmd && lingerflag)
+		cmd = CmdPreserve;
+	return cmd;
+}
+
+/* Turn joystick behavior mode on or off. In joystick-behavior mode,
+ * the arrow keys are always returned from input() if they are down at
+ * the time of the polling cycle. Other keys are only returned if they
+ * are pressed during a polling cycle (or if they repeat, if keyboard
+ * repeating is on). In keyboard-behavior mode, the arrow keys have a
+ * special repeating behavior that is kept synchronized with the
+ * polling cycle.
+ */
+int setkeyboardarrowsrepeat(int enable)
+{
+	return g_pMainWnd->SetKeyboardArrowsRepeat(enable);
+}
+
+int TileWorldMainWnd::SetKeyboardArrowsRepeat(int enable)
+{
+    joystickstyle = enable;
+    RestartKeystates();
+    return TRUE;
+}
+
+/* Initialization.
+ */
+int TileWorldMainWnd::GenericInputInitialize(void)
+{
+    mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
+    mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
+
+    SetKeyboardRepeat(TRUE);
+    return TRUE;
 }

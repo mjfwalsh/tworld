@@ -3,7 +3,7 @@ PATH=$PATH:/usr/local/opt/qt/bin
 
 COMMON_PARAMS="-Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp"
 COMMON_PARAMS+=" -Wunused-function -Wunused-label -Wunused-value"
-COMMON_PARAMS+=" -Wunused-variable" # -Wunused-parameter
+COMMON_PARAMS+=" -Wunused-variable -Wunused-macros -Werror" # -Wunused-parameter 
 
 CC="cc -std=gnu11 $COMMON_PARAMS"
 CPP="c++ -std=gnu++11 $COMMON_PARAMS"
@@ -60,7 +60,6 @@ compile () {
 	compile_file "$CC" timer.o timer.c
 
 	compile_file "$CPP $QT_OPTS" res.o res.cpp
-	compile_file "$CPP $QT_OPTS" in.o in.cpp
 	compile_file "$CC $SDL_OPTS" sdlsfx.o sdlsfx.c
 	compile_file "$CPP $QT_OPTS" oshwbind.o oshwbind.cpp
 	compile_file "$CPP $QT_OPTS" CCMetaData.o CCMetaData.cpp

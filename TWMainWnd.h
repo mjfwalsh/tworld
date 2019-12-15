@@ -29,6 +29,69 @@ public:
 		PAGE_TEXT
 	};
 
+	/* Structure describing mouse activity.
+	 */
+	typedef struct mouseaction {
+		int		state;		/* state of mouse action (KS_*) */
+		int		x, y;		/* position of the mouse */
+		int		button;		/* which button generated the event */
+	} mouseaction;
+
+	/* The possible states of keys.
+	 */
+	enum { KS_OFF = 0,		/* key is not currently pressed */
+		   KS_ON = 1,		/* key is down (shift-type keys only) */
+		   KS_DOWN,			/* key is being held down */
+		   KS_STRUCK,		/* key was pressed and released in one tick */
+		   KS_PRESSED,		/* key was pressed in this tick */
+		   KS_DOWNBUTOFF1,		/* key has been down since the previous tick */
+		   KS_DOWNBUTOFF2,		/* key has been down since two ticks ago */
+		   KS_DOWNBUTOFF3,		/* key has been down since three ticks ago */
+		   KS_REPEATING,		/* key is down and is now repeating */
+		   KS_count
+	};
+
+	/* Structure describing a mapping of a key event to a game command.
+	 */
+	typedef	struct keycmdmap {
+		int		scancode;	/* the key's scan code */
+		int		cmd;		/* the command */
+		int		hold;		/* TRUE for repeating joystick-mode keys */
+	} keycmdmap;
+
+	/* The complete list of key commands recognized by the game while
+	 * playing. hold is TRUE for keys that are to be forced to repeat.
+	 * shift, ctl and alt are positive if the key must be down, zero if
+	 * the key must be up, or negative if it doesn't matter.
+	 */
+	static keycmdmap constexpr keycmds[] = {
+		{	TWK_UP,					CmdNorth,				TRUE	},
+		{	TWK_LEFT,				CmdWest,				TRUE	},
+		{	TWK_DOWN,				CmdSouth,				TRUE	},
+		{	TWK_RIGHT,				CmdEast,				TRUE	},
+		{	TWK_RETURN,				CmdProceed,				FALSE	},
+
+		{	TWC_SEESCORES,			CmdSeeScores,			FALSE	},
+		{	TWC_SEESOLUTIONFILES,	CmdSeeSolutionFiles,	FALSE	},
+		{	TWC_TIMESCLIPBOARD,		CmdTimesClipboard,		FALSE	},
+		{	TWC_QUITLEVEL,			CmdQuitLevel,			FALSE	},
+		{	TWC_QUIT,				CmdQuit,				FALSE	},
+
+		{	TWC_PROCEED,			CmdProceed,				FALSE	},
+		{	TWC_PAUSEGAME,			CmdPauseGame,			FALSE	},
+		{	TWC_SAMELEVEL,			CmdSameLevel,			FALSE	},
+		{	TWC_NEXTLEVEL,			CmdNextLevel,			FALSE	},
+		{	TWC_PREVLEVEL,			CmdPrevLevel,			FALSE	},
+		{	TWC_GOTOLEVEL,			CmdGotoLevel,			FALSE	},
+
+		{	TWC_PLAYBACK,			CmdPlayback,			FALSE	},
+		{	TWC_CHECKSOLUTION,		CmdCheckSolution,		FALSE	},
+		{	TWC_REPLSOLUTION,		CmdReplSolution,		FALSE	},
+		{	TWC_KILLSOLUTION,		CmdKillSolution,		FALSE	},
+		{	TWC_SEEK,				CmdSeek,				FALSE	},
+		{	0,	0,	0	}
+	};
+
 	TileWorldMainWnd(QWidget* pParent = 0, Qt::WindowFlags flags = 0);
 	~TileWorldMainWnd();
 
@@ -36,7 +99,7 @@ public:
 	virtual void closeEvent(QCloseEvent* pCloseEvent) override;
 
 	bool SetKeyboardRepeat(bool bEnable);
-	uint8_t* GetKeyState(int* pnNumKeys);
+	bool* GetKeyState();
 	int GetReplaySecondsToSkip() const;
 
 	bool CreateGameDisplay();
@@ -54,6 +117,10 @@ public:
 
 	void ShowAbout();
 	void SetPlayPauseButton(int p);
+int Input(int wait);
+int SetKeyboardArrowsRepeat(int enable);
+int GenericInputInitialize(void);
+
 
 public slots:
 	void HideVolumeWidget();
@@ -74,7 +141,8 @@ private slots:
 	void OnMenuActionTriggered(QAction* pAction);
 
 private:
-	bool HandleEvent(QObject* pObject, QEvent* pEvent);
+	bool HandleKeyEvent(QObject* pObject, QEvent* pEvent);
+	bool HandleMouseEvent(QObject* pObject, QEvent* pEvent);
 	void SetCurrentPage(Page ePage);
 	void CheckForProblems(const gamestate* pState);
 	void DisplayMapView(const gamestate* pState);
@@ -84,6 +152,30 @@ private:
 	void PulseKey(int nTWKey);
 	int GetTWKeyForAction(QAction* pAction) const;
 	void ChangeVolume(int volume);
+
+	int RetrieveMouseCommand(void);
+	int WindowMapPos(int x, int y);
+	void ResetKeyStates(void);
+	void RestartKeystates(void);
+	void KeyEventCallback(int scancode, int down);
+	void MouseEventCallback(int xpos, int ypos, int button);
+
+	/* The complete array of key states.
+	 */
+	char		keystates[TWK_LAST];
+
+	/* The last mouse action.
+	 */
+	mouseaction	mouseinfo;
+
+	/* TRUE if direction keys are to be treated as always repeating.
+	 */
+	int		joystickstyle = FALSE;
+
+	/* A map of keys that can be held down simultaneously to produce
+	 * multiple commands.
+	 */
+	int mergeable[CmdKeyMoveLast + 1];
 
 	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };
 	bool SetHintMode(HintMode newmode);
@@ -97,7 +189,7 @@ private:
 
 	double scale = 1;
 
-	uint8_t m_nKeyState[TWK_LAST];
+	bool m_nKeyState[TWK_LAST];
 
 	struct MessageData{ QString sMsg; uint32_t nMsgUntil, nMsgBoldUntil; };
 	QVector<MessageData> m_shortMessages;

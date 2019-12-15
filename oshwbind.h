@@ -192,7 +192,9 @@ OSHW_EXTERN TW_Surface* TW_LoadBMP(const char* szFilename);
 
 OSHW_EXTERN void TW_DebugSurface(TW_Surface* pSurface, const char* szFilename);	// @#$
 
-OSHW_EXTERN uint8_t* TW_GetKeyState(int* pNumKeys);
+#ifdef __cplusplus
+OSHW_EXTERN bool* TW_GetKeyState();
+#endif
 
 OSHW_EXTERN uint32_t TW_GetTicks(void);
 OSHW_EXTERN void TW_Delay(uint32_t nMS);

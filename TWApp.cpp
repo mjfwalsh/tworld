@@ -82,7 +82,7 @@ bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
 	if ( ! (
 		generictimerinitialize(bShowHistogram) &&
 		generictileinitialize() &&
-		genericinputinitialize() &&
+		g_pMainWnd->GenericInputInitialize() &&
 		sdlsfxinitialize(bSilence, nSoundBufSize)
 	   ) )
 		return false;
