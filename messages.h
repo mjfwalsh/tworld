@@ -7,10 +7,6 @@
 #ifndef HEADER_messages_h_
 #define HEADER_messages_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum
 {
     MessageWin,
@@ -20,10 +16,6 @@ enum
 };
 
 int loadmessagesfromfile(char const *filename);
-char const *getmessage(int type);
-
-#ifdef __cplusplus
-}
-#endif
+char const *getmessage(int type, char const *alt);
 
 #endif

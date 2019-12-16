@@ -16,6 +16,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstring>
 
 using std::bitset;
 using std::ifstream;
@@ -96,18 +97,21 @@ int loadmessagesfromfile(char const *filename)
     return TRUE;
 }
 
-char const *getmessage(int type)
+char const* getmessage(int type, char const* alt)
 {
-    static char buf[maxMessageSize+1];
-
-    if ((type < 0) || (type >= MessageTypeCount)
-        || typeindex[type].size() == 0)
-        return NULL;
+    if (type < 0 || type >= MessageTypeCount || typeindex[type].size() == 0)
+        return alt;
 
     size_t const mnum = typeindex[type][current[type]];
-    char const *s = messages[mnum].c_str();
+
     current[type] = (current[type] + 1) % typeindex[type].size();
 
-    strcpy(buf, s);
-    return buf;
+    if(messages[mnum].empty()){
+		return alt;
+    } else {
+		char *x;
+		x = (char*) malloc(messages[mnum].length() + 1);
+		strcpy(x, messages[mnum].c_str());
+		return x;
+    }
 }

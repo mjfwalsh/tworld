@@ -752,68 +752,46 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
 	QMessageBox msgBox(this);
 
-	if (nCompleted > 0)	// Success
-	{
-		QString sAuthor = m_ccxLevelset.vecLevels[m_nLevelNum].sAuthor;
-		const char* szMsg = 0;
-		if (m_bReplay)
+	if (nCompleted > 0)	 { // Success
+		const char* szMsg;
+		if (m_bReplay) {
 			szMsg = "Alright!";
-		else
-                {
-			szMsg = getmessage(MessageWin);
-                        if (!szMsg)
-				szMsg = "You won!";
+		} else {
+			szMsg = getmessage(MessageWin, "You won!");
 		}
 
 		QString sText;
 		QTextStream strm(&sText);
 		strm.setLocale(m_locale);
-		strm
-			<< "<table>"
-			// << "<tr><td><hr></td></tr>"
-			<< "<tr><td><big><b>" << m_nLevelName << "</b></big></td></tr>"
-			// << "<tr><td><hr></td></tr>"
-			;
+		strm << "<big><b>" << m_nLevelName << "</b></big><br>";
+
+		QString sAuthor = m_ccxLevelset.vecLevels[m_nLevelNum].sAuthor;
 		if (!sAuthor.isEmpty())
-			strm << "<tr><td>by " << sAuthor << "</td></tr>";
-		strm
-			<< "<tr><td><hr></td></tr>"
-			<< "<tr><td>&nbsp;</td></tr>"
-			<< "<tr><td><big><b>" << szMsg << "</b></big>" << "</td></tr>"
-			;
+			strm << "by " << sAuthor;
 
-		if (!m_bReplay)
-		{
-		  if (m_bTimedLevel  &&  m_nBestTime != TIME_NIL)
-		  {
-			strm << "<tr><td>";
-			if (m_nTimeLeft > m_nBestTime)
-			{
-				strm << "You made it " << (m_nTimeLeft - m_nBestTime) << " second(s) faster this time!";
-			}
-			else if (m_nTimeLeft == m_nBestTime)
-			{
-				strm << "You scored " << m_nBestTime << " yet again.";
-			}
-			else
-			{
-				strm << "But not as quick as your previous score of " << m_nBestTime << "...";
-			}
-			strm << "</td></tr>";
-		  }
+		strm << "<hr><br><big><b>" << szMsg << "</b></big><br>";
 
-		  strm
-			<< "<tr><td>&nbsp;</td></tr>"
-			<< "<tr><td><table>"
-			  << "<tr><td>Time Bonus:</td><td align='right'>"  << nTimeScore << "</td></tr>"
-			  << "<tr><td>Level Bonus:</td><td align='right'>" << nBaseScore << "</td></tr>"
-			  << "<tr><td>Level Score:</td><td align='right'>" << (nTimeScore + nBaseScore) << "</td></tr>"
-			  << "<tr><td colspan='2'><hr></td></tr>"
-			  << "<tr><td>Total Score:</td><td align='right'>" << lTotalScore << "</td></tr>"
-			<< "</table></td></tr>"
-			// << "<tr><td><pre>                                </pre></td></tr>"	// spacer
-			<< "</table>"
-			;
+		if (!m_bReplay) {
+			if (m_bTimedLevel && m_nBestTime != TIME_NIL) {
+				int diff = m_nTimeLeft - m_nBestTime;
+
+				if (diff == 0)
+					strm << "You scored " << m_nBestTime << " yet again.";
+				else if (diff == 1)
+					strm << "You made it 1 second faster this time!";
+				else if (diff > 0)
+					strm << "You made it " << diff << " seconds faster this time!";
+				else
+					strm << "But not as quick as your previous score of " << m_nBestTime << "...";
+			}
+
+			strm << "<br><table width='100%'>"
+			<< "<tr><td>Time Bonus:</td><td align='right'>"  << nTimeScore << "</td></tr>"
+			<< "<tr><td>Level Bonus:</td><td align='right'>" << nBaseScore << "</td></tr>"
+			<< "<tr><td>Level Score:</td><td align='right'>" << (nTimeScore + nBaseScore) << "</td></tr>"
+			<< "<tr><td colspan='2'><hr></td></tr>"
+			<< "<tr><td>Total Score:</td><td align='right'>" << lTotalScore << "</td></tr>"
+			<< "</table>";
 		}
 
 		msgBox.setTextFormat(Qt::RichText);
@@ -839,15 +817,11 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		if (msgBox.clickedButton() == pBtnRestart)
 			return CmdSameLevel;
 
-		// if (!m_bReplay)
-			Narrate(&CCX::Level::txtEpilogue);
-	}
-	else	// Failure
-	{
+		Narrate(&CCX::Level::txtEpilogue);
+	} else {	// Failure
 		bool bTimeout = (m_bTimedLevel  &&  m_nTimeLeft <= 0);
-		if (m_bReplay)
-		{
-			QString sMsg = "Whoa!  Chip ";
+		if (m_bReplay) {
+			QString sMsg = "Whoa! Chip ";
 			if (bTimeout)
 				sMsg += "ran out of time";
 			else
@@ -857,21 +831,12 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 			msgBox.setText(sMsg);
 			msgBox.setIcon(QMessageBox::Warning);
 			msgBox.setWindowTitle("Replay Failed");
-		}
-		else
-		{
-			const char* szMsg = 0;
-			if (bTimeout)
-			{
-				szMsg = getmessage(MessageTime);
-				if (!szMsg)
-					szMsg = "You ran out of time.";
-			}
-			else
-			{
-				szMsg = getmessage(MessageDie);
-				if (!szMsg)
-					szMsg = "You died.";
+		} else {
+			const char* szMsg;
+			if (bTimeout) {
+				szMsg = getmessage(MessageTime, "You ran out of time.");
+			} else {
+				szMsg = getmessage(MessageDie, "You died.");
 			}
 
 			msgBox.setTextFormat(Qt::PlainText);
@@ -1203,52 +1168,50 @@ void TileWorldMainWnd::OnCopyText()
 
 void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 {
-	if (pAction == action_Prologue)
-	    { Narrate(&CCX::Level::txtPrologue, true); return; }
-	if (pAction == action_Epilogue)
-	    { Narrate(&CCX::Level::txtEpilogue, true); return; }
+	if (pAction == action_Prologue) {
+		Narrate(&CCX::Level::txtPrologue, true);
+		return;
+	}
 
-	if (pAction == action_displayCCX)
-	{
+	if (pAction == action_Epilogue) {
+		Narrate(&CCX::Level::txtEpilogue, true);
+		return;
+	}
+
+	if (pAction == action_displayCCX) {
 	    setintsetting("displayccx", pAction->isChecked() ? 1 : 0);
 	    return;
 	}
 
-	if (pAction == action_forceShowTimer)
-	{
+	if (pAction == action_forceShowTimer) {
 	    setintsetting("forceshowtimer", pAction->isChecked() ? 1 : 0);
 		drawscreen(TRUE);
 	    return;
 	}
 
-	if (pAction == action_About)
-	{
+	if (pAction == action_About) {
 		ShowAbout();
 		return;
 	}
 
-	if (pAction->actionGroup()  == actiongroup_Zoom)
-	{
+	if (pAction->actionGroup()  == actiongroup_Zoom) {
 		int s = pAction->data().toInt();
 		setintsetting("zoom", s);
 		this->SetScale(s);
 		return;
 	}
 
-	if (pAction == action_VolumeUp)
-	{
+	if (pAction == action_VolumeUp) {
 		this->ChangeVolume(+2);
 		return;
 	}
 
-	if (pAction == action_VolumeDown)
-	{
+	if (pAction == action_VolumeDown) {
 		this->ChangeVolume(-2);
 		return;
 	}
 	
-	if (pAction == action_Step)
-	{
+	if (pAction == action_Step) {
 		// step dialog
 		QInputDialog stepDialog(this);
 		stepDialog.setWindowTitle("Step");
