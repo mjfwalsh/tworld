@@ -1,7 +1,8 @@
 /* generic.h: The internal shared definitions of the generic layer.
  * 
- * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
- * under the GNU General Public License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag and Michael Walsh.
+ * Licensed under the GNU General Public License. No warranty.
+ * See COPYING for details.
  */
 
 #ifndef	HEADER_generic_h_
@@ -58,12 +59,6 @@ extern genericglobals geng;
  * currently pending, the function blocks until an event arrives.
  */
 OSHW_EXTERN void eventupdate(int wait);
-
-/* A callback function, to be called when a mouse button is
- * pressed or released. xpos and ypos give the mouse's location.
- * button is the number of the mouse button.
- */
-//OSHW_EXTERN void mouseeventcallback(int xpos, int ypos, int button);
 
 /* Render the view of the visible area of the map to the display, with
  * the view position centered on the display as much as possible. The

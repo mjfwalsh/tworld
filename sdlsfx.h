@@ -1,8 +1,9 @@
 /* sdlsfx.h: The internal shared definitions for sound effects using SDL.
  * Used in the SDL as well as the Qt OS/hardware layer.
  *
- * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
- * under the GNU General Public License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag and Michael Walsh.
+ * Licensed under the GNU General Public License.
+ * No warranty. See COPYING for details.
  */
 
 #ifndef	HEADER_sdlsfx_h_

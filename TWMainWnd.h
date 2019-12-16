@@ -1,5 +1,6 @@
-/* Copyright (C) 2001-2017 by Madhav Shanbhag and Eric Schmidt,
- * under the GNU General Public License. No warranty. See COPYING for details.
+/* Copyright (C) 2001-2019 by Madhav Shanbhag, Eric Schmidt and Michael Walsh.
+ * Licensed under the GNU General Public License. No warranty.
+ * See COPYING for details.
  */
 
 #ifndef TWMAINWND_H

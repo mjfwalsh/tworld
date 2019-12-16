@@ -1,7 +1,8 @@
-/* res.c: Functions for loading resources from external files.
+/* res.cpp: Functions for loading resources from external files.
  *
- * Copyright (C) 2001-2014 by Brian Raiter and Eric Schmidt, under the GNU
- * General Public License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Brian Raiter, Eric Schmidt and Michael Walsh.
+ * Licensed under the GNU General Public License. No warranty.
+ * See COPYING for details.
  */
 
 #include	<QFile>

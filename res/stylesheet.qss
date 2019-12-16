@@ -1,3 +1,5 @@
+/* Copyright (C) 2019 by Michael J. Walsh. Licenced under the GNU GPL, v 3. */
+
 #m_pMainWidget {
 	background-image:url("res/motherboard.svg"); background-position: center;
 	background-color: rgb(100,100,100);

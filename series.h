@@ -1,7 +1,8 @@
 /* series.h: Functions for finding and reading the series files.
  *
- * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
- * License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Brian Raiter and Michael Walsh.
+ * Licensed under the GNU General Public License.
+ * No warranty. See COPYING for details.
  */
 
 #ifndef	HEADER_series_h_

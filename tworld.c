@@ -1,7 +1,9 @@
 /* tworld.c: The top-level module.
  *
- * Copyright (C) 2001-2017 by Brian Raiter, Madhav Shanbhag, and Eric Schmidt,
- * under the GNU General Public License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag,
+ * Eric Schmidt and Michael Walsh
+ * Licensed under the GNU General Public License.
+ * No warranty. See COPYING for details.
  */
 
 #include	<stdio.h>

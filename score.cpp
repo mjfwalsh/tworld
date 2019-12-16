@@ -1,7 +1,8 @@
 /* score.cpp: Calculating scores and formatting the display of same.
  *
- * Copyright (C) 2001-2017 by Brian Raiter and Eric Schmidt, under the GNU
- * General Public License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Brian Raiter, Eric Schmidt and Michael Walsh. 
+ * Licensed under the GNU General Public License. No warranty.
+ * See COPYING for details.
  */
 
 #include	<stdio.h>

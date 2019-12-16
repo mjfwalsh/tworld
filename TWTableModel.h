@@ -1,3 +1,8 @@
+/* Copyright (C) 2001-2019 by Madhav Shanbhag and Eric Schmidt.
+ * Licensed under the GNU General Public License. No warranty.
+ * See COPYING for details.
+ */
+
 #include <QStyledItemDelegate>
 #include <QStyleOptionViewItem>
 #include <QAbstractTableModel>

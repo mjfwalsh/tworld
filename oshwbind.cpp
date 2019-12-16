@@ -1,7 +1,8 @@
 /* oshwbind.cpp: Binds the generic module to the Qt OS/hardware layer.
  *
- * Copyright (C) 2001-2010 by Madhav Shanbhag,
- * under the GNU General Public License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Madhav Shanbhag and Michael Walsh.
+ * Licensed under the GNU General Public License.
+ * No warranty. See COPYING for details.
  */
 
 #include	"generic.h"

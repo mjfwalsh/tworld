@@ -1,7 +1,9 @@
 /* help.c: Displaying online help.
  *
- * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
- * under the GNU General Public License. No warranty. See COPYING for details.
+ * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag,
+ * Eric Schmidt and Michael Walsh.
+ * Licensed under the GNU General Public License.
+ * No warranty. See COPYING for details.
  */
 
 #include	"defs.h"
@@ -15,8 +17,8 @@
 static char const *vourzhon_items[] = {
 "1-Tile World: version " VERSION,
 
-"1-Copyright (c) 2001-2017 by Brian Raiter, Madhav Shanbhag, and"
-" Eric Schmidt",
+"1-Copyright (c) 2001-2019 by Brian Raiter, Madhav Shanbhag,"
+" Eric Schmidt and Michael Walsh",
 
 "1-compiled " COMPILE_TIME,
 
@@ -30,8 +32,8 @@ static char const *vourzhon_items[] = {
 " warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR"
 " PURPOSE. See the GNU General Public License for more details.",
 
-"1!Bug reports are appreciated, and can be sent to"
-" eric41293@comcast.net or CrapulentCretin@Yahoo.com."
+"1!Bug reports are appreciated and can be filed at"
+"https://github.com/mjfwalsh/tworld/issues"
 };
 static tablespec const vourzhon_table = { 6, 1, vourzhon_items };
 tablespec const *vourzhon = &vourzhon_table;

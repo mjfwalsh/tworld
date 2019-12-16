@@ -5,8 +5,10 @@
  */
 
 #include "messages.h"
+
 #include "fileio.h"
 #include "res.h"
+
 #include <algorithm>
 #include <bitset>
 #include <cstring>
