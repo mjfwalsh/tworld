@@ -54,7 +54,7 @@ OSHW_EXTERN int setkeyboardrepeat(int enable); // TWMainWnd.cpp
  * program polls the keyboard. Otherwise, the direction keys do not
  * repeat until the program polls the keyboard three times.
  */
-OSHW_EXTERN int setkeyboardarrowsrepeat(int enable); // in.cpp
+OSHW_EXTERN int setkeyboardarrowsrepeat(int enable); // TWMainWnd.cpp
 
 /* Return the latest/current keystroke. If wait is TRUE and no
  * keystrokes are pending, the function blocks until a keystroke

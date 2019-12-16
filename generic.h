@@ -76,7 +76,6 @@ OSHW_EXTERN void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id);
  */
 OSHW_EXTERN int generictimerinitialize(int showhistogram);
 OSHW_EXTERN int generictileinitialize(void);
-//OSHW_EXTERN int genericinputinitialize(void);
 
 #undef OSHW_EXTERN
 

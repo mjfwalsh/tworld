@@ -100,7 +100,6 @@ public:
 	virtual void closeEvent(QCloseEvent* pCloseEvent) override;
 
 	bool SetKeyboardRepeat(bool bEnable);
-	bool* GetKeyState();
 	int GetReplaySecondsToSkip() const;
 
 	bool CreateGameDisplay();
@@ -118,10 +117,8 @@ public:
 
 	void ShowAbout();
 	void SetPlayPauseButton(int p);
-int Input(int wait);
-int SetKeyboardArrowsRepeat(int enable);
-int GenericInputInitialize(void);
-
+	int Input(int wait);
+	int SetKeyboardArrowsRepeat(int enable);
 
 public slots:
 	void HideVolumeWidget();
@@ -161,21 +158,17 @@ private:
 	void KeyEventCallback(int scancode, int down);
 	void MouseEventCallback(int xpos, int ypos, int button);
 
-	/* The complete array of key states.
-	 */
-	char		keystates[TWK_LAST];
+	// The complete array of key states.
+	char keystates[TWK_LAST];
 
-	/* The last mouse action.
-	 */
+	// The last mouse action.
 	mouseaction	mouseinfo;
 
-	/* TRUE if direction keys are to be treated as always repeating.
-	 */
+	// TRUE if direction keys are to be treated as always repeating.
 	int		joystickstyle = FALSE;
 
-	/* A map of keys that can be held down simultaneously to produce
-	 * multiple commands.
-	 */
+	// A map of keys that can be held down simultaneously to produce
+	// multiple commands.
 	int mergeable[CmdKeyMoveLast + 1];
 
 	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };

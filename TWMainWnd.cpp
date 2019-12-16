@@ -57,6 +57,7 @@ using namespace std;
 #define CONTINUE_PROPRGATION false
 #define STOP_PROPRGATION true
 
+constexpr TileWorldMainWnd::keycmdmap TileWorldMainWnd::keycmds[];
 
 TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	:
@@ -148,6 +149,11 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	// timer for display of volume widegt
 	volTimer = new QTimer(this);
+
+	// keyboard stuff
+    mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
+    mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
+    SetKeyboardRepeat(TRUE);
 }
 
 
@@ -301,11 +307,9 @@ void TileWorldMainWnd::ReleaseAllKeys()
 	// So pretend that all keys being held down were released.
 	for (int k = 0; k < TWK_LAST; ++k)
 	{
-		if (m_nKeyState[k])
-		{
+		if (m_nKeyState[k]) {
 			m_nKeyState[k] = false;
 			KeyEventCallback(k, false);
-			// printf("*** RESET 0x%X\n", k);
 		}
 	}
 }
@@ -1383,7 +1387,7 @@ void TileWorldMainWnd::KeyEventCallback(int scancode, int down)
 void TileWorldMainWnd::RestartKeystates(void)
 {
     memset(keystates, KS_OFF, sizeof keystates);
-    for (int n = 0 ; n < TWK_LAST ; ++n)
+    for (int n = 0; n < TWK_LAST; ++n)
 	if (m_nKeyState[n])
 	    KeyEventCallback(n, TRUE);
 }
@@ -1551,16 +1555,5 @@ int TileWorldMainWnd::SetKeyboardArrowsRepeat(int enable)
 {
     joystickstyle = enable;
     RestartKeystates();
-    return TRUE;
-}
-
-/* Initialization.
- */
-int TileWorldMainWnd::GenericInputInitialize(void)
-{
-    mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
-    mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
-
-    SetKeyboardRepeat(TRUE);
     return TRUE;
 }
