@@ -68,8 +68,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	m_bKbdRepeatEnabled(true),
 	m_nRuleset(Ruleset_None),
 	m_nLevelNum(0),
-	m_nLevelName(""),
-	m_nLevelPackName(""),
+	m_sLevelName(""),
+	m_sLevelPackName(""),
 	m_sTimeFormat("%v"),
 	m_bProblematic(false),
 	m_bOFNT(false),
@@ -404,7 +404,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		// set properties
 		m_nRuleset = pState->ruleset;
 		m_nLevelNum = pState->game->number;
-		m_nLevelName = pState->game->name;
+		m_sLevelName = pState->game->name;
 		m_bTimedLevel = bTimedLevel;
 		m_bProblematic = false;
 		m_nBestTime = nBestTime;
@@ -414,14 +414,14 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		// gui stuff
 		m_pGameWidget->setCursor(m_nRuleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
 		m_pLCDNumber->display(pState->game->number);
-		m_pLblTitle->setText(m_nLevelPackName + " - " + m_nLevelName);
+		m_pLblTitle->setText(m_sLevelPackName + " - " + m_sLevelName);
 		m_pLblPassword->setText(pState->game->passwd);
 		Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
 		m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
 		m_pSldSeek->setValue(0);
 
 		// easter egg
-		m_bOFNT = (m_nLevelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
+		m_bOFNT = (m_sLevelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 
 		// show/hide controls pane
 		bool bHasSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) == 0));
@@ -760,7 +760,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		QString sText;
 		QTextStream strm(&sText);
 		strm.setLocale(m_locale);
-		strm << "<big><b>" << m_nLevelName << "</b></big><br>";
+		strm << "<big><b>" << m_sLevelName << "</b></big><br>";
 
 		QString sAuthor = m_ccxLevelset.vecLevels[m_nLevelNum].sAuthor;
 		if (!sAuthor.isEmpty())
@@ -801,7 +801,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
 		msgBox.setWindowTitle(m_bReplay ? "Replay Completed" : "Level Completed");
 
-		m_sTextToCopy = timestring(m_nLevelNum, m_nLevelName.toUtf8().constData(), m_nTimeLeft,
+		m_sTextToCopy = timestring(m_nLevelNum, m_sLevelName.toUtf8().constData(), m_nTimeLeft,
 			m_bTimedLevel, false);
 
 		msgBox.addButton("&Onward!", QMessageBox::AcceptRole);
@@ -1049,7 +1049,7 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 	QString sSetName = QFileInfo(pSeries->mapfilename).completeBaseName();
 
 	// save for use on display
-	m_nLevelPackName = sSetName;
+	m_sLevelPackName = sSetName;
 
 	dataDir.setPath(g_pApp->appDataDir);
 	sFilePath = dataDir.filePath(sSetName + ".ccx");
