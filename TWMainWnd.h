@@ -193,6 +193,7 @@ private:
 	int m_nLevelNum;
 	QString m_nLevelName;
 	QString m_nLevelPackName;
+	QString m_sTimeFormat;
 	bool m_bProblematic;
 	bool m_bOFNT;
 	int m_nBestTime;

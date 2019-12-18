@@ -70,6 +70,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	m_nLevelNum(0),
 	m_nLevelName(""),
 	m_nLevelPackName(""),
+	m_sTimeFormat("%v"),
 	m_bProblematic(false),
 	m_bOFNT(false),
 	m_nBestTime(TIME_NIL),
@@ -390,98 +391,98 @@ int displaygame(gamestate const *state, int timeleft, int besttime)
 
 bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime)
 {
-	bool const bInit = (pState->currenttime == -1);
 	bool const bTimedLevel = (pState->game->time > 0);
 
 	m_nTimeLeft = nTimeLeft;
-	m_bTimedLevel = bTimedLevel;
 
 	bool const bForceShowTimer = action_forceShowTimer->isChecked();
 
 	bool bParBad = (pState->game->sgflags & SGF_REPLACEABLE) != 0;
 
-	if (bInit)
+	if (pState->currenttime == -1)
 	{
+		// set properties
 		m_nRuleset = pState->ruleset;
 		m_nLevelNum = pState->game->number;
+		m_nLevelName = pState->game->name;
+		m_bTimedLevel = bTimedLevel;
 		m_bProblematic = false;
 		m_nBestTime = nBestTime;
 		m_bReplay = false;	// IMPORTANT for OnSpeedValueChanged
 		SetSpeed(0);	// IMPORTANT
 
+		// gui stuff
 		m_pGameWidget->setCursor(m_nRuleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
-
 		m_pLCDNumber->display(pState->game->number);
-
-		m_nLevelName = pState->game->name;
 		m_pLblTitle->setText(m_nLevelPackName + " - " + m_nLevelName);
-
+		m_pLblPassword->setText(pState->game->passwd);
 		Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
 		m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
+		m_pSldSeek->setValue(0);
 
-		m_pLblPassword->setText(pState->game->passwd);
-
+		// easter egg
 		m_bOFNT = (m_nLevelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 
-		m_pSldSeek->setValue(0);
+		// show/hide controls pane
 		bool bHasSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) == 0));
 		bool bHasDeletedSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) != 0));
 		m_pControlsFrame->setVisible(bHasSolution);
 
+		// disable/enable menus
 		menu_Game->setEnabled(true);
-
+		menu_Help->setEnabled(true);
+		action_GoTo->setEnabled(true);
 		action_Playback->setEnabled(bHasSolution);
 		action_Verify->setEnabled(bHasSolution);
 		action_Delete->setEnabled(hassolution(pState->game));
 
+		// Change delete menu option as appropriate
 		if(bHasDeletedSolution) action_Delete->setText("Undelete");
 		else action_Delete->setText("Delete");
-		//menu_Solution->setEnabled(bHasSolution);
 
-		menu_Help->setEnabled(true);
-		action_GoTo->setEnabled(true);
-                CCX::Level const & currLevel
-		    (m_ccxLevelset.vecLevels[m_nLevelNum]);
+		// pro- and epilogue
+        CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_nLevelNum]);
 		bool hasPrologue(!currLevel.txtPrologue.vecPages.empty());
 		bool hasEpilogue(!currLevel.txtEpilogue.vecPages.empty());
 		action_Prologue->setEnabled(hasPrologue);
 		action_Epilogue->setEnabled(hasEpilogue && bHasSolution);
 
-		m_pPrgTime->setPar(-1);
-
+		// time
+		m_pPrgTime->setPar(nBestTime == TIME_NIL ? -1 : nBestTime);
 		m_pPrgTime->setParBad(bParBad);
-
 		m_pPrgTime->setFullBar(!bTimedLevel);
 
-		if (bTimedLevel)
-		{
-			if (bParBad || nBestTime == TIME_NIL)
-			{
+		// set time formatting
+		if (bTimedLevel) {
+			if (bParBad || nBestTime == TIME_NIL) {
 				m_pPrgTime->setFormat("%v");
+				m_sTimeFormat  = "%v";
+			} else {
+				m_pPrgTime->setFormat("%b / %v");
+				m_sTimeFormat  = "%v (%d)";
 			}
-			else
-			{
-				m_pPrgTime->setFormat(QString::number(nBestTime) + " / %v");
-				m_pPrgTime->setPar(nBestTime);
-				m_pSldSeek->setMaximum(nTimeLeft-nBestTime);
+		} else if(bForceShowTimer) {
+			if (bParBad || nBestTime == TIME_NIL) {
+				m_pPrgTime->setFormat("[%v]");
+				m_sTimeFormat  = "[%v]";
+			} else {
+				m_pPrgTime->setFormat("[%b] / [%v]");
+				m_sTimeFormat  = "[%v] (%d)";
 			}
-			m_pPrgTime->setMaximum(pState->game->time);
-			m_pPrgTime->setValue(nTimeLeft);
-		}
-		else
-		{
-			char const *noTime = (bForceShowTimer ? "[999]" : "---");
-			if (nBestTime == TIME_NIL)
-				m_pPrgTime->setFormat(noTime);
-			else
-			{
-				m_pPrgTime->setFormat("[" + QString::number(nBestTime) + "] / " + noTime);
-				m_pSldSeek->setMaximum(999-nBestTime);
-			}
-			m_pPrgTime->setMaximum(999);
-			m_pPrgTime->setValue(999);
-		}
+		} else {
+			m_pPrgTime->setFormat("---");
+			m_sTimeFormat  = "---";
+		}		
 
+		// set time limits
+		int timeLimit = bTimedLevel ? pState->game->time : 999;
+		if (nBestTime != TIME_NIL) {
+			m_pSldSeek->setMaximum(timeLimit - nBestTime);
+		}
+		m_pPrgTime->setMaximum(timeLimit);
+		m_pPrgTime->setValue(timeLimit);
+
+		// clear hint
 		m_pLblHint->clear();
 		m_pInfoPane->setCurrentIndex(0);
 		SetHintMode(HINT_EMPTY);
@@ -490,7 +491,8 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
 		Narrate(&CCX::Level::txtPrologue);
 	}
-	else
+	// do these on play start - they only need to be done once
+	else if(menu_Game->isEnabled())
 	{
 		m_bReplay = (pState->replay >= 0);
 		m_pControlsFrame->setVisible(m_bReplay);
@@ -502,30 +504,28 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 			m_bProblematic = false;
 		}
 
+		// disable menus
 		menu_Game->setEnabled(false);
-
 		action_Playback->setEnabled(false);
 		action_Verify->setEnabled(false);
 		action_Delete->setEnabled(false);
-		//menu_Solution->setEnabled(false);
-
 		menu_Help->setEnabled(false);
 		action_GoTo->setEnabled(false);
 		action_Prologue->setEnabled(false);
 		action_Epilogue->setEnabled(false);
+
+		m_pPrgTime->setFormat(m_sTimeFormat);
 	}
 
-	if (pState->statusflags & SF_SHUTTERED)
-	{
+	// display blank pause screen in ms mode
+	if (pState->statusflags & SF_SHUTTERED) {
 		DisplayShutter();
-	}
-	else
-	{
+	} else {
 		DisplayMapView(pState);
 	}
 
-	for (int i = 0; i < 4; ++i)
-	{
+	// draw objects widget
+	for (int i = 0; i < 4; ++i) {
 		drawfulltileid(m_pInvSurface, i*geng.wtile, 0,
 			(pState->keys[i] ? Key_Red+i : Empty));
 		drawfulltileid(m_pInvSurface, i*geng.wtile, geng.htile,
@@ -533,41 +533,24 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 	}
 	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
 
+	// chips left
 	m_pLCDChipsLeft->display(pState->chipsneeded);
 
+	// time left
 	m_pPrgTime->setValue(nTimeLeft);
 
-	if (!bInit)
-	{
-		QString sFormat;
-		std::string sFormatString;
-		if (bTimedLevel)
-			sFormatString = "%%v";
-		else if (bForceShowTimer)
-			sFormatString = "[%%v]";
-		else
-			sFormatString = "---";
-
-		if ((bTimedLevel || bForceShowTimer) && nBestTime != TIME_NIL && !bParBad)
-			sFormatString += " (%+d)";
-		sFormat.sprintf(sFormatString.c_str(), nTimeLeft-nBestTime);
-		m_pPrgTime->setFormat(sFormat);
-	}
-
-	if (m_bReplay && !m_pSldSeek->isSliderDown())
-	{
+	// move progress slider in replay mode
+	if (m_bReplay && !m_pSldSeek->isSliderDown()) {
 		m_pSldSeek->blockSignals(true);
 		m_pSldSeek->setValue(pState->currenttime / TICKS_PER_SECOND);
 		m_pSldSeek->blockSignals(false);
 	}
 
-	if (!m_bProblematic)
-	{
+	if (!m_bProblematic) {
 		// Call setText / clear only when really required
 		// See comments about QLabel in TWDisplayWidget.h
 		bool bShowHint = (pState->statusflags & SF_SHOWHINT) != 0;
-		if (bShowHint)
-		{
+		if (bShowHint) {
 			if (SetHintMode(HINT_TEXT)) {
 				m_pLblHint->setText(pState->hinttext);
 				m_pInfoPane->setCurrentIndex(1);

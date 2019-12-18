@@ -52,6 +52,11 @@ QString TWProgressBar::text() const
 {
 	QString sText = format();
 	sText.replace("%v", QString::number(m_nValue));
+	sText.replace("%b", QString::number(m_nPar));
+
+	int diff = m_nValue - m_nPar;
+	QString sign = diff < 0 ? "" : "+";
+	sText.replace("%d", sign + QString::number(diff));
 	return sText;
 }
 
