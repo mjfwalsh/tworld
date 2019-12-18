@@ -39,12 +39,13 @@ public:
 	virtual QString text() const;
 
 protected:
-	void paintBox(QPainter *p, QRect container, QRect box, QColor bgcl, QColor fgcl, QString t);
+	void paintBox(QPainter *p, int width, QColor bgcl, QColor fgcl, QString t);
 	virtual void paintEvent(QPaintEvent* pPaintEvent);
 
 	int m_nValue, m_nPar;
 	bool m_bParBad;
 	bool m_bFullBar;
+	int m_nLeftLine = 0;
 };
 
 

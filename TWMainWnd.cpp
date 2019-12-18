@@ -450,7 +450,6 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		// time
 		m_pPrgTime->setPar(nBestTime == TIME_NIL ? -1 : nBestTime);
 		m_pPrgTime->setParBad(bParBad);
-		m_pPrgTime->setFullBar(!bTimedLevel);
 
 		// set time formatting
 		if (bTimedLevel) {
@@ -461,6 +460,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 				m_pPrgTime->setFormat("%b / %v");
 				m_sTimeFormat  = "%v (%d)";
 			}
+			m_pPrgTime->setFullBar(false);
 		} else if(bForceShowTimer) {
 			if (bParBad || nBestTime == TIME_NIL) {
 				m_pPrgTime->setFormat("[%v]");
@@ -469,9 +469,11 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 				m_pPrgTime->setFormat("[%b] / [%v]");
 				m_sTimeFormat  = "[%v] (%d)";
 			}
+			m_pPrgTime->setFullBar(false);
 		} else {
 			m_pPrgTime->setFormat("---");
 			m_sTimeFormat  = "---";
+			m_pPrgTime->setFullBar(true);
 		}		
 
 		// set time limits

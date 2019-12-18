@@ -60,13 +60,24 @@ QString TWProgressBar::text() const
 	return sText;
 }
 
-void TWProgressBar::paintBox(QPainter *p, QRect container, QRect box, QColor bgcl, QColor fgcl, QString t)
+void TWProgressBar::paintBox(QPainter *p, int w, QColor bgcl, QColor fgcl, QString t)
 {
+	double fraction = (double)(w - minimum()) / (maximum() - minimum());
+	int nRightLine = (int)(fraction * this->rect().width());
+
+	if(m_nLeftLine == nRightLine) return;
+
+	QRect box = this->rect();
+	box.setLeft(m_nLeftLine);
+	box.setRight(nRightLine);
+
 	p->fillRect(box, bgcl);
 	p->setClipRect(box);
 	p->setPen(fgcl);
-	p->drawText(container, Qt::AlignCenter, t);
+	p->drawText(this->rect(), Qt::AlignCenter, t);
 	p->setClipping(false);
+
+	m_nLeftLine = nRightLine;
 }
 
 
@@ -76,35 +87,19 @@ void TWProgressBar::paintEvent(QPaintEvent* pPaintEvent)
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	painter.setRenderHint(QPainter::TextAntialiasing, false);
 
-	//const QPalette& pal = this->palette();
-	QRect rect = this->rect();
 	QString t = text();
-
-	//static const int M = 2;
-
-	//qDrawShadePanel(&painter, rect, pal, true, M);
-	//rect.adjust(+M, +M, -M, -M);
-	paintBox(&painter, rect, rect, QColor(255, 255, 255), QColor(0, 0, 0), t);
-
-	int d = maximum() - minimum();
-	double v;
-	if (d > 0)
-	{
-		bool bHasPar = (par() > minimum());
-		QRect rect2 = rect;
-		v = ( isFullBar() ? 1.0 : (double(value() - minimum()) / d) );
-		rect2.setWidth(int(v * rect.width()));
-
-		QColor bc = (bHasPar && !m_bParBad) ? QColor(70, 70, 70) : QColor(0, 0, 0);
-		paintBox(&painter, rect, rect2, bc, QColor(255, 255, 255), t);
-
-		// qDrawShadePanel(&painter, rect2, pal, false, 1);
-		if (bHasPar  &&  par() < value())
-		{
-			double p = double(par() - minimum()) / d;
-			rect2.setLeft(int(p * rect.width()));
-
-			paintBox(&painter, rect, rect2, QColor(0, 0, 0), QColor(255, 255, 255), t);
-		}
+	m_nLeftLine = 0;
+	
+	if(isFullBar()) {
+		paintBox(&painter, maximum(), QColor(0, 0, 0), QColor(255, 255, 255), t);
+		return;
 	}
+
+	int nValue = value();
+	int nPar = (par() > 0 && !m_bParBad) ? par() : 0;
+	int nGreyArea = nValue < nPar ? nValue : nPar;
+
+	paintBox(&painter, nGreyArea, QColor(70, 70, 70), QColor(255, 255, 255), t);
+	paintBox(&painter, nValue, QColor(0, 0, 0), QColor(255, 255, 255), t);
+	paintBox(&painter, maximum(), QColor(255, 255, 255), QColor(0, 0, 0), t);
 }
