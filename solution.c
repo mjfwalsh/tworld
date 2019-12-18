@@ -508,7 +508,7 @@ static int readsolution(fileinfo *file, gamesetup *game)
  */
 static int writesolution(fileinfo *file, gamesetup const *game)
 {
-    if (game->solutionsize) {
+    if (game->solutionsize && (game->sgflags & SGF_REPLACEABLE) == 0) {
 	if (!filewriteint32(file, game->solutionsize, "write error")
 			|| !filewrite(file, game->solutiondata,
 				      game->solutionsize, "write error"))

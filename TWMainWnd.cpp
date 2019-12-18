@@ -398,6 +398,8 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
 	bool const bForceShowTimer = action_forceShowTimer->isChecked();
 
+	bool bParBad = (pState->game->sgflags & SGF_REPLACEABLE) != 0;
+
 	if (bInit)
 	{
 		m_nRuleset = pState->ruleset;
@@ -422,11 +424,20 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_bOFNT = (m_nLevelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 
 		m_pSldSeek->setValue(0);
-		bool bHasSolution = hassolution(pState->game);
+		bool bHasSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) == 0));
+		bool bHasDeletedSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) != 0));
 		m_pControlsFrame->setVisible(bHasSolution);
 
 		menu_Game->setEnabled(true);
-		menu_Solution->setEnabled(bHasSolution);
+
+		action_Playback->setEnabled(bHasSolution);
+		action_Verify->setEnabled(bHasSolution);
+		action_Delete->setEnabled(hassolution(pState->game));
+
+		if(bHasDeletedSolution) action_Delete->setText("Undelete");
+		else action_Delete->setText("Delete");
+		//menu_Solution->setEnabled(bHasSolution);
+
 		menu_Help->setEnabled(true);
 		action_GoTo->setEnabled(true);
                 CCX::Level const & currLevel
@@ -438,21 +449,19 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
 		m_pPrgTime->setPar(-1);
 
-		bool bParBad = (pState->game->sgflags & SGF_REPLACEABLE) != 0;
 		m_pPrgTime->setParBad(bParBad);
-		const char* a = bParBad ? " *" : "";
 
 		m_pPrgTime->setFullBar(!bTimedLevel);
 
 		if (bTimedLevel)
 		{
-			if (nBestTime == TIME_NIL)
+			if (bParBad || nBestTime == TIME_NIL)
 			{
 				m_pPrgTime->setFormat("%v");
 			}
 			else
 			{
-				m_pPrgTime->setFormat(QString::number(nBestTime) + a + " / %v");
+				m_pPrgTime->setFormat(QString::number(nBestTime) + " / %v");
 				m_pPrgTime->setPar(nBestTime);
 				m_pSldSeek->setMaximum(nTimeLeft-nBestTime);
 			}
@@ -466,7 +475,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 				m_pPrgTime->setFormat(noTime);
 			else
 			{
-				m_pPrgTime->setFormat("[" + QString::number(nBestTime) + a + "] / " + noTime);
+				m_pPrgTime->setFormat("[" + QString::number(nBestTime) + "] / " + noTime);
 				m_pSldSeek->setMaximum(999-nBestTime);
 			}
 			m_pPrgTime->setMaximum(999);
@@ -494,7 +503,12 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		}
 
 		menu_Game->setEnabled(false);
-		menu_Solution->setEnabled(false);
+
+		action_Playback->setEnabled(false);
+		action_Verify->setEnabled(false);
+		action_Delete->setEnabled(false);
+		//menu_Solution->setEnabled(false);
+
 		menu_Help->setEnabled(false);
 		action_GoTo->setEnabled(false);
 		action_Prologue->setEnabled(false);
@@ -534,7 +548,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		else
 			sFormatString = "---";
 
-		if ((bTimedLevel || bForceShowTimer) && nBestTime != TIME_NIL)
+		if ((bTimedLevel || bForceShowTimer) && nBestTime != TIME_NIL && !bParBad)
 			sFormatString += " (%+d)";
 		sFormat.sprintf(sFormatString.c_str(), nTimeLeft-nBestTime);
 		m_pPrgTime->setFormat(sFormat);
@@ -1255,8 +1269,7 @@ int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
 
     if (pAction == action_Playback) return TWC_PLAYBACK;
     if (pAction == action_Verify) return TWC_CHECKSOLUTION;
-    if (pAction == action_Replace) return TWC_REPLSOLUTION;
-    if (pAction == action_Delete) return TWC_KILLSOLUTION;
+    if (pAction == action_Delete) return TWC_DELSOLUTION;
 
     return TWK_dummy;
 }

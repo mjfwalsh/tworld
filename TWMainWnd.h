@@ -87,8 +87,7 @@ public:
 
 		{	TWC_PLAYBACK,			CmdPlayback,			FALSE	},
 		{	TWC_CHECKSOLUTION,		CmdCheckSolution,		FALSE	},
-		{	TWC_REPLSOLUTION,		CmdReplSolution,		FALSE	},
-		{	TWC_KILLSOLUTION,		CmdKillSolution,		FALSE	},
+		{	TWC_DELSOLUTION,		CmdDelSolution,			FALSE	},
 		{	TWC_SEEK,				CmdSeek,				FALSE	},
 		{	0,	0,	0	}
 	};

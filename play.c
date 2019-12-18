@@ -376,21 +376,6 @@ int replacesolution(void)
     return TRUE;
 }
 
-/* Delete the user's best solution for the current game. FALSE is
- * returned if no solution was present.
- */
-int deletesolution(void)
-{
-    if (!hassolution(state.game))
-	return FALSE;
-    state.game->besttime = TIME_NIL;
-    state.game->sgflags &= ~SGF_REPLACEABLE;
-    free(state.game->solutiondata);
-    state.game->solutionsize = 0;
-    state.game->solutiondata = NULL;
-    return TRUE;
-}
-
 /* Double-checks the timing for a solution that has just been played
  * back. If the timing is off, and the cause of the discrepancy can be
  * reasonably ascertained to be benign, the timing will be corrected

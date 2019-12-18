@@ -94,11 +94,6 @@ extern int hassolution(gamesetup const *game);
  */
 extern int replacesolution(void);
 
-/* Delete the user's best solution for the current game. FALSE is
- * returned if no solution was present to delete.
- */
-extern int deletesolution(void);
-
 /* Double-check the timing for a solution that has just been played
  * back. If the timing is incorrect, but the cause of the discrepancy
  * can be reasonably ascertained to be benign, the timings will be

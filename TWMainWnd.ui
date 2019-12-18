@@ -839,8 +839,6 @@
     </property>
     <addaction name="action_Playback"/>
     <addaction name="action_Verify"/>
-    <addaction name="separator"/>
-    <addaction name="action_Replace"/>
     <addaction name="action_Delete"/>
    </widget>
    <widget class="QMenu" name="menu_Options">
@@ -961,14 +959,9 @@
     <string>&amp;Verify</string>
    </property>
   </action>
-  <action name="action_Replace">
-   <property name="text">
-    <string>&amp;Replace</string>
-   </property>
-  </action>
   <action name="action_Delete">
    <property name="text">
-    <string>&amp;Delete</string>
+    <string>Delete</string>
    </property>
   </action>
   <action name="action_Prologue">

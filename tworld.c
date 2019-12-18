@@ -110,11 +110,11 @@ static int issolved(gamespec const *gs, int index)
  */
 static void replaceablesolution(gamespec *gs, int change)
 {
-    if (change < 0)
+    if (change < 0)			// toggle
 	gs->series.games[gs->currentgame].sgflags ^= SGF_REPLACEABLE;
-    else if (change > 0)
+    else if (change > 0)	// set
 	gs->series.games[gs->currentgame].sgflags |= SGF_REPLACEABLE;
-    else
+    else					// unset
 	gs->series.games[gs->currentgame].sgflags &= ~SGF_REPLACEABLE;
 }
 
@@ -565,19 +565,13 @@ static int startinput(gamespec *gs)
 	    }
 	    bell();
 	    break;
-	  case CmdReplSolution:
-	    if (issolved(gs, gs->currentgame))
+	  case CmdDelSolution:
+	    if (issolved(gs, gs->currentgame)) {
 		replaceablesolution(gs, -1);
-	    else
+		savesolutions(&gs->series);
+	    } else {
 		bell();
-	    break;
-	  case CmdKillSolution:
-	    if (!issolved(gs, gs->currentgame)) {
-		bell();
-		break;
-	    }
-	    if (displayyesnoprompt("Really delete solution?") && deletesolution())
-		    savesolutions(&gs->series);
+		}
 	    break;
 	  case CmdSeeScores:
 	    if (showscores(gs))
@@ -639,7 +633,6 @@ static int endinput(gamespec *gs)
 	  case CmdPlayback:									return TRUE;
 	  case CmdSeeScores:	showscores(gs);				return TRUE;
 	  case CmdSeeSolutionFiles: showsolutionfiles(gs);	return TRUE;
-	  case CmdKillSolution:					return TRUE;
 	  case CmdQuitLevel:					return FALSE;
 	  case CmdQuit:						exit(0);
 	  case CmdCheckSolution:
@@ -651,11 +644,13 @@ static int endinput(gamespec *gs)
 		    changecurrentgame(gs, +1);
 	    }
 	    return TRUE;
-	  case CmdReplSolution:
-	    if (issolved(gs, gs->currentgame))
+	  case CmdDelSolution:
+	    if (issolved(gs, gs->currentgame)) {
 		replaceablesolution(gs, -1);
-	    else
+		savesolutions(&gs->series);
+	    } else {
 		bell();
+		}
 	    return TRUE;
 	}
 	cmd = CmdNone;
