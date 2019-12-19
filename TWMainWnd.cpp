@@ -204,7 +204,7 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 	int nQtKey = pKeyEvent->key();
 
 	if (nQtKey < 0x01000000 || nQtKey > 0x01000060) {
-		return false;
+		return CONTINUE_PROPRGATION;
 	}
 
 	int nTWKey = -1;
@@ -265,7 +265,7 @@ bool TileWorldMainWnd::HandleMouseEvent(QObject* pObject, QEvent* pEvent)
 		MouseEventCallback((int)pMouseEvent->x() / scale, (int)pMouseEvent->y() / scale, pMouseEvent->button());
 	}
 
-	return true;
+	return STOP_PROPRGATION;
 }
 
 
@@ -429,8 +429,11 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pControlsFrame->setVisible(bHasSolution);
 
 		// disable/enable menus
-		menu_Game->setEnabled(true);
-		menu_Help->setEnabled(true);
+		action_Scores->setEnabled(true);
+		action_SolutionFiles->setEnabled(true);
+		action_TimesClipboard->setEnabled(true);
+		action_Levelsets->setEnabled(true);
+		action_About->setEnabled(true);
 		action_GoTo->setEnabled(true);
 		action_Playback->setEnabled(bHasSolution);
 		action_Verify->setEnabled(bHasSolution);
@@ -494,7 +497,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		Narrate(&CCX::Level::txtPrologue);
 	}
 	// do these on play start - they only need to be done once
-	else if(menu_Game->isEnabled())
+	else if(action_Levelsets->isEnabled())
 	{
 		m_bReplay = (pState->replay >= 0);
 		m_pControlsFrame->setVisible(m_bReplay);
@@ -507,11 +510,14 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		}
 
 		// disable menus
-		menu_Game->setEnabled(false);
+		action_Scores->setEnabled(false);
+		action_SolutionFiles->setEnabled(false);
+		action_TimesClipboard->setEnabled(false);
+		action_Levelsets->setEnabled(false);
 		action_Playback->setEnabled(false);
 		action_Verify->setEnabled(false);
 		action_Delete->setEnabled(false);
-		menu_Help->setEnabled(false);
+		action_About->setEnabled(false);
 		action_GoTo->setEnabled(false);
 		action_Prologue->setEnabled(false);
 		action_Epilogue->setEnabled(false);
