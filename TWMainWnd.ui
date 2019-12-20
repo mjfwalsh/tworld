@@ -854,11 +854,11 @@
      <string>Zoom</string>
     </property>
     <addaction name="action_Zoom100"/>
-    <addaction name="action_Zoom110"/>
     <addaction name="action_Zoom120"/>
-    <addaction name="action_Zoom130"/>
     <addaction name="action_Zoom140"/>
-    <addaction name="action_Zoom150"/>
+    <addaction name="action_Zoom160"/>
+    <addaction name="action_Zoom180"/>
+    <addaction name="action_Zoom200"/>
    </widget>
    <widget class="QMenu" name="menu_Audio">
     <property name="title">
@@ -1020,17 +1020,6 @@
      <number>100</number>
     </property>
    </action>
-   <action name="action_Zoom110">
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>110%</string>
-    </property>
-    <property name="data">
-     <number>110</number>
-    </property>
-   </action>
    <action name="action_Zoom120">
     <property name="checkable">
      <bool>true</bool>
@@ -1040,17 +1029,6 @@
     </property>
     <property name="data">
      <number>120</number>
-    </property>
-   </action>
-   <action name="action_Zoom130">
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>130%</string>
-    </property>
-    <property name="data">
-     <number>130</number>
     </property>
    </action>
    <action name="action_Zoom140">
@@ -1064,15 +1042,37 @@
      <number>140</number>
     </property>
    </action>
-   <action name="action_Zoom150">
+   <action name="action_Zoom160">
     <property name="checkable">
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>150%</string>
+     <string>160%</string>
     </property>
     <property name="data">
-     <number>150</number>
+     <number>160</number>
+    </property>
+   </action>
+   <action name="action_Zoom180">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>180%</string>
+    </property>
+    <property name="data">
+     <number>180</number>
+    </property>
+   </action>
+   <action name="action_Zoom200">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>200%</string>
+    </property>
+    <property name="data">
+     <number>200</number>
     </property>
    </action>
   </actiongroup>

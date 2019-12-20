@@ -51,6 +51,7 @@ extern int pedanticmode;
 
 #include <string.h>
 #include <ctype.h>
+#include <cmath>
 
 using namespace std;
 
@@ -1277,7 +1278,7 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 	double newScale = (double)s / 100;
 	if(checkPrevScale && newScale == scale) return;
 
-	scale = newScale;
+	scale = sqrt(newScale);
 
 	if(m_pSurface == 0 || m_pInvSurface == 0 || geng.wtile < 1) {
 		warn("Attempt to set pixmap and scale without setting pixmap first");
