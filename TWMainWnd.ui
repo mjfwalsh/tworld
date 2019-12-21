@@ -484,6 +484,12 @@
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>192</width>
+                      <height>96</height>
+                     </size>
+                    </property>
                    </widget>
                   </item>
                  </layout>

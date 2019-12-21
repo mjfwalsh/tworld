@@ -65,7 +65,7 @@ compile () {
 	compile_file "$CPP $QT_OPTS" CCMetaData.o CCMetaData.cpp
 	compile_file "$CPP $QT_OPTS" TWDisplayWidget.o TWDisplayWidget.cpp
 	compile_file "$CPP $QT_OPTS" TWProgressBar.o TWProgressBar.cpp
-	make_file "Compiling UI TWMainWnd.ui..." "uic -o" ui_TWMainWnd.h TWMainWnd.ui
+	make_file "Compiling UI TWMainWnd.ui..." "./uic.pl -o" ui_TWMainWnd.h TWMainWnd.ui
 	compile_file "$CPP $QT_OPTS" TWMainWnd.o TWMainWnd.cpp
 	make_file "MOC-ing TWMainWnd.h..." "moc -o" moc_TWMainWnd.cpp TWMainWnd.h
 	compile_file "$CPP $QT_OPTS" moc_TWMainWnd.o moc_TWMainWnd.cpp

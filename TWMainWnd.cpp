@@ -83,8 +83,12 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 {
 	memset(m_nKeyState, 0, TWK_LAST*sizeof(uint8_t));
 
+	// load scale early so it's there for setupUi
+	int percentZoom = getintsetting("zoom");
+	scale = sqrt((double)percentZoom / 100);
+
 	// load ui
-	setupUi(this);
+	setupUi(this, scale);
 
 	// disable manual window resizing
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -121,7 +125,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 		m_pRadioMs->setChecked(true);
 
 	// set a zoom menu item as checked
-	int percentZoom = getintsetting("zoom");
 	foreach (QAction *a, actiongroup_Zoom->actions()) {
 		if(a->data() == percentZoom) {
 			a->setChecked(true);
@@ -132,12 +135,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 		action_Zoom100->setChecked(true);
 	}
 
-	// 48 is the magic number
-	double dZoom = (double)percentZoom / 100;
-	double magicTile = (double)dZoom * 48;
-	m_pGameWidget->setFixedSize(magicTile * 9, magicTile * 9);
-	m_pObjectsWidget->setFixedSize(magicTile * 4, magicTile * 2);
-
 	int const tickMS = 1000 / TICKS_PER_SECOND;
 	startTimer(tickMS / 2);
 
@@ -145,8 +142,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	playIcon = QIcon(g_pApp->appResDir + "/play.svg");
 	pauseIcon = QIcon(g_pApp->appResDir + "/pause.svg");
 
-	// place window near top left corner
-	move(30, 30);
+	// show window
 	show();
 
 	// timer for display of volume widegt
