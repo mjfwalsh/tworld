@@ -1192,14 +1192,13 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 		     char const *defaultseries)
 {
-	int okay, f, n;
+	int f, n;
 
 	if (series->count < 1) {
 		errmsg(NULL, "no level sets found");
 		return -1;
 	}
 
-	okay = TRUE;
 	if (series->count == 1 && autoplay) {
 		getseriesfromlist(&gs->series, series->list, 0);
 	} else {
@@ -1217,23 +1216,26 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 		if(founddefault && autoplay) {
 			getseriesfromlist(&gs->series, series->list, n);
 		} else {
+			int preLevelSet = n;
+
 			for (;;) {
 				f = chooseseries(series, &n, founddefault);
 				if (f == CmdProceed) {
 					getseriesfromlist(&gs->series, series->list, n);
-					okay = TRUE;
 					break;
 				} else if (f == CmdQuitLevel) {
-					okay = FALSE;
-					break;
+					if(founddefault) {
+						getseriesfromlist(&gs->series, series->list, preLevelSet);
+						break;
+					} else {
+						bell();
+					}
 				}
 			}
 		}
 	}
 	freeserieslist(series->list, series->count,
 	series->mflist, series->mfcount, &series->table);
-	if (!okay)
-		return 0;
 
 	setstringsetting("selectedseries", gs->series.filebase);
 
