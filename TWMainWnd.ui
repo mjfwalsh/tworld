@@ -10,9 +10,6 @@
   <property name="windowTitle">
    <string>Tile World</string>
   </property>
-  <!-- property name="styleSheet">
-   <string notr="true">#m_pMainWidget {background-image:url("motherboard.svg"); background-position: center;} </string>
-  </property -->
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="cwlayout">
     <property name="margin">
@@ -602,39 +599,7 @@
         <property name="horizontalSpacing">
          <number>0</number>
         </property>
-        <item row="2" column="2">
-         <widget class="QRadioButton" name="m_pRadioMs">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>MS</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="6">
-         <widget class="QLineEdit" name="m_pTxtFind"/>
-        </item>
-        <item row="2" column="5">
-         <widget class="QLabel" name="m_pLblFind">
-          <property name="text">
-           <string>Find:  </string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" colspan="6">
+        <item row="0" column="0">
          <widget class="QTableView" name="m_pTblList">
           <property name="font">
            <font>
@@ -660,32 +625,63 @@
           </attribute>
          </widget>
         </item>
-        <item row="2" column="3">
-         <widget class="QRadioButton" name="m_pRadioLynx">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Lynx</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="4">
-         <widget class="QLabel" name="m_pLblSpace">
-          <property name="minimumSize">
-           <size>
-            <width>30</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="HLayout_25">
+          <item>
+           <widget class="QRadioButton" name="m_pRadioMs">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>MS</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="m_pRadioLynx">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Lynx</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="m_pLblFind">
+            <property name="text">
+             <string>Find:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="m_pTxtFind"/>
+          </item>
+          <item>
+           <widget class="QToolButton" name="m_pBackButton">
+            <property name="text">
+             <string>Back</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+         </item>
+
        </layout>
       </widget>
       <widget class="QWidget" name="m_pTextPage">

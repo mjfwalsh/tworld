@@ -136,6 +136,7 @@ private slots:
 	void OnTextReturn();
 	void OnCopyText();
 	void OnMenuActionTriggered(QAction* pAction);
+	void OnBackButton();
 
 private:
 	bool HandleKeyEvent(QObject* pObject, QEvent* pEvent);

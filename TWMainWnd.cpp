@@ -116,6 +116,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	connect( m_pBtnTextPrev, SIGNAL(clicked()), this, SLOT(OnTextPrev()) );
 	connect( m_pBtnTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
 	connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
+	connect( m_pBackButton, SIGNAL(clicked()), this, SLOT(OnBackButton()) );
 
 	// change menu to reflect settings
 	action_displayCCX->setChecked(getintsetting("displayccx"));
@@ -278,6 +279,11 @@ void TileWorldMainWnd::OnPlayback()
 {
 	int nTWKey = m_bReplay ? TWC_PAUSEGAME : TWC_PLAYBACK;
 	PulseKey(nTWKey);
+}
+
+void TileWorldMainWnd::OnBackButton()
+{
+	g_pApp->exit(CmdQuitLevel);
 }
 
 /*
@@ -910,7 +916,6 @@ int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
 	bool const showRulesetOptions = (eListType == LIST_MAPFILES);
 	m_pRadioMs->setVisible(showRulesetOptions);
 	m_pRadioLynx->setVisible(showRulesetOptions);
-	m_pLblSpace->setVisible(showRulesetOptions);
 
 	nCmd = g_pApp->exec();
 
