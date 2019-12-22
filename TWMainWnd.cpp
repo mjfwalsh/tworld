@@ -85,6 +85,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	// load scale early so it's there for setupUi
 	int percentZoom = getintsetting("zoom");
+	if(percentZoom == -1) percentZoom = 100;
 	scale = sqrt((double)percentZoom / 100);
 
 	// load ui
