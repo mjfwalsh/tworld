@@ -905,6 +905,8 @@ int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
 	proxyModel.setSourceModel(&model);
 	m_pTblList->setModel(&proxyModel);
 
+	m_pTblList->horizontalHeader()->setStretchLastSection(true);
+
 	QModelIndex index = proxyModel.mapFromSource(model.index(*pnIndex, 0));
 	m_pTblList->setCurrentIndex(index);
 	m_pTblList->resizeColumnsToContents();

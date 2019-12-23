@@ -798,18 +798,17 @@ int createsolutionfilelist(gameseries const *series, int morethanone,
     }
 
     filelist = malloc(s.count * sizeof *filelist);
-    table->items = malloc((2 * s.count + 1) * sizeof *table->items);
+    table->items = malloc((s.count + 1) * sizeof *table->items);
     if (!filelist || !table->items)
 	memerrexit();
     table->rows = s.count + 1;
-    table->cols = 2;
-    table->items[0] = "2-Select a solution file";
+    table->cols = 1;
+    table->items[0] = "1-Select a solution file";
     offset = 0;
     for (i = 0 ; i < s.count ; ++i) {
 	n = strlen(s.pool + offset) + 1;
 	filelist[i] = s.pool + offset + 2;
-	table->items[2 * i + 1] = "1+\267";
-	table->items[2 * i + 2] = s.pool + offset;
+	table->items[i + 1] = s.pool + offset;
 	offset += n;
     }
 
@@ -819,13 +818,14 @@ int createsolutionfilelist(gameseries const *series, int morethanone,
     return TRUE;
 }
 
+
 /* Free the memory allocated by createsolutionfilelist().
  */
 void freesolutionfilelist(char const **filelist, tablespec *table)
 {
     free(filelist);
     if (table) {
-	free((void*)table->items[2]);
+	free((void*)table->items[1]);
 	free(table->items);
     }
 }
