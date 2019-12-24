@@ -89,6 +89,27 @@ public:
 		{	TWC_CHECKSOLUTION,		CmdCheckSolution,		FALSE	},
 		{	TWC_DELSOLUTION,		CmdDelSolution,			FALSE	},
 		{	TWC_SEEK,				CmdSeek,				FALSE	},
+
+#ifndef NDEBUG
+		{	TWK_DEBUG1,				CmdDebugCmd1,			FALSE	},
+		{	TWK_DEBUG2,				CmdDebugCmd2,			FALSE	},
+
+		{	TWK_CHIP,				CmdCheatICChip,			FALSE	},
+		{	TWK_RED,				CmdCheatKeyRed,			FALSE	},
+		{	TWK_BLUE,				CmdCheatKeyBlue,		FALSE	},
+		{	TWK_YELLOW,				CmdCheatKeyYellow,		FALSE	},
+		{	TWK_GREEN,				CmdCheatKeyGreen,		FALSE	},
+
+		{	TWK_ICE,				CmdCheatBootsIce,		FALSE	},
+		{	TWK_SLIDE,				CmdCheatBootsSlide,		FALSE	},
+		{	TWK_FIRE,				CmdCheatBootsFire,		FALSE	},
+		{	TWK_WATER,				CmdCheatBootsWater,		FALSE	},
+
+		{	TWK_UP_CHEAT,			CmdCheatNorth,			TRUE	},
+		{	TWK_LEFT_CHEAT,			CmdCheatWest,			TRUE	},
+		{	TWK_DOWN_CHEAT,			CmdCheatSouth,			TRUE	},
+		{	TWK_RIGHT_CHEAT,		CmdCheatEast,			TRUE	},
+#endif
 		{	0,	0,	0	}
 	};
 

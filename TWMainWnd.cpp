@@ -202,9 +202,13 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 
 	int nQtKey = pKeyEvent->key();
 
-	if (nQtKey < 0x01000000 || nQtKey > 0x01000060) {
+#ifndef NDEBUG
+	if(nQtKey < Qt::Key_A || (nQtKey > Qt::Key_Z && nQtKey < Qt::Key_Escape) || nQtKey > Qt::Key_Down)
 		return CONTINUE_PROPRGATION;
-	}
+#else
+	if (nQtKey < Qt::Key_Escape || nQtKey > Qt::Key_Down)
+		return CONTINUE_PROPRGATION;
+#endif
 
 	int nTWKey = -1;
 	switch (nQtKey) {
@@ -217,8 +221,28 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 		case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
 		case Qt::Key_Home:   nTWKey = TWK_HOME;   break;
 		case Qt::Key_End:    nTWKey = TWK_END;    break;
+#ifndef NDEBUG
+		case Qt::Key_D:      nTWKey = TWK_DEBUG1;   break;
+		case Qt::Key_E:      nTWKey = TWK_DEBUG2;   break;
+
+		case Qt::Key_C:      nTWKey = TWK_CHIP;   break;
+		case Qt::Key_R:      nTWKey = TWK_RED;    break;
+		case Qt::Key_B:      nTWKey = TWK_BLUE;   break;
+		case Qt::Key_Y:      nTWKey = TWK_YELLOW; break;
+		case Qt::Key_G:      nTWKey = TWK_GREEN;  break;
+
+		case Qt::Key_I:      nTWKey = TWK_ICE;    break;
+		case Qt::Key_S:      nTWKey = TWK_SLIDE;  break;
+		case Qt::Key_F:      nTWKey = TWK_FIRE;   break;
+		case Qt::Key_W:      nTWKey = TWK_WATER;  break;
+#endif
 		default: return CONTINUE_PROPRGATION;
 	}
+
+#ifndef NDEBUG
+	if(pKeyEvent->modifiers() & Qt::ShiftModifier && nTWKey < 5)
+		nTWKey += 4;
+#endif
 
 	// record key state
 	bool bPress = (eType == QEvent::KeyPress);

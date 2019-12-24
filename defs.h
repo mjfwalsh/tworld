@@ -161,6 +161,8 @@ enum {
     CmdPreserve,
     CmdSeek,
 #ifndef NDEBUG
+    CmdDebugCmd1,
+    CmdDebugCmd2,
     CmdCheatNorth,
     CmdCheatWest,
     CmdCheatSouth,

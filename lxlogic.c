@@ -104,6 +104,7 @@ static gamestate       *state;
 #define	xviewpos()		(state->xviewpos)
 #define	yviewpos()		(state->yviewpos)
 
+#define	setnosaving()		(state->statusflags |= SF_NOSAVING)
 #define	showhint()		(state->statusflags |= SF_SHOWHINT)
 #define	hidehint()		(state->statusflags &= ~SF_SHOWHINT)
 #define	markinvalid()		(state->statusflags |= SF_INVALID)
@@ -1457,7 +1458,7 @@ static int endmovement(creature *cr, int stationary)
       case Dirt:
       case BlueWall_Fake:
       case Socket:
-	_assert(stationary);
+	//_assert(stationary);
 	floorat(cr->pos) = Empty; /* No sound effect */
 	break;
     }
