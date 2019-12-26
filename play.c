@@ -39,9 +39,9 @@ static int		mudsucking = 1;
 
 /* Turn on the pedantry.
  */
-void setpedanticmode(void)
+void setpedanticmode(int v)
 {
-    pedanticmode = TRUE;
+    pedanticmode = v;
 }
 
 /* Set the slowdown factor.

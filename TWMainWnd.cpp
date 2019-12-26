@@ -465,6 +465,10 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		action_Verify->setEnabled(bHasSolution);
 		action_Delete->setEnabled(hassolution(pState->game));
 
+		// pedantic mode
+		action_PedanticMode->setVisible(m_nRuleset == Ruleset_Lynx);
+		action_PedanticMode->setEnabled(m_nRuleset == Ruleset_Lynx);
+
 		// Change delete menu option as appropriate
 		if(bHasDeletedSolution) action_Delete->setText("Undelete");
 		else action_Delete->setText("Delete");
@@ -547,6 +551,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		action_GoTo->setEnabled(false);
 		action_Prologue->setEnabled(false);
 		action_Epilogue->setEnabled(false);
+		action_PedanticMode->setEnabled(false);
 
 		m_pPrgTime->setFormat(m_sTimeFormat);
 	}
@@ -1297,6 +1302,11 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 		int stepIndex = stepDialogOptions.indexOf(stepDialog.textValue());
 		setstepping(stepIndex);
 		return;
+	}
+
+	if (pAction == action_PedanticMode) {
+	    setpedanticmode(pAction->isChecked() ? 1 : 0);
+	    return;
 	}
 
 	int nTWKey = GetTWKeyForAction(pAction);

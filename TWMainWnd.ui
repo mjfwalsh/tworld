@@ -843,6 +843,7 @@
     <addaction name="action_displayCCX"/>
     <addaction name="action_forceShowTimer"/>
     <addaction name="action_Step"/>
+    <addaction name="action_PedanticMode"/>
    </widget>
    <widget class="QMenu" name="menu_Zoom">
     <property name="title">
@@ -1085,6 +1086,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="action_PedanticMode">
+   <property name="text">
+    <string>Pedantic Mode</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
    </property>
   </action>
  </widget>

@@ -104,7 +104,7 @@ extern int checksolution(void);
 /* Turn pedantic mode on. The ruleset will be slightly changed to be
  * as faithful as possible to the original source material.
  */
-extern void setpedanticmode(void);
+extern void setpedanticmode(int v);
 
 /* Slow down the game clock by the given factor. Used for debugging
  * purposes.
