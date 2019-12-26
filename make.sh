@@ -1,9 +1,9 @@
 #!/bin/bash
 PATH=$PATH:/usr/local/opt/qt/bin
 
-COMMON_PARAMS="-Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp"
-COMMON_PARAMS+=" -Wunused-function -Wunused-label -Wunused-value"
-COMMON_PARAMS+=" -Wunused-variable -Wunused-macros -Werror" # -Wunused-parameter 
+COMMON_PARAMS="-Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -Werror"
+#COMMON_PARAMS+=" -Wunused-function -Wunused-label -Wunused-value"
+#COMMON_PARAMS+=" -Wunused-variable -Wunused-macros -Wunused-parameter"
 
 CC="cc -std=gnu11 $COMMON_PARAMS"
 CPP="c++ -std=gnu++11 $COMMON_PARAMS"
