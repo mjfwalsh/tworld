@@ -50,8 +50,6 @@ enum
 #endif
 	TWK_RETURN,
 	TWK_ESCAPE,
-	TWK_HOME,
-	TWK_END,
 
 #ifndef NDEBUG
 	TWK_DEBUG1,

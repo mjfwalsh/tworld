@@ -219,8 +219,6 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 		case Qt::Key_Left:   nTWKey = TWK_LEFT;   break;
 		case Qt::Key_Down:   nTWKey = TWK_DOWN;   break;
 		case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
-		case Qt::Key_Home:   nTWKey = TWK_HOME;   break;
-		case Qt::Key_End:    nTWKey = TWK_END;    break;
 #ifndef NDEBUG
 		case Qt::Key_D:      nTWKey = TWK_DEBUG1;   break;
 		case Qt::Key_E:      nTWKey = TWK_DEBUG2;   break;
