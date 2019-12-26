@@ -916,45 +916,79 @@ int displaylist(tablespec const *table, int *index,
 int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
 		DisplayListType eListType)
 {
-  int nCmd = 0;
+	int nCmd = 0;
 
-  // dummy scope to force model destructors before ExitTWorld
-  {
-	TWTableModel model;
-	model.SetTableSpec(pTableSpec);
-	QSortFilterProxyModel proxyModel;
-	m_pSortFilterProxyModel = &proxyModel;
-	proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
-	proxyModel.setFilterKeyColumn(-1);
-	proxyModel.setSourceModel(&model);
-	m_pTblList->setModel(&proxyModel);
+	// disable menus
+	bool menuStatus[] = {
+		action_Scores->isEnabled(),
+		action_SolutionFiles->isEnabled(),
+		action_TimesClipboard->isEnabled(),
+		action_Levelsets->isEnabled(),
+		menu_Level->isEnabled(),
+		menu_Solution->isEnabled(),
+		menu_Options->isEnabled(),
+		menu_Zoom->isEnabled(),
+		menu_Solution->isEnabled()
+	};
 
-	m_pTblList->horizontalHeader()->setStretchLastSection(true);
+	action_Scores->setEnabled(false);
+	action_SolutionFiles->setEnabled(false);
+	action_TimesClipboard->setEnabled(false);
+	action_Levelsets->setEnabled(false);
+	menu_Level->setEnabled(false);
+	menu_Solution->setEnabled(false);
+	menu_Options->setEnabled(false);
+	menu_Zoom->setEnabled(false);
+	menu_Solution->setEnabled(false);
 
-	QModelIndex index = proxyModel.mapFromSource(model.index(*pnIndex, 0));
-	m_pTblList->setCurrentIndex(index);
-	m_pTblList->resizeColumnsToContents();
-	m_pTblList->resizeRowsToContents();
-	m_pTxtFind->clear();
-	SetCurrentPage(PAGE_TABLE);
-	m_pTblList->setFocus();
+	// dummy scope to force model destructors before ExitTWorld
+	{
+		TWTableModel model;
+		model.SetTableSpec(pTableSpec);
+		QSortFilterProxyModel proxyModel;
+		m_pSortFilterProxyModel = &proxyModel;
+		proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
+		proxyModel.setFilterKeyColumn(-1);
+		proxyModel.setSourceModel(&model);
+		m_pTblList->setModel(&proxyModel);
 
-	bool const showRulesetOptions = (eListType == LIST_MAPFILES);
-	m_pRadioMs->setVisible(showRulesetOptions);
-	m_pRadioLynx->setVisible(showRulesetOptions);
+		m_pTblList->horizontalHeader()->setStretchLastSection(true);
 
-	nCmd = g_pApp->exec();
+		QModelIndex index = proxyModel.mapFromSource(model.index(*pnIndex, 0));
+		m_pTblList->setCurrentIndex(index);
+		m_pTblList->resizeColumnsToContents();
+		m_pTblList->resizeRowsToContents();
+		m_pTxtFind->clear();
+		SetCurrentPage(PAGE_TABLE);
+		m_pTblList->setFocus();
 
-	*pnIndex = proxyModel.mapToSource(m_pTblList->currentIndex()).row();
+		bool const showRulesetOptions = (eListType == LIST_MAPFILES);
+		m_pRadioMs->setVisible(showRulesetOptions);
+		m_pRadioLynx->setVisible(showRulesetOptions);
 
-	SetCurrentPage(PAGE_GAME);
-	m_pTblList->setModel(0);
-	m_pSortFilterProxyModel = 0;
-  }
+		nCmd = g_pApp->exec();
 
-  if (m_bWindowClosed) g_pApp->ExitTWorld();
+		*pnIndex = proxyModel.mapToSource(m_pTblList->currentIndex()).row();
 
-  return nCmd;
+		SetCurrentPage(PAGE_GAME);
+		m_pTblList->setModel(0);
+		m_pSortFilterProxyModel = 0;
+	}
+
+	if (m_bWindowClosed) g_pApp->ExitTWorld();
+
+	// reenable menus
+	action_Scores->setEnabled(menuStatus[0]);
+	action_SolutionFiles->setEnabled(menuStatus[1]);
+	action_TimesClipboard->setEnabled(menuStatus[2]);
+	action_Levelsets->setEnabled(menuStatus[3]);
+	menu_Level->setEnabled(menuStatus[4]);
+	menu_Solution->setEnabled(menuStatus[5]);
+	menu_Options->setEnabled(menuStatus[6]);
+	menu_Zoom->setEnabled(menuStatus[7]);
+	menu_Solution->setEnabled(menuStatus[8]);
+
+	return nCmd;
 }
 
 void TileWorldMainWnd::OnListItemActivated(const QModelIndex& index)
