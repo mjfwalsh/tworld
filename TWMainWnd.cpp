@@ -196,6 +196,9 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
 
 bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 {
+	// ignore keystrokes when dialogs are active
+	if(QApplication::activeModalWidget() != 0) return CONTINUE_PROPRGATION;
+
 	QEvent::Type eType = pEvent->type();
 
 	QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
@@ -271,9 +274,8 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 		KeyEventCallback(nTWKey, bPress);
 	}
 
-	// Stop propagating events when the PAGE_GAME is active and no dialogs are active
-	return (m_pMainWidget->currentIndex() == PAGE_GAME &&
-		QApplication::activeModalWidget() == 0);
+	// Stop propagating events when the PAGE_GAME is active
+	return (m_pMainWidget->currentIndex() == PAGE_GAME);
 }
 
 
