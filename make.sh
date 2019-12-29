@@ -1,15 +1,13 @@
 #!/bin/bash
-PATH=$PATH:/usr/local/opt/qt/bin
 
+QT_MODULES=(Core Gui Xml Widgets)
+
+# common compiler flags
 COMMON_PARAMS="-Wall -pedantic -O2 -I. -DNDEBUG -Dstricmp=strcasecmp -Werror"
-#COMMON_PARAMS+=" -Wunused-function -Wunused-label -Wunused-value"
-#COMMON_PARAMS+=" -Wunused-variable -Wunused-macros -Wunused-parameter"
 
+# c and c++ flags
 CC="cc -std=gnu11 $COMMON_PARAMS"
 CPP="c++ -std=gnu++11 $COMMON_PARAMS"
-SDL_OPTS='-I/usr/local/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE'
-QT_OPTS='-I/usr/local/opt/qt/include -I/usr/local/opt/qt/include/QtCore -I/usr/local/opt/qt/include/QtGui -I/usr/local/opt/qt/include/QtXml -I/usr/local/opt/qt/include/QtWidgets'
-PRINT_DIR=''
 
 run () {
 	echo "$@"
@@ -37,6 +35,71 @@ compile_file () {
 }
 
 compile () {
+	# qmake
+	which qmake > /dev/null
+	if [ $? -ne 0 ]
+	then
+		# Homebrew does not link qt to /usr/local/bin by default
+		if [ -e /usr/local/opt/qt/bin ]
+		then
+			PATH=$PATH:/usr/local/opt/qt/bin
+		else
+			echo Can\'t find qmake
+			exit 1
+		fi
+
+		which qmake > /dev/null
+		if [ $? -ne 0 ]
+		then
+			echo Can\'t find qmake
+			exit 1
+		fi
+	fi
+
+	# sdl-config or sdl2-config
+	which sdl2-config > /dev/null
+	if [ $? -ne 0 ]
+	then
+		which sdl-config > /dev/null
+		if [ $? -ne 0 ]
+		then
+			echo Can\'t find sdl-config or sdl2-config in your path
+			exit 1
+		else
+			echo Using SDL1 as can\'t find sdl2-config
+			SDLCONFIG='sdl-config'
+		fi
+	else
+		SDLCONFIG='sdl2-config'
+	fi
+
+	# Qt compiler opts
+	QT_INCLUDE=-I`qmake -query QT_INSTALL_HEADERS`
+	QT_DIRS[0]=$QT_INCLUDE
+	QT_DIRS+=("${QT_MODULES[@]/#/$QT_INCLUDE/Qt}")
+	QT_OPTS="${QT_DIRS[@]}"
+	QT_OPTS+=" -fPIC"
+
+	# Qt linker flags
+	QT_LINKER_FLAGS=-L`qmake -query QT_INSTALL_LIBS`
+
+	if [ `uname` = "Darwin" ]
+	then
+		QT_LINKER_FLAGS+=" -F"`qmake -query QT_INSTALL_PREFIX`"/Frameworks "
+		QT_FRAMEWORKS_ARR=("${QT_MODULES[@]/#/-framework Qt}")
+		QT_LINKER_FLAGS+="${QT_FRAMEWORKS_ARR[@]}"
+	else
+		QT_FRAMEWORKS_ARR=("${QT_MODULES[@]/#/-lQt5}")
+		QT_LINKER_FLAGS+=" ${QT_FRAMEWORKS_ARR[@]}"
+	fi
+
+	# SDL compiler opts
+	SDL_OPTS=`$SDLCONFIG --cflags`
+
+	# SDL linker flags
+	SDL_LINKER_FLAGS=`$SDLCONFIG --libs`
+
+	# now compile the files
 	compile_file "$CC" tworld.o tworld.c
 	compile_file "$CC" series.o series.c
 	compile_file "$CC" play.o play.c
@@ -72,7 +135,7 @@ compile () {
 	compile_file "$CPP $QT_OPTS" TWApp.o TWApp.cpp
 
 	echo Linking tworld2...
-	run c++ -o tworld2 *.o -L/usr/local/opt/qt/lib -F/usr/local/opt/qt/Frameworks -framework QtCore -framework QtGui -framework QtXml -framework QtWidgets -L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
+	run c++ -o tworld2 *.o $QT_LINKER_FLAGS $SDL_LINKER_FLAGS
 	if [ $? -eq 0 ]
 	then
 		echo Done...
