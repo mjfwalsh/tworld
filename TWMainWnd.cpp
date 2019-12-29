@@ -327,17 +327,14 @@ bool TileWorldMainWnd::SetKeyboardRepeat(bool bEnable)
 }
 
 
+/* Mark all keys as being unpressed at the end of each level
+ * as sometimes the program misses a key being released.
+ */
 void TileWorldMainWnd::ReleaseAllKeys()
 {
-	// On X11, it seems that the last key-up event (for the arrow key that resulted in completion)
-	//  is never sent (neither to the main widget, nor to the message box).
-	// So pretend that all keys being held down were released.
-	for (int k = 0; k < TWK_LAST; ++k)
-	{
-		if (m_nKeyState[k]) {
-			m_nKeyState[k] = false;
-			KeyEventCallback(k, false);
-		}
+	for (int k = 0; k < TWK_LAST; ++k) {
+		m_nKeyState[k] = false;
+		keystates[k] = KS_OFF;
 	}
 }
 
@@ -378,9 +375,6 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	SetCurrentPage(PAGE_GAME);
 
 	m_pControlsFrame->setVisible(true);
-	// this->adjustSize();
-	// this->resize(minimumSizeHint());
-	// TODO: not working!
 
 	return true;
 }
@@ -877,14 +871,19 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
 			msgBox.setTextFormat(Qt::PlainText);
 			msgBox.setText(szMsg);
-			// setIcon also causes the corresponding system sound to play
-			// setIconPixmap does not
-			QStyle* pStyle = QApplication::style();
-			if (pStyle != 0)
-			{
-				QIcon icon = pStyle->standardIcon(QStyle::SP_MessageBoxWarning);
-				msgBox.setIconPixmap(icon.pixmap(48));
-			}
+			// On Windows, using setIcon with QMessageBox::Warning causes the corresponding
+			// system sound to play. Using setIconPixmap avoids this. But avoid doing this
+			// on Linux as it can produce a style warning.
+			#if defined(Q_OS_WIN)
+				QStyle* pStyle = g_pApp->style();
+				if (pStyle != 0)
+				{
+					QIcon icon = pStyle->standardIcon(QStyle::SP_MessageBoxWarning);
+					msgBox.setIconPixmap(icon.pixmap(48));
+				}
+			#else
+				msgBox.setIcon(QMessageBox::Warning);
+			#endif
 			msgBox.setWindowTitle("Oops.");
 		}
 		msgBox.exec();
