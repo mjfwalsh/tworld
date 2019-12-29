@@ -47,8 +47,6 @@ extern int pedanticmode;
 #include <QTextStream>
 #include <QTimer>
 
-#include <vector>
-
 #include <string.h>
 #include <ctype.h>
 #include <cmath>

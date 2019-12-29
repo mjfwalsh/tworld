@@ -131,7 +131,7 @@ void TileWorldApp::InitDirs()
 
 	// Get the app resources
 	QString appRootDir = QApplication::applicationDirPath();
-	#if defined Q_OS_OSX || Q_OS_LINUX
+	#if defined Q_OS_OSX || defined Q_OS_LINUX
 	{
 		#if defined Q_OS_OSX
 		QString appResDir = appRootDir + "/../Resources";

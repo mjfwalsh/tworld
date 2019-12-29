@@ -1357,8 +1357,8 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 		return -1;
     }
 
-    /* extensions cannot be read until the system is initialized */
-    if (series.count == 1)
+	/* extensions cannot be read until the system is initialized */
+	if (series.count == 1)
     	readextensions(series.list);
 
 	return selectseriesandlevel(gs, &series, TRUE, lastseries);
@@ -1382,9 +1382,9 @@ int tworld()
 
     char const *selectedseries = getstringsetting("selectedseries");
     if (selectedseries && strlen(selectedseries) < sizeof lastseries)
-	strcpy(lastseries, selectedseries);
+		strcpy(lastseries, selectedseries);
     else
-	lastseries[0] = '\0';
+		lastseries[0] = '\0';
 
 	f = choosegameatstartup(&spec, lastseries);
     if (f < 0)

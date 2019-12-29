@@ -51,7 +51,11 @@ void Qt_Surface::InitImage()
 
 	// https://stackoverflow.com/questions/6157286/checking-if-a-qimage-has-an-alpha-channel
 	hasAlphaChannel = 0;
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
 	int bytes = m_image.sizeInBytes();
+#else
+	int bytes = m_image.byteCount();
+#endif
 	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
 		if (qAlpha(*pixel) != UCHAR_MAX) {
 			hasAlphaChannel = 1;
