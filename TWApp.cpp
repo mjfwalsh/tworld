@@ -13,10 +13,6 @@
 #include "solution.h"
 #include "settings.h"
 
-#ifdef WIN32
-#include <QWindowsStyle>
-#endif
-
 #include <QClipboard>
 #include <QDir>
 #include <QStandardPaths>
@@ -192,12 +188,6 @@ int main(int argc, char *argv[])
 {
 	TileWorldApp app(argc, argv);
 	app.setApplicationName("Tile World");
-
-#ifdef WIN32
-	QApplication::setStyle(new QWindowsStyle());	// Vista / XP styles may mess up colors
-#endif
-
 	app.InitDirs();
-
 	return app.RunTWorld();
 }
