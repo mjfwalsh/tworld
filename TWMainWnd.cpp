@@ -436,8 +436,6 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pLCDNumber->display(pState->game->number);
 		m_pLblTitle->setText(m_sLevelPackName + " - " + m_sLevelName);
 		m_pLblPassword->setText(pState->game->passwd);
-		Qt::AlignmentFlag halign = (m_pLblTitle->sizeHint().width() <= m_pLblTitle->width()) ? Qt::AlignHCenter : Qt::AlignLeft;
-		m_pLblTitle->setAlignment(halign | Qt::AlignVCenter);
 		m_pSldSeek->setValue(0);
 
 		// easter egg
