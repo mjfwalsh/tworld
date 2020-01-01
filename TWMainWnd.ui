@@ -4,7 +4,7 @@
  <widget class="QMainWindow" name="TWMainWnd">
   <property name="font">
    <font>
-    <family>Microsoft Sans Serif</family>
+    <family>MS Reference Sans Serif</family>
    </font>
   </property>
   <property name="windowTitle">
@@ -161,8 +161,6 @@
               <property name="font">
                <font>
                 <pointsize>16</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
                </font>
               </property>
               <property name="autoFillBackground">
@@ -214,8 +212,6 @@
               <property name="font">
                <font>
                 <pointsize>16</pointsize>
-                <weight>75</weight>
-                <bold>true</bold>
                </font>
               </property>
               <property name="autoFillBackground">
@@ -285,8 +281,6 @@
                <property name="font">
                 <font>
                  <pointsize>20</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
                 </font>
                </property>
                <property name="text">
@@ -339,8 +333,6 @@
                <property name="font">
                 <font>
                  <pointsize>20</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
                 </font>
                </property>
                <property name="alignment">
@@ -393,8 +385,6 @@
                <property name="font">
                 <font>
                  <pointsize>20</pointsize>
-                 <weight>75</weight>
-                 <bold>true</bold>
                 </font>
                </property>
                <property name="alignment">
@@ -426,6 +416,9 @@
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
+               </property>
+               <property name="minimumHeight">
+                <number>31</number>
                </property>
                <property name="format">
                 <string>%v</string>
@@ -543,14 +536,6 @@
                       <height>0</height>
                      </size>
                     </property>
-                    <property name="font">
-                     <font>
-                      <pointsize>25</pointsize>
-                      <weight>50</weight>
-                      <italic>false</italic>
-                      <bold>false</bold>
-                     </font>
-                    </property>
                     <property name="autoFillBackground">
                      <bool>true</bool>
                     </property>
@@ -559,6 +544,9 @@
                     </property>
                     <property name="wordWrap">
                      <bool>true</bool>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignHCenter</set>
                     </property>
                     <property name="margin">
                      <number>4</number>
