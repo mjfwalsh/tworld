@@ -192,8 +192,7 @@ private:
 	// multiple commands.
 	int mergeable[CmdKeyMoveLast + 1];
 
-	enum HintMode { HINT_EMPTY, HINT_TEXT, HINT_INITSTATE };
-	bool SetHintMode(HintMode newmode);
+	void SetHint(bool newmode, QString hint = "");
 	void SetScale(int s, bool checkPrevScale = true);
 
 	bool m_bWindowClosed;
@@ -219,7 +218,7 @@ private:
 	bool m_bProblematic;
 	bool m_bOFNT;
 	int m_nBestTime;
-	HintMode m_hintMode;
+	bool m_hintVisible;
 	int m_nTimeLeft;
 	bool m_bTimedLevel;
 	bool m_bReplay;

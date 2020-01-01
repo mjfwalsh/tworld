@@ -46,6 +46,8 @@ extern int pedanticmode;
 #include <QString>
 #include <QTextStream>
 #include <QTimer>
+#include <QFontMetrics>
+#include <QRect>
 
 #include <string.h>
 #include <ctype.h>
@@ -73,7 +75,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	m_bProblematic(false),
 	m_bOFNT(false),
 	m_nBestTime(TIME_NIL),
-	m_hintMode(HINT_EMPTY),
+	m_hintVisible(false),
 	m_nTimeLeft(TIME_NIL),
 	m_bTimedLevel(false),
 	m_bReplay(false),
@@ -510,10 +512,9 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pPrgTime->setValue(timeLimit);
 
 		// clear hint
-		m_pLblHint->clear();
-		m_pInfoPane->setCurrentIndex(0);
-		SetHintMode(HINT_EMPTY);
+		SetHint(false);
 
+		// This sets m_bProblematic as true if there are any problems
 		CheckForProblems(pState);
 
 		Narrate(&CCX::Level::txtPrologue);
@@ -525,9 +526,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pControlsFrame->setVisible(m_bReplay);
 		if (m_bProblematic)
 		{
-			m_pLblHint->clear();
-			m_pInfoPane->setCurrentIndex(0);
-			SetHintMode(HINT_EMPTY);
+			SetHint(false);
 			m_bProblematic = false;
 		}
 
@@ -577,19 +576,14 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pSldSeek->blockSignals(false);
 	}
 
+	// set the hint when on a relevant tile
 	if (!m_bProblematic) {
 		// Call setText / clear only when really required
 		// See comments about QLabel in TWDisplayWidget.h
-		bool bShowHint = (pState->statusflags & SF_SHOWHINT) != 0;
-		if (bShowHint) {
-			if (SetHintMode(HINT_TEXT)) {
-				m_pLblHint->setText(pState->hinttext);
-				m_pInfoPane->setCurrentIndex(1);
-			}
-		}
-		else if (SetHintMode(HINT_EMPTY)) {
-			m_pLblHint->clear();
-			m_pInfoPane->setCurrentIndex(0);
+		if ((pState->statusflags & SF_SHOWHINT) != 0) {
+			SetHint(true, pState->hinttext);
+		} else {
+			SetHint(false);
 		}
 	}
 
@@ -635,8 +629,7 @@ void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
 	m_bProblematic = !s.isEmpty();
 	if (m_bProblematic)
 	{
-		m_pLblHint->setText(s);
-		m_pInfoPane->setCurrentIndex(1);
+		SetHint(true, s);
 	}
 }
 
@@ -1333,11 +1326,38 @@ int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
     return TWK_dummy;
 }
 
-bool TileWorldMainWnd::SetHintMode(HintMode newmode)
+void TileWorldMainWnd::SetHint(bool newmode, QString hint)
 {
-	bool changed = (newmode != m_hintMode);
-	m_hintMode = newmode;
-	return changed;
+	bool changed = (newmode != m_hintVisible);
+	m_hintVisible = newmode;
+
+	if(!changed) {
+		return;
+	} else if(m_hintVisible) {
+		// Calculate available dimensions for hint
+		int availableHeight = m_pLblTitle->geometry().bottom() - m_pObjectsContainer->geometry().y();
+		int availableWidth = m_pInfoFrame->width();
+		int margins = (m_pLblHint->margin() + m_pMessagesFrame->frameWidth()) * 2;
+		availableHeight -= margins;
+		availableWidth -= margins;
+
+		// decrease font size
+		QFont thisFont = m_pLblHint->font();
+		for(int fs=25; fs > 12; fs--) {
+			thisFont.setPointSize(fs);
+			QFontMetrics fm(thisFont);
+			QRect r = fm.boundingRect(0, 0, availableWidth, 1000, Qt::TextWordWrap, hint);
+
+			if(r.height() <= availableHeight) break;
+		}
+
+		m_pLblHint->setFont(thisFont);
+		m_pLblHint->setText(hint);
+		m_pInfoPane->setCurrentIndex(1);
+	} else {
+		m_pInfoPane->setCurrentIndex(0);
+		m_pLblHint->clear();
+	}
 }
 
 void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
@@ -1350,6 +1370,11 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 	if(m_pSurface == 0 || m_pInvSurface == 0 || geng.wtile < 1) {
 		warn("Attempt to set pixmap and scale without setting pixmap first");
 		return;
+	}
+
+	// Clear the hint to avoid knock-on layout issues
+	if(m_hintVisible == true) {
+		SetHint(false);
 	}
 
 	// not more magic numbers!
