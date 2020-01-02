@@ -1344,7 +1344,7 @@ void TileWorldMainWnd::SetHint(bool newmode, QString hint)
 		// decrease font size
 		QFont thisFont = m_pLblHint->font();
 		for(int fs=25; fs > 12; fs--) {
-			thisFont.setPointSize(fs);
+			thisFont.setPixelSize(fs);
 			QFontMetrics fm(thisFont);
 			QRect r = fm.boundingRect(0, 0, availableWidth, 1000, Qt::TextWordWrap, hint);
 

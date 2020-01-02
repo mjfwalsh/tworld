@@ -4,15 +4,13 @@
 
 # This script modifies the output of the uic tool.
 
-# It allows passing the scale attribute directly to the game and objects
-# widgets so the initial size corresponds to the users zoom preference.
-
 # This a bit hacky but avoids having to abandon using the .ui file and uic tool
-# just to make a small change.
+# just to make a few small changes.
 
 use strict;
 
 my $output_file = '';
+my $res = 0;
 my @args;
 
 while($#ARGV > 0) { # ignore last element
@@ -25,26 +23,32 @@ while($#ARGV > 0) { # ignore last element
 		push @args, $arg;
 	}
 }
-
 push @args, @ARGV;
 
 open(my $PIPE, '-|', 'uic', @args) || exit 1;
 my $code = join '', <$PIPE>;
 close $PIPE;
 
-my $res = 0;
+# Pass the scale attribute directly to the game and objects
+# widgets so the initial size corresponds to the users zoom preference.
 $res += $code =~ s|(void setupUi\(.*?)\)|$1, double scale)|;
 $res += $code =~ s|(m_pGameWidget->setMinimumSize\(.*?)(\);)|$1 * scale$2|;
 $res += $code =~ s|(m_pObjectsWidget->setMinimumSize\(.*?)(\);)|$1 * scale$2|;
 
+# Counterintuitive, using points makes the app less portable rather than more as
+# operating systems assume a notional dpi instead of a real one (on Mac it's 72,
+# on Windows and Linux it's 96). So switching to pixels ensures fonts will render
+# the same on all three operating systems.
+if($code =~ s|setPointSize|setPixelSize|g) {
+	$res++;
+}
+
 if(length $output_file == 0) {
 	print $code;
-	exit $res == 3 ? 0 : 1;
-} elsif($res == 3) {
+	exit $res == 4 ? 0 : 1;
+} elsif($res == 4) {
 	open(my $OUT, '>', $output_file) || exit 1;
 	print $OUT $code;
 	close $OUT;
 	exit 0;
-} else {
-	exit 1;
 }
