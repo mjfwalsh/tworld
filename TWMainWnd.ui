@@ -664,8 +664,7 @@
            </widget>
           </item>
          </layout>
-         </item>
-
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="m_pTextPage">
