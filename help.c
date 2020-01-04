@@ -7,7 +7,9 @@
  */
 
 #include	"ver.h"
-#include	"comptime.h"
+#ifndef COMPILE_TIME
+#include    "comptime.h"
+#endif
 #include	"help.h"
 
 
