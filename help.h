@@ -14,7 +14,7 @@ extern "C" {
 
 /* Version and license information.
  */
-extern tablespec const *vourzhon;
+extern char const *aboutText;
 
 
 #ifdef __cplusplus

@@ -1192,16 +1192,7 @@ void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 
 void TileWorldMainWnd::ShowAbout()
 {
-	QString text;
-	int const numlines = vourzhon->rows;
-	for (int i = 0; i < numlines; ++i)
-	{
-		if (i > 0)
-			text += "\n\n";
-	    char const *item = vourzhon->items[i];
-		text += (item + 2);  // skip over formatting chars
-	}
-	QMessageBox::about(this, "About", text);
+	QMessageBox::about(this, "About", aboutText);
 }
 
 void TileWorldMainWnd::OnTextNext()

@@ -6,7 +6,6 @@
  * No warranty. See COPYING for details.
  */
 
-#include	"defs.h"
 #include	"ver.h"
 #include	"comptime.h"
 #include	"help.h"
@@ -14,26 +13,27 @@
 
 /* Version and license information.
  */
-static char const *vourzhon_items[] = {
-"1-Tile World: version " VERSION,
+char const *aboutText =
+"<html><body>"
 
-"1-Copyright (c) 2001-2019 by Brian Raiter, Madhav Shanbhag,"
-" Eric Schmidt and Michael Walsh",
+"<p align='center'><b>Tile World: version " VERSION "</b></p>"
 
-"1-compiled " COMPILE_TIME,
+"<p align='justify'>Copyright (c) 2001-2019 by Brian Raiter, Madhav Shanbhag,"
+" Eric Schmidt and Michael Walsh"
 
-"1!This program is free software; you can redistribute it and/or"
+"<p align='center'>Compiled on " COMPILE_TIME ".</p>"
+
+"<p align='justify'>This program is free software; you can redistribute it and/or"
 " modify it under the terms of the GNU General Public License as"
 " published by the Free Software Foundation; either version 2 of"
-" the License, or (at your option) any later version.",
+" the License, or (at your option) any later version.</p>"
 
-"1!This program is distributed in the hope that it will be"
+"<p align='justify'>This program is distributed in the hope that it will be"
 " useful, but WITHOUT ANY WARRANTY; without even the implied"
 " warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR"
-" PURPOSE. See the GNU General Public License for more details.",
+" PURPOSE. See the GNU General Public License for more details.</p>"
 
-"1!Bug reports are appreciated and can be filed at"
-"https://github.com/mjfwalsh/tworld/issues"
-};
-static tablespec const vourzhon_table = { 6, 1, vourzhon_items };
-tablespec const *vourzhon = &vourzhon_table;
+"<p align='center'>Bug reports are appreciated and can be filed at<br>"
+"<a href='https://github.com/mjfwalsh/tworld/issues'>https://github.com/mjfwalsh/tworld/issues</a></p>"
+
+"</body></html>";
