@@ -6,7 +6,6 @@
  * No warranty. See COPYING for details.
  */
 
-#include	"ver.h"
 #ifndef COMPILE_TIME
 #include    "comptime.h"
 #endif
@@ -18,12 +17,10 @@
 char const *aboutText =
 "<html><body>"
 
-"<p align='center'><b>Tile World: version " VERSION "</b></p>"
+"<p align='center'><b>Tile World</b></p>"
 
-"<p align='justify'>Copyright (c) 2001-2019 by Brian Raiter, Madhav Shanbhag,"
+"<p align='justify'>Copyright &copy; 2001-2020 by Brian Raiter, Madhav Shanbhag,"
 " Eric Schmidt and Michael Walsh"
-
-"<p align='center'>Compiled on " COMPILE_TIME ".</p>"
 
 "<p align='justify'>This program is free software; you can redistribute it and/or"
 " modify it under the terms of the GNU General Public License as"
@@ -37,5 +34,7 @@ char const *aboutText =
 
 "<p align='center'>Bug reports are appreciated and can be filed at<br>"
 "<a href='https://github.com/mjfwalsh/tworld/issues'>https://github.com/mjfwalsh/tworld/issues</a></p>"
+
+"<p align='center'>Compiled on " COMPILE_TIME ".</p>"
 
 "</body></html>";
