@@ -231,7 +231,6 @@ sub mkapp {
 	system 'cp', 'tworld2', 'Tile World.app/Contents/MacOS/Tile World';
 
 	system 'cp', '-R', 'res', 'Tile World.app/Contents/Resources/';
-	system 'cp', '-R', 'sets', 'Tile World.app/Contents/Resources/';
 	system 'cp', '-R', 'data', 'Tile World.app/Contents/Resources/';
 }
 
