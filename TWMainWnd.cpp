@@ -1192,7 +1192,13 @@ void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 
 void TileWorldMainWnd::ShowAbout()
 {
-	QMessageBox::about(this, "About", aboutText);
+	QMessageBox *msgBox = new QMessageBox(this);
+	msgBox->setWindowTitle("About Tile World");
+	msgBox->setTextFormat(Qt::RichText);
+	msgBox->setText(aboutText);
+	msgBox->setStandardButtons(QMessageBox::Ok);
+	msgBox->setAttribute(Qt::WA_DeleteOnClose);
+	msgBox->exec();
 }
 
 void TileWorldMainWnd::OnTextNext()
