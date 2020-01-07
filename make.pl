@@ -232,6 +232,7 @@ sub mkapp {
 
 	system 'cp', '-R', 'res', 'Tile World.app/Contents/Resources/';
 	system 'cp', '-R', 'data', 'Tile World.app/Contents/Resources/';
+	system 'cp', '-R', 'licences', 'Tile World.app/Contents/Resources/';
 }
 
 sub filter_file {
