@@ -1091,12 +1091,12 @@
   <customwidget>
    <class>TWProgressBar</class>
    <extends>QProgressBar</extends>
-   <header>TWProgressBar.h</header>
+   <header>../src/TWProgressBar.h</header>
   </customwidget>
   <customwidget>
    <class>TWDisplayWidget</class>
    <extends>QWidget</extends>
-   <header>TWDisplayWidget.h</header>
+   <header>../src/TWDisplayWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

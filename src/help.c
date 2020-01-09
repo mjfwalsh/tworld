@@ -6,11 +6,7 @@
  * No warranty. See COPYING for details.
  */
 
-#ifndef COMPILE_TIME
-#include    "comptime.h"
-#endif
 #include	"help.h"
-
 
 /* Version and Licence information.
  */
