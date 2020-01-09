@@ -232,7 +232,7 @@ sub mkapp {
 	system 'mkdir', '-p', 'Tile World.app/Contents/MacOS';
 	system 'mkdir', '-p', 'Tile World.app/Contents/Resources';
 	system 'cp', 'Info.plist', 'Tile World.app/Contents/';
-	system 'cp', 'Tile World.icns', 'Tile World.app/Contents/Resources/';
+	system 'cp', 'tworld.icns', 'Tile World.app/Contents/Resources/Tile World.icns';
 	system 'cp', 'tworld', 'Tile World.app/Contents/MacOS/Tile World';
 
 	system 'cp', '-R', 'res', 'Tile World.app/Contents/Resources/';
