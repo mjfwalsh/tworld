@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Tile World 
+Comment=Chip's Challenge Clone
+Exec=/usr/local/games/tworld
+Icon=/usr/local/share/tworld/tworld.png
+Terminal=false
+Type=Application
+Categories=Game

@@ -130,17 +130,17 @@ void TileWorldApp::InitDirs()
     };
 
 	// Get the app resources
-	QString appRootDir = QApplication::applicationDirPath();
-	#if defined Q_OS_OSX || defined Q_OS_LINUX
+	appRootDir = QApplication::applicationDirPath();
+	#if defined Q_OS_OSX || defined Q_OS_UNIX
 	{
 		#if defined Q_OS_OSX
-		QString appResDir = appRootDir + "/../Resources";
-		#elif defined Q_OS_LINUX
-		QString appResDir = appRootDir + "/../share/tworld";
+		QString appShareDir = appRootDir + "/../Resources";
+		#else
+		QString appShareDir = appRootDir + "/../share/tworld";
 		#endif
 
-		QDir dir(appResDir);
-		if (dir.exists()) appRootDir = appResDir;
+		QDir dir(appShareDir);
+		if (dir.exists()) appRootDir = appShareDir;
 	}
 	#endif
 
@@ -189,5 +189,8 @@ int main(int argc, char *argv[])
 	TileWorldApp app(argc, argv);
 	app.setApplicationName("Tile World");
 	app.InitDirs();
+	#if not defined Q_OS_OSX
+		app.setWindowIcon(QIcon(app.appRootDir + "/tworld.png"));
+	#endif
 	return app.RunTWorld();
 }

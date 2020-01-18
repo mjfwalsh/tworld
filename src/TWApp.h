@@ -23,6 +23,7 @@ public:
 
 	bool Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram);
 
+	QString appRootDir;
 	QString appResDir;
 	QString userSetsDir;
 	QString userDataDir;

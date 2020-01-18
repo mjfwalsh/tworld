@@ -5,7 +5,7 @@
  * See COPYING for details.
  */
 
-#include	<sys/errno.h>
+#include	<errno.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>

@@ -7,6 +7,7 @@
  */
 
 #include	"help.h"
+#include	"../obj/comptime.h"
 
 /* Version and Licence information.
  */
