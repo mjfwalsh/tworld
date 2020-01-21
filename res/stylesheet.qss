@@ -22,8 +22,10 @@ QLCDNumber {
 	color: white;
 }
 
-#m_pLblFind, #m_pRadioMs, #m_pRadioLynx {
+#m_pLblFind, #m_pComboLabel {
 	color: white;
+	font-weight: bold;
+	font-size: 16px;
 }
 
 #m_pControlsFrame {

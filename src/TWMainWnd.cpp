@@ -105,7 +105,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	g_pApp->installEventFilter(this);
 
 	connect( m_pTblList, SIGNAL(activated(const QModelIndex&)), this, SLOT(OnListItemActivated(const QModelIndex&)) );
-	connect( m_pRadioMs, SIGNAL(toggled(bool)), this, SLOT(OnRulesetSwitched(bool)) );
+	connect( m_pComboRuleset, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnRulesetSwitched(QString)) );
 	connect( m_pTxtFind, SIGNAL(textChanged(const QString&)), this, SLOT(OnFindTextChanged(const QString&)) );
 	connect( m_pTxtFind, SIGNAL(returnPressed()), this, SLOT(OnFindReturnPressed()) );
 	connect( m_pBtnPlay, SIGNAL(clicked()), this, SLOT(OnPlayback()) );
@@ -122,9 +122,9 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	action_displayCCX->setChecked(getintsetting("displayccx"));
 	action_forceShowTimer->setChecked(getintsetting("forceshowtimer") > 0);
 	if (getintsetting("selectedruleset") == Ruleset_Lynx)
-		m_pRadioLynx->setChecked(true);
+		m_pComboRuleset->setCurrentText("Lynx");
 	else
-		m_pRadioMs->setChecked(true);
+		m_pComboRuleset->setCurrentText("MS");
 
 	// set a zoom menu item as checked
 	foreach (QAction *a, actiongroup_Zoom->actions()) {
@@ -955,9 +955,7 @@ int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
 		SetCurrentPage(PAGE_TABLE);
 		m_pTblList->setFocus();
 
-		bool const showRulesetOptions = (eListType == LIST_MAPFILES);
-		m_pRadioMs->setVisible(showRulesetOptions);
-		m_pRadioLynx->setVisible(showRulesetOptions);
+		m_pComboRuleset->setVisible(eListType == LIST_MAPFILES);
 
 		nCmd = g_pApp->exec();
 
@@ -1021,8 +1019,8 @@ void TileWorldMainWnd::OnFindReturnPressed()
 		g_pApp->exit(CmdProceed);
 }
 
-void TileWorldMainWnd::OnRulesetSwitched(bool mschecked) {
-	setintsetting("selectedruleset", mschecked ? Ruleset_MS : Ruleset_Lynx);
+void TileWorldMainWnd::OnRulesetSwitched(QString checked) {
+	setintsetting("selectedruleset", checked == "MS" ? Ruleset_MS : Ruleset_Lynx);
 }
 
 /* Display an input prompt to the user. prompt supplies the prompt to
@@ -1093,7 +1091,7 @@ int getselectedruleset()
 
 int TileWorldMainWnd::GetSelectedRuleset()
 {
-	return m_pRadioMs->isChecked() ? Ruleset_MS : Ruleset_Lynx;
+	return m_pComboRuleset->currentText() == "MS" ? Ruleset_MS : Ruleset_Lynx;
 }
 
 /* Read any additional data for the series.

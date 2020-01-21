@@ -147,7 +147,7 @@ private slots:
 	void OnListItemActivated(const QModelIndex& index);
 	void OnFindTextChanged(const QString& sText);
 	void OnFindReturnPressed();
-	void OnRulesetSwitched(bool mschecked);
+	void OnRulesetSwitched(QString checked);
 	void OnPlayback();
 	void OnSpeedValueChanged(int nValue);
 	void OnSpeedSliderReleased();
