@@ -98,17 +98,13 @@ extern char *skippathname(char const *name);
  * algorithm to construct the path as openfileindir(). The caller must
  * free the returned buffer.
  */
-extern char *getpathforfileindir(char const *dir, char const *filename);
-
-/* Verify that the given directory exists, or create it if it doesn't.
- */
-extern int finddir(char const *dir);
+extern char *getpathforfileindir(int dirInt, char const *filename);
 
 /* Open a file, using dir as the directory if filename is not already
  * a complete pathname. FALSE is returned if the directory could not
  * be created.
  */
-extern int openfileindir(fileinfo *file, char const *dir, char const *filename,
+extern int openfileindir(fileinfo *file, int dirInt, char const *filename,
 			 char const *mode, char const *msg);
 
 /* Call filecallback once for every file in dir. The first argument to
@@ -121,7 +117,7 @@ extern int openfileindir(fileinfo *file, char const *dir, char const *filename,
  * and returns. FALSE is returned if the directory could not be
  * examined.
  */
-extern int findfiles(char const *dir, void *data,
+extern int findfiles(int dirInt, void *data,
 		     int (*filecallback)(char const*, void*));
 
 /* Display a simple error message prefixed by the name of the given

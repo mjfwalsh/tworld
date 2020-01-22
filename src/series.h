@@ -8,16 +8,13 @@
 #ifndef	HEADER_series_h_
 #define	HEADER_series_h_
 
+#ifdef __cplusplus
+	#define OSHW_EXTERN extern "C"
+#else
+	#define OSHW_EXTERN extern
+#endif
+
 #include	"defs.h"
-
-/* The directory containing the series files.
- */
-extern char    *seriesdir;
-
-/* The directories containing the configured data files.
- */
-extern char    *user_seriesdatdir;
-extern char    *global_seriesdatdir;
 
 /* Load all levels of the given series.
  */

@@ -46,7 +46,7 @@ static void addgameseries(intlist *g, int gameseriesindex, int ruleset)
 /* Add a level file to a mfinfovector. The vector takes ownership of the
  * filename string.
  */
-static void addlevelfile(mfinfovector *v, char *filename, int levelcount, char *path)
+static void addlevelfile(mfinfovector *v, char *filename, int levelcount, int path)
 {
     ++v->count;
     x_alloc(v->buf, v->count * sizeof *v->buf);
@@ -86,20 +86,10 @@ static void removefilenamesuffixes(mfinfovector *v)
 typedef	struct seriesdata {
     mfinfovector mfinfo;	/* list of levelset files */
     gameseries *list;		/* the gameseries list */
-    char const *curdir;		/* directory we are searching */
+    int		curdir;		/* directory we are searching */
     int		allocated;	/* number of gameseries currently allocated */
     int		count;		/* number of gameseries filled in */
 } seriesdata;
-
-/* The directory containing the series files (data files and
- * configuration files).
- */
-char	       *seriesdir = NULL;
-
-/* The directories containing the configured data files.
- */
-char	       *user_seriesdatdir = NULL;
-char	       *global_seriesdatdir = NULL;
 
 /* Calculate a hash value for the given block of data.
  */
@@ -358,7 +348,7 @@ int readseriesfile(gameseries *series)
     }
 
     if (!series->mapfile.fp) {
-	if (!openfileindir(&series->mapfile, NULL,
+	if (!openfileindir(&series->mapfile, 0,
 			   series->mapfilename, "rb", "unknown error"))
 	    return FALSE;
 	if (!readseriesheader(series))
@@ -558,13 +548,13 @@ static int getseriesfile(char const *filename, void *data)
 	datfilename = readconfigfile(&file, series);
 	fileclose(&file, NULL);
 	if (datfilename) {
-		char *datdir;
-	    if (openfileindir(&series->mapfile, global_seriesdatdir, datfilename, "rb", NULL)) {
+		int datdir;
+	    if (openfileindir(&series->mapfile, GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)) {
 			f = readseriesheader(series);
-			datdir = global_seriesdatdir;
+			datdir = GLOBAL_SERIESDATDIR;
 		} else {
-			datdir = user_seriesdatdir;
-			if (openfileindir(&series->mapfile, user_seriesdatdir, datfilename, "rb", NULL)) {
+			datdir = USER_SERIESDATDIR;
+			if (openfileindir(&series->mapfile, USER_SERIESDATDIR, datfilename, "rb", NULL)) {
 				f = readseriesheader(series);
 			}
 		}
@@ -618,13 +608,13 @@ static int getmapfile(char const *filename, void *data)
 	mapfileinfo *existingmf =
  	    bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
 	if (existingmf) {
-	    existingmf->path = (char*)sdata->curdir;
+	    existingmf->path = sdata->curdir;
 	    existingmf->levelcount = s.count;
 	} else {
 		char *dup_filename = strdup(filename);
 		if (dup_filename == NULL) memerrexit();
-		char *dup_path = strdup(sdata->curdir);
-		if (dup_path == NULL) memerrexit();
+		int dup_path = sdata->curdir;
+		if (dup_path == 0) memerrexit();
 	    addlevelfile(v, dup_filename, s.count, dup_path);
 	}
     }
@@ -669,7 +659,7 @@ static int createnewdacfile
 {
     fileinfo file;
     clearfileinfo(&file);
-    if (!openfileindir(&file, seriesdir, name, "wx", "unknown error"))
+    if (!openfileindir(&file, SERIESDIR, name, "wx", "unknown error"))
 	return FALSE;
 
     char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
@@ -777,8 +767,7 @@ static int getseriesfiles(gameseries ** list, int *count,
     s.allocated = 0;
     s.count = 0;
 
-	if (!*seriesdir) return FALSE;
-	s.curdir = seriesdir;
+	s.curdir = SERIESDIR;
 	findfiles(s.curdir, &s, getseriesfile);
 
 	/* Sort because we want to look files up during next phase */
@@ -786,10 +775,10 @@ static int getseriesfiles(gameseries ** list, int *count,
 	    sizeof *s.mfinfo.buf, compare_mapfileinfo);
 	s.mfinfo.datdircount = s.mfinfo.count;
 
-	s.curdir = global_seriesdatdir;
+	s.curdir = GLOBAL_SERIESDATDIR;
 	findfiles(s.curdir, &s, getmapfile);
 
-	s.curdir = user_seriesdatdir;
+	s.curdir = USER_SERIESDATDIR;
 	findfiles(s.curdir, &s, getmapfile);
 
 	createallmissingseries(&s);

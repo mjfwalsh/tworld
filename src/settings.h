@@ -11,10 +11,6 @@
 extern "C" {
 #endif
 
-/* The path of the directory containing the settings and history file
- */
-extern char *settingsdir;
-
 void loadsettings(void);
 
 void savesettings(void);

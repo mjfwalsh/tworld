@@ -17,10 +17,6 @@
 #include	"tile.h"
 #include	"sdlsfx.h"
 
-/* The directory containing all the resource files.
- */
-char		 *resdir = NULL;
-
 // The active ruleset.
 int         currentRuleset;
 
@@ -91,7 +87,7 @@ QString GetResource(QString resid)
 
 QString GetResourcePath(QString resid)
 {
-	QString rd(resdir);
+	QString rd(getdir(RESDIR));
 	QString f = GetResource(resid);
 
 	if(f == "") return "";

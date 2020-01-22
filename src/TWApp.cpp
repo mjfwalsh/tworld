@@ -10,6 +10,7 @@
 #include "defs.h"
 #include "oshw.h"
 #include "res.h"
+#include "err.h"
 #include "solution.h"
 #include "settings.h"
 
@@ -103,69 +104,92 @@ int TileWorldApp::RunTWorld()
     return tworld();
 }
 
-
-void initdirs()
+const char *getdir(int t)
 {
-	resdir = (char *) malloc(g_pApp->appResDir.length() + 1);
-	seriesdir = (char *) malloc(g_pApp->userSetsDir.length() + 1);
-	user_seriesdatdir = (char *) malloc(g_pApp->userDataDir.length() + 1);
-	global_seriesdatdir = (char *) malloc(g_pApp->appDataDir.length() + 1);
-	solutiondir = (char *) malloc(g_pApp->userSolDir.length() + 1);
-	settingsdir = (char *) malloc(g_pApp->userDir.length() + 1);
-
-	strcpy(resdir, g_pApp->appResDir.toUtf8().constData());
-	strcpy(seriesdir, g_pApp->userSetsDir.toUtf8().constData());
-	strcpy(user_seriesdatdir, g_pApp->userDataDir.toUtf8().constData());
-	strcpy(global_seriesdatdir, g_pApp->appDataDir.toUtf8().constData());
-	strcpy(solutiondir, g_pApp->userSolDir.toUtf8().constData());
-	strcpy(settingsdir, g_pApp->userDir.toUtf8().constData());
+	return g_pApp->GetDir(t);
 }
+
+const char *TileWorldApp::GetDir(int t)
+{
+	switch(t) {
+	case RESDIR:
+		return appResDir;
+	case SERIESDIR:
+		return userSetsDir;
+	case USER_SERIESDATDIR:
+		return userDataDir;
+	case GLOBAL_SERIESDATDIR:
+		return appDataDir;
+	case SOLUTIONDIR:
+		return userSolDir;
+	case SETTINGSDIR:
+		return userDir;
+	case NULLDIR:
+	default:
+		return NULL;
+	}
+}
+
 
 void TileWorldApp::InitDirs()
 {
 	auto checkDir = [](QString d)
     {
 		QDir dir(d);
-		if (!dir.exists()) dir.mkpath(".");
+		if (!dir.exists() && !dir.mkpath(".")) {
+			die("Unable to create folder %s", d.toUtf8().constData());
+		}
     };
 
 	// Get the app resources
-	appRootDir = QApplication::applicationDirPath();
-	#if defined Q_OS_OSX || defined Q_OS_UNIX
-	{
-		#if defined Q_OS_OSX
-		QString appShareDir = appRootDir + "/../Resources";
-		#else
-		QString appShareDir = appRootDir + "/../share/tworld";
-		#endif
+	QString appRootDir = QApplication::applicationDirPath();
+	#if defined Q_OS_OSX
+	QDir appShareDir(appRootDir + "/../Resources");
+	#elif defined Q_OS_UNIX
+	QDir appShareDir(appRootDir + "/../share/tworld");
+	#endif
 
-		QDir dir(appShareDir);
-		if (dir.exists()) appRootDir = appShareDir;
-	}
+	#if defined Q_OS_UNIX
+	if (appShareDir.exists()) appRootDir = appShareDir.path();
 	#endif
 
 	// change pwd to appRootDir
 	QDir::setCurrent(appRootDir);
 
-	// these should already exist
-	appResDir =  QString(appRootDir + "/res");
-	appDataDir =  QString(appRootDir + "/data");
+	// these folders should already exist
+	QString appResDirQ =  QString(appRootDir + "/res");
+	QString appDataDirQ =  QString(appRootDir + "/data");
 
-	// get user directory
-	userDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-	checkDir(userDir);
+	// set user directory
+	QString userDirQ = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	checkDir(userDirQ);
 
 	// ~/Library/Application Support/Tile World/sets
-	userSetsDir = QString(userDir + "/sets");
-	checkDir(userSetsDir);
+	QString userSetsDirQ = QString(userDirQ + "/sets");
+	checkDir(userSetsDirQ);
 
 	// ~/Library/Application Support/Tile World/data
-	userDataDir = QString(userDir + "/data");
-	checkDir(userDataDir);
+	QString userDataDirQ = QString(userDirQ + "/data");
+	checkDir(userDataDirQ);
 
 	// ~/Library/Application Support/Tile World/solutions
-	userSolDir = QString(userDir + "/solutions");
-	checkDir(userSolDir);
+	QString userSolDirQ = QString(userDirQ + "/solutions");
+	checkDir(userSolDirQ);
+
+	// translate QString to const char*
+	appResDir = (char *) malloc(appResDirQ.length() + 1);
+	userSetsDir = (char *) malloc(userSetsDirQ.length() + 1);
+	userDataDir = (char *) malloc(userDataDirQ.length() + 1);
+	appDataDir = (char *) malloc(appDataDirQ.length() + 1);
+	userSolDir = (char *) malloc(userSolDirQ.length() + 1);
+	userDir = (char *) malloc(userDirQ.length() + 1);
+
+	strcpy(appResDir, appResDirQ.toUtf8().constData());
+	strcpy(userSetsDir, userSetsDirQ.toUtf8().constData());
+	strcpy(userDataDir, userDataDirQ.toUtf8().constData());
+	strcpy(appDataDir, appDataDirQ.toUtf8().constData());
+	strcpy(userSolDir, userSolDirQ.toUtf8().constData());
+	strcpy(userDir, userDirQ.toUtf8().constData());
 }
 
 void TileWorldApp::ExitTWorld()
@@ -190,7 +214,7 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Tile World");
 	app.InitDirs();
 	#if not defined Q_OS_OSX
-		app.setWindowIcon(QIcon(app.appRootDir + "/tworld.png"));
+		app.setWindowIcon(QIcon("tworld.png"));
 	#endif
 	return app.RunTWorld();
 }

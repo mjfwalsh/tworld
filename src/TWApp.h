@@ -20,18 +20,18 @@ public:
 	int RunTWorld();
 	void ExitTWorld();
 	void InitDirs();
+	const char *GetDir(int t);
 
 	bool Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram);
 
-	QString appRootDir;
-	QString appResDir;
-	QString userSetsDir;
-	QString userDataDir;
-	QString appDataDir;
-	QString userSolDir;
-	QString userDir;
-
 private:
+	char *appResDir;
+	char *userSetsDir;
+	char *userDataDir;
+	char *appDataDir;
+	char *userSolDir;
+	char *userDir;
+
 	bool m_bSilence, m_bShowHistogram;
 };
 

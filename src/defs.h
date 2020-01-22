@@ -85,6 +85,18 @@ enum {
     Ruleset_First = Ruleset_Lynx
 };
 
+/* enum for different directories
+ */
+enum {
+	NULLDIR, // no dir
+	RESDIR,
+	SERIESDIR,
+	USER_SERIESDATDIR,
+	GLOBAL_SERIESDATDIR,
+	SOLUTIONDIR,
+	SETTINGSDIR
+};
+
 /* File I/O structure.
  */
 typedef	struct fileinfo {
@@ -286,7 +298,7 @@ typedef struct intlist {
  */
 typedef struct mapfileinfo {
     char *filename;
-    char *path;
+    int path;
     intlist sfilelst[Ruleset_Count]; /* indices for series files per ruleset */
     int levelcount;
 } mapfileinfo;

@@ -13,15 +13,14 @@
 #include	<sys/stat.h>
 #include	"err.h"
 #include	"fileio.h"
+#include	"res.h"
 
 /* Determine the proper directory delimiter and mkdir() arguments.
  */
 #ifdef WIN32
 #define	DIRSEP_CHAR	'\\'
-#define	createdir(name)	(mkdir(name) == 0)
 #else
 #define	DIRSEP_CHAR	'/'
-#define	createdir(name)	(mkdir(name, 0755) == 0)
 #endif
 
 /* Determine a compile-time number to use as the maximum length of a
@@ -375,22 +374,15 @@ char *skippathname(char const *name)
     return (char*)(p ? p + 1 : name);
 }
 
-/* Create the directory dir if it doesn't already exist.
- */
-int finddir(char const *dir)
-{
-    struct stat	st;
-
-    return stat(dir, &st) ? createdir(dir) : S_ISDIR(st.st_mode);
-}
-
 /* Return the pathname for a directory and/or filename, using the
  * same algorithm to construct the path as openfileindir().
  */
-char *getpathforfileindir(char const *dir, char const *filename)
+char *getpathforfileindir(int dirInt, char const *filename)
 {
     char       *path;
     int		m, n;
+
+    char const *dir = getdir(dirInt);
 
     m = strlen(filename);
     if (!dir || !*dir || strchr(filename, DIRSEP_CHAR)) {
@@ -416,11 +408,13 @@ char *getpathforfileindir(char const *dir, char const *filename)
 
 /* Open a file, using dir as the directory if filename is not a path.
  */
-int openfileindir(fileinfo *file, char const *dir, char const *filename,
+int openfileindir(fileinfo *file, int dirInt, char const *filename,
 		  char const *mode, char const *msg)
 {
     char	buf[PATH_MAX + 1];
     int		m, n;
+
+	char const *dir = getdir(dirInt);
 
     if (!dir || !*dir || strchr(filename, DIRSEP_CHAR))
 	return fileopen(file, filename, mode, msg);
@@ -440,9 +434,11 @@ int openfileindir(fileinfo *file, char const *dir, char const *filename,
 /* Read the given directory and call filecallback once for each file
  * contained in it.
  */
-int findfiles(char const *dir, void *data,
+int findfiles(int dirInt, void *data,
 	      int (*filecallback)(char const*, void*))
 {
+    const char *dir = getdir(dirInt);
+
     char	       *filename = NULL;
     DIR		       *dp;
     struct dirent      *dent;

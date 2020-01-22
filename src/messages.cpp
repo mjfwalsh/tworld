@@ -39,7 +39,7 @@ char const * messageTypeNames[MessageTypeCount] = { "win", "die", "time" };
 
 int loadmessagesfromfile(char const *filename)
 {
-    char *fname = getpathforfileindir(resdir, filename);
+    char *fname = getpathforfileindir(RESDIR, filename);
     ifstream in(fname);
     free(fname);
 

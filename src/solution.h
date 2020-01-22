@@ -7,6 +7,12 @@
 #ifndef	HEADER_solution_h_
 #define	HEADER_solution_h_
 
+#ifdef __cplusplus
+	#define OSHW_EXTERN extern "C"
+#else
+	#define OSHW_EXTERN extern
+#endif
+
 #include	"defs.h"
 
 /* A structure holding all the data needed to reconstruct a solution.
@@ -18,10 +24,6 @@ typedef	struct solutioninfo {
     unsigned char	rndslidedir;	/* random slide's initial direction */
     signed char		stepping;	/* the timer offset */
 } solutioninfo;
-
-/* The path of the directory containing the user's solution files.
- */
-extern char    *solutiondir;
 
 /* No file modification will be done unless this variable is FALSE.
  */

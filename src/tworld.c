@@ -417,7 +417,7 @@ static int loadhistory(void)
     free(historylist);
 
     clearfileinfo(&file);
-    if (!openfileindir(&file, settingsdir, "history", "r", NULL))
+    if (!openfileindir(&file, SETTINGSDIR, "history", "r", NULL))
 	return FALSE;
 
     for (;;) {
@@ -500,7 +500,7 @@ static void savehistory(void)
     int		i;
 
     clearfileinfo(&file);
-    if (!openfileindir(&file, settingsdir, "history", "w", NULL))
+    if (!openfileindir(&file, SETTINGSDIR, "history", "w", NULL))
 	return;
 
     h = historylist;
@@ -1319,12 +1319,6 @@ static void shutdownsystem(void)
     savehistory();
     shutdowngamestate();
     freeallresources();
-    free(resdir);
-    free(seriesdir);
-    free(user_seriesdatdir);
-    free(global_seriesdatdir);
-    free(solutiondir);
-    free(settingsdir);
 }
 
 /* Determine what to play. A list of available series is drawn up; if
@@ -1374,7 +1368,7 @@ int tworld()
     char	lastseries[sizeof spec.series.filebase];
     int		f;
 
-	initdirs();
+	//initdirs();
     loadhistory();
     loadsettings();
 

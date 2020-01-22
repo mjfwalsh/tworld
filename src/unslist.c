@@ -253,13 +253,13 @@ int loadunslistfromfile(char const *filename)
 {
     fileinfo	file = {0};
 
-    if (openfileindir(&file, resdir, filename, "r", NULL)) {
+    if (openfileindir(&file, RESDIR, filename, "r", NULL)) {
 	readunslist(&file);
 	fileclose(&file, NULL);
     }
     if (!haspathname(filename)) {
 	clearfileinfo(&file);
-	if (openfileindir(&file, settingsdir, filename, "r", NULL)) {
+	if (openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
 	    readunslist(&file);
 	    fileclose(&file, NULL);
 	}

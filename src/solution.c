@@ -150,10 +150,6 @@ static int const idxdir8[8] = {
  */
 int		readonly = FALSE;
 
-/* The path of the directory containing the user's solution files.
- */
-char	       *solutiondir = NULL;
-
 /*
  * Functions for manipulating move lists.
  */
@@ -531,7 +527,6 @@ static int writesolution(fileinfo *file, gamesetup const *game)
  */
 static int opensolutionfile(fileinfo *file, char const *datname, int writable)
 {
-    static int	solutiondirchecked = FALSE;
     char       *buf = NULL;
     char const *filename;
     int		n;
@@ -553,17 +548,7 @@ static int opensolutionfile(fileinfo *file, char const *datname, int writable)
 	filename = buf;
     }
 
-    if (writable) {
-	if (!solutiondirchecked && solutiondir && *solutiondir && !haspathname(filename)) {
-	    solutiondirchecked = TRUE;
-	    if (!finddir(solutiondir)) {
-		*solutiondir = '\0';
-		fileerr(file, "can't access directory");
-	    }
-	}
-    }
-
-    n = openfileindir(file, solutiondir, filename,
+    n = openfileindir(file, SOLUTIONDIR, filename,
 		      writable ? "wb" : "rb",
 		      writable ? "can't access file" : NULL);
     if (buf)
@@ -695,7 +680,7 @@ int loadsolutionsetname(char const *filename, char *buffer)
     int			size;
 
     clearfileinfo(&file);
-    if (!openfileindir(&file, solutiondir, filename, "rb", NULL))
+    if (!openfileindir(&file, SOLUTIONDIR, filename, "rb", NULL))
 	return -1;
 
     if (!filereadint32(&file, &dwrd, NULL) || dwrd != CSSIG)
@@ -789,7 +774,7 @@ int createsolutionfilelist(gameseries const *series, int morethanone,
 					&& tolower(s.prefix[n - 1]) == 't')
 	s.prefixlen -= 4;
 
-    if (!findfiles(solutiondir, &s, getsolutionfile) || !s.count)
+    if (!findfiles(SOLUTIONDIR, &s, getsolutionfile) || !s.count)
 	return FALSE;
 
     if (s.count == 0 || (s.count == 1 && morethanone)) {

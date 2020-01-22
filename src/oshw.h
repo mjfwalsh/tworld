@@ -167,10 +167,6 @@ OSHW_EXTERN void copytoclipboard(char const *text); // TWApp.cpp
  */
 OSHW_EXTERN void setplaypausebutton(int p); // TWMainWnd.cpp
 
-/* get app and config folders, create latter if necessary
- */
-OSHW_EXTERN void initdirs(); // TWApp.cpp
-
 #undef OSHW_EXTERN
 
 #endif

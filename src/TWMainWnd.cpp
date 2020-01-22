@@ -94,8 +94,11 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	// disable manual window resizing
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
+	// resdir
+	QString appResDir(g_pApp->GetDir(RESDIR));
+
 	// load style sheet
-	QFile File(g_pApp->appResDir + "/stylesheet.qss");
+	QFile File(appResDir + "/stylesheet.qss");
 	File.open(QFile::ReadOnly);
 	QString StyleSheet = QLatin1String(File.readAll());
 	this->setStyleSheet(StyleSheet);
@@ -141,8 +144,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	startTimer(tickMS / 2);
 
 	// play pause icon for replay controls
-	playIcon = QIcon(g_pApp->appResDir + "/play.svg");
-	pauseIcon = QIcon(g_pApp->appResDir + "/pause.svg");
+	playIcon = QIcon(appResDir + "/play.svg");
+	pauseIcon = QIcon(appResDir + "/pause.svg");
 
 	// show window
 	show();
@@ -1113,12 +1116,12 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 	// save for use on display
 	m_sLevelPackName = sSetName;
 
-	dataDir.setPath(g_pApp->appDataDir);
+	dataDir.setPath(g_pApp->GetDir(GLOBAL_SERIESDATDIR));
 	sFilePath = dataDir.filePath(sSetName + ".ccx");
 	sFile.setFileName(sFilePath);
 
 	if(!sFile.exists()) {
-		dataDir.setPath(g_pApp->userDataDir);
+		dataDir.setPath(g_pApp->GetDir(USER_SERIESDATDIR));
 		sFilePath = dataDir.filePath(sSetName + ".ccx");
 	}
 
