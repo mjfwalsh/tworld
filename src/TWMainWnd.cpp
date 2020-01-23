@@ -958,7 +958,9 @@ int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
 		SetCurrentPage(PAGE_TABLE);
 		m_pTblList->setFocus();
 
-		m_pComboRuleset->setVisible(eListType == LIST_MAPFILES);
+		bool const showRulesetOptions = (eListType == LIST_MAPFILES);
+		m_pComboRuleset->setVisible(showRulesetOptions);
+		m_pComboLabel->setVisible(showRulesetOptions);
 
 		nCmd = g_pApp->exec();
 
