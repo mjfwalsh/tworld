@@ -1,14 +1,12 @@
-/* res.cpp: Functions for loading resources from external files.
+/* res.c: Functions for loading resources from external files.
  *
- * Copyright (C) 2001-2019 by Brian Raiter, Eric Schmidt and Michael Walsh.
+ * Copyright (C) 2001-2020 by Brian Raiter, Eric Schmidt and Michael Walsh.
  * Licensed under the GNU General Public License. No warranty.
  * See COPYING for details.
  */
 
-#include	<QFile>
-#include	<QString>
-#include	<QHash>
 #include	<stdlib.h>
+#include	<string.h>
 #include	"defs.h"
 #include	"err.h"
 #include	"messages.h"
@@ -17,119 +15,117 @@
 #include	"tile.h"
 #include	"sdlsfx.h"
 
+// the length of the longest res filename
+#define FILENAME_LEN 12
+
+// res dir
+const char *resPath;
+int resPathLen = 0;
+
 // The active ruleset.
 int         currentRuleset;
-
-// 2D Array for resources
-QHash<int, QHash<QString, QString>> allResources;
-
-// sounds
-QString sounds[SND_COUNT];
 
 // to pass functions as params
 typedef int (*txtloader)(char const * fname);
 
-void addResource(int soundIndex, QString key, QString all, QString ms, QString lynx)
-{
-	key = key.toLower();
-
-	if(!all.isEmpty()) allResources[Ruleset_None][key] = all;
-	if(!ms.isEmpty()) allResources[Ruleset_MS][key] = ms;
-	if(!lynx.isEmpty()) allResources[Ruleset_Lynx][key] = lynx;
-
-	if(soundIndex > -1) sounds[soundIndex] = key;
-}
-
-void initres()
-{
-	addResource(-1,                  "TileImages",           "",               "tiles.bmp",   "atiles.bmp");
-	addResource(-1,                  "UnsolvableList",       "unslist.txt",    "",            "");
-	addResource(-1,                  "EndMessages",          "messages.txt",   "",            "");
-	addResource(SND_CHIP_LOSES,      "ChipDeathSound",       "",               "death.wav",   "derezz.wav");
-	addResource(SND_CHIP_WINS,       "LevelCompleteSound",   "tada.wav",       "",            "");
-	addResource(SND_TIME_OUT,        "ChipDeathByTimeSound", "",               "ding.wav",    "");
-	addResource(SND_TIME_LOW,        "TickSound",            "",               "tick.wav",    "");
-	addResource(SND_CANT_MOVE,       "BlockedMoveSound",     "",               "oof.wav",     "bump.wav");
-	addResource(SND_IC_COLLECTED,    "PickupChipSound",      "",               "chack.wav",   "ting.wav");
-	addResource(SND_ITEM_COLLECTED,  "PickupToolSound",      "ting.wav",       "",            "");
-	addResource(SND_BOOTS_STOLEN,    "ThiefSound",           "thief.wav",      "",            "");
-	addResource(SND_TELEPORTING,     "TeleportSound",        "teleport.wav",   "",            "");
-	addResource(SND_DOOR_OPENED,     "OpenDoorSound",        "door.wav",       "",            "");
-	addResource(SND_SOCKET_OPENED,   "SocketSound",          "",               "socket.wav",  "door.wav");
-	addResource(SND_BUTTON_PUSHED,   "SwitchSound",          "click.wav",      "",            "");
-	addResource(SND_TILE_EMPTIED,    "TileEmptiedSound",     "",               "",            "whisk.wav");
-	addResource(SND_WALL_CREATED,    "WallCreatedSound",     "",               "",            "popup.wav");
-	addResource(SND_TRAP_ENTERED,    "TrapEnteredSound",     "",               "",            "bump.wav");
-	addResource(SND_BOMB_EXPLODES,   "BombSound",            "bomb.wav",       "",            "");
-	addResource(SND_WATER_SPLASH,    "SplashSound",          "splash.wav",     "",            "");
-	addResource(SND_BLOCK_MOVING,    "BlockMovingSound",     "",               "",            "block.wav");
-	addResource(SND_SKATING_FORWARD, "SkatingForwardSound",  "",               "",            "skate.wav");
-	addResource(SND_SKATING_TURN,    "SkatingTurnSound",     "",               "",            "skaturn.wav");
-	addResource(SND_SLIDING,         "SlidingSound",         "",               "",            "force.wav");
-	addResource(SND_SLIDEWALKING,    "SlideWalkingSound",    "",               "",            "slurp.wav");
-	addResource(SND_ICEWALKING,      "IceWalkingSound",      "",               "",            "snick.wav");
-	addResource(SND_WATERWALKING,    "WaterWalkingSound",    "",               "",            "plip.wav");
-	addResource(SND_FIREWALKING,     "FireWalkingSound",     "",               "",            "crackle.wav");
-}
-
-/*
- * Resource-loading functions
- */
-
-QString GetResource(QString resid)
-{
-	if(allResources[currentRuleset].contains(resid)) {
-		return allResources[currentRuleset][resid];
-	} else {
-		return allResources[Ruleset_None][resid];
-	}
-}
-
-QString GetResourcePath(QString resid)
-{
-	QString rd(getdir(RESDIR));
-	QString f = GetResource(resid);
-
-	if(f == "") return "";
-
-	QFile file(rd + "/" + f);
-	return file.fileName();
-}
-
-
 /* Attempt to load the tile images.
  */
-bool LoadImages()
+static void LoadImages()
 {
-	QString fp = GetResourcePath("tileimages");
-	bool f;
+    char *fp = (char *)malloc(resPathLen);
+    strcpy(fp, resPath);
 
-	f = loadtileset(fp.toUtf8().constData(), TRUE);
+	if(currentRuleset == Ruleset_Lynx) {
+		strcat(fp, "/atiles.bmp");
+	} else {
+		strcat(fp, "/tiles.bmp");
+	}
 
-	if (!f) errmsg(fp.toUtf8().constData(), "no valid tilesets found");
-
-	return f;
+	if(!loadtileset(fp, TRUE)) {
+		die(fp, "no valid tilesets found");
+	}
 }
 
 
 /* Load the list of unsolvable levels.
  */
-int LoadTextResource(QString resid, txtloader loadfunc)
+static int LoadTextResource(const char* file, txtloader loadfunc)
 {
-	return loadfunc(GetResource(resid).toUtf8().constData());
+    char *fp = (char *)malloc(resPathLen);
+    strcpy(fp, resPath);
+	strcat(fp, "/");
+	strcat(fp, file);
+
+	return loadfunc(fp);
 }
 
 /* Load all of the sound resources.
  */
-int LoadSounds()
+static int addSound(int i, const char *file)
 {
-    int	count = 0;
-    for(int i = 0; i < SND_COUNT; i++) {
-    	QString file = GetResourcePath(sounds[i]);
-    	if(loadsfxfromfile(i, file.toUtf8().constData())) ++count;
+    char *fp = (char *)malloc(resPathLen);
+    strcpy(fp, resPath);
+	strcat(fp, "/");
+	strcat(fp, file);
+
+    return loadsfxfromfile(i, fp);
+}
+
+static int LoadSounds()
+{
+	int count = 0;
+
+	// all
+	count += addSound(SND_CHIP_WINS,       "tada.wav");
+	count += addSound(SND_ITEM_COLLECTED,  "ting.wav");
+	count += addSound(SND_BOOTS_STOLEN,    "thief.wav");
+	count += addSound(SND_TELEPORTING,     "teleport.wav");
+	count += addSound(SND_DOOR_OPENED,     "door.wav");
+	count += addSound(SND_BUTTON_PUSHED,   "click.wav");
+	count += addSound(SND_BOMB_EXPLODES,   "bomb.wav");
+	count += addSound(SND_WATER_SPLASH,    "splash.wav");
+
+	// ms only
+	if(currentRuleset == Ruleset_MS) {
+		count += addSound(SND_TIME_OUT,        "ding.wav");
+		count += addSound(SND_TIME_LOW,        "tick.wav");
+		count += addSound(SND_CHIP_LOSES,      "death.wav");
+		count += addSound(SND_CANT_MOVE,       "oof.wav");
+		count += addSound(SND_IC_COLLECTED,    "chack.wav");
+		count += addSound(SND_SOCKET_OPENED,   "socket.wav");
 	}
 
-    return count;
+	// lynx only
+	if(currentRuleset == Ruleset_Lynx) {
+		count += addSound(SND_CHIP_LOSES,      "derezz.wav");
+		count += addSound(SND_CANT_MOVE,       "bump.wav");
+		count += addSound(SND_IC_COLLECTED,    "ting.wav");
+		count += addSound(SND_SOCKET_OPENED,   "door.wav");
+		count += addSound(SND_TILE_EMPTIED,    "whisk.wav");
+		count += addSound(SND_WALL_CREATED,    "popup.wav");
+		count += addSound(SND_TRAP_ENTERED,    "bump.wav");
+		count += addSound(SND_BLOCK_MOVING,    "block.wav");
+		count += addSound(SND_SKATING_FORWARD, "skate.wav");
+		count += addSound(SND_SKATING_TURN,    "skaturn.wav");
+		count += addSound(SND_SLIDING,         "force.wav");
+		count += addSound(SND_SLIDEWALKING,    "slurp.wav");
+		count += addSound(SND_ICEWALKING,      "snick.wav");
+		count += addSound(SND_WATERWALKING,    "plip.wav");
+		count += addSound(SND_FIREWALKING,     "crackle.wav");
+	}
+
+	return count;
+}
+
+// set resPath and resPathLen
+void initVars()
+{
+	if(resPathLen == 0) {
+		resPath = getdir(RESDIR);
+		resPathLen = strlen(resPath) + FILENAME_LEN;
+		resPathLen *= sizeof(char *);
+		resPathLen++;
+	}
 }
 
 /* Load all resources that are available. FALSE is returned if the
@@ -139,10 +135,12 @@ int LoadSounds()
  */
 int loadgameresources(int ruleset)
 {
-	    currentRuleset = ruleset;
-        if (!LoadImages()) return FALSE;
-        if (LoadSounds() == 0) setaudiosystem(FALSE);
-        return TRUE;
+	initVars();
+
+	currentRuleset = ruleset;
+	LoadImages();
+	if (LoadSounds() == 0) setaudiosystem(FALSE);
+	return TRUE;
 }
 
 /* Parse the rc file and load the font and color scheme. FALSE is returned
@@ -150,11 +148,13 @@ int loadgameresources(int ruleset)
  */
 int initresources()
 {
-    initres();
-    LoadTextResource("unsolvablelist", loadunslistfromfile);
-    LoadTextResource("endmessages", loadmessagesfromfile);
-    return TRUE;
+	initVars();
+
+    return LoadTextResource("unslist.txt", loadunslistfromfile) &&
+    LoadTextResource("messages.txt", loadmessagesfromfile);
 }
+
+
 
 /* Free all resources.
  */

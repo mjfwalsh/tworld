@@ -7,6 +7,12 @@
 #ifndef HEADER_messages_h_
 #define HEADER_messages_h_
 
+#ifdef __cplusplus
+	#define OSHW_EXTERN extern "C"
+#else
+	#define OSHW_EXTERN extern
+#endif
+
 enum
 {
     MessageWin,
@@ -15,7 +21,9 @@ enum
     MessageTypeCount
 };
 
-int loadmessagesfromfile(char const *filename);
-char const *getmessage(int type, char const *alt);
+OSHW_EXTERN int loadmessagesfromfile(char const *filename);
+OSHW_EXTERN char const *getmessage(int type, char const *alt);
+
+#undef OSHW_EXTERN
 
 #endif
