@@ -1263,12 +1263,12 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 	}
 
 	if (pAction == action_VolumeUp) {
-		this->ChangeVolume(+2);
+		this->ChangeVolume(+1);
 		return;
 	}
 
 	if (pAction == action_VolumeDown) {
-		this->ChangeVolume(-2);
+		this->ChangeVolume(-1);
 		return;
 	}
 	
