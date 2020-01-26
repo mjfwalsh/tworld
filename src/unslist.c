@@ -193,26 +193,6 @@ static int readunslist(fileinfo *file)
  * Exported functions.
  */
 
-/* Return TRUE if the given level in the list of unsolvable levels. No
- * set name is supplied, so this function relies on the other three
- * data. A copy of the level's annotation is made if note is not NULL.
- */
-int islevelunsolvable(gamesetup const *game, char *note)
-{
-    int		i;
-
-    for (i = 0 ; i < listcount ; ++i) {
-	if (unslist[i].levelnum == game->number
-		      && unslist[i].size == game->levelsize
-		      && unslist[i].hashval == game->levelhash) {
-	    if (note)
-		strcpy(note, getstring(unslist[i].note));
-	    return TRUE;
-	}
-    }
-    return FALSE;
-}
-
 /* Look up the levels that constitute the given series and find which
  * levels appear in the list. Those that do will have the unsolvable
  * field in the gamesetup structure initialized.

@@ -311,11 +311,10 @@ static int showsolutionfiles(gamespec *gs)
 
     f = n >= 0 && n != current;
     if (f) {
-	clearsolutions(&gs->series);
-	if (!gs->series.savefilename)
-	    gs->series.savefilename = getpathbuffer();
-	sprintf(gs->series.savefilename, "%.*s", getpathbufferlen(),
-						 filelist[n]);
+		clearsolutions(&gs->series);
+		int l = (sizeof(char*) * strlen(filelist[n])) + 1;
+		gs->series.savefilename = (char *)malloc(l);
+		strcpy(gs->series.savefilename, filelist[n]);
 	if (readsolutions(&gs->series)) {
 	    if (readonly)
 		gs->series.gsflags |= GSF_NOSAVING;
