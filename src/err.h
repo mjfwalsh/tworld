@@ -11,6 +11,8 @@
  */
 #define	memerrexit()	(die("out of memory"))
 #define	x_alloc(p, n)	(((p) = realloc((p), (n))) || (memerrexit(), 0))
+#define	x_malloc(p, n)	(((p) = malloc((n))) || (memerrexit(), 0))
+#define	x_cmalloc(p, n)	(((p) = (char *)malloc((n))) || (memerrexit(), 0))
 
 #ifdef __cplusplus
 extern "C" {

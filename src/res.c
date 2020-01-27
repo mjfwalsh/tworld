@@ -29,7 +29,8 @@ int         currentRuleset;
  */
 static void LoadImages()
 {
-    char *fp = (char *)malloc(resPathLen);
+    char *fp;
+    x_cmalloc(fp, resPathLen);
     strcpy(fp, resPath);
 
 	if(currentRuleset == Ruleset_Lynx) {
@@ -47,7 +48,8 @@ static void LoadImages()
  */
 static int addSound(int i, const char *file)
 {
-    char *fp = (char *)malloc(resPathLen);
+    char *fp;
+    x_cmalloc(fp, resPathLen);
     strcpy(fp, resPath);
 	strcat(fp, "/");
 	strcat(fp, file);

@@ -313,7 +313,7 @@ static int showsolutionfiles(gamespec *gs)
     if (f) {
 		clearsolutions(&gs->series);
 		int l = (sizeof(char*) * strlen(filelist[n])) + 1;
-		gs->series.savefilename = (char *)malloc(l);
+		x_cmalloc(gs->series.savefilename, l);
 		strcpy(gs->series.savefilename, filelist[n]);
 	if (readsolutions(&gs->series)) {
 	    if (readonly)

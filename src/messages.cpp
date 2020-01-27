@@ -8,6 +8,7 @@
 
 #include "fileio.h"
 #include "res.h"
+#include "err.h"
 
 #include <algorithm>
 #include <bitset>
@@ -110,7 +111,7 @@ char const* getmessage(int type, char const* alt)
 		return alt;
     } else {
 		char *x;
-		x = (char*) malloc(messages[mnum].length() + 1);
+		x_cmalloc(x, messages[mnum].length() + 1);
 		strcpy(x, messages[mnum].c_str());
 		return x;
     }

@@ -177,12 +177,12 @@ void TileWorldApp::InitDirs()
 	checkDir(userSolDirQ);
 
 	// translate QString to const char*
-	appResDir = (char *) malloc(appResDirQ.length() + 1);
-	userSetsDir = (char *) malloc(userSetsDirQ.length() + 1);
-	userDataDir = (char *) malloc(userDataDirQ.length() + 1);
-	appDataDir = (char *) malloc(appDataDirQ.length() + 1);
-	userSolDir = (char *) malloc(userSolDirQ.length() + 1);
-	userDir = (char *) malloc(userDirQ.length() + 1);
+	x_cmalloc(appResDir, appResDirQ.length() + 1);
+	x_cmalloc(userSetsDir, userSetsDirQ.length() + 1);
+	x_cmalloc(userDataDir, userDataDirQ.length() + 1);
+	x_cmalloc(appDataDir, appDataDirQ.length() + 1);
+	x_cmalloc(userSolDir, userSolDirQ.length() + 1);
+	x_cmalloc(userDir, userDirQ.length() + 1);
 
 	strcpy(appResDir, appResDirQ.toUtf8().constData());
 	strcpy(userSetsDir, userSetsDirQ.toUtf8().constData());

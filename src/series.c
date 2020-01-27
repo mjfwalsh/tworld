@@ -567,7 +567,7 @@ static int getseriesfile(char const *filename, void *data)
 	    fileclose(&series->mapfile, NULL);
 	    clearfileinfo(&series->mapfile);
 	    if (f) {
-			series->mapfilename = (char *)malloc(strlen(datfilename) + 1);
+			x_cmalloc(series->mapfilename, strlen(datfilename) + 1);
 			strcpy(series->mapfilename, datfilename);
 			series->mapfiledir = datdir;
 		}

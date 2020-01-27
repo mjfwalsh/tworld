@@ -338,7 +338,7 @@ char *getpathforfileindir(int dirInt, char const *filename)
 	    errno = ENAMETOOLONG;
 	    return NULL;
 	}
-	path = (char *)malloc(m + n + 1);
+	x_cmalloc(path, m + n + 1);
 	memcpy(path, dir, n);
 	path[n++] = DIRSEP_CHAR;
 	memcpy(path + n, filename, m + 1);
@@ -357,7 +357,7 @@ int openfileindir(fileinfo *file, int dirInt, char const *filename,
 	char const *name = getpathforfileindir(dirInt, filename);
 
 	if (!file->name) {
-		file->name = malloc(strlen(name) + 1);
+		x_malloc(file->name, strlen(name) + 1);
 		strcpy(file->name, name);
 	}
 
