@@ -92,32 +92,6 @@ static FILE *FOPEN(char const *name, char const *mode)
 #define FOPEN fopen
 #endif
 
-/* Open a file. If the fileinfo structure does not already have a
- * filename assigned to it, use name (after making an independent
- * copy).
- */
-int fileopen(fileinfo *file, char const *name, char const *mode,
-	     char const *msg)
-{
-    int	n;
-
-    if (!file->name) {
-	n = strlen(name) + 1;
-	if ((file->name = malloc(n))) {
-	    memcpy(file->name, name, n);
-	    file->alloc = TRUE;
-	} else {
-	    file->name = (char*)name;
-	    file->alloc = FALSE;
-	}
-    }
-    errno = 0;
-    file->fp = FOPEN(name, mode);
-    if (file->fp)
-	return TRUE;
-    return fileerr(file, msg);
-}
-
 /* Close the file, clear the file pointer, and free the name buffer if
  * necessary.
  */
@@ -332,17 +306,6 @@ int filewriteint32(fileinfo *file, unsigned long val32, char const *msg)
  * Directory-handling functions.
  */
 
-/* Return a buffer big enough to hold a pathname.
- */
-char *getpathbuffer(void)
-{
-    char       *buf;
-
-    if (!(buf = malloc(PATH_MAX + 1)))
-	memerrexit();
-    return buf;
-}
-
 /* Return TRUE if name contains a path but is not a directory itself.
  */
 int haspathname(char const *name)
@@ -356,17 +319,6 @@ int haspathname(char const *name)
     return TRUE;
 }
 
-/* Return a pointer to the filename, skipping over any directories in
- * the front.
- */
-char *skippathname(char const *name)
-{
-    char const *p;
-
-    p = strrchr(name, DIRSEP_CHAR);
-    return (char*)(p ? p + 1 : name);
-}
-
 /* Return the pathname for a directory and/or filename, using the
  * same algorithm to construct the path as openfileindir().
  */
@@ -377,51 +329,42 @@ char *getpathforfileindir(int dirInt, char const *filename)
 
     char const *dir = getdir(dirInt);
 
-    m = strlen(filename);
-    if (!dir || !*dir || strchr(filename, DIRSEP_CHAR)) {
-	if (m > PATH_MAX) {
-	    errno = ENAMETOOLONG;
-	    return NULL;
-	}
-	path = getpathbuffer();
-	strcpy(path, filename);
-    } else {
+    if (strchr(filename, DIRSEP_CHAR))
+	die("getpathforfileindir: path passed as filename %s", filename);
+
+	m = strlen(filename);
 	n = strlen(dir);
 	if (m + n + 1 > PATH_MAX) {
 	    errno = ENAMETOOLONG;
 	    return NULL;
 	}
-	path = getpathbuffer();
+	path = (char *)malloc(m + n + 1);
 	memcpy(path, dir, n);
 	path[n++] = DIRSEP_CHAR;
 	memcpy(path + n, filename, m + 1);
-    }
-    return path;
+	return path;
 }
 
-/* Open a file, using dir as the directory if filename is not a path.
+
+/* Open a file from of the directories RESDIR, SERIESDIR, USER_SERIESDATDIR,
+ * GLOBAL_SERIESDATDIR, SOLUTIONDIR, or SETTINGSDIR. If the fileinfo structure
+ * does not already have a filename assigned to it, use name (after making an
+ * independent copy).
  */
 int openfileindir(fileinfo *file, int dirInt, char const *filename,
 		  char const *mode, char const *msg)
 {
-    char	buf[PATH_MAX + 1];
-    int		m, n;
+	char const *name = getpathforfileindir(dirInt, filename);
 
-	char const *dir = getdir(dirInt);
+	if (!file->name) {
+		file->name = malloc(strlen(name) + 1);
+		strcpy(file->name, name);
+	}
 
-    if (!dir || !*dir || strchr(filename, DIRSEP_CHAR))
-	return fileopen(file, filename, mode, msg);
-
-    n = strlen(dir);
-    m = strlen(filename);
-    if (m + n + 1 > PATH_MAX) {
-	errno = ENAMETOOLONG;
-	return fileerr(file, NULL);
-    }
-    memcpy(buf, dir, n);
-    buf[n++] = DIRSEP_CHAR;
-    memcpy(buf + n, filename, m + 1);
-    return fileopen(file, buf, mode, msg);
+	errno = 0;
+	file->fp = FOPEN(name, mode);
+	if (file->fp) return TRUE;
+	return fileerr(file, msg);
 }
 
 /* Read the given directory and call filecallback once for each file

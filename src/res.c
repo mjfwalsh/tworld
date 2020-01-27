@@ -25,9 +25,6 @@ int resPathLen = 0;
 // The active ruleset.
 int         currentRuleset;
 
-// to pass functions as params
-typedef int (*txtloader)(char const * fname);
-
 /* Attempt to load the tile images.
  */
 static void LoadImages()
@@ -44,19 +41,6 @@ static void LoadImages()
 	if(!loadtileset(fp, TRUE)) {
 		die(fp, "no valid tilesets found");
 	}
-}
-
-
-/* Load the list of unsolvable levels.
- */
-static int LoadTextResource(const char* file, txtloader loadfunc)
-{
-    char *fp = (char *)malloc(resPathLen);
-    strcpy(fp, resPath);
-	strcat(fp, "/");
-	strcat(fp, file);
-
-	return loadfunc(fp);
 }
 
 /* Load all of the sound resources.
@@ -149,9 +133,7 @@ int loadgameresources(int ruleset)
 int initresources()
 {
 	initVars();
-
-    return LoadTextResource("unslist.txt", loadunslistfromfile) &&
-    LoadTextResource("messages.txt", loadmessagesfromfile);
+    return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
 }
 
 

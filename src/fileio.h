@@ -17,16 +17,6 @@ extern "C" {
  */
 extern void clearfileinfo(fileinfo *file);
 
-/* Open a file. If the fileinfo structure does not already have a
- * filename assigned to it, name will be used as the filename. If msg
- * is NULL, no error will be displayed if the file cannot be opened.
- * If msg points to a string, an error will be displayed. The text of
- * msg will be used only if errno is zero; otherwise a message
- * appropriate to the error will be used.
- */
-extern int fileopen(fileinfo *file, char const *name, char const *mode,
-		    char const *msg);
-
 /* The following functions correspond directly to C's standard I/O
  * functions. If msg is NULL, no error will be displayed if
  * the operation fails. If msg points to a string, an error will
@@ -77,22 +67,9 @@ extern void *filereadbuf(fileinfo *file, unsigned long size, char const *msg);
  */
 extern int filegetline(fileinfo *file, char *buf, int *len, char const *msg);
 
-/* Return the maximum size of a legal pathname.
- */
-extern int getpathbufferlen(void);
-
-/* Return an allocated buffer big enough to hold any legal pathname.
- */
-extern char *getpathbuffer(void);
-
 /* Return TRUE if name contains a path but is not a directory itself.
  */
 extern int haspathname(char const *name);
-
-/* Return a pointer to the filename, skipping over any directories in
- * the front.
- */
-extern char *skippathname(char const *name);
 
 /* Return the pathname for a directory and/or filename, using the same
  * algorithm to construct the path as openfileindir(). The caller must

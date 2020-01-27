@@ -964,7 +964,7 @@ static int runcurrentlevel(gamespec *gs)
 
     name = gs->series.filebase;
 
-    updatehistory(skippathname(name),
+    updatehistory(name,
 		  gs->series.games[gs->currentgame].passwd,
 		  gs->series.games[gs->currentgame].number);
 
@@ -1061,7 +1061,6 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
     int i, n;
     history *h;
 
-    name = skippathname(name);
     h = historylist;
     for (i = 0; i < historycount; ++i, ++h) {
 	if (stricmp(h->name, name) == 0) {

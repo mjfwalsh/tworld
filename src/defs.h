@@ -275,11 +275,12 @@ typedef	struct gameseries {
     int			final;		/* number of the ending level */
     int			ruleset;	/* the ruleset for the game file */
     int			gsflags;	/* series flags (see below) */
-    gamesetup	       *games;		/* the array of levels */
-    fileinfo		mapfile;	/* the file containing the levels */
-    char	       *mapfilename;	/* the name of said file */
-    fileinfo		savefile;	/* the file holding the solutions */
-    char	       *savefilename;	/* non-default name for said file */
+    gamesetup	*games;		/* the array of levels */
+    fileinfo	mapfile;	/* the file containing the levels */
+    char		*mapfilename;	/* the name of said file */
+    int			mapfiledir;	/* the dir the said file is in */
+    fileinfo	savefile;	/* the file holding the solutions */
+    char		*savefilename;	/* non-default name for said file */
     int			solheaderflags;	/* solution flags (none defined yet) */
     int			solheadersize;	/* size of extra solution header */
     char		filebase[256];	/* the level set's filename */

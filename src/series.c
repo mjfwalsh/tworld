@@ -348,7 +348,7 @@ int readseriesfile(gameseries *series)
     }
 
     if (!series->mapfile.fp) {
-	if (!openfileindir(&series->mapfile, 0,
+	if (!openfileindir(&series->mapfile, series->mapfiledir,
 			   series->mapfilename, "rb", "unknown error"))
 	    return FALSE;
 	if (!readseriesheader(series))
@@ -389,6 +389,7 @@ void freeseriesdata(gameseries *series)
     clearfileinfo(&series->mapfile);
     free(series->mapfilename);
     series->mapfilename = NULL;
+    series->mapfiledir = 0;
     free(series->savefilename);
     series->savefilename = NULL;
     series->gsflags = 0;
@@ -523,6 +524,7 @@ static int getseriesfile(char const *filename, void *data)
     }
     series = sdata->list + sdata->count;
     series->mapfilename = NULL;
+    series->mapfiledir = 0;
     clearfileinfo(&series->savefile);
     series->savefilename = NULL;
     series->gsflags = 0;
@@ -535,7 +537,7 @@ static int getseriesfile(char const *filename, void *data)
     sprintf(series->filebase, "%.*s", (int)(sizeof series->filebase - 1),
                                       filename);
     sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
-				  skippathname(filename));
+				  filename);
 
     f = FALSE;
 
@@ -545,6 +547,7 @@ static int getseriesfile(char const *filename, void *data)
 	clearfileinfo(&series->mapfile);
 	free(series->mapfilename);
 	series->mapfilename = NULL;
+	series->mapfiledir = 0;
 	datfilename = readconfigfile(&file, series);
 	fileclose(&file, NULL);
 	if (datfilename) {
@@ -563,9 +566,11 @@ static int getseriesfile(char const *filename, void *data)
 
 	    fileclose(&series->mapfile, NULL);
 	    clearfileinfo(&series->mapfile);
-	    if (f)
-		series->mapfilename = getpathforfileindir(datdir,
-							  datfilename);
+	    if (f) {
+			series->mapfilename = (char *)malloc(strlen(datfilename) + 1);
+			strcpy(series->mapfilename, datfilename);
+			series->mapfiledir = datdir;
+		}
 	}
     if (f)
 	++sdata->count;
@@ -626,8 +631,8 @@ static int getmapfile(char const *filename, void *data)
  */
 static int gameseriescmp_mapfilename(void const *a, void const *b)
 {
-    char const * namea = skippathname(((gameseries*)a)->mapfilename);
-    char const * nameb = skippathname(((gameseries*)b)->mapfilename);
+    char const * namea = ((gameseries*)a)->mapfilename;
+    char const * nameb = ((gameseries*)b)->mapfilename;
     return stricmp(namea, nameb);
 }
 
@@ -638,7 +643,7 @@ char *generatenewdacname(mapfileinfo const *datfile, int ruleset)
     rulesetname[Ruleset_Lynx] = "lynx";
     rulesetname[Ruleset_MS] = "ms";
 
-    char const *basename = skippathname(datfile->filename);
+    char const *basename = datfile->filename;
     size_t newnamelen = 0u;
     newnamelen += strlen(basename);
     newnamelen += 1u; /* hyphen */
@@ -732,7 +737,7 @@ static void createallmissingseries(seriesdata *s)
 	memset(seriesrulesetcount, 0, sizeof seriesrulesetcount);
 	mapfileinfo const *currentlevelfile = &s->mfinfo.buf[n];
 	char *currentmapname = currentlevelfile->filename;
-	while (m < nseries && !stricmp(currentmapname, skippathname(s->list[m].mapfilename))) {
+	while (m < nseries && !stricmp(currentmapname, s->list[m].mapfilename)) {
 	    int ruleset = s->list[m].ruleset;
 	    addgameseries(s->mfinfo.buf[n].sfilelst, m, ruleset);
 	    ++seriesrulesetcount[ruleset];
