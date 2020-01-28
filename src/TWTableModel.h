@@ -76,8 +76,7 @@ void TWTableModel::SetTableSpec(const tablespec* pSpec)
 	ItemInfo dummyItemInfo;
 
 	const char* const * pp = pSpec->items;
-	for (int i = 0; i < n; ++pp)
-	{
+	for (int i = 0; i < n; ++pp) {
 		const char* p = *pp;
 		ItemInfo ii;
 
@@ -90,8 +89,7 @@ void TWTableModel::SetTableSpec(const tablespec* pSpec)
 		m_vecItems.push_back(ii);
 
 		int d = p[0] - '0';
-		for (int j = 1; j < d; ++j)
-		{
+		for (int j = 1; j < d; ++j) {
 			m_vecItems.push_back(dummyItemInfo);
 		}
 
@@ -117,8 +115,7 @@ QVariant TWTableModel::GetData(int row, int col, int role) const
 	int i = row*m_nCols + col;
 	const ItemInfo& ii = m_vecItems[i];
 
-	switch (role)
-	{
+	switch (role) {
 		case Qt::DisplayRole:
 			return ii.sText;
 

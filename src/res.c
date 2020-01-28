@@ -29,9 +29,9 @@ int         currentRuleset;
  */
 static void LoadImages()
 {
-    char *fp;
-    x_cmalloc(fp, resPathLen);
-    strcpy(fp, resPath);
+	char *fp;
+	x_cmalloc(fp, resPathLen);
+	strcpy(fp, resPath);
 
 	if(currentRuleset == Ruleset_Lynx) {
 		strcat(fp, "/atiles.bmp");
@@ -48,13 +48,13 @@ static void LoadImages()
  */
 static int addSound(int i, const char *file)
 {
-    char *fp;
-    x_cmalloc(fp, resPathLen);
-    strcpy(fp, resPath);
+	char *fp;
+	x_cmalloc(fp, resPathLen);
+	strcpy(fp, resPath);
 	strcat(fp, "/");
 	strcat(fp, file);
 
-    return loadsfxfromfile(i, fp);
+	return loadsfxfromfile(i, fp);
 }
 
 static int LoadSounds()
@@ -135,7 +135,7 @@ int loadgameresources(int ruleset)
 int initresources()
 {
 	initVars();
-    return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
+	return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
 }
 
 
@@ -144,9 +144,9 @@ int initresources()
  */
 void freeallresources(void)
 {
-    int	n;
-    freetileset();
-    clearunslist();
-    for (n = 0 ; n < SND_COUNT ; ++n)
-	 freesfx(n);
+	int	n;
+	freetileset();
+	clearunslist();
+	for (n = 0 ; n < SND_COUNT ; ++n)
+		freesfx(n);
 }

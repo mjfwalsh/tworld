@@ -31,10 +31,10 @@ enum Compatibility
 struct RulesetCompatibility
 {
 	Compatibility eMS, eLynx, ePedantic;
-	
+
 	RulesetCompatibility()
 		: eMS(COMPAT_UNKNOWN), eLynx(COMPAT_UNKNOWN), ePedantic(COMPAT_UNKNOWN) {}
-		
+
 	void ReadXML(QDomElement elm);
 };
 
@@ -49,14 +49,14 @@ struct PageProperties
 	TextFormat eFormat;
 	Qt::AlignmentFlag align, valign;
 	QColor color, bgcolor;
-	
+
 	PageProperties()
 		:
 		eFormat(TEXT_PLAIN),
 		align(Qt::AlignLeft), valign(Qt::AlignTop),
 		color(Qt::white), bgcolor(Qt::black)
 		{}
-	
+
 	void ReadXML(QDomElement elm);
 };
 
@@ -64,16 +64,16 @@ struct Page
 {
 	QString sText;
 	PageProperties pageProps;
-	
+
 	void ReadXML(QDomElement elm, const Levelset& levelset);
 };
 
 struct Text
 {
 	std::vector<Page> vecPages;
-	
+
 	bool bSeen;
-	
+
 	Text()
 		: bSeen(false) {}
 

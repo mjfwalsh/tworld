@@ -143,171 +143,171 @@ static int const fileids[] = {
  */
 static int expandmsdatlevel(gamestate *state)
 {
-    gamesetup		       *setup;
-    unsigned char const	       *data;
-    unsigned char const	       *dataend;
-    int				size, pos, id;
-    int				i, n;
+	gamesetup		       *setup;
+	unsigned char const	       *data;
+	unsigned char const	       *dataend;
+	int				size, pos, id;
+	int				i, n;
 
-    memset(state->map, 0, sizeof state->map);
-    state->trapcount = 0;
-    state->clonercount = 0;
-    state->crlistcount = 0;
-    state->hinttext[0] = '\0';
+	memset(state->map, 0, sizeof state->map);
+	state->trapcount = 0;
+	state->clonercount = 0;
+	state->crlistcount = 0;
+	state->hinttext[0] = '\0';
 
-    setup = state->game;
-    if (setup->levelsize < 10)
-	goto badlevel;
-    data = setup->leveldata;
-    dataend = data + setup->levelsize;
+	setup = state->game;
+	if (setup->levelsize < 10)
+		goto badlevel;
+	data = setup->leveldata;
+	dataend = data + setup->levelsize;
 
-    if (readword(data) == 0)
-	goto badlevel;
-    state->chipsneeded = readword(data + 4);
+	if (readword(data) == 0)
+		goto badlevel;
+	state->chipsneeded = readword(data + 4);
 
-    if (readword(data + 6) > 1)
-	goto badlevel;
-    size = readword(data + 8);
-    data += 10;
-    if (data + size + 2 > dataend)
-	goto badlevel;
-    for (n = pos = 0 ; n < size && pos < CXGRID * CYGRID ; ++n) {
-	if (data[n] == 0xFF) {
-	    i = data[++n];
-	    id = data[++n];
-	} else {
-	    i = 1;
-	    id = data[n];
+	if (readword(data + 6) > 1)
+		goto badlevel;
+	size = readword(data + 8);
+	data += 10;
+	if (data + size + 2 > dataend)
+		goto badlevel;
+	for (n = pos = 0 ; n < size && pos < CXGRID * CYGRID ; ++n) {
+		if (data[n] == 0xFF) {
+			i = data[++n];
+			id = data[++n];
+		} else {
+			i = 1;
+			id = data[n];
+		}
+		if (id >= (int)(sizeof fileids / sizeof *fileids)) {
+			id = Wall;
+			state->statusflags |= SF_BADTILES;
+		} else {
+			id = fileids[id];
+		}
+		while (i-- && pos < CXGRID * CYGRID)
+			state->map[pos++].top.id = id;
 	}
-	if (id >= (int)(sizeof fileids / sizeof *fileids)) {
-	    id = Wall;
-	    state->statusflags |= SF_BADTILES;
-	} else {
-	    id = fileids[id];
-	}
-	while (i-- && pos < CXGRID * CYGRID)
-	    state->map[pos++].top.id = id;
-    }
-    if (n < size)
-	warn("level %d: %d extra bytes in upper map layer",
-	     setup->number, size - n);
-    else if (pos < CXGRID * CYGRID)
-	warn("level %d: %d missing bytes in upper map layer",
-	     setup->number, CXGRID * CYGRID - pos);
-    data += size + 2;
-    size = readword(data - 2);
-    if (data + size > dataend)
-	goto badlevel;
-    for (n = pos = 0 ; n < size && pos < CXGRID * CYGRID ; ++n) {
-	if (data[n] == 0xFF) {
-	    i = data[++n];
-	    id = data[++n];
-	} else {
-	    i = 1;
-	    id = data[n];
-	}
-	if (id >= (int)(sizeof fileids / sizeof *fileids)) {
-	    id = Wall;
-	    state->statusflags |= SF_BADTILES;
-	} else {
-	    id = fileids[id];
-	}
-	while (i-- && pos < CXGRID * CYGRID)
-	    state->map[pos++].bot.id = id;
-    }
-    if (n < size)
-	warn("level %d: %d extra bytes in lower map layer",
-	     setup->number, size - n);
-    else if (pos < CXGRID * CYGRID)
-	warn("level %d: %d missing bytes in lower map layer",
-	     setup->number, CXGRID * CYGRID - pos);
-    data += size;
-
-    size = readword(data);
-    data += 2;
-    if (data + size != dataend)
-	warn("level %d: inconsistent metadata", setup->number);
-    while (data + 2 < dataend) {
-	size = data[1];
-	data += 2;
+	if (n < size)
+		warn("level %d: %d extra bytes in upper map layer",
+			setup->number, size - n);
+	else if (pos < CXGRID * CYGRID)
+		warn("level %d: %d missing bytes in upper map layer",
+			setup->number, CXGRID * CYGRID - pos);
+	data += size + 2;
+	size = readword(data - 2);
 	if (data + size > dataend)
-	    size = dataend - data;
-	switch (data[-2]) {
-	  case 1:
-	    /* time */
-	    break;
-	  case 2:
-	    if (size < 2)
-		warn("level %d: ignoring field 2 data of size %d",
-		     setup->number, size);
-	    else
-		state->chipsneeded = readword(data);
-	    break;
-	  case 3:
-	    /* level name */
-	    break;
-	  case 4:
-	    if (size % 10)
-		warn("level %d: ignoring %d extra bytes at end of field 4",
-		     setup->number, size % 10);
-	    state->trapcount = size / 10;
-	    for (i = 0 ; i < state->trapcount ; ++i) {
-		state->traps[i].from = readpos(data + i * 10,
-					       data + i * 10 + 2);
-		state->traps[i].to = readpos(data + i * 10 + 4,
-					     data + i * 10 + 6);
-	    }
-	    break;
-	  case 5:
-	    if (size % 8)
-		warn("level %d: ignoring %d extra bytes at end of field 5",
-		     setup->number, size % 8);
-	    state->clonercount = size / 8;
-	    for (i = 0 ; i < state->clonercount ; ++i) {
-		state->cloners[i].from = readpos(data + i * 8,
-						 data + i * 8 + 2);
-		state->cloners[i].to = readpos(data + i * 8 + 4,
-					       data + i * 8 + 6);
-	    }
-	    break;
-	  case 6:
-	    /* passwd */
-	    break;
-	  case 7:
-	    memcpy(state->hinttext, data, size);
-	    state->hinttext[size] = '\0';
-	    break;
-	  case 8:
-	    /* field 8 passwd */
-	    break;
-	  case 10:
-	    if (size % 2)
-		warn("level %d: ignoring extra byte at end of field 10",
-		     setup->number);
-	    state->crlistcount = size / 2;
-	    for (i = 0 ; i < state->crlistcount ; ++i)
-		state->crlist[i] = readpos(data + i * 2, data + i * 2 + 1);
-	    break;
-	  default:
-	    warn("level %d: ignoring unrecognized field %d (%d bytes)",
-		 setup->number, data[-2], size);
-	    break;
+		goto badlevel;
+	for (n = pos = 0 ; n < size && pos < CXGRID * CYGRID ; ++n) {
+		if (data[n] == 0xFF) {
+			i = data[++n];
+			id = data[++n];
+		} else {
+			i = 1;
+			id = data[n];
+		}
+		if (id >= (int)(sizeof fileids / sizeof *fileids)) {
+			id = Wall;
+			state->statusflags |= SF_BADTILES;
+		} else {
+			id = fileids[id];
+		}
+		while (i-- && pos < CXGRID * CYGRID)
+			state->map[pos++].bot.id = id;
 	}
+	if (n < size)
+		warn("level %d: %d extra bytes in lower map layer",
+			setup->number, size - n);
+	else if (pos < CXGRID * CYGRID)
+		warn("level %d: %d missing bytes in lower map layer",
+			setup->number, CXGRID * CYGRID - pos);
 	data += size;
-    }
 
-    return TRUE;
+	size = readword(data);
+	data += 2;
+	if (data + size != dataend)
+		warn("level %d: inconsistent metadata", setup->number);
+	while (data + 2 < dataend) {
+		size = data[1];
+		data += 2;
+		if (data + size > dataend)
+			size = dataend - data;
+		switch (data[-2]) {
+			case 1:
+				/* time */
+				break;
+			case 2:
+				if (size < 2)
+					warn("level %d: ignoring field 2 data of size %d",
+						setup->number, size);
+				else
+					state->chipsneeded = readword(data);
+				break;
+			case 3:
+				/* level name */
+				break;
+			case 4:
+				if (size % 10)
+					warn("level %d: ignoring %d extra bytes at end of field 4",
+						setup->number, size % 10);
+				state->trapcount = size / 10;
+				for (i = 0 ; i < state->trapcount ; ++i) {
+					state->traps[i].from = readpos(data + i * 10,
+						data + i * 10 + 2);
+					state->traps[i].to = readpos(data + i * 10 + 4,
+						data + i * 10 + 6);
+				}
+				break;
+			case 5:
+				if (size % 8)
+					warn("level %d: ignoring %d extra bytes at end of field 5",
+						setup->number, size % 8);
+				state->clonercount = size / 8;
+				for (i = 0 ; i < state->clonercount ; ++i) {
+					state->cloners[i].from = readpos(data + i * 8,
+						data + i * 8 + 2);
+					state->cloners[i].to = readpos(data + i * 8 + 4,
+						data + i * 8 + 6);
+				}
+				break;
+			case 6:
+				/* passwd */
+				break;
+			case 7:
+				memcpy(state->hinttext, data, size);
+				state->hinttext[size] = '\0';
+				break;
+			case 8:
+				/* field 8 passwd */
+				break;
+			case 10:
+				if (size % 2)
+					warn("level %d: ignoring extra byte at end of field 10",
+						setup->number);
+				state->crlistcount = size / 2;
+				for (i = 0 ; i < state->crlistcount ; ++i)
+					state->crlist[i] = readpos(data + i * 2, data + i * 2 + 1);
+				break;
+			default:
+				warn("level %d: ignoring unrecognized field %d (%d bytes)",
+					setup->number, data[-2], size);
+				break;
+		}
+		data += size;
+	}
 
-  badlevel:
-    errmsg(NULL, "level %d: invalid data", setup->number);
-    return FALSE;
+	return TRUE;
+
+badlevel:
+	errmsg(NULL, "level %d: invalid data", setup->number);
+	return FALSE;
 }
 
 /* Exported interface.
  */
 int expandleveldata(gamestate *state)
 {
-    return expandmsdatlevel(state);
+	return expandmsdatlevel(state);
 }
 
 /* Return the setup for a small level to display at the completion of
@@ -315,7 +315,7 @@ int expandleveldata(gamestate *state)
  */
 void getenddisplaysetup(gamestate *state)
 {
-    static unsigned char endingdata[] = {
+	static unsigned char endingdata[] = {
 	0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x6D, 0x00,
 	0x15, 0x39, 0x39, 0x39, 0x15, 0x39, 0x39, 0x15, 0x39, 0xFF, 0x17, 0x00,
 	0x39, 0x39, 0x15, 0x15, 0x15, 0x39, 0x39, 0x15, 0x39, 0xFF, 0x17, 0x00,
@@ -331,22 +331,22 @@ void getenddisplaysetup(gamestate *state)
 	0xFF, 0x84, 0x00, 0x15, 0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0x00,
 	0xFF, 0xFF, 0x00, 0xFF, 0x7E, 0x00,
 	0x00, 0x00
-    };
+	};
 
-    static gamesetup	ending;
+	static gamesetup	ending;
 
-    ending.number = 1;
-    ending.time = 0;
-    ending.besttime = TIME_NIL;
-    ending.sgflags = 0;
-    ending.levelsize = sizeof endingdata;
-    ending.leveldata = endingdata;
-    ending.solutionsize = 0;
-    ending.solutiondata = NULL;
-    strcpy(ending.name, "CONGRATULATIONS!");
-    ending.passwd[0] = '\0';
+	ending.number = 1;
+	ending.time = 0;
+	ending.besttime = TIME_NIL;
+	ending.sgflags = 0;
+	ending.levelsize = sizeof endingdata;
+	ending.leveldata = endingdata;
+	ending.solutionsize = 0;
+	ending.solutiondata = NULL;
+	strcpy(ending.name, "CONGRATULATIONS!");
+	ending.passwd[0] = '\0';
 
-    state->game = &ending;
-    expandmsdatlevel(state);
-    ending.number = 0;
+	state->game = &ending;
+	expandmsdatlevel(state);
+	ending.number = 0;
 }

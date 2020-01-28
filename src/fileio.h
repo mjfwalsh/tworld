@@ -25,9 +25,9 @@ extern void clearfileinfo(fileinfo *file);
  */
 extern int filerewind(fileinfo *file, char const *msg);
 extern int fileread(fileinfo *file, void *data, unsigned long size,
-		    char const *msg);
+			char const *msg);
 extern int filewrite(fileinfo *file, void const *data, unsigned long size,
-		     char const *msg);
+			 char const *msg);
 extern void fileclose(fileinfo *file, char const *msg);
 
 /* fileskip() works like fseek() with whence set to SEEK_CUR.
@@ -95,7 +95,7 @@ extern int openfileindir(fileinfo *file, int dirInt, char const *filename,
  * examined.
  */
 extern int findfiles(int dirInt, void *data,
-		     int (*filecallback)(char const*, void*));
+			 int (*filecallback)(char const*, void*));
 
 /* Display a simple error message prefixed by the name of the given
  * file. If errno is set, a message appropriate to the value is used;
@@ -103,7 +103,7 @@ extern int findfiles(int dirInt, void *data,
  * function does nothing. The return value is always FALSE.
  */
 extern int fileerr_(char const *cfile, unsigned long lineno,
-		    fileinfo *file, char const *msg);
+			fileinfo *file, char const *msg);
 #define	fileerr(file, msg)	(fileerr_(__FILE__, __LINE__, (file), (msg)))
 
 #ifdef __cplusplus

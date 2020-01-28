@@ -82,7 +82,7 @@ OSHW_EXTERN void cleardisplay(void); // TWMainWnd.cpp
  * measured in seconds.
  */
 OSHW_EXTERN int displaygame(struct gamestate const *state,
-			    int timeleft, int besttime); // TWMainWnd.cpp
+				int timeleft, int besttime); // TWMainWnd.cpp
 
 /* Display a short message appropriate to the end of a level's game
  * play. If the level was completed successfully, completed is TRUE,
@@ -93,16 +93,16 @@ OSHW_EXTERN int displaygame(struct gamestate const *state,
  * command returned will be used as the next action.
  */
 OSHW_EXTERN int displayendmessage(int basescore, int timescore,
-			     long totalscore, int completed); // TWMainWnd.cpp
+				 long totalscore, int completed); // TWMainWnd.cpp
 
 
 /* Types of lists that can be displayed.
  */
 typedef enum {
-    LIST_MAPFILES,
-    LIST_SERIES,
-    LIST_SCORES,
-    LIST_SOLUTIONFILES
+	LIST_MAPFILES,
+	LIST_SERIES,
+	LIST_SCORES,
+	LIST_SOLUTIONFILES
 } DisplayListType;
 
 /* Display a scrollable table. title provides a title to display. The

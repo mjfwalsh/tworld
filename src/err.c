@@ -29,56 +29,55 @@ enum { NOTIFY_DIE, NOTIFY_ERR, NOTIFY_LOG };
  * an error condition. NOTIFY_DIE should indicate to the user that the
  * program is about to shut down.
  */
-static void usermessage(int action, char const *prefix,
-                 char const *cfile, unsigned long lineno,
-                 char const *fmt, va_list args)
+static void usermessage(int action, char const *prefix, char const *cfile,
+	unsigned long lineno, char const *fmt, va_list args)
 {
 	fprintf(stderr, "%s: ", action == NOTIFY_DIE ? "FATAL" :
-	                        action == NOTIFY_ERR ? "error" : "warning");
+							action == NOTIFY_ERR ? "error" : "warning");
 	if (prefix)
 		fprintf(stderr, "%s: ", prefix);
 	if (fmt)
 		vfprintf(stderr, fmt, args);
 	if (cfile)
 		fprintf(stderr, " [%s:%lu] ", cfile, lineno);
-    fputc('\n', stderr);
-    fflush(stderr);
+	fputc('\n', stderr);
+	fflush(stderr);
 }
 
 /* Log a warning message.
  */
 void warn_(char const *fmt, ...)
 {
-    va_list	args;
+	va_list	args;
 
-    va_start(args, fmt);
-    usermessage(NOTIFY_LOG, NULL, err_cfile_, err_lineno_, fmt, args);
-    va_end(args);
-    err_cfile_ = NULL;
-    err_lineno_ = 0;
+	va_start(args, fmt);
+	usermessage(NOTIFY_LOG, NULL, err_cfile_, err_lineno_, fmt, args);
+	va_end(args);
+	err_cfile_ = NULL;
+	err_lineno_ = 0;
 }
 
 /* Display an error message to the user.
  */
 void errmsg_(char const *prefix, char const *fmt, ...)
 {
-    va_list	args;
+	va_list	args;
 
-    va_start(args, fmt);
-    usermessage(NOTIFY_ERR, prefix, err_cfile_, err_lineno_, fmt, args);
-    va_end(args);
-    err_cfile_ = NULL;
-    err_lineno_ = 0;
+	va_start(args, fmt);
+	usermessage(NOTIFY_ERR, prefix, err_cfile_, err_lineno_, fmt, args);
+	va_end(args);
+	err_cfile_ = NULL;
+	err_lineno_ = 0;
 }
 
 /* Display an error message to the user and exit.
  */
 void die_(char const *fmt, ...)
 {
-    va_list	args;
+	va_list	args;
 
-    va_start(args, fmt);
-    usermessage(NOTIFY_DIE, NULL, err_cfile_, err_lineno_, fmt, args);
-    va_end(args);
-    exit(EXIT_FAILURE);
+	va_start(args, fmt);
+	usermessage(NOTIFY_DIE, NULL, err_cfile_, err_lineno_, fmt, args);
+	va_end(args);
+	exit(EXIT_FAILURE);
 }

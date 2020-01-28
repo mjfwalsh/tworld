@@ -30,9 +30,9 @@ using std::vector;
 
 namespace
 {
-    vector<string> messages;
-    vector<size_t> typeindex[MessageTypeCount];
-    size_t current[MessageTypeCount];
+	vector<string> messages;
+	vector<size_t> typeindex[MessageTypeCount];
+	size_t current[MessageTypeCount];
 }
 
 int const maxMessageSize = 511;
@@ -40,79 +40,72 @@ char const * messageTypeNames[MessageTypeCount] = { "win", "die", "time" };
 
 int loadmessagesfromfile(char const *filename)
 {
-    char *fname = getpathforfileindir(RESDIR, filename);
-    ifstream in(fname);
-    free(fname);
+	char *fname = getpathforfileindir(RESDIR, filename);
+	ifstream in(fname);
+	free(fname);
 
-    if (!in)
-        return FALSE;
+	if (!in)
+		return FALSE;
 
-    vector<string> newmessages;
-    vector<size_t> newtypeindex[MessageTypeCount];
-    bitset<MessageTypeCount> isactive;
-    isactive.set(MessageDie);
-    string line;
-    while (getline(in, line))
-    {
-        // Just in case DOS line endings on Linux. Not sure if needed.
-        string::iterator rpos(find(line.begin(), line.end(), '\r'));
-        if (rpos != line.end())
-            line.erase(rpos);
+	vector<string> newmessages;
+	vector<size_t> newtypeindex[MessageTypeCount];
+	bitset<MessageTypeCount> isactive;
+	isactive.set(MessageDie);
+	string line;
+	while (getline(in, line)) {
+		// Just in case DOS line endings on Linux. Not sure if needed.
+		string::iterator rpos(find(line.begin(), line.end(), '\r'));
+		if (rpos != line.end())
+			line.erase(rpos);
 
-        if (line.empty()) continue;
-        if (line[0] == ':')
-	{
-            isactive.reset();
+		if (line.empty()) continue;
+		if (line[0] == ':') {
+			isactive.reset();
 
-            istringstream in(line);
-            in.get(); // Discard ':'
-            string type;
-            while (in >> type)
-            {
-                int typenum = find(messageTypeNames,
-                    messageTypeNames + MessageTypeCount, type)
-                    - messageTypeNames;
-                if (typenum < MessageTypeCount)
-                    isactive.set(typenum);
-            }
-        }
-        else
-	{
-            for (size_t i = 0; i < isactive.size(); ++i)
-            {
-                if (isactive[i])
-                    newtypeindex[i].push_back(newmessages.size());
-            }
-            line = line.substr(0, maxMessageSize+1);
-            newmessages.push_back(line);
+			istringstream in(line);
+			in.get(); // Discard ':'
+			string type;
+			while (in >> type) {
+				int typenum = find(messageTypeNames,
+					messageTypeNames + MessageTypeCount, type)
+					- messageTypeNames;
+				if (typenum < MessageTypeCount)
+					isactive.set(typenum);
+			}
+		} else {
+			for (size_t i = 0; i < isactive.size(); ++i) {
+				if (isactive[i])
+					newtypeindex[i].push_back(newmessages.size());
+			}
+			line = line.substr(0, maxMessageSize+1);
+			newmessages.push_back(line);
+		}
 	}
-    }
 
-    messages.swap(newmessages);
-    for (size_t i = 0; i < MessageTypeCount; ++i)
-    {
-        typeindex[i].swap(newtypeindex[i]);
-        current[i] = 0;
-    }
+	messages.swap(newmessages);
+	for (size_t i = 0; i < MessageTypeCount; ++i) {
+		typeindex[i].swap(newtypeindex[i]);
+		current[i] = 0;
+	}
 
-    return TRUE;
+	return TRUE;
 }
 
 char const* getmessage(int type, char const* alt)
 {
-    if (type < 0 || type >= MessageTypeCount || typeindex[type].size() == 0)
-        return alt;
-
-    size_t const mnum = typeindex[type][current[type]];
-
-    current[type] = (current[type] + 1) % typeindex[type].size();
-
-    if(messages[mnum].empty()){
+	if (type < 0 || type >= MessageTypeCount || typeindex[type].size() == 0)
 		return alt;
-    } else {
+
+	size_t const mnum = typeindex[type][current[type]];
+
+	current[type] = (current[type] + 1) % typeindex[type].size();
+
+	if(messages[mnum].empty()){
+		return alt;
+	} else {
 		char *x;
 		x_cmalloc(x, messages[mnum].length() + 1);
 		strcpy(x, messages[mnum].c_str());
 		return x;
-    }
+	}
 }

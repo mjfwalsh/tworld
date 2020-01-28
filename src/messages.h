@@ -15,10 +15,10 @@
 
 enum
 {
-    MessageWin,
-    MessageDie,
-    MessageTime,
-    MessageTypeCount
+	MessageWin,
+	MessageDie,
+	MessageTime,
+	MessageTypeCount
 };
 
 OSHW_EXTERN int loadmessagesfromfile(char const *filename);

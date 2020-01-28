@@ -30,17 +30,17 @@
 #define	SIG_DACFILE		0x656C6966
 
 typedef struct {
-    mapfileinfo *buf;
-    int count;
-    int datdircount; /* Number of mapfiles in datdir */
+	mapfileinfo *buf;
+	int count;
+	int datdircount; /* Number of mapfiles in datdir */
 } mfinfovector;
 
 static void addgameseries(intlist *g, int gameseriesindex, int ruleset)
 {
-    g += ruleset;
-    ++g->count;
-    x_alloc(g->list, g->count * sizeof g->list);
-    g->list[g->count-1] = gameseriesindex;
+	g += ruleset;
+	++g->count;
+	x_alloc(g->list, g->count * sizeof g->list);
+	g->list[g->count-1] = gameseriesindex;
 }
 
 /* Add a level file to a mfinfovector. The vector takes ownership of the
@@ -48,54 +48,52 @@ static void addgameseries(intlist *g, int gameseriesindex, int ruleset)
  */
 static void addlevelfile(mfinfovector *v, char *filename, int levelcount, int path)
 {
-    ++v->count;
-    x_alloc(v->buf, v->count * sizeof *v->buf);
-    v->buf[v->count-1].filename = filename;
-    for (int n = 0; n < Ruleset_Count; ++n) {
-    	v->buf[v->count-1].sfilelst[n].list = NULL;
-    	v->buf[v->count-1].sfilelst[n].count = 0;
-    }
+	++v->count;
+	x_alloc(v->buf, v->count * sizeof *v->buf);
+	v->buf[v->count-1].filename = filename;
+	for (int n = 0; n < Ruleset_Count; ++n) {
+		v->buf[v->count-1].sfilelst[n].list = NULL;
+		v->buf[v->count-1].sfilelst[n].count = 0;
+	}
 
-    v->buf[v->count-1].levelcount = levelcount;
-    v->buf[v->count-1].path = path;
+	v->buf[v->count-1].levelcount = levelcount;
+	v->buf[v->count-1].path = path;
 }
 
 /* A callback function to compare mapfileinfo structs */
 static int compare_mapfileinfo(void const *a, void const *b)
 {
-    return stricmp(((mapfileinfo*)a)->filename, ((mapfileinfo*)b)->filename);
+	return stricmp(((mapfileinfo*)a)->filename, ((mapfileinfo*)b)->filename);
 }
 
 /* Remove .dat and .ccl suffixes from the mapfilenames */
 static void removefilenamesuffixes(mfinfovector *v)
 {
-    for (int n = 0; n < v->count; ++n)
-    {
-    	size_t const namelength = strlen(v->buf[n].filename);
-	if (namelength > 4u)
-	{
-	    char *suffix = &v->buf[n].filename[namelength - 4u];
-	    if (!stricmp(suffix, ".dat") || !stricmp(suffix, ".ccl"))
-		*suffix = '\0';
+	for (int n = 0; n < v->count; ++n) {
+		size_t const namelength = strlen(v->buf[n].filename);
+		if (namelength > 4u) {
+			char *suffix = &v->buf[n].filename[namelength - 4u];
+			if (!stricmp(suffix, ".dat") || !stricmp(suffix, ".ccl"))
+				*suffix = '\0';
+		}
 	}
-    }
 }
 
 /* Mini-structure for finding/generating the series files.
  */
 typedef	struct seriesdata {
-    mfinfovector mfinfo;	/* list of levelset files */
-    gameseries *list;		/* the gameseries list */
-    int		curdir;		/* directory we are searching */
-    int		allocated;	/* number of gameseries currently allocated */
-    int		count;		/* number of gameseries filled in */
+	mfinfovector mfinfo;	/* list of levelset files */
+	gameseries *list;		/* the gameseries list */
+	int		curdir;		/* directory we are searching */
+	int		allocated;	/* number of gameseries currently allocated */
+	int		count;		/* number of gameseries filled in */
 } seriesdata;
 
 /* Calculate a hash value for the given block of data.
  */
 static unsigned long hashvalue(unsigned char const *data, unsigned int size)
 {
-    static unsigned long remainders[256] = {
+	static unsigned long remainders[256] = {
 	0x00000000, 0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
 	0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6, 0x2B4BCB61,
 	0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD, 0x4C11DB70, 0x48D0C6C7,
@@ -139,16 +137,16 @@ static unsigned long hashvalue(unsigned char const *data, unsigned int size)
 	0x89B8FD09, 0x8D79E0BE, 0x803AC667, 0x84FBDBD0, 0x9ABC8BD5, 0x9E7D9662,
 	0x933EB0BB, 0x97FFAD0C, 0xAFB010B1, 0xAB710D06, 0xA6322BDF, 0xA2F33668,
 	0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4
-    };
+	};
 
-    unsigned long	accum;
-    unsigned int	i, j;
+	unsigned long	accum;
+	unsigned int	i, j;
 
-    for (j = 0, accum = 0xFFFFFFFFUL ; j < size ; ++j) {
-	i = ((accum >> 24) ^ data[j]) & 0x000000FF;
-	accum = (accum << 8) ^ remainders[i];
-    }
-    return accum ^ 0xFFFFFFFFUL;
+	for (j = 0, accum = 0xFFFFFFFFUL ; j < size ; ++j) {
+		i = ((accum >> 24) ^ data[j]) & 0x000000FF;
+		accum = (accum << 8) ^ remainders[i];
+	}
+	return accum ^ 0xFFFFFFFFUL;
 }
 
 /*
@@ -160,33 +158,33 @@ static unsigned long hashvalue(unsigned char const *data, unsigned int size)
  */
 static int readseriesheader(gameseries *series)
 {
-    unsigned short	val16;
-    int			ruleset;
+	unsigned short	val16;
+	int			ruleset;
 
-    if (!filereadint16(&series->mapfile, &val16, "not a valid data file"))
-	return FALSE;
-    if (val16 != SIG_DATFILE)
-	return fileerr(&series->mapfile, "not a valid data file");
-    if (!filereadint16(&series->mapfile, &val16, "not a valid data file"))
-	return FALSE;
-    switch (val16) {
-      case SIG_DATFILE_MS:	ruleset = Ruleset_MS;		break;
-      case SIG_DATFILE_LYNX:	ruleset = Ruleset_Lynx;		break;
-      default:
-	fileerr(&series->mapfile, "data file uses an unrecognized ruleset");
-	return FALSE;
-    }
-    if (series->ruleset == Ruleset_None)
-	series->ruleset = ruleset;
-    if (!filereadint16(&series->mapfile, &val16, "not a valid data file"))
-	return FALSE;
-    series->count = val16;
-    if (!series->count) {
-	fileerr(&series->mapfile, "file contains no maps");
-	return FALSE;
-    }
+	if (!filereadint16(&series->mapfile, &val16, "not a valid data file"))
+		return FALSE;
+	if (val16 != SIG_DATFILE)
+		return fileerr(&series->mapfile, "not a valid data file");
+	if (!filereadint16(&series->mapfile, &val16, "not a valid data file"))
+		return FALSE;
+	switch (val16) {
+		case SIG_DATFILE_MS:	ruleset = Ruleset_MS;		break;
+		case SIG_DATFILE_LYNX:	ruleset = Ruleset_Lynx;		break;
+		default:
+			fileerr(&series->mapfile, "data file uses an unrecognized ruleset");
+			return FALSE;
+	}
+	if (series->ruleset == Ruleset_None)
+		series->ruleset = ruleset;
+	if (!filereadint16(&series->mapfile, &val16, "not a valid data file"))
+		return FALSE;
+	series->count = val16;
+	if (!series->count) {
+		fileerr(&series->mapfile, "file contains no maps");
+		return FALSE;
+	}
 
-    return TRUE;
+	return TRUE;
 }
 
 /* Read a single level out of the given data file. The level's name,
@@ -194,80 +192,80 @@ static int readseriesheader(gameseries *series)
  */
 static int readleveldata(fileinfo *file, gamesetup *game)
 {
-    unsigned char	       *data;
-    unsigned char const	       *dataend;
-    unsigned short		size;
-    int				n;
+	unsigned char	       *data;
+	unsigned char const	       *dataend;
+	unsigned short		size;
+	int				n;
 
-    if (!filereadint16(file, &size, NULL))
-	return FALSE;
-    data = filereadbuf(file, size, "missing or invalid level data");
-    if (!data)
-	return FALSE;
-    if (size < 2) {
-	fileerr(file, "invalid level data");
-	free(data);
-	return FALSE;
-    }
-    game->levelsize = size;
-    game->leveldata = data;
-    dataend = game->leveldata + game->levelsize;
-
-    game->number = data[0] | (data[1] << 8);
-    if (size < 10)
-	goto badlevel;
-    game->time = data[2] | (data[3] << 8);
-    game->besttime = TIME_NIL;
-    game->passwd[0] = '\0';
-    data += data[8] | (data[9] << 8);
-    data += 10;
-    if (data + 2 >= dataend)
-	goto badlevel;
-    data += data[0] | (data[1] << 8);
-    data += 2;
-    size = data[0] | (data[1] << 8);
-    data += 2;
-    if (data + size != dataend)
-	warn("level %d: inconsistent size data (%d vs %d)",
-	     game->number, dataend - data, size);
-
-    while (data + 2 < dataend) {
-	size = data[1];
-	data += 2;
-	if (size > dataend - data)
-	    size = dataend - data;
-	switch (data[-2]) {
-	  case 1:
-	    if (size > 1)
-		game->time = data[0] | (data[1] << 8);
-	    break;
-	  case 3:
-	    memcpy(game->name, data, size);
-	    game->name[size] = '\0';
-	    break;
-	  case 6:
-	    for (n = 0 ; n < size && n < 15 && data[n] ; ++n)
-		game->passwd[n] = data[n] ^ 0x99;
-	    game->passwd[n] = '\0';
-	    break;
-	  case 8:
-	    warn("level %d: ignoring field 8 password", game->number);
-	    break;
+	if (!filereadint16(file, &size, NULL))
+		return FALSE;
+	data = filereadbuf(file, size, "missing or invalid level data");
+	if (!data)
+		return FALSE;
+	if (size < 2) {
+		fileerr(file, "invalid level data");
+		free(data);
+		return FALSE;
 	}
-	data += size;
-    }
-    if (!game->passwd[0] || strlen(game->passwd) != 4)
-	goto badlevel;
+	game->levelsize = size;
+	game->leveldata = data;
+	dataend = game->leveldata + game->levelsize;
 
-    game->levelhash = hashvalue(game->leveldata, game->levelsize);
-    return TRUE;
+	game->number = data[0] | (data[1] << 8);
+	if (size < 10)
+		goto badlevel;
+	game->time = data[2] | (data[3] << 8);
+	game->besttime = TIME_NIL;
+	game->passwd[0] = '\0';
+	data += data[8] | (data[9] << 8);
+	data += 10;
+	if (data + 2 >= dataend)
+		goto badlevel;
+	data += data[0] | (data[1] << 8);
+	data += 2;
+	size = data[0] | (data[1] << 8);
+	data += 2;
+	if (data + size != dataend)
+		warn("level %d: inconsistent size data (%d vs %d)",
+			game->number, dataend - data, size);
 
-  badlevel:
-    free(game->leveldata);
-    game->levelsize = 0;
-    game->leveldata = NULL;
-    errmsg(file->name, "level %d: invalid level data", game->number);
-    return FALSE;
+	while (data + 2 < dataend) {
+		size = data[1];
+		data += 2;
+		if (size > dataend - data)
+			size = dataend - data;
+		switch (data[-2]) {
+		case 1:
+			if (size > 1)
+				game->time = data[0] | (data[1] << 8);
+			break;
+		case 3:
+			memcpy(game->name, data, size);
+			game->name[size] = '\0';
+			break;
+		case 6:
+			for (n = 0 ; n < size && n < 15 && data[n] ; ++n)
+				game->passwd[n] = data[n] ^ 0x99;
+			game->passwd[n] = '\0';
+			break;
+		case 8:
+			warn("level %d: ignoring field 8 password", game->number);
+			break;
+		}
+		data += size;
+	}
+	if (!game->passwd[0] || strlen(game->passwd) != 4)
+		goto badlevel;
+
+	game->levelhash = hashvalue(game->leveldata, game->levelsize);
+	return TRUE;
+
+badlevel:
+	free(game->leveldata);
+	game->levelsize = 0;
+	game->leveldata = NULL;
+	errmsg(file->name, "level %d: invalid level data", game->number);
+	return FALSE;
 }
 
 /* Assuming that the series passed in is in fact the original
@@ -281,52 +279,52 @@ static int readleveldata(fileinfo *file, gamesetup *game)
  */
 static int undomschanges(gameseries *series)
 {
-    struct { int num, pos, val; } *fixup, fixups[] = {
-	{   5,  0x011D,  'P' ^ 0x99 },	{  95,  0x035F,  'W' ^ 0x99 },
-	{   9,  0x032D,  'V' ^ 0x99 },	{  95,  0x0360,  'V' ^ 0x99 },
-	{   9,  0x032E,  'U' ^ 0x99 },	{  95,  0x0361,  'H' ^ 0x99 },
-	{  27,  0x01E7,  'D' ^ 0x99 },	{  95,  0x0362,  'Y' ^ 0x99 },
-	{  87,  0x0148,  0x09 },	{ 120,  0x0195,  0x00 },
-	{  98,  0x0340,  8 },		{  98,  0x0342,  14 },
-	{  98,  0x034A,  23 },		{  98,  0x034C,  14 },
-	{  98,  0x0354,  8 },		{  98,  0x0356,  16 },
-	{  98,  0x035E,  23 },		{  98,  0x0360,  16 },
-	{  98,  0x0368,  16 },		{  98,  0x036A,  18 },
-	{  98,  0x0372,  6 },		{  98,  0x0374,  20 },
-	{  98,  0x037C,  16 },		{  98,  0x037E,  20 },
-	{  98,  0x0386,  23 },		{  98,  0x0388,  23 },
-	{  98,  0x0390,  23 },		{  98,  0x0392,  25 },
-	{ 110,  0x02B6,  22 },		{ 110,  0x02B8,  11 },
-	{ 110,  0x02C0,  15 },		{ 110,  0x02C2,  6 },
-	{ 126,  0x00B6,  0x00 },	{ 126,  0x00C2,  0x01 },
-	{ 126,  0x01B6,  0x01 },	{ 126,  0x01C2,  0x00 },
-	{ -1, -1, -1 }
-    };
+	struct { int num, pos, val; } *fixup, fixups[] = {
+		{   5,  0x011D,  'P' ^ 0x99 },	{  95,  0x035F,  'W' ^ 0x99 },
+		{   9,  0x032D,  'V' ^ 0x99 },	{  95,  0x0360,  'V' ^ 0x99 },
+		{   9,  0x032E,  'U' ^ 0x99 },	{  95,  0x0361,  'H' ^ 0x99 },
+		{  27,  0x01E7,  'D' ^ 0x99 },	{  95,  0x0362,  'Y' ^ 0x99 },
+		{  87,  0x0148,  0x09 },	{ 120,  0x0195,  0x00 },
+		{  98,  0x0340,  8 },		{  98,  0x0342,  14 },
+		{  98,  0x034A,  23 },		{  98,  0x034C,  14 },
+		{  98,  0x0354,  8 },		{  98,  0x0356,  16 },
+		{  98,  0x035E,  23 },		{  98,  0x0360,  16 },
+		{  98,  0x0368,  16 },		{  98,  0x036A,  18 },
+		{  98,  0x0372,  6 },		{  98,  0x0374,  20 },
+		{  98,  0x037C,  16 },		{  98,  0x037E,  20 },
+		{  98,  0x0386,  23 },		{  98,  0x0388,  23 },
+		{  98,  0x0390,  23 },		{  98,  0x0392,  25 },
+		{ 110,  0x02B6,  22 },		{ 110,  0x02B8,  11 },
+		{ 110,  0x02C0,  15 },		{ 110,  0x02C2,  6 },
+		{ 126,  0x00B6,  0x00 },	{ 126,  0x00C2,  0x01 },
+		{ 126,  0x01B6,  0x01 },	{ 126,  0x01C2,  0x00 },
+		{ -1, -1, -1 }
+	};
 
-    if (series->count != 149)
-	return FALSE;
-    for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
-	if (series->games[fixup->num].levelsize <= fixup->pos)
-	    return FALSE;
+	if (series->count != 149)
+		return FALSE;
+	for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
+		if (series->games[fixup->num].levelsize <= fixup->pos)
+			return FALSE;
 
-    free(series->games[144].leveldata);
-    memmove(series->games + 144, series->games + 145,
-	    4 * sizeof *series->games);
-    --series->count;
+	free(series->games[144].leveldata);
+	memmove(series->games + 144, series->games + 145,
+		4 * sizeof *series->games);
+	--series->count;
 
-    for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
-	series->games[fixup->num].leveldata[fixup->pos] = fixup->val;
+	for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
+		series->games[fixup->num].leveldata[fixup->pos] = fixup->val;
 
-    series->games[5].passwd[3] = 'P';
-    series->games[9].passwd[0] = 'V';
-    series->games[9].passwd[1] = 'U';
-    series->games[27].passwd[3] = 'D';
-    series->games[95].passwd[0] = 'W';
-    series->games[95].passwd[1] = 'V';
-    series->games[95].passwd[2] = 'H';
-    series->games[95].passwd[3] = 'Y';
+	series->games[5].passwd[3] = 'P';
+	series->games[9].passwd[0] = 'V';
+	series->games[9].passwd[1] = 'U';
+	series->games[27].passwd[3] = 'D';
+	series->games[95].passwd[0] = 'W';
+	series->games[95].passwd[1] = 'V';
+	series->games[95].passwd[2] = 'H';
+	series->games[95].passwd[3] = 'Y';
 
-    return TRUE;
+	return TRUE;
 }
 
 /*
@@ -338,77 +336,77 @@ static int undomschanges(gameseries *series)
  */
 int readseriesfile(gameseries *series)
 {
-    int	n;
+	int	n;
 
-    if (series->gsflags & GSF_ALLMAPSREAD)
+	if (series->gsflags & GSF_ALLMAPSREAD)
+		return TRUE;
+	if (series->count <= 0) {
+		errmsg(series->filebase, "cannot read from empty level set");
+		return FALSE;
+	}
+
+	if (!series->mapfile.fp) {
+		if (!openfileindir(&series->mapfile, series->mapfiledir,
+				series->mapfilename, "rb", "unknown error"))
+			return FALSE;
+		if (!readseriesheader(series))
+			return FALSE;
+	}
+
+	x_alloc(series->games, series->count * sizeof *series->games);
+	memset(series->games + series->allocated, 0,
+		(series->count - series->allocated) * sizeof *series->games);
+	series->allocated = series->count;
+	n = 0;
+	while (n < series->count && !filetestend(&series->mapfile)) {
+		if (readleveldata(&series->mapfile, series->games + n))
+			++n;
+		else
+			--series->count;
+	}
+	fileclose(&series->mapfile, NULL);
+	series->gsflags |= GSF_ALLMAPSREAD;
+	if (series->gsflags & GSF_LYNXFIXES)
+		undomschanges(series);
+	markunsolvablelevels(series);
+	readsolutions(series);
+	readextensions(series);
 	return TRUE;
-    if (series->count <= 0) {
-	errmsg(series->filebase, "cannot read from empty level set");
-	return FALSE;
-    }
-
-    if (!series->mapfile.fp) {
-	if (!openfileindir(&series->mapfile, series->mapfiledir,
-			   series->mapfilename, "rb", "unknown error"))
-	    return FALSE;
-	if (!readseriesheader(series))
-	    return FALSE;
-    }
-
-    x_alloc(series->games, series->count * sizeof *series->games);
-    memset(series->games + series->allocated, 0,
-	   (series->count - series->allocated) * sizeof *series->games);
-    series->allocated = series->count;
-    n = 0;
-    while (n < series->count && !filetestend(&series->mapfile)) {
-	if (readleveldata(&series->mapfile, series->games + n))
-	    ++n;
-	else
-	    --series->count;
-    }
-    fileclose(&series->mapfile, NULL);
-    series->gsflags |= GSF_ALLMAPSREAD;
-    if (series->gsflags & GSF_LYNXFIXES)
-	undomschanges(series);
-    markunsolvablelevels(series);
-    readsolutions(series);
-    readextensions(series);
-    return TRUE;
 }
 
 /* Free all memory allocated for the given gameseries.
  */
 void freeseriesdata(gameseries *series)
 {
-    gamesetup  *game;
-    int		n;
+	gamesetup  *game;
+	int		n;
 
-    clearsolutions(series);
+	clearsolutions(series);
 
-    fileclose(&series->mapfile, NULL);
-    clearfileinfo(&series->mapfile);
-    free(series->mapfilename);
-    series->mapfilename = NULL;
-    series->mapfiledir = 0;
-    free(series->savefilename);
-    series->savefilename = NULL;
-    series->gsflags = 0;
-    series->solheaderflags = 0;
+	fileclose(&series->mapfile, NULL);
+	clearfileinfo(&series->mapfile);
+	free(series->mapfilename);
+	series->mapfilename = NULL;
+	series->mapfiledir = 0;
+	free(series->savefilename);
+	series->savefilename = NULL;
+	series->gsflags = 0;
+	series->solheaderflags = 0;
 
-    for (n = 0, game = series->games ; n < series->count ; ++n, ++game) {
-	free(game->leveldata);
-	game->leveldata = NULL;
-	game->levelsize = 0;
-    }
-    free(series->games);
-    series->games = NULL;
-    series->allocated = 0;
-    series->count = 0;
+	for (n = 0, game = series->games ; n < series->count ; ++n, ++game) {
+		free(game->leveldata);
+		game->leveldata = NULL;
+		game->levelsize = 0;
+	}
+	free(series->games);
+	series->games = NULL;
+	series->allocated = 0;
+	series->count = 0;
 
-    series->ruleset = Ruleset_None;
-    series->gsflags = 0;
-    *series->filebase = '\0';
-    *series->name = '\0';
+	series->ruleset = Ruleset_None;
+	series->gsflags = 0;
+		*series->filebase = '\0';
+		*series->name = '\0';
 }
 
 /*
@@ -421,68 +419,68 @@ void freeseriesdata(gameseries *series)
  */
 static char *readconfigfile(fileinfo *file, gameseries *series)
 {
-    static char	datfilename[256];
-    char	buf[256];
-    char	name[256];
-    char	value[256];
-    char       *p;
-    int		lineno, n;
+	static char	datfilename[256];
+	char	buf[256];
+	char	name[256];
+	char	value[256];
+	char       *p;
+	int		lineno, n;
 
-    n = sizeof buf - 1;
-    if (!filegetline(file, buf, &n, "invalid configuration file"))
-	return NULL;
-    if (sscanf(buf, "file = %[^\n\r]", datfilename) != 1) {
-	fileerr(file, "bad filename in configuration file");
-	return NULL;
-    }
-    if (haspathname(datfilename)) {
-	fileerr(file, "levelset filename may not contain a path");
-	return NULL;
-    }
-    for (lineno = 2 ; ; ++lineno) {
 	n = sizeof buf - 1;
-	if (!filegetline(file, buf, &n, NULL))
-	    break;
-	for (p = buf ; isspace(*p) ; ++p) ;
-	if (!*p || *p == '#')
-	    continue;
-	if (sscanf(buf, "%[^= \t] = %s", name, value) != 2) {
-	    fileerr(file, "invalid configuration file syntax");
-	    return NULL;
-	}
-	for (p = name ; (*p = tolower(*p)) != '\0' ; ++p) ;
-	if (!strcmp(name, "lastlevel")) {
-	    n = (int)strtol(value, &p, 10);
-	    if (*p || n <= 0) {
-		fileerr(file, "invalid lastlevel in configuration file");
+	if (!filegetline(file, buf, &n, "invalid configuration file"))
 		return NULL;
-	    }
-	    series->final = n;
-	} else if (!strcmp(name, "ruleset")) {
-	    for (p = value ; (*p = tolower(*p)) != '\0' ; ++p) ;
-	    if (strcmp(value, "ms") && strcmp(value, "lynx")) {
-		fileerr(file, "invalid ruleset in configuration file");
+	if (sscanf(buf, "file = %[^\n\r]", datfilename) != 1) {
+		fileerr(file, "bad filename in configuration file");
 		return NULL;
-	    }
-	    series->ruleset = *value == 'm' ? Ruleset_MS : Ruleset_Lynx;
-	} else if (!strcmp(name, "usepasswords")) {
-	    if (tolower(*value) == 'n')
-		series->gsflags |= GSF_IGNOREPASSWDS;
-	    else
-		series->gsflags &= ~GSF_IGNOREPASSWDS;
-	} else if (!strcmp(name, "fixlynx")) {
-	    if (tolower(*value) == 'n')
-		series->gsflags &= ~GSF_LYNXFIXES;
-	    else
-		series->gsflags |= GSF_LYNXFIXES;
-	} else {
-	    warn("line %d: directive \"%s\" unknown", lineno, name);
-	    fileerr(file, "unrecognized setting in configuration file");
-	    return NULL;
 	}
-    }
+	if (haspathname(datfilename)) {
+		fileerr(file, "levelset filename may not contain a path");
+		return NULL;
+	}
+	for (lineno = 2 ; ; ++lineno) {
+		n = sizeof buf - 1;
+		if (!filegetline(file, buf, &n, NULL))
+			break;
+		for (p = buf ; isspace(*p) ; ++p) ;
+		if (!*p || *p == '#')
+			continue;
+		if (sscanf(buf, "%[^= \t] = %s", name, value) != 2) {
+			fileerr(file, "invalid configuration file syntax");
+			return NULL;
+		}
+		for (p = name ; (*p = tolower(*p)) != '\0' ; ++p) ;
+		if (!strcmp(name, "lastlevel")) {
+			n = (int)strtol(value, &p, 10);
+			if (*p || n <= 0) {
+				fileerr(file, "invalid lastlevel in configuration file");
+				return NULL;
+			}
+			series->final = n;
+		} else if (!strcmp(name, "ruleset")) {
+			for (p = value ; (*p = tolower(*p)) != '\0' ; ++p) ;
+			if (strcmp(value, "ms") && strcmp(value, "lynx")) {
+				fileerr(file, "invalid ruleset in configuration file");
+				return NULL;
+			}
+			series->ruleset = *value == 'm' ? Ruleset_MS : Ruleset_Lynx;
+		} else if (!strcmp(name, "usepasswords")) {
+			if (tolower(*value) == 'n')
+				series->gsflags |= GSF_IGNOREPASSWDS;
+			else
+				series->gsflags &= ~GSF_IGNOREPASSWDS;
+		} else if (!strcmp(name, "fixlynx")) {
+			if (tolower(*value) == 'n')
+				series->gsflags &= ~GSF_LYNXFIXES;
+			else
+				series->gsflags |= GSF_LYNXFIXES;
+		} else {
+			warn("line %d: directive \"%s\" unknown", lineno, name);
+			fileerr(file, "unrecognized setting in configuration file");
+			return NULL;
+		}
+	}
 
-    return datfilename;
+	return datfilename;
 }
 
 /*
@@ -497,53 +495,52 @@ static char *readconfigfile(fileinfo *file, gameseries *series)
  */
 static int getseriesfile(char const *filename, void *data)
 {
-    fileinfo		file;
-    seriesdata	       *sdata = (seriesdata*)data;
-    gameseries	       *series;
-    unsigned long	magic;
-    char	       *datfilename;
-    int			f;
+	fileinfo		file;
+	seriesdata	       *sdata = (seriesdata*)data;
+	gameseries	       *series;
+	unsigned long	magic;
+	char	       *datfilename;
+	int			f;
 
-    clearfileinfo(&file);
-    if (!openfileindir(&file, sdata->curdir, filename, "rb", "unknown error"))
-	return 0;
-    if (!filereadint32(&file, &magic, "unexpected EOF")) {
-	fileclose(&file, NULL);
-	return 0;
-    }
-    filerewind(&file, NULL);
-    if (magic != SIG_DACFILE) {
-    fileerr(&file, "not a valid data file");
-	fileclose(&file, NULL);
-	return 0;
-    }
+	clearfileinfo(&file);
+	if (!openfileindir(&file, sdata->curdir, filename, "rb", "unknown error"))
+		return 0;
+	if (!filereadint32(&file, &magic, "unexpected EOF")) {
+		fileclose(&file, NULL);
+		return 0;
+	}
+	filerewind(&file, NULL);
+	if (magic != SIG_DACFILE) {
+		fileerr(&file, "not a valid data file");
+		fileclose(&file, NULL);
+		return 0;
+	}
 
-    if (sdata->count >= sdata->allocated) {
-	sdata->allocated = sdata->count + 1;
-	x_alloc(sdata->list, sdata->allocated * sizeof *sdata->list);
-    }
-    series = sdata->list + sdata->count;
-    series->mapfilename = NULL;
-    series->mapfiledir = 0;
-    clearfileinfo(&series->savefile);
-    series->savefilename = NULL;
-    series->gsflags = 0;
-    series->solheaderflags = 0;
-    series->allocated = 0;
-    series->count = 0;
-    series->final = 0;
-    series->ruleset = Ruleset_None;
-    series->games = NULL;
-    sprintf(series->filebase, "%.*s", (int)(sizeof series->filebase - 1),
-                                      filename);
-    sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
-				  filename);
+	if (sdata->count >= sdata->allocated) {
+		sdata->allocated = sdata->count + 1;
+		x_alloc(sdata->list, sdata->allocated * sizeof *sdata->list);
+	}
+	series = sdata->list + sdata->count;
+	series->mapfilename = NULL;
+	series->mapfiledir = 0;
+	clearfileinfo(&series->savefile);
+	series->savefilename = NULL;
+	series->gsflags = 0;
+	series->solheaderflags = 0;
+	series->allocated = 0;
+	series->count = 0;
+	series->final = 0;
+	series->ruleset = Ruleset_None;
+	series->games = NULL;
+	sprintf(series->filebase, "%.*s", (int)(sizeof series->filebase - 1),
+		filename);
+	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1), filename);
 
-    f = FALSE;
+	f = FALSE;
 
 	fileclose(&file, NULL);
 	if (!openfileindir(&file, sdata->curdir, filename, "r", "unknown error"))
-	    return 0;
+		return 0;
 	clearfileinfo(&series->mapfile);
 	free(series->mapfilename);
 	series->mapfilename = NULL;
@@ -552,7 +549,7 @@ static int getseriesfile(char const *filename, void *data)
 	fileclose(&file, NULL);
 	if (datfilename) {
 		int datdir;
-	    if (openfileindir(&series->mapfile, GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)) {
+		if (openfileindir(&series->mapfile, GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)) {
 			f = readseriesheader(series);
 			datdir = GLOBAL_SERIESDATDIR;
 		} else {
@@ -564,17 +561,17 @@ static int getseriesfile(char const *filename, void *data)
 
 		if(!f) warn("cannot use %s: %s unavailable", filename, datfilename);
 
-	    fileclose(&series->mapfile, NULL);
-	    clearfileinfo(&series->mapfile);
-	    if (f) {
+		fileclose(&series->mapfile, NULL);
+		clearfileinfo(&series->mapfile);
+		if (f) {
 			x_cmalloc(series->mapfilename, strlen(datfilename) + 1);
 			strcpy(series->mapfilename, datfilename);
 			series->mapfiledir = datdir;
 		}
 	}
-    if (f)
-	++sdata->count;
-    return 0;
+	if (f)
+		++sdata->count;
+	return 0;
 }
 
 /* Determine whether the file is a map file. If so, add it to the list of
@@ -582,48 +579,48 @@ static int getseriesfile(char const *filename, void *data)
  */
 static int getmapfile(char const *filename, void *data)
 {
-    fileinfo		file;
-    seriesdata	       *sdata = (seriesdata*)data;
-    gameseries	        s;
-    unsigned long	magic;
-    int			f;
+	fileinfo		file;
+	seriesdata	       *sdata = (seriesdata*)data;
+	gameseries	        s;
+	unsigned long	magic;
+	int			f;
 
-    clearfileinfo(&file);
-    if (!openfileindir(&file, sdata->curdir, filename, "rb", "unknown error"))
-	return 0;
-    if (!filereadint32(&file, &magic, "unexpected EOF")) {
-	fileclose(&file, NULL);
-	return 0;
-    }
-    filerewind(&file, NULL);
-    if ((magic & 0xFFFF) != SIG_DATFILE) {
-	fileclose(&file, NULL);
-	return 0;
-    }
-
-    s.mapfile = file;
-    s.ruleset = Ruleset_None;
-    f = readseriesheader(&s);
-    fileclose(&file, NULL);
-    clearfileinfo(&file);
-    if (f) {
-    	mfinfovector *v = &sdata->mfinfo;
-	mapfileinfo key;
-	key.filename = (char*)filename;
-	mapfileinfo *existingmf =
- 	    bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
-	if (existingmf) {
-	    existingmf->path = sdata->curdir;
-	    existingmf->levelcount = s.count;
-	} else {
-		char *dup_filename = strdup(filename);
-		if (dup_filename == NULL) memerrexit();
-		int dup_path = sdata->curdir;
-		if (dup_path == 0) memerrexit();
-	    addlevelfile(v, dup_filename, s.count, dup_path);
+	clearfileinfo(&file);
+	if (!openfileindir(&file, sdata->curdir, filename, "rb", "unknown error"))
+		return 0;
+	if (!filereadint32(&file, &magic, "unexpected EOF")) {
+		fileclose(&file, NULL);
+		return 0;
 	}
-    }
-    return 0;
+	filerewind(&file, NULL);
+	if ((magic & 0xFFFF) != SIG_DATFILE) {
+		fileclose(&file, NULL);
+		return 0;
+	}
+
+	s.mapfile = file;
+	s.ruleset = Ruleset_None;
+	f = readseriesheader(&s);
+	fileclose(&file, NULL);
+	clearfileinfo(&file);
+	if (f) {
+		mfinfovector *v = &sdata->mfinfo;
+		mapfileinfo key;
+		key.filename = (char*)filename;
+		mapfileinfo *existingmf =
+			bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
+		if (existingmf) {
+			existingmf->path = sdata->curdir;
+			existingmf->levelcount = s.count;
+		} else {
+			char *dup_filename = strdup(filename);
+			if (dup_filename == NULL) memerrexit();
+			int dup_path = sdata->curdir;
+			if (dup_path == 0) memerrexit();
+			addlevelfile(v, dup_filename, s.count, dup_path);
+		}
+	}
+	return 0;
 }
 
 /* A callback function to compare two gameseries structures by
@@ -631,53 +628,52 @@ static int getmapfile(char const *filename, void *data)
  */
 static int gameseriescmp_mapfilename(void const *a, void const *b)
 {
-    char const * namea = ((gameseries*)a)->mapfilename;
-    char const * nameb = ((gameseries*)b)->mapfilename;
-    return stricmp(namea, nameb);
+	char const * namea = ((gameseries*)a)->mapfilename;
+	char const * nameb = ((gameseries*)b)->mapfilename;
+	return stricmp(namea, nameb);
 }
 
 /* The name we should use for a (currently) nonexisting .dac file */
 char *generatenewdacname(mapfileinfo const *datfile, int ruleset)
 {
-    static char const  *rulesetname[Ruleset_Count];
-    rulesetname[Ruleset_Lynx] = "lynx";
-    rulesetname[Ruleset_MS] = "ms";
+	static char const  *rulesetname[Ruleset_Count];
+	rulesetname[Ruleset_Lynx] = "lynx";
+	rulesetname[Ruleset_MS] = "ms";
 
-    char const *basename = datfile->filename;
-    size_t newnamelen = 0u;
-    newnamelen += strlen(basename);
-    newnamelen += 1u; /* hyphen */
-    newnamelen += strlen(rulesetname[ruleset]);
-    newnamelen += strlen(".dac");
+	char const *basename = datfile->filename;
+	size_t newnamelen = 0u;
+	newnamelen += strlen(basename);
+	newnamelen += 1u; /* hyphen */
+	newnamelen += strlen(rulesetname[ruleset]);
+	newnamelen += strlen(".dac");
 
-    char *namebuf = NULL;
-    x_alloc(namebuf, newnamelen+1u);
+	char *namebuf = NULL;
+	x_alloc(namebuf, newnamelen+1u);
 
-    sprintf(namebuf, "%s-%s.dac", basename, rulesetname[ruleset]);
+	sprintf(namebuf, "%s-%s.dac", basename, rulesetname[ruleset]);
 
-    return namebuf;
+	return namebuf;
 }
 
 /* Generate a new dac file. Return TRUE if successful. */
-static int createnewdacfile
-    (char const *name, mapfileinfo const *datfile, int ruleset)
+static int createnewdacfile(char const *name, mapfileinfo const *datfile, int ruleset)
 {
-    fileinfo file;
-    clearfileinfo(&file);
-    if (!openfileindir(&file, SERIESDIR, name, "wx", "unknown error"))
-	return FALSE;
+	fileinfo file;
+	clearfileinfo(&file);
+	if (!openfileindir(&file, SERIESDIR, name, "wx", "unknown error"))
+		return FALSE;
 
-    char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
-    errno = 0;
-    int status = fprintf(file.fp, "file=%s\nruleset=%s\n",
-	datfile->filename, rulesetstr);
-    if (status < 0) {
-	fileerr(&file, "write error");
-	return FALSE;
-    }
-    fileclose(&file, NULL);
+	char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
+	errno = 0;
+	int status = fprintf(file.fp, "file=%s\nruleset=%s\n",
+		datfile->filename, rulesetstr);
+	if (status < 0) {
+		fileerr(&file, "write error");
+		return FALSE;
+	}
+	fileclose(&file, NULL);
 
-    return TRUE;
+	return TRUE;
 }
 
 /* Try to create a new gameseries for the specified level file and ruleset. Also
@@ -686,40 +682,39 @@ static int createnewdacfile
  * still create the gameseries. The gameseries is added to the seriesdata
  * struct. Returns the new gameseries if successful.
  */
-static gameseries* createnewseries
-    (seriesdata *s, mapfileinfo const *datfile, int ruleset)
+static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, int ruleset)
 {
-    char *newdacname = generatenewdacname(datfile, ruleset);
-    int ok = createnewdacfile(newdacname, datfile, ruleset);
-    if (!ok) {
-	errmsg(newdacname, "Attempt to create %s ruleset .dac for %s failed",
-	   ruleset == Ruleset_MS ? "MS" : "Lynx", datfile->filename);
-    }
-    if (errno == EEXIST) return NULL;
+	char *newdacname = generatenewdacname(datfile, ruleset);
+	int ok = createnewdacfile(newdacname, datfile, ruleset);
+	if (!ok) {
+		errmsg(newdacname, "Attempt to create %s ruleset .dac for %s failed",
+			ruleset == Ruleset_MS ? "MS" : "Lynx", datfile->filename);
+	}
+	if (errno == EEXIST) return NULL;
 
-    if (s->count >= s->allocated) {
-	s->allocated = s->count + 1;
-	x_alloc(s->list, s->allocated * sizeof *s->list);
-    }
-    gameseries *series = s->list + s->count;
-    clearfileinfo(&series->mapfile);
-    clearfileinfo(&series->savefile);
-    series->savefilename = NULL;
-    series->gsflags = 0;
-    series->solheaderflags = 0;
-    series->allocated = 0;
-    series->count = datfile->levelcount;
-    series->final = 0;
-    series->ruleset = ruleset;
-    series->games = NULL;
-    sprintf(series->filebase, "%.*s", (int)(sizeof series->filebase - 1),
-				      newdacname);
-    sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
-				      newdacname);
-    series->mapfilename = getpathforfileindir(datfile->path, datfile->filename);
-    ++s->count;
-    free(newdacname);
-    return series;
+	if (s->count >= s->allocated) {
+		s->allocated = s->count + 1;
+		x_alloc(s->list, s->allocated * sizeof *s->list);
+	}
+	gameseries *series = s->list + s->count;
+	clearfileinfo(&series->mapfile);
+	clearfileinfo(&series->savefile);
+	series->savefilename = NULL;
+	series->gsflags = 0;
+	series->solheaderflags = 0;
+	series->allocated = 0;
+	series->count = datfile->levelcount;
+	series->final = 0;
+	series->ruleset = ruleset;
+	series->games = NULL;
+	sprintf(series->filebase, "%.*s", (int)(sizeof series->filebase - 1),
+		newdacname);
+	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
+		newdacname);
+	series->mapfilename = getpathforfileindir(datfile->path, datfile->filename);
+	++s->count;
+	free(newdacname);
+	return series;
 }
 
 /* For each map file present, ensure at least one gameseries exists for each
@@ -727,31 +722,31 @@ static gameseries* createnewseries
  * gameseries. */
 static void createallmissingseries(seriesdata *s)
 {
-    qsort(s->mfinfo.buf, s->mfinfo.count,
-	sizeof *s->mfinfo.buf, compare_mapfileinfo);
-    qsort(s->list, s->count, sizeof *s->list, gameseriescmp_mapfilename);
-    int seriesrulesetcount[Ruleset_Count];
-    int nseries = s->count;
-    int m = 0;
-    for (int n = 0; n < s->mfinfo.count; ++n) {
-	memset(seriesrulesetcount, 0, sizeof seriesrulesetcount);
-	mapfileinfo const *currentlevelfile = &s->mfinfo.buf[n];
-	char *currentmapname = currentlevelfile->filename;
-	while (m < nseries && !stricmp(currentmapname, s->list[m].mapfilename)) {
-	    int ruleset = s->list[m].ruleset;
-	    addgameseries(s->mfinfo.buf[n].sfilelst, m, ruleset);
-	    ++seriesrulesetcount[ruleset];
-	    ++m;
+	qsort(s->mfinfo.buf, s->mfinfo.count,
+		sizeof *s->mfinfo.buf, compare_mapfileinfo);
+	qsort(s->list, s->count, sizeof *s->list, gameseriescmp_mapfilename);
+	int seriesrulesetcount[Ruleset_Count];
+	int nseries = s->count;
+	int m = 0;
+	for (int n = 0; n < s->mfinfo.count; ++n) {
+		memset(seriesrulesetcount, 0, sizeof seriesrulesetcount);
+		mapfileinfo const *currentlevelfile = &s->mfinfo.buf[n];
+		char *currentmapname = currentlevelfile->filename;
+		while (m < nseries && !stricmp(currentmapname, s->list[m].mapfilename)) {
+			int ruleset = s->list[m].ruleset;
+			addgameseries(s->mfinfo.buf[n].sfilelst, m, ruleset);
+			++seriesrulesetcount[ruleset];
+			++m;
+		}
+		for (int k = Ruleset_First; k < Ruleset_Count; ++k) {
+			if (seriesrulesetcount[k] == 0) {
+				gameseries *newseries = createnewseries(s, currentlevelfile, k);
+				if (newseries)
+					addgameseries(s->mfinfo.buf[n].sfilelst,
+						newseries - s->list, k);
+			}
+		}
 	}
-	for (int k = Ruleset_First; k < Ruleset_Count; ++k) {
-	    if (seriesrulesetcount[k] == 0) {
-		gameseries *newseries = createnewseries(s, currentlevelfile, k);
-		if (newseries)
-		    addgameseries(s->mfinfo.buf[n].sfilelst,
-			newseries - s->list, k);
-	    }
-	}
-    }
 }
 
 /* Search the series directory and generate an array of gameseries
@@ -761,23 +756,23 @@ static void createallmissingseries(seriesdata *s)
  * occurs or if no series can be found.
  */
 static int getseriesfiles(gameseries ** list, int *count,
-			  mapfileinfo **mflist, int *mfcount)
+	mapfileinfo **mflist, int *mfcount)
 {
-    seriesdata	s;
+	seriesdata	s;
 
-    s.mfinfo.buf = NULL;
-    x_alloc(s.mfinfo.buf, sizeof *s.mfinfo.buf); /* Ensure buf not null */
-    s.mfinfo.count = 0;
-    s.list = NULL;
-    s.allocated = 0;
-    s.count = 0;
+	s.mfinfo.buf = NULL;
+	x_alloc(s.mfinfo.buf, sizeof *s.mfinfo.buf); /* Ensure buf not null */
+	s.mfinfo.count = 0;
+	s.list = NULL;
+	s.allocated = 0;
+	s.count = 0;
 
 	s.curdir = SERIESDIR;
 	findfiles(s.curdir, &s, getseriesfile);
 
 	/* Sort because we want to look files up during next phase */
 	qsort(s.mfinfo.buf, s.mfinfo.count,
-	    sizeof *s.mfinfo.buf, compare_mapfileinfo);
+		sizeof *s.mfinfo.buf, compare_mapfileinfo);
 	s.mfinfo.datdircount = s.mfinfo.count;
 
 	s.curdir = GLOBAL_SERIESDATDIR;
@@ -788,20 +783,20 @@ static int getseriesfiles(gameseries ** list, int *count,
 
 	createallmissingseries(&s);
 	if (!s.count) {
-	    errmsg(NULL, "no series files found");
-	    return FALSE;
+		errmsg(NULL, "no series files found");
+		return FALSE;
 	}
 
 	removefilenamesuffixes(&s.mfinfo);
 	qsort(s.mfinfo.buf, s.mfinfo.count,
-	    sizeof *s.mfinfo.buf, compare_mapfileinfo);
+		sizeof *s.mfinfo.buf, compare_mapfileinfo);
 
-    *list = s.list;
-    *count = s.count;
-    *mflist = s.mfinfo.buf;
-    *mfcount = s.mfinfo.count;
+		*list = s.list;
+		*count = s.count;
+		*mflist = s.mfinfo.buf;
+		*mfcount = s.mfinfo.count;
 
-    return TRUE;
+	return TRUE;
 }
 
 /* Produce a list of the series that are available for play. An array
@@ -811,102 +806,100 @@ static int getseriesfiles(gameseries ** list, int *count,
  * the gameseries filenames is returned through table. preferredfile, if not
  * NULL, limits the results to just the series with that filename.
  */
-int createserieslist(gameseries **pserieslist,
-		     int *pcount, mapfileinfo **pmflist, int *pmfcount,
-		     tablespec *table)
+int createserieslist(gameseries **pserieslist, int *pcount,
+	mapfileinfo **pmflist, int *pmfcount, tablespec *table)
 {
-    static char const  *rulesetname[Ruleset_Count];
-    gameseries	       *serieslist;
-    char const	      **ptrs;
-    char	       *textheap;
-    int			listsize;
-    mapfileinfo	       *mapfilelist;
-    int			mapfilelistsize;
-    int			used, col, n, y;
+	static char const  *rulesetname[Ruleset_Count];
+	gameseries	       *serieslist;
+	char const	      **ptrs;
+	char	       *textheap;
+	int			listsize;
+	mapfileinfo	       *mapfilelist;
+	int			mapfilelistsize;
+	int			used, col, n, y;
 
-    if (!getseriesfiles(&serieslist, &listsize, &mapfilelist, &mapfilelistsize))
-	return FALSE;
-    *pserieslist = serieslist;
-    *pcount = listsize;
-    *pmflist = mapfilelist;
-    *pmfcount = mapfilelistsize;
+	if (!getseriesfiles(&serieslist, &listsize, &mapfilelist, &mapfilelistsize))
+		return FALSE;
+		*pserieslist = serieslist;
+		*pcount = listsize;
+		*pmflist = mapfilelist;
+		*pmfcount = mapfilelistsize;
 
-    if (!table)
+	if (!table)
+		return TRUE;
+
+	col = 8;
+	for (n = 0 ; n < listsize ; ++n)
+		if (col < (int)strlen(serieslist[n].name))
+			col = strlen(serieslist[n].name);
+	if (col > 48)
+		col = 48;
+
+	rulesetname[Ruleset_Lynx] = "Lynx";
+	rulesetname[Ruleset_MS] = "MS";
+	ptrs = malloc((listsize + 1) * 2 * sizeof *ptrs);
+	textheap = malloc((listsize + 1) * (col + 32));
+	if (!ptrs || !textheap)
+		memerrexit();
+
+	n = 0;
+	used = 0;
+	ptrs[n++] = textheap + used;
+	used += 1 + sprintf(textheap + used, "1-Filename");
+	ptrs[n++] = textheap + used;
+	used += 1 + sprintf(textheap + used, "1.Ruleset");
+	for (y = 0 ; y < listsize ; ++y) {
+		ptrs[n++] = textheap + used;
+		used += 1 + sprintf(textheap + used,
+			"1-%-*s", col, serieslist[y].name);
+		ptrs[n++] = textheap + used;
+		used += 1 + sprintf(textheap + used,
+			"1.%s", rulesetname[serieslist[y].ruleset]);
+	}
+
+	table->rows = listsize + 1;
+	table->cols = 2;
+	table->items = ptrs;
 	return TRUE;
-
-    col = 8;
-    for (n = 0 ; n < listsize ; ++n)
-	if (col < (int)strlen(serieslist[n].name))
-	    col = strlen(serieslist[n].name);
-    if (col > 48)
-	col = 48;
-
-    rulesetname[Ruleset_Lynx] = "Lynx";
-    rulesetname[Ruleset_MS] = "MS";
-    ptrs = malloc((listsize + 1) * 2 * sizeof *ptrs);
-    textheap = malloc((listsize + 1) * (col + 32));
-    if (!ptrs || !textheap)
-	memerrexit();
-
-    n = 0;
-    used = 0;
-    ptrs[n++] = textheap + used;
-    used += 1 + sprintf(textheap + used, "1-Filename");
-    ptrs[n++] = textheap + used;
-    used += 1 + sprintf(textheap + used, "1.Ruleset");
-    for (y = 0 ; y < listsize ; ++y) {
-	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used,
-			    "1-%-*s", col, serieslist[y].name);
-	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used,
-			    "1.%s", rulesetname[serieslist[y].ruleset]);
-    }
-
-    table->rows = listsize + 1;
-    table->cols = 2;
-    table->items = ptrs;
-    return TRUE;
 }
 
 /* Make an independent copy of a single gameseries structure from list.
  */
 void getseriesfromlist(gameseries *dest, gameseries const *list, int index)
 {
-    int	n;
+	int	n;
 
-    *dest = list[index];
-    n = strlen(list[index].mapfilename) + 1;
-    if (!(dest->mapfilename = malloc(n)))
-	memerrexit();
-    memcpy(dest->mapfilename, list[index].mapfilename, n);
+	*dest = list[index];
+	n = strlen(list[index].mapfilename) + 1;
+	if (!(dest->mapfilename = malloc(n)))
+		memerrexit();
+	memcpy(dest->mapfilename, list[index].mapfilename, n);
 }
 
 /* Free all memory allocated by the createserieslist() table.
  */
 void freeserieslist(gameseries *list, int count,
-		    mapfileinfo *mflist, int mfcount,
-		    tablespec *table)
+	mapfileinfo *mflist, int mfcount, tablespec *table)
 {
-    int	n;
+	int	n;
 
-    if (list) {
-	for (n = 0 ; n < count ; ++n)
-	    free(list[n].mapfilename);
-	free(list);
-    }
-    if (mfcount) {
-	for (n = 0; n < mfcount; ++n) {
-		free(mflist[n].filename);
-	    for (int m = 0; m < Ruleset_Count; ++m)
-		free(mflist[n].sfilelst[m].list);
-    	}
-	free(mflist);
-    }
-    if (table) {
-	free((void*)table->items[0]);
-	free(table->items);
-    }
+	if (list) {
+		for (n = 0 ; n < count ; ++n)
+			free(list[n].mapfilename);
+		free(list);
+	}
+	if (mfcount) {
+		for (n = 0; n < mfcount; ++n) {
+			free(mflist[n].filename);
+			for (int m = 0; m < Ruleset_Count; ++m)
+				free(mflist[n].sfilelst[m].list);
+		}
+		free(mflist);
+	}
+	if (table) {
+		free((void*)table->items[0]);
+		free(table->items);
+	}
 }
 
 /*
@@ -918,29 +911,29 @@ void freeserieslist(gameseries *list, int count,
  */
 int findlevelinseries(gameseries const *series, int number, char const *passwd)
 {
-    int	i, n;
+	int	i, n;
 
-    n = -1;
-    if (number) {
-	for (i = 0 ; i < series->count ; ++i) {
-	    if (series->games[i].number == number) {
-		if (!passwd || !strcmp(series->games[i].passwd, passwd)) {
-		    if (n >= 0)
-			return -1;
-		    n = i;
+	n = -1;
+	if (number) {
+		for (i = 0 ; i < series->count ; ++i) {
+			if (series->games[i].number == number) {
+				if (!passwd || !strcmp(series->games[i].passwd, passwd)) {
+					if (n >= 0)
+						return -1;
+					n = i;
+				}
+			}
 		}
-	    }
+	} else if (passwd) {
+		for (i = 0 ; i < series->count ; ++i) {
+			if (!strcmp(series->games[i].passwd, passwd)) {
+				if (n >= 0)
+					return -1;
+				n = i;
+			}
+		}
+	} else {
+		return -1;
 	}
-    } else if (passwd) {
-	for (i = 0 ; i < series->count ; ++i) {
-	    if (!strcmp(series->games[i].passwd, passwd)) {
-		if (n >= 0)
-		    return -1;
-		n = i;
-	    }
-	}
-    } else {
-	return -1;
-    }
-    return n;
+	return n;
 }

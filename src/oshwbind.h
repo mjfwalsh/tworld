@@ -67,23 +67,23 @@ enum
 
 	TWK_dummy,
 
-    TWC_SEESCORES,
-    TWC_SEESOLUTIONFILES,
-    TWC_TIMESCLIPBOARD,
-    TWC_QUITLEVEL,
-    TWC_QUIT,
+	TWC_SEESCORES,
+	TWC_SEESOLUTIONFILES,
+	TWC_TIMESCLIPBOARD,
+	TWC_QUITLEVEL,
+	TWC_QUIT,
 
-    TWC_PROCEED,
-    TWC_PAUSEGAME,
-    TWC_SAMELEVEL,
-    TWC_NEXTLEVEL,
-    TWC_PREVLEVEL,
-    TWC_GOTOLEVEL,
+	TWC_PROCEED,
+	TWC_PAUSEGAME,
+	TWC_SAMELEVEL,
+	TWC_NEXTLEVEL,
+	TWC_PREVLEVEL,
+	TWC_GOTOLEVEL,
 
-    TWC_PLAYBACK,
-    TWC_CHECKSOLUTION,
-    TWC_DELSOLUTION,
-    TWC_SEEK,
+	TWC_PLAYBACK,
+	TWC_CHECKSOLUTION,
+	TWC_DELSOLUTION,
+	TWC_SEEK,
 
 	TWK_LAST
 };
@@ -145,7 +145,7 @@ public:
 	void FillRect(const TW_Rect* pDstRect, uint32_t nColor);
 
 	static void BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
-	                        Qt_Surface* pDst, const TW_Rect* pDstRect);
+							Qt_Surface* pDst, const TW_Rect* pDstRect);
 
 	void SetColorKey(uint32_t nColorKey);
 	void ResetColorKey();
@@ -190,7 +190,7 @@ OSHW_EXTERN void TW_UnlockSurface(TW_Surface* pSurface);
 OSHW_EXTERN void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor);
 
 OSHW_EXTERN int TW_BlitSurface(TW_Surface* pSrc, const TW_Rect* pSrcRect,
-						       TW_Surface* pDst, const TW_Rect* pDstRect);
+							   TW_Surface* pDst, const TW_Rect* pDstRect);
 OSHW_EXTERN void TW_SetColorKey(TW_Surface* pSurface, uint32_t nColorKey);
 OSHW_EXTERN void TW_ResetColorKey(TW_Surface* pSurface);
 

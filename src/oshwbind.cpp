@@ -83,8 +83,7 @@ void Qt_Surface::SetImage(const QImage& image)
 
 const QPixmap& Qt_Surface::GetPixmap()
 {
-	if (m_pixmap.isNull())
-	{
+	if (m_pixmap.isNull()) {
 		m_pixmap = QPixmap::fromImage(m_image);
 	}
 	return m_pixmap;
@@ -116,12 +115,9 @@ void Qt_Surface::FillRect(const TW_Rect* pDstRect, uint32_t nColor)
 	(void)GetPixmap();
 	// TODO?: don't force image -> pixmap?
 	// TODO?: for 8-bit?
-	if (!pDstRect)
-	{
+	if (!pDstRect) {
 		m_pixmap.fill(nColor);
-	}
-	else
-	{
+	} else {
 		QPainter painter(&m_pixmap);
 		painter.fillRect(*pDstRect, QColor(nColor));
 	}
@@ -132,7 +128,7 @@ void Qt_Surface::FillRect(const TW_Rect* pDstRect, uint32_t nColor)
 
 
 void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
-						     Qt_Surface* pDst, const TW_Rect* pDstRect)
+	Qt_Surface* pDst, const TW_Rect* pDstRect)
 {
 	TW_Rect srcRect = (pSrcRect ? *pSrcRect : TW_Rect(0,0, pSrc->w, pSrc->h));
 	TW_Rect dstRect = (pDstRect ? *pDstRect : TW_Rect(0,0, pDst->w, pDst->h));
@@ -140,10 +136,13 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 	if (srcRect.h == 0) srcRect.h = pSrc->h;
 	if (dstRect.w == 0) dstRect.w = srcRect.w;
 	if (dstRect.h == 0) dstRect.h = srcRect.h;
-	if (!pDstRect)
-		{dstRect.w = srcRect.w; dstRect.h = srcRect.h;}
-	else if (!pSrcRect)
-		{srcRect.w = dstRect.w; srcRect.h = dstRect.h;}
+	if (!pDstRect) {
+		dstRect.w = srcRect.w;
+		dstRect.h = srcRect.h;
+	} else if (!pSrcRect) {
+		srcRect.w = dstRect.w;
+		srcRect.h = dstRect.h;
+	}
 
 	// TODO?: don't force image -> pixmap?
 
@@ -152,8 +151,7 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 	pDst->pixels = 0;
 
 	QPixmap srcPix;
-	if (pSrc->IsColorKeySet())
-	{
+	if (pSrc->IsColorKeySet()) {
 		QImage image = pSrc->GetImage().copy(srcRect);
 		srcPix = QPixmap::fromImage(image);
 
@@ -167,9 +165,7 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 
 		pDst->m_pixmap = srcPix;	// @#$
 		return;	// @#$
-	}
-	else
-	{
+	} else {
 		srcPix = pSrc->GetPixmap();
 	}
 
@@ -209,14 +205,11 @@ extern "C" TW_Surface* TW_NewSurface(int w, int h, int bTransparent)
 {
 	Qt_Surface* pSurface = new Qt_Surface();
 
-	if (bTransparent)
-	{
+	if (bTransparent) {
 		QImage image(w, h, QImage::Format_ARGB32);
 		image.fill(0);
 		pSurface->SetImage(image);
-	}
-	else
-	{
+	} else {
 		QPixmap pixmap(w, h);
 		pixmap.fill(Qt::black);
 		pSurface->SetPixmap(pixmap);
@@ -239,6 +232,7 @@ extern "C" void TW_LockSurface(TW_Surface* s)
 	pSurface->Lock();
 }
 
+
 extern "C" void TW_UnlockSurface(TW_Surface* s)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
@@ -254,7 +248,7 @@ extern "C" void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t 
 
 
 extern "C" int TW_BlitSurface(TW_Surface* _pSrc, const TW_Rect* pSrcRect,
-						      TW_Surface* _pDst, const TW_Rect* pDstRect)
+	TW_Surface* _pDst, const TW_Rect* pDstRect)
 {
 	Qt_Surface* pDst = static_cast<Qt_Surface*>(_pDst);
 	Qt_Surface* pSrc = static_cast<Qt_Surface*>(_pSrc);

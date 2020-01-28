@@ -1,5 +1,5 @@
 /* generic.h: The internal shared definitions of the generic layer.
- * 
+ *
  * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag and Michael Walsh.
  * Licensed under the GNU General Public License. No warranty.
  * See COPYING for details.
@@ -30,20 +30,20 @@ struct gamestate;
 
 typedef	struct genericglobals
 {
-    /* 
-     * Shared variables.
-     */
+	/*
+	 * Shared variables.
+	 */
 
-    short		wtile;		/* width of one tile in pixels */
-    short		htile;		/* height of one tile in pixels */
-    short		cptile;		/* size of one tile in pixels */
-    TW_Surface	       *screen;		/* the display */
-    TW_Rect		maploc;		/* location of the map in the window */
+	short		wtile;		/* width of one tile in pixels */
+	short		htile;		/* height of one tile in pixels */
+	short		cptile;		/* size of one tile in pixels */
+	TW_Surface	       *screen;		/* the display */
+	TW_Rect		maploc;		/* location of the map in the window */
 
-    /* Coordinates of the NW corner of the visible part of the map
-     * (measured in quarter-tiles), or -1 if no map is currently visible.
-     */
-    int			mapvieworigin;
+	/* Coordinates of the NW corner of the visible part of the map
+	 * (measured in quarter-tiles), or -1 if no map is currently visible.
+	 */
+	int			mapvieworigin;
 
 } genericglobals;
 
@@ -51,7 +51,7 @@ typedef	struct genericglobals
  */
 extern genericglobals geng;
 
-/* 
+/*
  * Shared functions.
  */
 

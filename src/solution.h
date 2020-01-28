@@ -18,11 +18,11 @@
 /* A structure holding all the data needed to reconstruct a solution.
  */
 typedef	struct solutioninfo {
-    actlist		moves;		/* the actual moves of the solution */
-    unsigned long	rndseed;	/* the PRNG's initial seed */
-    unsigned long	flags;		/* other flags (currently unused) */
-    unsigned char	rndslidedir;	/* random slide's initial direction */
-    signed char		stepping;	/* the timer offset */
+	actlist		moves;		/* the actual moves of the solution */
+	unsigned long	rndseed;	/* the PRNG's initial seed */
+	unsigned long	flags;		/* other flags (currently unused) */
+	unsigned char	rndslidedir;	/* random slide's initial direction */
+	signed char		stepping;	/* the timer offset */
 } solutioninfo;
 
 /* No file modification will be done unless this variable is FALSE.

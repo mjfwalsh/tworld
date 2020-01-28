@@ -89,7 +89,7 @@ void TWProgressBar::paintEvent(QPaintEvent* pPaintEvent)
 
 	QString t = text();
 	m_nLeftLine = 0;
-	
+
 	if(isFullBar()) {
 		paintBox(&painter, maximum(), QColor(0, 0, 0), QColor(255, 255, 255), t);
 		return;

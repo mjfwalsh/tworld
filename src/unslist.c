@@ -19,11 +19,11 @@
  * levels.
  */
 typedef	struct unslistentry {
-    int			setid;		/* the ID of the level set's name */
-    int			levelnum;	/* the level's number */
-    int			size;		/* the levels data's compressed size */
-    unsigned long	hashval;	/* the levels data's hash value */
-    int			note;		/* the entry's annotation ID, if any */
+	int			setid;		/* the ID of the level set's name */
+	int			levelnum;	/* the level's number */
+	int			size;		/* the levels data's compressed size */
+	unsigned long	hashval;	/* the levels data's hash value */
+	int			note;		/* the entry's annotation ID, if any */
 } unslistentry;
 
 /* The pool of strings. In here are stored the level set names and the
@@ -63,20 +63,20 @@ static unslistentry    *unslist = NULL;
  */
 static int storestring(char const *str)
 {
-    int	len;
+	int	len;
 
-    len = strlen(str) + 1;
-    if (stringsused + len > stringsallocated) {
-	stringsallocated = stringsallocated ? 2 * stringsallocated : 256;
-	x_alloc(strings, stringsallocated);
-	if (!stringsused) {
-	    *strings = '\0';
-	    ++stringsused;
+	len = strlen(str) + 1;
+	if (stringsused + len > stringsallocated) {
+		stringsallocated = stringsallocated ? 2 * stringsallocated : 256;
+		x_alloc(strings, stringsallocated);
+		if (!stringsused) {
+			*strings = '\0';
+			++stringsused;
+		}
 	}
-    }
-    memcpy(strings + stringsused, str, len);
-    stringsused += len;
-    return stringsused - len;
+	memcpy(strings + stringsused, str, len);
+	stringsused += len;
+	return stringsused - len;
 }
 
 /*
@@ -89,20 +89,20 @@ static int storestring(char const *str)
  */
 static int lookupsetname(char const *name, int add)
 {
-    int	i;
+	int	i;
 
-    for (i = 0 ; i < namescount ; ++i)
-	if (!strcmp(getstring(names[i]), name))
-	    return names[i];
-    if (!add)
-	return 0;
+	for (i = 0 ; i < namescount ; ++i)
+		if (!strcmp(getstring(names[i]), name))
+			return names[i];
+	if (!add)
+		return 0;
 
-    if (namescount >= namesallocated) {
-	namesallocated = namesallocated ? 2 * namesallocated : 8;
-	x_alloc(names, namesallocated * sizeof *names);
-    }
-    names[namescount] = storestring(name);
-    return names[namescount++];
+	if (namescount >= namesallocated) {
+		namesallocated = namesallocated ? 2 * namesallocated : 8;
+		x_alloc(names, namesallocated * sizeof *names);
+	}
+	names[namescount] = storestring(name);
+	return names[namescount++];
 }
 
 /*
@@ -112,19 +112,19 @@ static int lookupsetname(char const *name, int add)
 /* Add a new entry with the given data to the list.
  */
 static int addtounslist(int setid, int levelnum,
-			int size, unsigned long hashval, int note)
+	int size, unsigned long hashval, int note)
 {
-    if (listcount == listallocated) {
-	listallocated = listallocated ? listallocated * 2 : 16;
-	x_alloc(unslist, listallocated * sizeof *unslist);
-    }
-    unslist[listcount].setid = setid;
-    unslist[listcount].levelnum = levelnum;
-    unslist[listcount].size = size;
-    unslist[listcount].hashval = hashval;
-    unslist[listcount].note = note;
-    ++listcount;
-    return TRUE;
+	if (listcount == listallocated) {
+		listallocated = listallocated ? listallocated * 2 : 16;
+		x_alloc(unslist, listallocated * sizeof *unslist);
+	}
+	unslist[listcount].setid = setid;
+	unslist[listcount].levelnum = levelnum;
+	unslist[listcount].size = size;
+	unslist[listcount].hashval = hashval;
+	unslist[listcount].note = note;
+	++listcount;
+	return TRUE;
 }
 
 /* Remove all entries for the given level from the list. FALSE is
@@ -132,16 +132,16 @@ static int addtounslist(int setid, int levelnum,
  */
 static int removefromunslist(int setid, int levelnum)
 {
-    int	i, f = FALSE;
+	int	i, f = FALSE;
 
-    for (i = 0 ; i < listcount ; ++i) {
-	if (unslist[i].setid == setid && unslist[i].levelnum == levelnum) {
-	    --listcount;
-	    unslist[i] = unslist[listcount];
-	    f = TRUE;
+	for (i = 0 ; i < listcount ; ++i) {
+		if (unslist[i].setid == setid && unslist[i].levelnum == levelnum) {
+			--listcount;
+			unslist[i] = unslist[listcount];
+			f = TRUE;
+		}
 	}
-    }
-    return f;
+	return f;
 }
 
 /* Add the information in the given file to the list of unsolvable
@@ -150,43 +150,43 @@ static int removefromunslist(int setid, int levelnum)
  */
 static int readunslist(fileinfo *file)
 {
-    char		buf[256], token[256];
-    char const	       *p;
-    unsigned long	hashval;
-    int			setid;
-    unsigned int	size;
-    int			lineno, levelnum, n;
+	char		buf[256], token[256];
+	char const	       *p;
+	unsigned long	hashval;
+	int			setid;
+	unsigned int	size;
+	int			lineno, levelnum, n;
 
-    setid = 0;
-    for (lineno = 1 ; ; ++lineno) {
-	n = sizeof buf - 1;
-	if (!filegetline(file, buf, &n, NULL))
-	    break;
-	for (p = buf ; isspace(*p) ; ++p) ;
-	if (!*p || *p == '#')
-	    continue;
-	if (sscanf(p, "[%[^]]]", token) == 1) {
-	    setid = lookupsetname(token, TRUE);
-	    continue;
-	}
-	n = sscanf(p, "%d: %04X%08lX: %[^\n\r]",
-		      &levelnum, &size, &hashval, token);
-	if (n > 0 && levelnum > 0 && levelnum < 65536 && setid) {
-	    if (n == 1) {
-		n = sscanf(p, "%*d: %s", token);
-		if (n > 0 && !strcmp(token, "ok")) {
-		    removefromunslist(setid, levelnum);
-		    continue;
+	setid = 0;
+	for (lineno = 1 ; ; ++lineno) {
+		n = sizeof buf - 1;
+		if (!filegetline(file, buf, &n, NULL))
+			break;
+		for (p = buf ; isspace(*p) ; ++p) ;
+		if (!*p || *p == '#')
+			continue;
+		if (sscanf(p, "[%[^]]]", token) == 1) {
+			setid = lookupsetname(token, TRUE);
+			continue;
 		}
-	    } else if (n >= 3) {
-		addtounslist(setid, levelnum, size, hashval,
-			     n == 4 ? storestring(token) : 0);
-		continue;
-	    }
+		n = sscanf(p, "%d: %04X%08lX: %[^\n\r]",
+			&levelnum, &size, &hashval, token);
+		if (n > 0 && levelnum > 0 && levelnum < 65536 && setid) {
+			if (n == 1) {
+				n = sscanf(p, "%*d: %s", token);
+				if (n > 0 && !strcmp(token, "ok")) {
+					removefromunslist(setid, levelnum);
+					continue;
+				}
+			} else if (n >= 3) {
+				addtounslist(setid, levelnum, size, hashval,
+					n == 4 ? storestring(token) : 0);
+				continue;
+			}
+		}
+		warn("%s:%d: syntax error", file->name, lineno);
 	}
-	warn("%s:%d: syntax error", file->name, lineno);
-    }
-    return TRUE;
+	return TRUE;
 }
 
 /*
@@ -199,30 +199,30 @@ static int readunslist(fileinfo *file)
  */
 int markunsolvablelevels(gameseries *series)
 {
-    int		count = 0;
-    int		setid, i, j;
+	int		count = 0;
+	int		setid, i, j;
 
-    for (j = 0 ; j < series->count ; ++j)
-	series->games[j].unsolvable = NULL;
+	for (j = 0 ; j < series->count ; ++j)
+		series->games[j].unsolvable = NULL;
 
-    setid = lookupsetname(series->name, FALSE);
-    if (!setid)
-	return 0;
+	setid = lookupsetname(series->name, FALSE);
+	if (!setid)
+		return 0;
 
-    for (i = 0 ; i < listcount ; ++i) {
-	if (unslist[i].setid != setid)
-	    continue;
-	for (j = 0 ; j < series->count ; ++j) {
-	    if (series->games[j].number == unslist[i].levelnum
-			&& series->games[j].levelsize == unslist[i].size
-			&& series->games[j].levelhash == unslist[i].hashval) {
-		series->games[j].unsolvable = getstring(unslist[i].note);
-		++count;
-		break;
-	    }
+	for (i = 0 ; i < listcount ; ++i) {
+		if (unslist[i].setid != setid)
+			continue;
+		for (j = 0 ; j < series->count ; ++j) {
+			if (series->games[j].number == unslist[i].levelnum
+				&& series->games[j].levelsize == unslist[i].size
+				&& series->games[j].levelhash == unslist[i].hashval) {
+				series->games[j].unsolvable = getstring(unslist[i].note);
+				++count;
+				break;
+			}
+		}
 	}
-    }
-    return count;
+	return count;
 }
 
 /* Read the list of unsolvable levels from the given filename. If the
@@ -231,38 +231,38 @@ int markunsolvablelevels(gameseries *series)
  */
 int loadunslistfromfile(char const *filename)
 {
-    fileinfo	file = {0};
+	fileinfo	file = {0};
 
-    if (openfileindir(&file, RESDIR, filename, "r", NULL)) {
-	readunslist(&file);
-	fileclose(&file, NULL);
-    }
-    if (!haspathname(filename)) {
-	clearfileinfo(&file);
-	if (openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
-	    readunslist(&file);
-	    fileclose(&file, NULL);
+	if (openfileindir(&file, RESDIR, filename, "r", NULL)) {
+		readunslist(&file);
+		fileclose(&file, NULL);
 	}
-    }
-    return TRUE;
+	if (!haspathname(filename)) {
+		clearfileinfo(&file);
+		if (openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
+			readunslist(&file);
+			fileclose(&file, NULL);
+		}
+	}
+	return TRUE;
 }
 
 /* Free all memory associated with the list of unsolvable levels.
  */
 void clearunslist(void)
 {
-    free(unslist);
-    listcount = 0;
-    listallocated = 0;
-    unslist = NULL;
+	free(unslist);
+	listcount = 0;
+	listallocated = 0;
+	unslist = NULL;
 
-    free(names);
-    namescount = 0;
-    namesallocated = 0;
-    names = NULL;
+	free(names);
+	namescount = 0;
+	namesallocated = 0;
+	names = NULL;
 
-    free(strings);
-    stringsused = 0;
-    stringsallocated = 0;
-    strings = NULL;
+	free(strings);
+	stringsused = 0;
+	stringsallocated = 0;
+	strings = NULL;
 }

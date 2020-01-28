@@ -13,106 +13,106 @@
  */
 enum
 {
-    Nothing		= 0,
+	Nothing		= 0,
 
-    Empty		= 0x01,
+	Empty		= 0x01,
 
-    Slide_North		= 0x02,
-    Slide_West		= 0x03,
-    Slide_South		= 0x04,
-    Slide_East		= 0x05,
-    Slide_Random	= 0x06,
-    Ice			= 0x07,
-    IceWall_Northwest	= 0x08,
-    IceWall_Northeast	= 0x09,
-    IceWall_Southwest	= 0x0A,
-    IceWall_Southeast	= 0x0B,
-    Gravel		= 0x0C,
-    Dirt		= 0x0D,
-    Water		= 0x0E,
-    Fire		= 0x0F,
-    Bomb		= 0x10,
-    Beartrap		= 0x11,
-    Burglar		= 0x12,
-    HintButton		= 0x13,
+	Slide_North		= 0x02,
+	Slide_West		= 0x03,
+	Slide_South		= 0x04,
+	Slide_East		= 0x05,
+	Slide_Random	= 0x06,
+	Ice			= 0x07,
+	IceWall_Northwest	= 0x08,
+	IceWall_Northeast	= 0x09,
+	IceWall_Southwest	= 0x0A,
+	IceWall_Southeast	= 0x0B,
+	Gravel		= 0x0C,
+	Dirt		= 0x0D,
+	Water		= 0x0E,
+	Fire		= 0x0F,
+	Bomb		= 0x10,
+	Beartrap		= 0x11,
+	Burglar		= 0x12,
+	HintButton		= 0x13,
 
-    Button_Blue		= 0x14,
-    Button_Green	= 0x15,
-    Button_Red		= 0x16,
-    Button_Brown	= 0x17,
-    Teleport		= 0x18,
+	Button_Blue		= 0x14,
+	Button_Green	= 0x15,
+	Button_Red		= 0x16,
+	Button_Brown	= 0x17,
+	Teleport		= 0x18,
 
-    Wall		= 0x19,
-    Wall_North		= 0x1A,
-    Wall_West		= 0x1B,
-    Wall_South		= 0x1C,
-    Wall_East		= 0x1D,
-    Wall_Southeast	= 0x1E,
-    HiddenWall_Perm	= 0x1F,
-    HiddenWall_Temp	= 0x20,
-    BlueWall_Real	= 0x21,
-    BlueWall_Fake	= 0x22,
-    SwitchWall_Open	= 0x23,
-    SwitchWall_Closed	= 0x24,
-    PopupWall		= 0x25,
+	Wall		= 0x19,
+	Wall_North		= 0x1A,
+	Wall_West		= 0x1B,
+	Wall_South		= 0x1C,
+	Wall_East		= 0x1D,
+	Wall_Southeast	= 0x1E,
+	HiddenWall_Perm	= 0x1F,
+	HiddenWall_Temp	= 0x20,
+	BlueWall_Real	= 0x21,
+	BlueWall_Fake	= 0x22,
+	SwitchWall_Open	= 0x23,
+	SwitchWall_Closed	= 0x24,
+	PopupWall		= 0x25,
 
-    CloneMachine	= 0x26,
+	CloneMachine	= 0x26,
 
-    Door_Red		= 0x27,
-    Door_Blue		= 0x28,
-    Door_Yellow		= 0x29,
-    Door_Green		= 0x2A,
-    Socket		= 0x2B,
-    Exit		= 0x2C,
+	Door_Red		= 0x27,
+	Door_Blue		= 0x28,
+	Door_Yellow		= 0x29,
+	Door_Green		= 0x2A,
+	Socket		= 0x2B,
+	Exit		= 0x2C,
 
-    ICChip		= 0x2D,
-    Key_Red		= 0x2E,
-    Key_Blue		= 0x2F,
-    Key_Yellow		= 0x30,
-    Key_Green		= 0x31,
-    Boots_Ice		= 0x32,
-    Boots_Slide		= 0x33,
-    Boots_Fire		= 0x34,
-    Boots_Water		= 0x35,
+	ICChip		= 0x2D,
+	Key_Red		= 0x2E,
+	Key_Blue		= 0x2F,
+	Key_Yellow		= 0x30,
+	Key_Green		= 0x31,
+	Boots_Ice		= 0x32,
+	Boots_Slide		= 0x33,
+	Boots_Fire		= 0x34,
+	Boots_Water		= 0x35,
 
-    Block_Static	= 0x36,
+	Block_Static	= 0x36,
 
-    Drowned_Chip	= 0x37,
-    Burned_Chip		= 0x38,
-    Bombed_Chip		= 0x39,
-    Exited_Chip		= 0x3A,
-    Exit_Extra_1	= 0x3B,
-    Exit_Extra_2	= 0x3C,
+	Drowned_Chip	= 0x37,
+	Burned_Chip		= 0x38,
+	Bombed_Chip		= 0x39,
+	Exited_Chip		= 0x3A,
+	Exit_Extra_1	= 0x3B,
+	Exit_Extra_2	= 0x3C,
 
-    Overlay_Buffer	= 0x3D,
+	Overlay_Buffer	= 0x3D,
 
-    Floor_Reserved2	= 0x3E,
-    Floor_Reserved1	= 0x3F,
+	Floor_Reserved2	= 0x3E,
+	Floor_Reserved1	= 0x3F,
 
-    Chip		= 0x40,
+	Chip		= 0x40,
 
-    Block		= 0x44,
+	Block		= 0x44,
 
-    Tank		= 0x48,
-    Ball		= 0x4C,
-    Glider		= 0x50,
-    Fireball		= 0x54,
-    Walker		= 0x58,
-    Blob		= 0x5C,
-    Teeth		= 0x60,
-    Bug			= 0x64,
-    Paramecium		= 0x68,
+	Tank		= 0x48,
+	Ball		= 0x4C,
+	Glider		= 0x50,
+	Fireball		= 0x54,
+	Walker		= 0x58,
+	Blob		= 0x5C,
+	Teeth		= 0x60,
+	Bug			= 0x64,
+	Paramecium		= 0x68,
 
-    Swimming_Chip	= 0x6C,
-    Pushing_Chip	= 0x70,
+	Swimming_Chip	= 0x6C,
+	Pushing_Chip	= 0x70,
 
-    Entity_Reserved2	= 0x74,
-    Entity_Reserved1	= 0x78,
+	Entity_Reserved2	= 0x74,
+	Entity_Reserved1	= 0x78,
 
-    Water_Splash	= 0x7C,
-    Bomb_Explosion	= 0x7D,
-    Entity_Explosion	= 0x7E,
-    Animation_Reserved1	= 0x7F
+	Water_Splash	= 0x7C,
+	Bomb_Explosion	= 0x7D,
+	Entity_Explosion	= 0x7E,
+	Animation_Reserved1	= 0x7F
 };
 
 /* Macros to assist in identifying tile taxons.
@@ -144,68 +144,68 @@ enum
  * connected to.
  */
 typedef	struct xyconn {
-    short		from;		/* location of the button */
-    short		to;		/* location of the trap/cloner */
+	short		from;		/* location of the button */
+	short		to;		/* location of the trap/cloner */
 } xyconn;
 
 /* A tile on the map.
  */
 typedef struct maptile {
-    unsigned char	id;		/* identity of the tile */
-    unsigned char	state;		/* internal state flags */
+	unsigned char	id;		/* identity of the tile */
+	unsigned char	state;		/* internal state flags */
 } maptile;
 
 /* A location on the map.
  */
 typedef	struct mapcell {
-    maptile		top;		/* the upper tile */
-    maptile		bot;		/* the lower tile */
+	maptile		top;		/* the upper tile */
+	maptile		bot;		/* the lower tile */
 } mapcell;
 
 /* A creature.
  */
 typedef struct creature {
-    short		pos;		/* creature's location */
-    unsigned char	id;		/* type of creature */
-    unsigned char	dir;		/* current direction of creature */
-    signed char		moving;		/* positional offset of creature */
-    signed char		frame;		/* explicit animation index */
-    unsigned char	hidden;		/* TRUE if creature is invisible */
-    unsigned char	state;		/* internal state value */
-    unsigned char	tdir;		/* internal state value */
+	short		pos;		/* creature's location */
+	unsigned char	id;		/* type of creature */
+	unsigned char	dir;		/* current direction of creature */
+	signed char		moving;		/* positional offset of creature */
+	signed char		frame;		/* explicit animation index */
+	unsigned char	hidden;		/* TRUE if creature is invisible */
+	unsigned char	state;		/* internal state value */
+	unsigned char	tdir;		/* internal state value */
 } creature;
 
 /* Status information specific to the MS game logic.
  */
 struct msstate_ {
-    unsigned char	chipwait;	/* ticks since Chip's last movement */
-    unsigned char	chipstatus;	/* Chip's status (one of CHIP_*) */
-    unsigned char	controllerdir;	/* current controller direction */
-    unsigned char	lastslipdir;	/* Chip's last involuntary movement */
-    unsigned char	completed;	/* level completed successfully */
-    short		goalpos;	/* mouse spot to move Chip towards */
-    signed char		xviewoffset;	/* offset of map view center */
-    signed char		yviewoffset;	/*   position from position of Chip */
+	unsigned char	chipwait;	/* ticks since Chip's last movement */
+	unsigned char	chipstatus;	/* Chip's status (one of CHIP_*) */
+	unsigned char	controllerdir;	/* current controller direction */
+	unsigned char	lastslipdir;	/* Chip's last involuntary movement */
+	unsigned char	completed;	/* level completed successfully */
+	short		goalpos;	/* mouse spot to move Chip towards */
+	signed char		xviewoffset;	/* offset of map view center */
+	signed char		yviewoffset;	/*   position from position of Chip */
 };
 
 /* Status information specific to the Lynx game logic.
  */
 struct lxstate_ {
-    creature	       *chiptocr;	/* is Chip colliding with a creature */
-    creature	       *crend;		/* near the end of the creature list */
-    short		chiptopos;	/*   just starting to move itself? */
-    short		putwall;	/* location to put a wall */
-    unsigned char	prng1;		/* the values used to make the */
-    unsigned char	prng2;		/*   pseudorandom number sequence */
-    signed char		xviewoffset;	/* offset of map view center */
-    signed char		yviewoffset;	/*   position from position of Chip */
-    unsigned char	endgametimer;	/* end-game countdown timer */
-    unsigned char	togglestate;	/* extra state of the toggle walls */
-    unsigned char	completed;	/* level completed successfully */
-    unsigned char	stuck;		/* Chip is stuck */
-    unsigned char	pushing;	/* Chip is pushing against something */
-    unsigned char	couldntmove;	/* can't-move sound has been played */
-    unsigned char	mapbreached;	/* Border of map has been breached */
+	creature	       *chiptocr;	/* is Chip colliding with a creature */
+	creature	       *crend;		/* near the end of the creature list */
+	short		chiptopos;	/*   just starting to move itself? */
+	short		putwall;	/* location to put a wall */
+	unsigned char	prng1;		/* the values used to make the */
+	unsigned char	prng2;		/*   pseudorandom number sequence */
+	signed char		xviewoffset;	/* offset of map view center */
+	signed char		yviewoffset;	/*   position from position of Chip */
+	unsigned char	endgametimer;	/* end-game countdown timer */
+	unsigned char	togglestate;	/* extra state of the toggle walls */
+	unsigned char	completed;	/* level completed successfully */
+	unsigned char	stuck;		/* Chip is stuck */
+	unsigned char	pushing;	/* Chip is pushing against something */
+	unsigned char	couldntmove;	/* can't-move sound has been played */
+	unsigned char	mapbreached;	/* Border of map has been breached */
 };
 
 /*
@@ -217,39 +217,39 @@ struct lxstate_ {
  * in here.
  */
 typedef struct gamestate {
-    gamesetup	       *game;			/* the level specification */
-    int			ruleset;		/* the ruleset for the game */
-    int			replay;			/* playback move index */
-    int			timelimit;		/* maximum time permitted */
-    int			currenttime;		/* the current tick count */
-    int			timeoffset;		/* offset for displayed time */
-    short		currentinput;		/* the current keystroke */
-    short		chipsneeded;		/* no. of chips still needed */
-    short		xviewpos;		/* the visible part of the */
-    short		yviewpos;		/*   map (ie, where Chip is) */
-    short		keys[4];		/* keys collected */
-    short		boots[4];		/* boots collected */
-    short		statusflags;		/* flags (see below) */
-    short		lastmove;		/* most recent move */
-    unsigned char	initrndslidedir;	/* initial random-slide dir */
-    signed char		stepping;		/* initial timer offset 0-7 */
-    unsigned long	soundeffects;		/* the latest sound effects */
-    actlist		moves;			/* the list of moves */
-    prng		mainprng;		/* the main PRNG */
-    creature	       *creatures;		/* the creature list */
-    short		trapcount;		/* number of trap buttons */
-    short		clonercount;		/* number of cloner buttons */
-    short		crlistcount;		/* number of creatures */
-    xyconn		traps[256];		/* list of trap wirings */
-    xyconn		cloners[256];		/* list of cloner wirings */
-    short		crlist[256];		/* list of creatures */
-    char		hinttext[256];		/* text of the hint */
-    mapcell		map[CXGRID * CYGRID];	/* the game's map */
+	gamesetup	       *game;			/* the level specification */
+	int			ruleset;		/* the ruleset for the game */
+	int			replay;			/* playback move index */
+	int			timelimit;		/* maximum time permitted */
+	int			currenttime;		/* the current tick count */
+	int			timeoffset;		/* offset for displayed time */
+	short		currentinput;		/* the current keystroke */
+	short		chipsneeded;		/* no. of chips still needed */
+	short		xviewpos;		/* the visible part of the */
+	short		yviewpos;		/*   map (ie, where Chip is) */
+	short		keys[4];		/* keys collected */
+	short		boots[4];		/* boots collected */
+	short		statusflags;		/* flags (see below) */
+	short		lastmove;		/* most recent move */
+	unsigned char	initrndslidedir;	/* initial random-slide dir */
+	signed char		stepping;		/* initial timer offset 0-7 */
+	unsigned long	soundeffects;		/* the latest sound effects */
+	actlist		moves;			/* the list of moves */
+	prng		mainprng;		/* the main PRNG */
+	creature	       *creatures;		/* the creature list */
+	short		trapcount;		/* number of trap buttons */
+	short		clonercount;		/* number of cloner buttons */
+	short		crlistcount;		/* number of creatures */
+	xyconn		traps[256];		/* list of trap wirings */
+	xyconn		cloners[256];		/* list of cloner wirings */
+	short		crlist[256];		/* list of creatures */
+	char		hinttext[256];		/* text of the hint */
+	mapcell		map[CXGRID * CYGRID];	/* the game's map */
 
-    /* Ruleset specific state. A union could be used to reduce memory, but
-       these are not large enough to make it worth it. */
-    struct msstate_ msstate;
-    struct lxstate_ lxstate;
+	/* Ruleset specific state. A union could be used to reduce memory, but
+	   these are not large enough to make it worth it. */
+	struct msstate_ msstate;
+	struct lxstate_ lxstate;
 } gamestate;
 
 /* General status flags.

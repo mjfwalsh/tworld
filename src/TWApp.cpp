@@ -69,7 +69,7 @@ int oshwinitialize(int silence, int soundbufsize, int showhistogram)
 }
 
 bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
-                              bool bShowHistogram)
+	bool bShowHistogram)
 {
 	m_bSilence = bSilence;
 	m_bShowHistogram = bShowHistogram;
@@ -101,7 +101,7 @@ void copytoclipboard(char const *text)
 
 int TileWorldApp::RunTWorld()
 {
-    return tworld();
+	return tworld();
 }
 
 const char *getdir(int t)
@@ -134,12 +134,12 @@ const char *TileWorldApp::GetDir(int t)
 void TileWorldApp::InitDirs()
 {
 	auto checkDir = [](QString d)
-    {
+	{
 		QDir dir(d);
 		if (!dir.exists() && !dir.mkpath(".")) {
 			die("Unable to create folder %s", d.toUtf8().constData());
 		}
-    };
+	};
 
 	// Get the app resources
 	QString appRootDir = QApplication::applicationDirPath();

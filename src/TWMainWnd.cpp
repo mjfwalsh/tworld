@@ -154,9 +154,9 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	volTimer = new QTimer(this);
 
 	// keyboard stuff
-    mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
-    mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
-    SetKeyboardRepeat(TRUE);
+	mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
+	mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
+	SetKeyboardRepeat(TRUE);
 }
 
 
@@ -226,8 +226,8 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 		case Qt::Key_Down:   nTWKey = TWK_DOWN;   break;
 		case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
 #ifndef NDEBUG
-		case Qt::Key_D:      nTWKey = TWK_DEBUG1;   break;
-		case Qt::Key_E:      nTWKey = TWK_DEBUG2;   break;
+		case Qt::Key_D:      nTWKey = TWK_DEBUG1; break;
+		case Qt::Key_E:      nTWKey = TWK_DEBUG2; break;
 
 		case Qt::Key_C:      nTWKey = TWK_CHIP;   break;
 		case Qt::Key_R:      nTWKey = TWK_RED;    break;
@@ -424,8 +424,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
 	bool bParBad = (pState->game->sgflags & SGF_REPLACEABLE) != 0;
 
-	if (pState->currenttime == -1)
-	{
+	if (pState->currenttime == -1) {
 		// set properties
 		m_nRuleset = pState->ruleset;
 		m_nLevelNum = pState->game->number;
@@ -471,7 +470,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		else action_Delete->setText("Delete");
 
 		// pro- and epilogue
-        CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_nLevelNum]);
+		CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_nLevelNum]);
 		bool hasPrologue(!currLevel.txtPrologue.vecPages.empty());
 		bool hasEpilogue(!currLevel.txtEpilogue.vecPages.empty());
 		action_Prologue->setEnabled(hasPrologue);
@@ -504,7 +503,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 			m_pPrgTime->setFormat("---");
 			m_sTimeFormat  = "---";
 			m_pPrgTime->setFullBar(true);
-		}		
+		}
 
 		// set time limits
 		int timeLimit = bTimedLevel ? pState->game->time : 999;
@@ -523,12 +522,10 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		Narrate(&CCX::Level::txtPrologue);
 	}
 	// do these on play start - they only need to be done once
-	else if(action_Levelsets->isEnabled())
-	{
+	else if(action_Levelsets->isEnabled()) {
 		m_bReplay = (pState->replay >= 0);
 		m_pControlsFrame->setVisible(m_bReplay);
-		if (m_bProblematic)
-		{
+		if (m_bProblematic) {
 			SetHint(false);
 			m_bProblematic = false;
 		}
@@ -597,41 +594,32 @@ void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
 {
 	QString s;
 
-	if (pState->statusflags & SF_INVALID)
-	{
+	if (pState->statusflags & SF_INVALID) {
 		s = "This level cannot be played.";
-	}
-	else if (pState->game->unsolvable)
-	{
+	} else if (pState->game->unsolvable) {
 		s = "This level is reported to be unsolvable";
 		if (*pState->game->unsolvable)
 			s += ": " + QString(pState->game->unsolvable);
 		s += ".";
-	}
-	else
-	{
+	} else {
 		CCX::RulesetCompatibility ruleCompat = m_ccxLevelset.vecLevels[m_nLevelNum].ruleCompat;
 		CCX::Compatibility compat = CCX::COMPAT_UNKNOWN;
-		if (m_nRuleset == Ruleset_Lynx)
-		{
+		if (m_nRuleset == Ruleset_Lynx) {
 			if (pedanticmode)
 				compat = ruleCompat.ePedantic;
 			else
 				compat = ruleCompat.eLynx;
-		}
-		else if (m_nRuleset == Ruleset_MS)
-		{
+		} else if (m_nRuleset == Ruleset_MS) {
 			compat = ruleCompat.eMS;
 		}
-		if (compat == CCX::COMPAT_NO)
-		{
+
+		if (compat == CCX::COMPAT_NO){
 			s = "This level is flagged as being incompatible with the current ruleset.";
 		}
 	}
 
 	m_bProblematic = !s.isEmpty();
-	if (m_bProblematic)
-	{
+	if (m_bProblematic) {
 		SetHint(true, s);
 	}
 }
@@ -641,14 +629,11 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
 	short xviewpos = pState->xviewpos;
 	short yviewpos = pState->yviewpos;
 	bool bFrogShow = (m_bOFNT  &&  m_bReplay  &&
-	                  xviewpos/8 == 14  &&  yviewpos/8 == 9);
-	if (bFrogShow)
-	{
+					xviewpos/8 == 14  &&  yviewpos/8 == 9);
+	if (bFrogShow) {
 		int x = xviewpos, y = yviewpos;
-		if (m_nRuleset == Ruleset_MS)
-		{
-			for (int pos = 0; pos < CXGRID*CYGRID; ++pos)
-			{
+		if (m_nRuleset == Ruleset_MS) {
+			for (int pos = 0; pos < CXGRID*CYGRID; ++pos) {
 				int id = pState->map[pos].top.id;
 				if ( ! (id >= Teeth && id < Teeth+4) )
 					continue;
@@ -656,23 +641,18 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
 				y = (pos / CXGRID) * 8;
 				break;
 			}
-		}
-		else
-		{
-			for (const creature* p = pState->creatures; p->id != 0; ++p)
-			{
+		} else {
+			for (const creature* p = pState->creatures; p->id != 0; ++p) {
 				if ( ! (p->id >= Teeth && p->id < Teeth+4) )
 					continue;
 				x = (p->pos % CXGRID) * 8;
 				y = (p->pos / CXGRID) * 8;
-				if (p->moving > 0)
-				{
-					switch (p->dir)
-					{
-					  case NORTH:	y += p->moving;	break;
-					  case WEST:	x += p->moving;	break;
-					  case SOUTH:	y -= p->moving;	break;
-					  case EAST:	x -= p->moving;	break;
+				if (p->moving > 0) {
+					switch (p->dir) {
+						case NORTH:	y += p->moving;	break;
+						case WEST:	x += p->moving;	break;
+						case SOUTH:	y -= p->moving;	break;
+						case EAST:	x -= p->moving;	break;
 					}
 				}
 				break;
@@ -685,8 +665,7 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
 	displaymapview(pState, m_disploc);
 	m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
 
-	if (bFrogShow)
-	{
+	if (bFrogShow) {
 		const_cast<gamestate*>(pState)->xviewpos = xviewpos;
 		const_cast<gamestate*>(pState)->yviewpos = yviewpos;
 	}
@@ -759,8 +738,7 @@ void TileWorldMainWnd::OnSeekPosChanged(int nValue)
  * for the level, and the user's total score for the series; these
  * scores will be displayed to the user.
  */
-int displayendmessage(int basescore, int timescore, long totalscore,
-			     int completed)
+int displayendmessage(int basescore, int timescore, long totalscore, int completed)
 {
 	return g_pMainWnd->DisplayEndMessage(basescore, timescore, totalscore, completed);
 }
@@ -870,8 +848,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 			// on Linux as it can produce a style warning.
 			#if defined(Q_OS_WIN)
 				QStyle* pStyle = g_pApp->style();
-				if (pStyle != 0)
-				{
+				if (pStyle != 0) {
 					QIcon icon = pStyle->standardIcon(QStyle::SP_MessageBoxWarning);
 					msgBox.setIconPixmap(icon.pixmap(48));
 				}
@@ -903,8 +880,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-int displaylist(tablespec const *table, int *index,
-		       DisplayListType listtype)
+int displaylist(tablespec const *table, int *index, DisplayListType listtype)
 {
 	return g_pMainWnd->DisplayList(table, index, listtype);
 }
@@ -1009,8 +985,7 @@ void TileWorldMainWnd::OnFindReturnPressed()
 	if (!m_pSortFilterProxyModel) return;
 
 	int n = m_pSortFilterProxyModel->rowCount();
-	if (n == 0)
-	{
+	if (n == 0) {
 		ding();
 		return;
 	}
@@ -1024,7 +999,8 @@ void TileWorldMainWnd::OnFindReturnPressed()
 		g_pApp->exit(CmdProceed);
 }
 
-void TileWorldMainWnd::OnRulesetSwitched(QString checked) {
+void TileWorldMainWnd::OnRulesetSwitched(QString checked)
+{
 	setintsetting("selectedruleset", checked == "MS" ? Ruleset_MS : Ruleset_Lynx);
 }
 
@@ -1131,8 +1107,7 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 	if (!m_ccxLevelset.ReadFile(sFilePath, pSeries->count))
 		warn("%s: failed to read file", sFilePath.toLatin1().constData());
 
-	for (int i = 1; i <= pSeries->count; ++i)
-	{
+	for (int i = 1; i <= pSeries->count; ++i) {
 		CCX::Level& rCCXLevel = m_ccxLevelset.vecLevels[i];
 		rCCXLevel.txtPrologue.bSeen = false;	// @#$ (pSeries->games[i-1].sgflags & SGF_HASPASSWD) != 0;
 		rCCXLevel.txtEpilogue.bSeen = false;
@@ -1157,27 +1132,22 @@ void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 	m_pBtnTextNext->setFocus();
 
 	int d = +1;
-	for (int nPage = 0; nPage < n; nPage += d)
-	{
+	for (int nPage = 0; nPage < n; nPage += d) {
 		m_pBtnTextPrev->setVisible(nPage > 0);
 
 		CCX::Page& rPage = rText.vecPages[nPage];
 
 		QTextDocument* pDoc = m_pTextBrowser->document();
-		if (pDoc != 0)
-		{
+		if (pDoc != 0) {
 			if (!m_ccxLevelset.sStyleSheet.isEmpty())
 				pDoc->setDefaultStyleSheet(m_ccxLevelset.sStyleSheet);
 			pDoc->setDocumentMargin(16);
 		}
 
 		QString sText = rPage.sText;
-		if (rPage.pageProps.eFormat == CCX::TEXT_PLAIN)
-		{
+		if (rPage.pageProps.eFormat == CCX::TEXT_PLAIN) {
 			m_pTextBrowser->setPlainText(sText);
-		}
-		else
-		{
+		} else {
 			m_pTextBrowser->setHtml(sText);
 		}
 
@@ -1240,14 +1210,14 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 	}
 
 	if (pAction == action_displayCCX) {
-	    setintsetting("displayccx", pAction->isChecked() ? 1 : 0);
-	    return;
+		setintsetting("displayccx", pAction->isChecked() ? 1 : 0);
+		return;
 	}
 
 	if (pAction == action_forceShowTimer) {
-	    setintsetting("forceshowtimer", pAction->isChecked() ? 1 : 0);
+		setintsetting("forceshowtimer", pAction->isChecked() ? 1 : 0);
 		drawscreen(TRUE);
-	    return;
+		return;
 	}
 
 	if (pAction == action_About) {
@@ -1271,7 +1241,7 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 		this->ChangeVolume(-1);
 		return;
 	}
-	
+
 	if (pAction == action_Step) {
 		// step dialog
 		QInputDialog stepDialog(this);
@@ -1295,8 +1265,8 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 	}
 
 	if (pAction == action_PedanticMode) {
-	    setpedanticmode(pAction->isChecked() ? 1 : 0);
-	    return;
+		setpedanticmode(pAction->isChecked() ? 1 : 0);
+		return;
 	}
 
 	int nTWKey = GetTWKeyForAction(pAction);
@@ -1306,24 +1276,24 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 
 int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
 {
-    if (pAction == action_Scores) return TWC_SEESCORES;
-    if (pAction == action_SolutionFiles) return TWC_SEESOLUTIONFILES;
-    if (pAction == action_TimesClipboard) return TWC_TIMESCLIPBOARD;
-    if (pAction == action_Levelsets) return TWC_QUITLEVEL;
-    if (pAction == action_Exit) return TWC_QUIT;
+	if (pAction == action_Scores) return TWC_SEESCORES;
+	if (pAction == action_SolutionFiles) return TWC_SEESOLUTIONFILES;
+	if (pAction == action_TimesClipboard) return TWC_TIMESCLIPBOARD;
+	if (pAction == action_Levelsets) return TWC_QUITLEVEL;
+	if (pAction == action_Exit) return TWC_QUIT;
 
-    if (pAction == action_Begin) return TWC_PROCEED;
-    if (pAction == action_Pause) return TWC_PAUSEGAME;
-    if (pAction == action_Restart) return TWC_SAMELEVEL;
-    if (pAction == action_Next) return TWC_NEXTLEVEL;
-    if (pAction == action_Previous) return TWC_PREVLEVEL;
-    if (pAction == action_GoTo) return TWC_GOTOLEVEL;
+	if (pAction == action_Begin) return TWC_PROCEED;
+	if (pAction == action_Pause) return TWC_PAUSEGAME;
+	if (pAction == action_Restart) return TWC_SAMELEVEL;
+	if (pAction == action_Next) return TWC_NEXTLEVEL;
+	if (pAction == action_Previous) return TWC_PREVLEVEL;
+	if (pAction == action_GoTo) return TWC_GOTOLEVEL;
 
-    if (pAction == action_Playback) return TWC_PLAYBACK;
-    if (pAction == action_Verify) return TWC_CHECKSOLUTION;
-    if (pAction == action_Delete) return TWC_DELSOLUTION;
+	if (pAction == action_Playback) return TWC_PLAYBACK;
+	if (pAction == action_Verify) return TWC_CHECKSOLUTION;
+	if (pAction == action_Delete) return TWC_DELSOLUTION;
 
-    return TWK_dummy;
+	return TWK_dummy;
 }
 
 void TileWorldMainWnd::SetHint(bool newmode, QString hint)
@@ -1414,16 +1384,14 @@ void TileWorldMainWnd::ChangeVolume(int volume)
 
 	connect(volTimer, SIGNAL(timeout()), this, SLOT(HideVolumeWidget()));
 
-    volTimer->setSingleShot(true);
-    volTimer->start(2000);
+	volTimer->setSingleShot(true);
+	volTimer->start(2000);
 }
 
 void TileWorldMainWnd::HideVolumeWidget()
 {
 	m_pPrgVolFrame->setVisible(false);
 }
-
-
 
 
 /* This callback is called whenever the state of any keyboard key
@@ -1446,10 +1414,10 @@ void TileWorldMainWnd::KeyEventCallback(int scancode, int down)
  */
 void TileWorldMainWnd::RestartKeystates(void)
 {
-    memset(keystates, KS_OFF, sizeof keystates);
-    for (int n = 0; n < TWK_LAST; ++n)
+	memset(keystates, KS_OFF, sizeof keystates);
+	for (int n = 0; n < TWK_LAST; ++n)
 	if (m_nKeyState[n])
-	    KeyEventCallback(n, TRUE);
+		KeyEventCallback(n, TRUE);
 }
 
 /* Update the key states. This is done at the start of each polling
@@ -1458,7 +1426,7 @@ void TileWorldMainWnd::RestartKeystates(void)
  */
 void TileWorldMainWnd::ResetKeyStates(void)
 {
-    for (int n = 0 ; n < TWK_LAST ; ++n) {
+	for (int n = 0 ; n < TWK_LAST ; ++n) {
 		int x = (int)keystates[n];
 
 		if(x == KS_STRUCK) {
@@ -1494,51 +1462,51 @@ void TileWorldMainWnd::MouseEventCallback(int xpos, int ypos, int button)
  */
 int TileWorldMainWnd::WindowMapPos(int x, int y)
 {
-    if (geng.mapvieworigin < 0)
+	if (geng.mapvieworigin < 0)
 	return -1;
-    if (x < geng.maploc.x || y < geng.maploc.y)
+	if (x < geng.maploc.x || y < geng.maploc.y)
 	return -1;
-    x = (x - geng.maploc.x) * 4 / geng.wtile;
-    y = (y - geng.maploc.y) * 4 / geng.htile;
-    if (x >= NXTILES * 4 || y >= NYTILES * 4)
+	x = (x - geng.maploc.x) * 4 / geng.wtile;
+	y = (y - geng.maploc.y) * 4 / geng.htile;
+	if (x >= NXTILES * 4 || y >= NYTILES * 4)
 	return -1;
-    x = (x + geng.mapvieworigin % (CXGRID * 4)) / 4;
-    y = (y + geng.mapvieworigin / (CXGRID * 4)) / 4;
-    if (x < 0 || x >= CXGRID || y < 0 || y >= CYGRID) {
+	x = (x + geng.mapvieworigin % (CXGRID * 4)) / 4;
+	y = (y + geng.mapvieworigin / (CXGRID * 4)) / 4;
+	if (x < 0 || x >= CXGRID || y < 0 || y >= CYGRID) {
 	warn("mouse moved off the map: (%d %d)", x, y);
 	return -1;
-    }
-    return y * CXGRID + x;
+	}
+	return y * CXGRID + x;
 }
 
 /* Return the command appropriate to the most recent mouse activity.
  */
 int TileWorldMainWnd::RetrieveMouseCommand(void)
 {
-    int	n;
+	int	n;
 
-    switch (mouseinfo.state) {
-      case KS_PRESSED:
-	mouseinfo.state = KS_OFF;
-	if (mouseinfo.button == TW_BUTTON_LEFT) {
-	    n = WindowMapPos(mouseinfo.x, mouseinfo.y);
-	    if (n >= 0) {
-		mouseinfo.state = KS_DOWNBUTOFF1;
-		return CmdAbsMouseMoveFirst + n;
-	    }
+	switch (mouseinfo.state) {
+		case KS_PRESSED:
+			mouseinfo.state = KS_OFF;
+			if (mouseinfo.button == TW_BUTTON_LEFT) {
+				n = WindowMapPos(mouseinfo.x, mouseinfo.y);
+				if (n >= 0) {
+					mouseinfo.state = KS_DOWNBUTOFF1;
+					return CmdAbsMouseMoveFirst + n;
+				}
+			}
+			break;
+		case KS_DOWNBUTOFF1:
+			mouseinfo.state = KS_DOWNBUTOFF2;
+			return CmdPreserve;
+		case KS_DOWNBUTOFF2:
+			mouseinfo.state = KS_DOWNBUTOFF3;
+			return CmdPreserve;
+		case KS_DOWNBUTOFF3:
+			mouseinfo.state = KS_OFF;
+			return CmdPreserve;
 	}
-	break;
-      case KS_DOWNBUTOFF1:
-	mouseinfo.state = KS_DOWNBUTOFF2;
-	return CmdPreserve;
-      case KS_DOWNBUTOFF2:
-	mouseinfo.state = KS_DOWNBUTOFF3;
-	return CmdPreserve;
-      case KS_DOWNBUTOFF3:
-	mouseinfo.state = KS_OFF;
-	return CmdPreserve;
-    }
-    return 0;
+	return 0;
 }
 
 /* Poll the keyboard and return the command associated with the
@@ -1556,11 +1524,11 @@ int input(int wait)
 
 int TileWorldMainWnd::Input(int wait)
 {
-    keycmdmap const    *kc;
-    int			lingerflag = FALSE;
-    int			cmd1, cmd, n;
+	keycmdmap const    *kc;
+	int			lingerflag = FALSE;
+	int			cmd1, cmd, n;
 
-    for (;;) {
+	for (;;) {
 		ResetKeyStates();
 		eventupdate(wait);
 
@@ -1613,7 +1581,7 @@ int setkeyboardarrowsrepeat(int enable)
 
 int TileWorldMainWnd::SetKeyboardArrowsRepeat(int enable)
 {
-    joystickstyle = enable;
-    RestartKeystates();
-    return TRUE;
+	joystickstyle = enable;
+	RestartKeystates();
+	return TRUE;
 }

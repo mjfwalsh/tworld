@@ -92,8 +92,7 @@ void Text::ReadXML(QDomElement elm, const Levelset& levelset)
 {
 	vecPages.clear();
 	QDomNodeList lstElmPages = elm.elementsByTagName("page");
-	for (int i = 0; i < int(lstElmPages.length()); ++i)
-	{
+	for (int i = 0; i < int(lstElmPages.length()); ++i) {
 		QDomElement elmPage = lstElmPages.item(i).toElement();
 		Page page;
 		page.ReadXML(elmPage, levelset);
@@ -106,10 +105,10 @@ void Level::ReadXML(QDomElement elm, const Levelset& levelset)
 {
 	sAuthor = levelset.sAuthor;
 	ReadElmAttr(elm, "author", &ParseString, sAuthor);
-	
+
 	ruleCompat = levelset.ruleCompat;
 	ruleCompat.ReadXML(elm);
-	
+
 	QDomNodeList lstElm;
 	lstElm = elm.elementsByTagName("prologue");
 	if (lstElm.length() != 0)
@@ -128,9 +127,8 @@ void Levelset::ReadXML(QDomElement elm)
 
 	ruleCompat.ReadXML(elm);
 	pageProps.ReadXML(elm);
-	
-	for (int i = 0; i < int(vecLevels.size()); ++i)
-	{
+
+	for (int i = 0; i < int(vecLevels.size()); ++i) {
 		Level& rLevel = vecLevels[i];
 		rLevel.sAuthor = sAuthor;
 		rLevel.ruleCompat = ruleCompat;
@@ -138,8 +136,7 @@ void Levelset::ReadXML(QDomElement elm)
 
 	// vecLevels.clear();
 	QDomNodeList lstElmLevels = elm.elementsByTagName("level");
-	for (int i = 0; i < int(lstElmLevels.length()); ++i)
-	{
+	for (int i = 0; i < int(lstElmLevels.length()); ++i) {
 		QDomElement elmLevel = lstElmLevels.item(i).toElement();
 		int nNumber = 0;
 		if (!ReadElmAttr(elmLevel, "number", &ParseInt, nNumber))
@@ -149,10 +146,9 @@ void Levelset::ReadXML(QDomElement elm)
 		Level& rLevel = vecLevels[nNumber];
 		rLevel.ReadXML(elmLevel, *this);
 	}
-	
+
 	QDomNodeList lstElmStyle = elm.elementsByTagName("style");
-	if (lstElmStyle.length() != 0)
-	{
+	if (lstElmStyle.length() != 0) {
 		QDomElement elmStyle = lstElmStyle.item(0).toElement();
 		if (elmStyle.parentNode() == elm)
 			sStyleSheet = elmStyle.text();
@@ -163,27 +159,27 @@ void Levelset::ReadXML(QDomElement elm)
 bool Levelset::ReadFile(QString sFilePath, int nLevels)
 {
 	Clear();
-	
+
 	vecLevels.resize(1+nLevels);
-	
+
 	QFile file(sFilePath);
 	if (!file.exists())
 		return true;
 	if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
 		return false;
-	
+
 	QDomDocument doc;
 	if (!doc.setContent(&file))
 		return false;
-		
+
 	QDomElement elmRoot = doc.documentElement();
 	if (elmRoot.tagName() != "levelset")
 		return false;
-		
+
 	ReadXML(elmRoot);
-	
+
 	file.close();
-	
+
 	return true;
 }
 

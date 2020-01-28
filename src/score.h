@@ -18,7 +18,7 @@ extern "C" {
  * and the total score for the series.
  */
 extern int getscoresforlevel(gameseries const *series, int level,
-			     int *base, int *bonus, long *total);
+				 int *base, int *bonus, long *total);
 
 /* Produce a table showing the player's scores for the given series,
  * formatted in columns. Each level in the series is listed in a
@@ -41,7 +41,7 @@ extern void freescorelist(int *plevellist, tablespec *table);
 
 /* Create a string representing the level time achieved for a level. */
 char const *timestring(int lvlnum, char const *lvltitle, int besttime,
-    int timed, int bad);
+	int timed, int bad);
 
 /* Create a list of timestrings for all levels with solutions in the
  * gameseries. */

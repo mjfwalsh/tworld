@@ -13,9 +13,9 @@
 /* The different modes of the program with respect to gameplay.
  */
 enum {
-    NormalPlay, EndPlay,
-    SuspendPlay, SuspendPlayShuttered,
-    NonrenderPlay
+	NormalPlay, EndPlay,
+	SuspendPlay, SuspendPlayShuttered,
+	NonrenderPlay
 };
 
 /* TRUE if the program is running without a user interface.

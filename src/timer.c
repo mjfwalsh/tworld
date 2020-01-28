@@ -34,7 +34,7 @@ static unsigned	hist[100];
  */
 void settimersecond(int ms)
 {
-    mspertick = (ms ? ms : 1000) / TICKS_PER_SECOND;
+	mspertick = (ms ? ms : 1000) / TICKS_PER_SECOND;
 }
 
 /* Change the current timer setting. If action is positive, the timer
@@ -45,25 +45,25 @@ void settimersecond(int ms)
  */
 void settimer(int action)
 {
-    if (action < 0) {
-	nexttickat = 0;
-	utick = 0;
-    } else if (action > 0) {
-	if (nexttickat < 0)
-	    nexttickat = TW_GetTicks() - nexttickat;
-	else
-	    nexttickat = TW_GetTicks() + mspertick;
-    } else {
-	if (nexttickat > 0)
-	    nexttickat = TW_GetTicks() - nexttickat;
-    }
+	if (action < 0) {
+		nexttickat = 0;
+		utick = 0;
+	} else if (action > 0) {
+		if (nexttickat < 0)
+			nexttickat = TW_GetTicks() - nexttickat;
+		else
+			nexttickat = TW_GetTicks() + mspertick;
+	} else {
+		if (nexttickat > 0)
+			nexttickat = TW_GetTicks() - nexttickat;
+	}
 }
 
 /* Return the number of ticks since the timer was last reset.
  */
 int gettickcount(void)
 {
-    return (int)utick;
+	return (int)utick;
 }
 
 /* Put the program to sleep until the next timer tick. If we've
@@ -71,66 +71,66 @@ int gettickcount(void)
  */
 int waitfortick(void)
 {
-    int	ms;
+	int	ms;
 
-    ms = nexttickat - TW_GetTicks();
-    if (showhistogram)
-	if (ms < (int)(sizeof hist / sizeof *hist))
-	    ++hist[ms >= 0 ? ms + 1 : 0];
+	ms = nexttickat - TW_GetTicks();
+	if (showhistogram)
+		if (ms < (int)(sizeof hist / sizeof *hist))
+			++hist[ms >= 0 ? ms + 1 : 0];
 
-    if (ms <= 0) {
+	if (ms <= 0) {
+		++utick;
+		nexttickat += mspertick;
+		return FALSE;
+	}
+
+	while (ms < 0)
+		ms += mspertick;
+
+	TW_Delay(ms);
+
 	++utick;
 	nexttickat += mspertick;
-	return FALSE;
-    }
-
-    while (ms < 0)
-	ms += mspertick;
-
-    TW_Delay(ms);
-
-    ++utick;
-    nexttickat += mspertick;
-    return TRUE;
+	return TRUE;
 }
 
 /* Move to the next timer tick without waiting.
  */
 int advancetick(void)
 {
-    return ++utick;
+	return ++utick;
 }
 
 /* At shutdown time, display the histogram data on stdout.
  */
 static void shutdown(void)
 {
-    unsigned long	n;
-    int			i;
+	unsigned long	n;
+	int			i;
 
-    settimer(-1);
+	settimer(-1);
 
-    if (showhistogram) {
-	n = 0;
-	for (i = 0 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
-	    n += hist[i];
-	if (n) {
-	    printf("Histogram of idle time (ms/tick)\n");
-	    if (hist[0])
-		printf("NEG: %.1f%%\n", (hist[0] * 100.0) / n);
-	    for (i = 1 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
-		if (hist[i])
-		    printf("%3d: %.1f%%\n", i - 1, (hist[i] * 100.0) / n);
+	if (showhistogram) {
+		n = 0;
+		for (i = 0 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
+			n += hist[i];
+		if (n) {
+			printf("Histogram of idle time (ms/tick)\n");
+			if (hist[0])
+				printf("NEG: %.1f%%\n", (hist[0] * 100.0) / n);
+			for (i = 1 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
+				if (hist[i])
+					printf("%3d: %.1f%%\n", i - 1, (hist[i] * 100.0) / n);
+		}
 	}
-    }
 }
 
 /* Initialize and reset the timer.
  */
 int generictimerinitialize(int _showhistogram)
 {
-    showhistogram = _showhistogram;
-    atexit(shutdown);
-    settimer(-1);
-    return TRUE;
+	showhistogram = _showhistogram;
+	atexit(shutdown);
+	settimer(-1);
+	return TRUE;
 }
