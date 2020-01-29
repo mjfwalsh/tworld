@@ -101,6 +101,7 @@ enum {
  */
 typedef	struct fileinfo {
 	char       *name;		/* the name of the file */
+    int        dir;         /* the directory the file is in */
 	FILE       *fp;		/* the real file handle */
 	char	alloc;		/* TRUE if name was allocated internally */
 } fileinfo;

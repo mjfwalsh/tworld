@@ -328,8 +328,12 @@ char *getpathforfileindir(int dirInt, char const *filename)
 
 	char const *dir = getdir(dirInt);
 
-	if (strchr(filename, DIRSEP_CHAR))
-		die("getpathforfileindir: path passed as filename %s", filename);
+	char const *p;
+	p = strrchr(filename, DIRSEP_CHAR);
+	if (p) {
+		warn("getpathforfileindir: path passed as filename %s", filename);
+		return (char *)filename;
+	}
 
 	m = strlen(filename);
 	n = strlen(dir);
@@ -356,8 +360,9 @@ int openfileindir(fileinfo *file, int dirInt, char const *filename,
 	char const *name = getpathforfileindir(dirInt, filename);
 
 	if (!file->name) {
-		x_malloc(file->name, strlen(name) + 1);
-		strcpy(file->name, name);
+		x_malloc(file->name, strlen(filename) + 1);
+		strcpy(file->name, filename);
+		file->dir = dirInt;
 	}
 
 	errno = 0;
