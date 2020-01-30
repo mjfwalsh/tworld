@@ -10,9 +10,9 @@
 /* Simple macros for dealing with memory allocation simply.
  */
 #define	memerrexit()	(die("out of memory"))
-#define	x_alloc(p, n)	(((p) = realloc((p), (n))) || (memerrexit(), 0))
-#define	x_malloc(p, n)	(((p) = malloc((n))) || (memerrexit(), 0))
-#define	x_cmalloc(p, n)	(((p) = (char *)malloc((n))) || (memerrexit(), 0))
+#define	x_alloc(p, n)	{void *oldp = p; if(!(p = realloc(p, n))) {free(oldp);memerrexit();}}
+#define	x_malloc(p, n)	if(!(p = malloc(n))) memerrexit();
+#define	x_cmalloc(p, n)	if(!(p = (char *)malloc(n))) memerrexit();
 
 #ifdef __cplusplus
 extern "C" {

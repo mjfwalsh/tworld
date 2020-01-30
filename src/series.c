@@ -636,23 +636,21 @@ static int gameseriescmp_mapfilename(void const *a, void const *b)
 /* The name we should use for a (currently) nonexisting .dac file */
 char *generatenewdacname(mapfileinfo const *datfile, int ruleset)
 {
-	static char const  *rulesetname[Ruleset_Count];
-	rulesetname[Ruleset_Lynx] = "lynx";
-	rulesetname[Ruleset_MS] = "ms";
+	char *dacfile;
+	int len;
 
-	char const *basename = datfile->filename;
-	size_t newnamelen = 0u;
-	newnamelen += strlen(basename);
-	newnamelen += 1u; /* hyphen */
-	newnamelen += strlen(rulesetname[ruleset]);
-	newnamelen += strlen(".dac");
+	len = strlen(datfile->filename);
 
-	char *namebuf = NULL;
-	x_alloc(namebuf, newnamelen+1u);
+	// length of "lynx" or "ms", filename extension and a hyphen
+	len += ruleset == Ruleset_Lynx ? 9 : 7; // "lynx" or "ms"
 
-	sprintf(namebuf, "%s-%s.dac", basename, rulesetname[ruleset]);
+	x_cmalloc(dacfile, len);
+	strcpy(dacfile, datfile->filename);
 
-	return namebuf;
+	if(ruleset == Ruleset_Lynx) strcat(dacfile, "-lync.dac");
+	else strcat(dacfile, "-ms.dac");
+
+	return dacfile;
 }
 
 /* Generate a new dac file. Return TRUE if successful. */

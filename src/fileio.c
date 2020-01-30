@@ -66,6 +66,7 @@ int fileerr_(char const *cfile, unsigned long lineno,
 void clearfileinfo(fileinfo *file)
 {
 	file->name = NULL;
+	free(file->name);
 	file->fp = NULL;
 	file->alloc = FALSE;
 }
