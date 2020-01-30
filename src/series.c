@@ -843,9 +843,9 @@ int createserieslist(gameseries **pserieslist, int *pcount,
 	n = 0;
 	used = 0;
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "1-Filename");
+	used += 1 + strlen(strcpy(textheap + used, "1-Filename"));
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "1.Ruleset");
+	used += 1 + strlen(strcpy(textheap + used, "1.Ruleset"));
 	for (y = 0 ; y < listsize ; ++y) {
 		ptrs[n++] = textheap + used;
 		used += 1 + sprintf(textheap + used,

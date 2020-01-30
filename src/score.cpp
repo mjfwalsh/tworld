@@ -131,18 +131,18 @@ int createscorelist(gameseries const *series, int usepasswds, int **plevellist,
 	n = 0;
 	used = 0;
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "1+Level");
+	used += 1 + strlen(strcpy(textheap + used, "1+Level"));
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "1-Name");
+	used += 1 + strlen(strcpy(textheap + used, "1-Name"));
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "1+Base");
+	used += 1 + strlen(strcpy(textheap + used, "1+Base"));
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "1+Bonus");
+	used += 1 + strlen(strcpy(textheap + used, "1+Bonus"));
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "1+Score");
+	used += 1 + strlen(strcpy(textheap + used, "1+Score"));
 
 	blank = textheap + used;
-	used += 1 + sprintf(textheap + used, "4- ");
+	used += 1 + strlen(strcpy(textheap + used, "4- "));
 
 	count = 0;
 	for (j = 0, game = series->games ; j < series->count ; ++j, ++game) {
@@ -156,7 +156,7 @@ int createscorelist(gameseries const *series, int usepasswds, int **plevellist,
 			used += 1 + sprintf(textheap + used, "1-%.64s", game->name);
 			if (game->sgflags & SGF_REPLACEABLE) {
 				ptrs[n++] = textheap + used;
-				used += 1 + sprintf(textheap + used, "3.*BAD*");
+				used += 1 + strlen(strcpy(textheap + used, "3.*BAD*"));
 			} else {
 				levelscore = 500 * game->number;
 				ptrs[n++] = textheap + used;
@@ -202,7 +202,7 @@ int createscorelist(gameseries const *series, int usepasswds, int **plevellist,
 	}
 
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "2-Total Score");
+	used += 1 + strlen(strcpy(textheap + used, "2-Total Score"));
 	ptrs[n++] = textheap + used;
 	used += 1 + sprintf(textheap + used, "3+%s", cdecimal(totalscore));
 	if (plevellist)

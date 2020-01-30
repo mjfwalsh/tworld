@@ -115,7 +115,7 @@ static void shutdown(void)
 		for (i = 0 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
 			n += hist[i];
 		if (n) {
-			printf("Histogram of idle time (ms/tick)\n");
+			puts("Histogram of idle time (ms/tick)");
 			if (hist[0])
 				printf("NEG: %.1f%%\n", (hist[0] * 100.0) / n);
 			for (i = 1 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
