@@ -83,10 +83,6 @@ static int	soundbufsize = -1;
  */
 static int	volumelevel = -1;
 
-/* The top of the stack of subtitles.
- */
-static void   **subtitlestack = NULL;
-
 /*
  * Basic game activities.
  */
@@ -213,49 +209,6 @@ static int melindawatching(gamespec const *gs)
 	return TRUE;
 }
 
-/*
- * The subtitle stack
- */
-
-static void pushsubtitle(char const *subtitle)
-{
-	void      **stk;
-	int		n;
-
-	if (!subtitle)
-		subtitle = "";
-	n = strlen(subtitle) + 1;
-	stk = NULL;
-	x_alloc(stk, sizeof(void**) + n);
-		*stk = subtitlestack;
-	subtitlestack = stk;
-	memcpy(stk + 1, subtitle, n);
-	setsubtitle(subtitle);
-}
-
-static void popsubtitle(void)
-{
-	void      **stk;
-
-	if (subtitlestack) {
-		stk = *subtitlestack;
-		free(subtitlestack);
-		subtitlestack = stk;
-	}
-	setsubtitle(subtitlestack ? (char*)(subtitlestack + 1) : NULL);
-}
-
-static void changesubtitle(char const *subtitle)
-{
-	int		n;
-
-	if (!subtitle)
-		subtitle = "";
-	n = strlen(subtitle) + 1;
-	x_alloc(subtitlestack, sizeof(void**) + n);
-	memcpy(subtitlestack + 1, subtitle, n);
-	setsubtitle(subtitle);
-}
 
 /* Display a scrolling list of the available solution files, and allow
  * the user to select one. Return TRUE if the user selected a solution

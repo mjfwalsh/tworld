@@ -141,11 +141,11 @@ OSHW_EXTERN const char *displaypasswordprompt(); // TWMainWnd.cpp
  */
 OSHW_EXTERN void ding(void); // TWMainWnd.cpp
 
-/* Set the program's subtitle. A NULL subtitle is equivalent to the
- * empty string. The subtitle is displayed in the window dressing (if
- * any).
+/* Set the program's subtitle.
  */
-OSHW_EXTERN void setsubtitle(char const *subtitle); // TWMainWnd.cpp
+OSHW_EXTERN void changesubtitle(char const *subtitle);
+OSHW_EXTERN void popsubtitle();
+OSHW_EXTERN void pushsubtitle(char const *subtitle);
 
 /* Get the selected ruleset.
  */

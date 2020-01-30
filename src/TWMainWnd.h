@@ -130,7 +130,6 @@ public:
 	bool DisplayYesNoPrompt(const char* prompt);
 	QString DisplayPasswordPrompt();
 	int GetSelectedRuleset();
-	void SetSubtitle(const char* szSubtitle);
 
 	void ReadExtensions(gameseries* pSeries);
 	void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
@@ -139,6 +138,10 @@ public:
 	void SetPlayPauseButton(int p);
 	int Input(int wait);
 	int SetKeyboardArrowsRepeat(int enable);
+
+	void ChangeSubtitle(QString subtitle);
+	void PopSubtitle();
+	void PushSubtitle(QString subtitle);
 
 public slots:
 	void HideVolumeWidget();
@@ -158,6 +161,7 @@ private slots:
 	void OnCopyText();
 	void OnMenuActionTriggered(QAction* pAction);
 	void OnBackButton();
+	void SetSubtitle(QString subtitle);
 
 private:
 	bool HandleKeyEvent(QObject* pObject, QEvent* pEvent);
@@ -244,6 +248,10 @@ private:
 	"Odd Step +1",
 	"Odd Step +2",
 	"Odd Step +3"};
+
+	/* The top of the stack of subtitles.
+	 */
+	QStringList subtitlestack;
 };
 
 

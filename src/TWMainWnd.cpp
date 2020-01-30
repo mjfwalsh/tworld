@@ -1046,21 +1046,59 @@ void ding(void)
 	QApplication::beep();
 }
 
+/*
+ * The subtitle stack
+ */
+
+void pushsubtitle(char const *subtitle)
+{
+	g_pMainWnd->PushSubtitle(subtitle);
+}
+void TileWorldMainWnd::PushSubtitle(QString subtitle)
+{
+	subtitlestack.append(subtitle);
+	SetSubtitle(subtitle);
+}
+
+void popsubtitle()
+{
+	g_pMainWnd->PopSubtitle();
+}
+void TileWorldMainWnd::PopSubtitle()
+{
+	if(!subtitlestack.isEmpty()) {
+		subtitlestack.removeLast();
+	}
+
+	if(!subtitlestack.isEmpty()) {
+		SetSubtitle(subtitlestack.last());
+	} else {
+		SetSubtitle("");
+	}
+}
+
+void changesubtitle(char const *subtitle)
+{
+	g_pMainWnd->ChangeSubtitle(subtitle);
+}
+void TileWorldMainWnd::ChangeSubtitle(QString subtitle)
+{
+	if(!subtitlestack.isEmpty()) {
+		subtitlestack.last() = subtitle;
+	}
+	SetSubtitle(subtitle);
+}
+
 
 /* Set the program's subtitle. A NULL subtitle is equivalent to the
  * empty string. The subtitle is displayed in the window dressing (if
  * any).
  */
-void setsubtitle(char const *subtitle)
-{
-	g_pMainWnd->SetSubtitle(subtitle);
-}
-
-void TileWorldMainWnd::SetSubtitle(const char* szSubtitle)
+void TileWorldMainWnd::SetSubtitle(QString subtitle)
 {
 	QString sTitle = TileWorldApp::applicationName();
-	if (szSubtitle && *szSubtitle)
-		sTitle += " - " + QString(szSubtitle);
+	if (!subtitle.isEmpty())
+		sTitle += " - " + subtitle;
 	setWindowTitle(sTitle);
 }
 
