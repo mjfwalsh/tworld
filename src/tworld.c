@@ -492,7 +492,8 @@ static int startinput(gamespec *gs)
 			return cmd;
 		}
 		switch (cmd) {
-		case CmdProceed:	gs->playmode = Play_Normal;	return cmd;
+		case CmdPauseGame:
+		case CmdProceed:	gs->playmode = Play_Normal;	return CmdProceed;
 		case CmdQuitLevel:					return cmd;
 		case CmdPrevLevel:	leveldelta(-1);			return CmdNone;
 		case CmdNextLevel:	leveldelta(+1);			return CmdNone;

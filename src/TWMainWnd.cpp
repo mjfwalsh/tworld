@@ -441,6 +441,7 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		m_pLblTitle->setText(m_sLevelPackName + " - " + m_sLevelName);
 		m_pLblPassword->setText(pState->game->passwd);
 		m_pSldSeek->setValue(0);
+		action_Pause->setText("Start");
 
 		// easter egg
 		m_bOFNT = (m_sLevelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
@@ -1320,7 +1321,6 @@ int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
 	if (pAction == action_Levelsets) return TWC_QUITLEVEL;
 	if (pAction == action_Exit) return TWC_QUIT;
 
-	if (pAction == action_Begin) return TWC_PROCEED;
 	if (pAction == action_Pause) return TWC_PAUSEGAME;
 	if (pAction == action_Restart) return TWC_SAMELEVEL;
 	if (pAction == action_Next) return TWC_NEXTLEVEL;
@@ -1408,8 +1408,10 @@ void TileWorldMainWnd::SetPlayPauseButton(int paused)
 {
 	if(paused) {
 		m_pBtnPlay->setIcon(playIcon);
+		action_Pause->setText("Resume");
 	} else {
 		m_pBtnPlay->setIcon(pauseIcon);
+		action_Pause->setText("Pause");
 	}
 }
 

@@ -78,7 +78,6 @@ public:
 		{	TWC_QUITLEVEL,			CmdQuitLevel,			FALSE	},
 		{	TWC_QUIT,				CmdQuit,				FALSE	},
 
-		{	TWC_PROCEED,			CmdProceed,				FALSE	},
 		{	TWC_PAUSEGAME,			CmdPauseGame,			FALSE	},
 		{	TWC_SAMELEVEL,			CmdSameLevel,			FALSE	},
 		{	TWC_NEXTLEVEL,			CmdNextLevel,			FALSE	},
