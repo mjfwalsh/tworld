@@ -204,7 +204,8 @@ private:
 	Qt_Surface* m_pInvSurface;
 	TW_Rect m_disploc;
 
-	double scale = 1;
+	double scale = 1; // the user preference
+	double tileScaleOffset = 1;	// difference between the tile size derived from the bitmap and 48
 
 	bool m_nKeyState[TWK_LAST];
 

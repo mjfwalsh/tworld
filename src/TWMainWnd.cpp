@@ -288,7 +288,8 @@ bool TileWorldMainWnd::HandleMouseEvent(QObject* pObject, QEvent* pEvent)
 
 	if(pEvent->type() == QEvent::MouseButtonPress) {
 		QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
-		MouseEventCallback((int)pMouseEvent->x() / scale, (int)pMouseEvent->y() / scale, pMouseEvent->button());
+		double s = tileScaleOffset * scale;
+		MouseEventCallback((int)pMouseEvent->x() / s, (int)pMouseEvent->y() / s, pMouseEvent->button());
 	}
 
 	return STOP_PROPRGATION;
@@ -369,6 +370,9 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	// get zoom
 	int percentZoom = getintsetting("zoom");
 	if(percentZoom == -1) percentZoom = 100;
+
+	// get difference between bmp tile and 48
+	tileScaleOffset = (double)DEFAULTTILE / geng.wtile;
 
 	// this func also sets the pixmap
 	this->SetScale(percentZoom, false);
@@ -680,7 +684,7 @@ void TileWorldMainWnd::DisplayShutter()
 	QPainter painter(&pixmap);
 	painter.setPen(Qt::red);
 	QFont font;
-	font.setPixelSize(geng.htile);
+	font.setPixelSize(geng.htile * tileScaleOffset);
 	painter.setFont(font);
 	painter.drawText(pixmap.rect(), Qt::AlignCenter, "Paused");
 	painter.end();
@@ -1373,6 +1377,7 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 	double newScale = (double)s / 100;
 	if(checkPrevScale && newScale == scale) return;
 
+	// set the property
 	scale = sqrt(newScale);
 
 	if(m_pSurface == 0 || m_pInvSurface == 0 || geng.wtile < 1) {
@@ -1385,18 +1390,18 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 		SetHint(false);
 	}
 
-	// not more magic numbers!
-	m_pGameWidget->setFixedSize(scale * geng.wtile * 9, scale * geng.htile * 9);
-	m_pObjectsWidget->setFixedSize(scale * geng.wtile * 4, scale * geng.htile * 2);
+	// align widget size to specified scale
+	m_pGameWidget->setFixedSize(scale * DEFAULTTILE * NXTILES, scale * DEFAULTTILE * NYTILES);
+	m_pObjectsWidget->setFixedSize(scale * DEFAULTTILE * 4, scale * DEFAULTTILE * 2);
 
 	// this sets the game and objects box
-	m_pGameWidget->setPixmap(m_pSurface->GetPixmap(), scale);
-	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap(), scale);
+	m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
+	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
 
 	// this aligns the width of the objects box with the other elements
 	// in the right column
-	m_pMessagesFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
-	m_pInfoFrame->setFixedWidth((4 * geng.wtile * scale) + 10);
+	m_pMessagesFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);
+	m_pInfoFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);
 }
 
 void setplaypausebutton(int paused)

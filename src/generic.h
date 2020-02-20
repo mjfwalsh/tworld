@@ -23,6 +23,10 @@ struct gamestate;
 #define	NXTILES		9
 #define	NYTILES		9
 
+/* The width/height of a tile in pixels at 100% zoom
+ */
+#define DEFAULTTILE		48
+
 /*
  * Values global to this module. All the globals are placed in here,
  * in order to minimize pollution of the main module's namespace.
