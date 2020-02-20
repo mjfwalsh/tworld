@@ -136,10 +136,9 @@ public:
 	void SetImage(const QImage& image);
 
 	const QPixmap& GetPixmap();
-	const QImage& GetImage();
 
-	void Lock();
-	void Unlock();
+	void SwitchToPixmap();
+	void SwitchToImage();
 
 	void FillRect(const TW_Rect* pDstRect, uint32_t nColor);
 
@@ -155,6 +154,8 @@ public:
 		{return m_nColorKey;}
 
 	Qt_Surface* DisplayFormat();
+
+	int hasAlphaChannel = -1;
 
 	inline uint32_t PixelAt(int x, int y) const
 	{
@@ -182,9 +183,7 @@ private:
 OSHW_EXTERN TW_Surface* TW_NewSurface(int w, int h, int bTransparent);
 OSHW_EXTERN void TW_FreeSurface(TW_Surface* pSurface);
 
-#define  TW_MUSTLOCK(pSurface)  1
-OSHW_EXTERN void TW_LockSurface(TW_Surface* pSurface);
-OSHW_EXTERN void TW_UnlockSurface(TW_Surface* pSurface);
+OSHW_EXTERN void TW_SwitchSurfaceToImage(TW_Surface* pSurface);
 
 OSHW_EXTERN void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor);
 
@@ -193,11 +192,9 @@ OSHW_EXTERN int TW_BlitSurface(TW_Surface* pSrc, const TW_Rect* pSrcRect,
 OSHW_EXTERN void TW_SetColorKey(TW_Surface* pSurface, uint32_t nColorKey);
 OSHW_EXTERN void TW_ResetColorKey(TW_Surface* pSurface);
 
-#define  TW_EnableAlpha(s)  ;
 OSHW_EXTERN TW_Surface* TW_DisplayFormat(TW_Surface* pSurface);
 OSHW_EXTERN TW_Surface* TW_DisplayFormatAlpha(TW_Surface* pSurface);
 
-#define  TW_BytesPerPixel(pSurface)  ((pSurface)->bytesPerPixel)
 OSHW_EXTERN uint32_t TW_PixelAt(const TW_Surface* pSurface, int x, int y);
 
 OSHW_EXTERN uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b);

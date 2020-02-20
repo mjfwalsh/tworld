@@ -538,7 +538,6 @@ static TW_Surface *extractkeyedtile(TW_Surface * src,
 	TW_FreeSurface(temp);
 	if (!dest)
 		die("%s", TW_GetError());
-	TW_EnableAlpha(dest);
 	return dest;
 }
 
@@ -596,13 +595,12 @@ static TW_Surface *extractmaskedtile(TW_Surface * src,
 	black = TW_MapRGB(0, 0, 0);
 	transp = TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT);
 
-	if (TW_MUSTLOCK(src))
-		TW_LockSurface(src);
-	if (TW_MUSTLOCK(dest))
-		TW_LockSurface(dest);
+	TW_SwitchSurfaceToImage(src);
+	TW_SwitchSurfaceToImage(dest);
+
 	d = (uint8_t *) dest->pixels;
 	s = (uint8_t *) src->pixels + ymask * src->pitch
-		+ xmask * TW_BytesPerPixel(src);
+		+ xmask * src->bytesPerPixel;
 	for (y = 0; y < dest->h; ++y) {
 		for (x = 0; x < dest->w; ++x) {
 			if (TW_PixelAt(src, xmask + x, ymask + y) == black)
@@ -611,17 +609,12 @@ static TW_Surface *extractmaskedtile(TW_Surface * src,
 		s += src->pitch;
 		d += dest->pitch;
 	}
-	if (TW_MUSTLOCK(src))
-		TW_UnlockSurface(src);
-	if (TW_MUSTLOCK(dest))
-		TW_UnlockSurface(dest);
 
 	temp = dest;
 	dest = TW_DisplayFormatAlpha(temp);
 	TW_FreeSurface(temp);
 	if (!dest)
 		die("%s", TW_GetError());
-	TW_EnableAlpha(dest);
 	return dest;
 }
 
@@ -980,8 +973,7 @@ static int initlargetileset(TW_Surface * tiles)
 	int row, nextrow;
 	int n, x, y, w, h;
 
-	if (TW_MUSTLOCK(tiles))
-		TW_LockSurface(tiles);
+	TW_SwitchSurfaceToImage(tiles);
 
 	transpclr = TW_PixelAt(tiles, 1, 0);
 	for (w = 1; w < tiles->w; ++w)
@@ -1054,9 +1046,6 @@ static int initlargetileset(TW_Surface * tiles)
 		tilepos[n].h = h;
 		x += w * geng.wtile;
 	}
-
-	if (TW_MUSTLOCK(tiles))
-		TW_UnlockSurface(tiles);
 
 	tileptr[Empty].transpsize = 0;
 	tileptr[Empty].celcount = 1;

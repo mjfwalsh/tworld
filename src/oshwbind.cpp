@@ -48,20 +48,6 @@ void Qt_Surface::InitImage()
 	bytesPerPixel = m_image.depth() / 8;
 	pitch = m_image.bytesPerLine();
 	pixels = m_image.bits();
-
-	// https://stackoverflow.com/questions/6157286/checking-if-a-qimage-has-an-alpha-channel
-	hasAlphaChannel = 0;
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-	int bytes = m_image.sizeInBytes();
-#else
-	int bytes = m_image.byteCount();
-#endif
-	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
-		if (qAlpha(*pixel) != UCHAR_MAX) {
-			hasAlphaChannel = 1;
-			break;
-		}
-	}
 }
 
 
@@ -83,36 +69,31 @@ void Qt_Surface::SetImage(const QImage& image)
 
 const QPixmap& Qt_Surface::GetPixmap()
 {
-	if (m_pixmap.isNull()) {
-		m_pixmap = QPixmap::fromImage(m_image);
-	}
+	SwitchToPixmap();
 	return m_pixmap;
 }
 
-const QImage& Qt_Surface::GetImage()
+void Qt_Surface::SwitchToPixmap()
 {
-	if (m_image.isNull())
+	if (m_pixmap.isNull()) {
+		m_pixmap = QPixmap::fromImage(m_image);
+		m_image = QImage();
+	}
+}
+
+void Qt_Surface::SwitchToImage()
+{
+	if (m_image.isNull()) {
 		m_image = m_pixmap.toImage();
+		m_pixmap = QPixmap();
+	}
+
 	InitImage();
-	return m_image;
 }
-
-
-void Qt_Surface::Lock()
-{
-	(void)GetImage();
-	m_pixmap = QPixmap();
-}
-
-void Qt_Surface::Unlock()
-{
-	// NOTHING
-}
-
 
 void Qt_Surface::FillRect(const TW_Rect* pDstRect, uint32_t nColor)
 {
-	(void)GetPixmap();
+	SwitchToPixmap();
 	// TODO?: don't force image -> pixmap?
 	// TODO?: for 8-bit?
 	if (!pDstRect) {
@@ -122,7 +103,6 @@ void Qt_Surface::FillRect(const TW_Rect* pDstRect, uint32_t nColor)
 		painter.fillRect(*pDstRect, QColor(nColor));
 	}
 
-	m_image = QImage();
 	pixels = 0;
 }
 
@@ -146,18 +126,15 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 
 	// TODO?: don't force image -> pixmap?
 
-	(void)pDst->GetPixmap();
-	pDst->m_image = QImage();
+	pDst->SwitchToPixmap();
 	pDst->pixels = 0;
 
 	QPixmap srcPix;
 	if (pSrc->IsColorKeySet()) {
-		QImage image = pSrc->GetImage().copy(srcRect);
-		srcPix = QPixmap::fromImage(image);
+		srcPix = pSrc->GetPixmap().copy(srcRect);
 
 		if(pSrc->hasAlphaChannel == 0) {
-			QImage imgMask = image.createMaskFromColor(pSrc->GetColorKey());
-			QBitmap bmpMask = QBitmap::fromImage(imgMask);
+			QBitmap bmpMask = srcPix.createMaskFromColor(pSrc->GetColorKey());
 			srcPix.setMask(bmpMask);
 		}
 
@@ -191,7 +168,7 @@ Qt_Surface* Qt_Surface::DisplayFormat()
 	Qt_Surface* pNewSurface = new Qt_Surface(*this);
 	if (!m_image.isNull())
 		pNewSurface->pixels = pNewSurface->m_image.bits();
-	(void)pNewSurface->GetPixmap();
+	pNewSurface->SwitchToPixmap();
 	return pNewSurface;
 }
 
@@ -226,17 +203,10 @@ extern "C" void TW_FreeSurface(TW_Surface* s)
 }
 
 
-extern "C" void TW_LockSurface(TW_Surface* s)
+extern "C" void TW_SwitchSurfaceToImage(TW_Surface* s)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	pSurface->Lock();
-}
-
-
-extern "C" void TW_UnlockSurface(TW_Surface* s)
-{
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	pSurface->Unlock();
+	pSurface->SwitchToImage();
 }
 
 
@@ -321,23 +291,27 @@ extern "C" TW_Surface* TW_LoadBMP(const char* szFilename)
 
 	Qt_Surface* pSurface = new Qt_Surface();
 	pSurface->SetImage(image);
+
+	// https://stackoverflow.com/questions/6157286/checking-if-a-qimage-has-an-alpha-channel
+	pSurface->hasAlphaChannel = 0;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+	int bytes = image.sizeInBytes();
+#else
+	int bytes = image.byteCount();
+#endif
+	void* pixels = image.bits();
+	int i = 0;
+	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
+		if (qAlpha(*pixel) != UCHAR_MAX) {
+			pSurface->hasAlphaChannel = 1;
+			break;
+		}
+		i++;
+	}
+
 	return pSurface;
 }
-
-
-// @#$
-extern "C" void TW_DebugSurface(TW_Surface* s, const char* szFilename)
-{
-	static int n = 0;
-	if (n == 10) return;
-	++n;
-
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	QString sNFilename = QString::number(n) + szFilename;
-	pSurface->GetImage().save(sNFilename);
-	// pSurface->GetImage().createAlphaMask().save(sNFilename);
-}
-// $#@
 
 
 extern "C" uint32_t TW_GetTicks(void)
