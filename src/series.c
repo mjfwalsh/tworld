@@ -709,7 +709,11 @@ static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, in
 		newdacname);
 	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
 		newdacname);
-	series->mapfilename = getpathforfileindir(datfile->path, datfile->filename);
+
+	x_cmalloc(series->mapfilename, strlen(datfile->filename));
+	strcpy(series->mapfilename, datfile->filename);
+	series->mapfiledir = datfile->path;
+
 	++s->count;
 	free(newdacname);
 	return series;
