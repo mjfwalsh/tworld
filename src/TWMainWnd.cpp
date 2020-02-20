@@ -282,14 +282,21 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
 }
 
 
+/* This callback is called whenever there is a state change in the
+ * mouse buttons. Up events are ignored. Down events are stored to
+ * be examined later.
+ */
 bool TileWorldMainWnd::HandleMouseEvent(QObject* pObject, QEvent* pEvent)
 {
 	if(pObject != m_pGameWidget) return CONTINUE_PROPRGATION;
 
 	if(pEvent->type() == QEvent::MouseButtonPress) {
 		QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
-		double s = tileScaleOffset * scale;
-		MouseEventCallback((int)pMouseEvent->x() / s, (int)pMouseEvent->y() / s, pMouseEvent->button());
+
+		mouseinfo.state = KS_PRESSED;
+		mouseinfo.x = pMouseEvent->x();
+		mouseinfo.y = pMouseEvent->y();
+		mouseinfo.button = pMouseEvent->button();
 	}
 
 	return STOP_PROPRGATION;
@@ -371,15 +378,11 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	int percentZoom = getintsetting("zoom");
 	if(percentZoom == -1) percentZoom = 100;
 
-	// get difference between bmp tile and 48
-	tileScaleOffset = (double)DEFAULTTILE / geng.wtile;
-
 	// this func also sets the pixmap
 	this->SetScale(percentZoom, false);
 
 	geng.screen = m_pSurface;
 	m_disploc = TW_Rect(0, 0, w, h);
-	geng.maploc = m_pGameWidget->geometry();
 
 	SetCurrentPage(PAGE_GAME);
 
@@ -678,13 +681,13 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
 
 void TileWorldMainWnd::DisplayShutter()
 {
-	QPixmap pixmap(m_pGameWidget->size());
+	QPixmap pixmap(NXTILES*geng.wtile, NYTILES*geng.htile);
 	pixmap.fill(Qt::black);
 
 	QPainter painter(&pixmap);
 	painter.setPen(Qt::red);
 	QFont font;
-	font.setPixelSize(geng.htile * tileScaleOffset);
+	font.setPixelSize(geng.htile);
 	painter.setFont(font);
 	painter.drawText(pixmap.rect(), Qt::AlignCenter, "Paused");
 	painter.end();
@@ -1490,37 +1493,31 @@ void TileWorldMainWnd::ResetKeyStates(void)
  * Mouse event functions.
  */
 
-/* This callback is called whenever there is a state change in the
- * mouse buttons. Up events are ignored. Down events are stored to
- * be examined later.
- */
-void TileWorldMainWnd::MouseEventCallback(int xpos, int ypos, int button)
-{
-	mouseinfo.state = KS_PRESSED;
-	mouseinfo.x = xpos;
-	mouseinfo.y = ypos;
-	mouseinfo.button = button;
-}
-
 /* Given a pixel's coordinates, return the integer identifying the
  * tile's position in the map, or -1 if the pixel is not on the map view.
  */
 int TileWorldMainWnd::WindowMapPos(int x, int y)
 {
 	if (geng.mapvieworigin < 0)
-	return -1;
-	if (x < geng.maploc.x || y < geng.maploc.y)
-	return -1;
-	x = (x - geng.maploc.x) * 4 / geng.wtile;
-	y = (y - geng.maploc.y) * 4 / geng.htile;
+		return -1;
+	if (x < 0 || y < 0)
+		return -1;
+
+	double t = DEFAULTTILE * scale;
+	x *= 4 / t;
+	y *= 4 / t;
+
 	if (x >= NXTILES * 4 || y >= NYTILES * 4)
-	return -1;
+		return -1;
+
 	x = (x + geng.mapvieworigin % (CXGRID * 4)) / 4;
 	y = (y + geng.mapvieworigin / (CXGRID * 4)) / 4;
+
 	if (x < 0 || x >= CXGRID || y < 0 || y >= CYGRID) {
-	warn("mouse moved off the map: (%d %d)", x, y);
-	return -1;
+		warn("mouse moved off the map: (%d %d)", x, y);
+		return -1;
 	}
+
 	return y * CXGRID + x;
 }
 

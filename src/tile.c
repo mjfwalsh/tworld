@@ -241,7 +241,6 @@ static int settilesize(int w, int h)
 	}
 	geng.wtile = w;
 	geng.htile = h;
-	geng.cptile = w * h;
 	opaquetile = TW_NewSurface(w, h, FALSE);
 	remembersurface(opaquetile);
 	return TRUE;
@@ -1114,7 +1113,6 @@ void freetileset(void)
 	}
 	geng.wtile = 0;
 	geng.htile = 0;
-	geng.cptile = 0;
 	opaquetile = NULL;
 	freerememberedsurfaces();
 }

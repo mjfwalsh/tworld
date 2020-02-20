@@ -40,9 +40,7 @@ typedef	struct genericglobals
 
 	short		wtile;		/* width of one tile in pixels */
 	short		htile;		/* height of one tile in pixels */
-	short		cptile;		/* size of one tile in pixels */
 	TW_Surface	       *screen;		/* the display */
-	TW_Rect		maploc;		/* location of the map in the window */
 
 	/* Coordinates of the NW corner of the visible part of the map
 	 * (measured in quarter-tiles), or -1 if no map is currently visible.
