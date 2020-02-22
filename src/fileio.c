@@ -198,7 +198,7 @@ int filegetline(fileinfo *file, char *buf, int *len, char const *msg)
 		while (ch != EOF && ch != '\n');
 	} else
 		buf[n--] = '\0';
-		*len = n;
+	*len = n;
 	return TRUE;
 }
 
@@ -224,7 +224,7 @@ int filereadint8(fileinfo *file, unsigned char *val8, char const *msg)
 	errno = 0;
 	if ((byte = fgetc(file->fp)) == EOF)
 		return fileerr(file, msg);
-		*val8 = (unsigned char)byte;
+	*val8 = (unsigned char)byte;
 	return TRUE;
 }
 

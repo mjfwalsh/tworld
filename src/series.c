@@ -822,10 +822,10 @@ int createserieslist(gameseries **pserieslist, int *pcount,
 
 	if (!getseriesfiles(&serieslist, &listsize, &mapfilelist, &mapfilelistsize))
 		return FALSE;
-		*pserieslist = serieslist;
-		*pcount = listsize;
-		*pmflist = mapfilelist;
-		*pmfcount = mapfilelistsize;
+	*pserieslist = serieslist;
+	*pcount = listsize;
+	*pmflist = mapfilelist;
+	*pmfcount = mapfilelistsize;
 
 	if (!table)
 		return TRUE;
