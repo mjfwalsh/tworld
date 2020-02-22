@@ -10,19 +10,8 @@
 
 #include <QBitmap>
 #include <QPainter>
-
-#ifdef WIN32
-	#include <windows.h>
-#else
-	#include <unistd.h>
-#endif
-
-#include <time.h>
-#include <sys/types.h>
-#include <sys/timeb.h>
-
-#include <stdio.h>
-
+#include <QThread>
+#include <QElapsedTimer>
 
 Qt_Surface::Qt_Surface()
 {
@@ -248,12 +237,6 @@ extern "C" TW_Surface* TW_DisplayFormat(TW_Surface* s)
 }
 
 
-extern "C" TW_Surface* TW_DisplayFormatAlpha(TW_Surface* pSurface)
-{
-	return TW_DisplayFormat(pSurface);
-}
-
-
 /* Return the color of the pixel at (x, y) on the given surface. (The
  * surface must be locked before calling this function.)
  */
@@ -314,39 +297,19 @@ extern "C" TW_Surface* TW_LoadBMP(const char* szFilename)
 }
 
 
-extern "C" uint32_t TW_GetTicks(void)
+static QElapsedTimer qtimer;
+extern "C" void TW_StartTicker()
 {
-/*
-	static QTime time;
-	static bool bStarted = false;
-	if (!bStarted)
-	{
-		time.start();
-		bStarted = true;
-	}
-	return time.elapsed();
-*/
+	qtimer.start();
+}
 
-	static const time_t t0 = time(0);
-	timeb timeBuf;
-	ftime(&timeBuf);
-	return  (timeBuf.time - t0) * 1000  +  timeBuf.millitm;
+extern "C" uint32_t TW_GetTicks()
+{
+	return qtimer.elapsed();
 }
 
 
 extern "C" void TW_Delay(uint32_t nMS)
 {
-/*
-	static QWaitCondition waitCond;
-	static QMutex mutex;
-	mutex.lock();
-	waitCond.wait(&mutex, nMS);
-	mutex.unlock();
-*/
-
-#ifdef WIN32
-	Sleep(nMS);
-#else
-	usleep(nMS * 1000);
-#endif
+	QThread::usleep(nMS * 1000);
 }

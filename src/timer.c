@@ -131,6 +131,7 @@ int generictimerinitialize(int _showhistogram)
 {
 	showhistogram = _showhistogram;
 	atexit(shutdown);
+	TW_StartTicker();
 	settimer(-1);
 	return TRUE;
 }

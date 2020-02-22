@@ -193,7 +193,6 @@ OSHW_EXTERN void TW_SetColorKey(TW_Surface* pSurface, uint32_t nColorKey);
 OSHW_EXTERN void TW_ResetColorKey(TW_Surface* pSurface);
 
 OSHW_EXTERN TW_Surface* TW_DisplayFormat(TW_Surface* pSurface);
-OSHW_EXTERN TW_Surface* TW_DisplayFormatAlpha(TW_Surface* pSurface);
 
 OSHW_EXTERN uint32_t TW_PixelAt(const TW_Surface* pSurface, int x, int y);
 
@@ -202,13 +201,8 @@ OSHW_EXTERN uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 OSHW_EXTERN TW_Surface* TW_LoadBMP(const char* szFilename);
 
-OSHW_EXTERN void TW_DebugSurface(TW_Surface* pSurface, const char* szFilename);	// @#$
-
-#ifdef __cplusplus
-OSHW_EXTERN bool* TW_GetKeyState();
-#endif
-
-OSHW_EXTERN uint32_t TW_GetTicks(void);
+OSHW_EXTERN void TW_StartTicker();
+OSHW_EXTERN uint32_t TW_GetTicks();
 OSHW_EXTERN void TW_Delay(uint32_t nMS);
 
 #define  TW_GetError()  "unspecified error"

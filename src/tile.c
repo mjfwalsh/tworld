@@ -534,7 +534,7 @@ static TW_Surface *extractkeyedtile(TW_Surface * src,
 	TW_ResetColorKey(src);
 
 	temp = dest;
-	dest = TW_DisplayFormatAlpha(temp);
+	dest = TW_DisplayFormat(temp);
 	TW_FreeSurface(temp);
 	if (!dest)
 		die("%s", TW_GetError());
@@ -611,7 +611,7 @@ static TW_Surface *extractmaskedtile(TW_Surface * src,
 	}
 
 	temp = dest;
-	dest = TW_DisplayFormatAlpha(temp);
+	dest = TW_DisplayFormat(temp);
 	TW_FreeSurface(temp);
 	if (!dest)
 		die("%s", TW_GetError());
