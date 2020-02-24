@@ -63,7 +63,7 @@ static void addlevelfile(mfinfovector *v, char *filename, int levelcount, int pa
 /* A callback function to compare mapfileinfo structs */
 static int compare_mapfileinfo(void const *a, void const *b)
 {
-	return stricmp(((mapfileinfo*)a)->filename, ((mapfileinfo*)b)->filename);
+	return strcasecmp(((mapfileinfo*)a)->filename, ((mapfileinfo*)b)->filename);
 }
 
 /* Remove .dat and .ccl suffixes from the mapfilenames */
@@ -73,7 +73,7 @@ static void removefilenamesuffixes(mfinfovector *v)
 		size_t const namelength = strlen(v->buf[n].filename);
 		if (namelength > 4u) {
 			char *suffix = &v->buf[n].filename[namelength - 4u];
-			if (!stricmp(suffix, ".dat") || !stricmp(suffix, ".ccl"))
+			if (!strcasecmp(suffix, ".dat") || !strcasecmp(suffix, ".ccl"))
 				*suffix = '\0';
 		}
 	}
@@ -630,7 +630,7 @@ static int gameseriescmp_mapfilename(void const *a, void const *b)
 {
 	char const * namea = ((gameseries*)a)->mapfilename;
 	char const * nameb = ((gameseries*)b)->mapfilename;
-	return stricmp(namea, nameb);
+	return strcasecmp(namea, nameb);
 }
 
 /* The name we should use for a (currently) nonexisting .dac file */
@@ -734,7 +734,7 @@ static void createallmissingseries(seriesdata *s)
 		memset(seriesrulesetcount, 0, sizeof seriesrulesetcount);
 		mapfileinfo const *currentlevelfile = &s->mfinfo.buf[n];
 		char *currentmapname = currentlevelfile->filename;
-		while (m < nseries && !stricmp(currentmapname, s->list[m].mapfilename)) {
+		while (m < nseries && !strcasecmp(currentmapname, s->list[m].mapfilename)) {
 			int ruleset = s->list[m].ruleset;
 			addgameseries(s->mfinfo.buf[n].sfilelst, m, ruleset);
 			++seriesrulesetcount[ruleset];

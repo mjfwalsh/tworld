@@ -15,34 +15,6 @@
 #include	"fileio.h"
 #include	"res.h"
 
-/* Determine the proper directory delimiter and mkdir() arguments.
- */
-#ifdef WIN32
-#define	DIRSEP_CHAR	'\\'
-#else
-#define	DIRSEP_CHAR	'/'
-#endif
-
-/* Determine a compile-time number to use as the maximum length of a
- * path. Use a value of 1023 if we can't get anything usable from the
- * header files.
- */
-#include <limits.h>
-#if !defined(PATH_MAX) || PATH_MAX <= 0
-#  if defined(MAXPATHLEN) && MAXPATHLEN > 0
-#    define PATH_MAX MAXPATHLEN
-#  else
-#    include <sys/param.h>
-#    if !defined(PATH_MAX) || PATH_MAX <= 0
-#      if defined(MAXPATHLEN) && MAXPATHLEN > 0
-#        define PATH_MAX MAXPATHLEN
-#      else
-#        define PATH_MAX 1023
-#      endif
-#    endif
-#  endif
-#endif
-
 /* The function used to display error messages relating to file I/O.
  */
 int fileerr_(char const *cfile, unsigned long lineno,
@@ -312,7 +284,9 @@ int haspathname(char const *name)
 {
 	struct stat	st;
 
-	if (!strchr(name, DIRSEP_CHAR))
+	if (!strchr(name, '/'))
+		return FALSE;
+	if (!strchr(name, '\\'))
 		return FALSE;
 	if (stat(name, &st) || S_ISDIR(st.st_mode))
 		return FALSE;
@@ -329,22 +303,16 @@ char *getpathforfileindir(int dirInt, char const *filename)
 
 	char const *dir = getdir(dirInt);
 
-	char const *p;
-	p = strrchr(filename, DIRSEP_CHAR);
-	if (p) {
-		warn("getpathforfileindir: path passed as filename %s", filename);
-		return (char *)filename;
+	if (haspathname(filename)) {
+		die("getpathforfileindir: path passed as filename %s", filename);
 	}
 
 	m = strlen(filename);
 	n = strlen(dir);
-	if (m + n + 1 > PATH_MAX) {
-		errno = ENAMETOOLONG;
-		return NULL;
-	}
+
 	x_cmalloc(path, m + n + 1);
 	memcpy(path, dir, n);
-	path[n++] = DIRSEP_CHAR;
+	path[n++] = '/';
 	memcpy(path + n, filename, m + 1);
 	return path;
 }

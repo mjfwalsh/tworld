@@ -28,7 +28,7 @@ my $executable_name = $^O eq 'MSWin32' ? 'tworld.exe' : 'tworld';
 my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
 my @c_base = ($compiler, '-std=gnu11');
 my @cpp_base = qw|c++ -std=gnu++11|;
-my @common_params = qw|-Wall -pedantic -DNDEBUG -O2 -I. -Dstricmp=strcasecmp -Werror|;
+my @common_params = qw|-Wall -pedantic -DNDEBUG -O2 -I. -Werror|;
 
 # set these later if we need them
 my @qt_opts;

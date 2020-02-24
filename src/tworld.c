@@ -423,7 +423,7 @@ static void updatehistory(char const *name, char const *passwd, int number)
 
 	h = historylist;
 	for (i = 0; i < historycount; ++i, ++h) {
-		if (stricmp(h->name, name) == 0)
+		if (strcasecmp(h->name, name) == 0)
 			break;
 	}
 
@@ -1015,7 +1015,7 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
 
 	h = historylist;
 	for (i = 0; i < historycount; ++i, ++h) {
-		if (stricmp(h->name, name) == 0) {
+		if (strcasecmp(h->name, name) == 0) {
 			n = findlevelinseries(&gs->series, h->levelnumber, h->passwd);
 			if (n < 0)
 				n = findlevelinseries(&gs->series, 0, h->passwd);
