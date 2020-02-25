@@ -11,9 +11,7 @@
 #include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"
-#include	"settings.h"
 #include	"unslist.h"
-#include	"res.h"
 
 /* The information comprising one entry in the list of unsolvable
  * levels.

@@ -7,7 +7,7 @@
 #include "messages.h"
 
 #include "fileio.h"
-#include "res.h"
+#include "defs.h"
 #include "err.h"
 
 #include <algorithm>

@@ -9,7 +9,6 @@
 class TileWorldMainWnd;
 
 #include <QApplication>
-#include <QString>
 
 class TileWorldApp : public QApplication
 {

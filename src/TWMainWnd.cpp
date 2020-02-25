@@ -50,7 +50,6 @@ extern int pedanticmode;
 #include <QRect>
 
 #include <string.h>
-#include <ctype.h>
 #include <cmath>
 
 using namespace std;

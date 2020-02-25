@@ -11,8 +11,6 @@
 #include "oshw.h"
 #include "res.h"
 #include "err.h"
-#include "solution.h"
-#include "settings.h"
 
 #include <QClipboard>
 #include <QDir>

@@ -13,7 +13,6 @@
 #include "generic.h"
 #include "defs.h"
 #include "state.h"
-#include "series.h"
 #include "oshw.h"
 
 class QSortFilterProxyModel;
