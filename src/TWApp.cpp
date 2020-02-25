@@ -5,7 +5,7 @@
 
 #include "TWApp.h"
 #include "TWMainWnd.h"
-#include "generic.h"
+#include "oshwbind.h"
 #include "sdlsfx.h"
 #include "defs.h"
 #include "oshw.h"

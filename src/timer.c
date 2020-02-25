@@ -7,7 +7,7 @@
 #include	<stdlib.h>
 #include	<stdio.h>
 #include	"defs.h"
-#include	"generic.h"
+#include	"oshwbind.h"
 #include	"timer.h"
 
 /* By default, a second of game time lasts for 1000 milliseconds of

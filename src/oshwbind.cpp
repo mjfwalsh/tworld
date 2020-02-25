@@ -5,12 +5,16 @@
  * No warranty. See COPYING for details.
  */
 
-#include	"generic.h"
+#include	"oshwbind.h"
 
 #include <QBitmap>
 #include <QPainter>
 #include <QThread>
 #include <QElapsedTimer>
+
+/* Values global to this module.
+ */
+genericglobals	geng;
 
 Qt_Surface::Qt_Surface()
 {

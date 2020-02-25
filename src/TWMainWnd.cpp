@@ -6,7 +6,7 @@
 #include "TWMainWnd.h"
 #include "TWApp.h"
 #include "TWTableModel.h"
-#include "generic.h"
+#include "oshwbind.h"
 #include "defs.h"
 #include "messages.h"
 #include "settings.h"

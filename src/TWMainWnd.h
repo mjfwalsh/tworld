@@ -10,7 +10,7 @@
 #include <QLocale>
 #include "../obj/ui_TWMainWnd.h"
 #include "CCMetaData.h"
-#include "generic.h"
+#include "oshwbind.h"
 #include "defs.h"
 #include "state.h"
 #include "oshw.h"
