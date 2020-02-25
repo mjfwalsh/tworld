@@ -235,9 +235,6 @@ OSHW_EXTERN uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 OSHW_EXTERN TW_Surface* TW_LoadBMP(const char* szFilename);
 
-OSHW_EXTERN void TW_StartTicker();
-OSHW_EXTERN uint32_t TW_GetTicks();
-OSHW_EXTERN void TW_Delay(uint32_t nMS);
 
 #define  TW_GetError()  "unspecified error"
 
@@ -257,10 +254,8 @@ OSHW_EXTERN void displaymapview(struct gamestate const *state, TW_Rect disploc);
  */
 OSHW_EXTERN void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id);
 
-
-/* The initialization functions for the various modules.
+/* Initialisation function
  */
-OSHW_EXTERN int generictimerinitialize(int showhistogram);
 OSHW_EXTERN int generictileinitialize(void);
 
 

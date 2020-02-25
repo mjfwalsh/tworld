@@ -36,6 +36,10 @@ OSHW_EXTERN int waitfortick(void);
  */
 OSHW_EXTERN int advancetick(void);
 
+/* Initialisation function
+ */
+OSHW_EXTERN int generictimerinitialize(int showhistogram);
+
 #undef OSHW_EXTERN
 
 #endif

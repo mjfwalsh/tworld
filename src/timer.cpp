@@ -1,4 +1,4 @@
-/* timer.c: Game timing functions.
+/* timer.cpp: Game timing functions.
  *
  * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
  * under the GNU General Public License. No warranty. See COPYING for details.
@@ -6,9 +6,15 @@
 
 #include	<stdlib.h>
 #include	<stdio.h>
+#include	<QThread>
+#include	<QElapsedTimer>
+
 #include	"defs.h"
-#include	"oshwbind.h"
 #include	"timer.h"
+
+/* QElapsedTimer object
+ */
+static QElapsedTimer qtimer;
 
 /* By default, a second of game time lasts for 1000 milliseconds of
  * real time.
@@ -50,12 +56,12 @@ void settimer(int action)
 		utick = 0;
 	} else if (action > 0) {
 		if (nexttickat < 0)
-			nexttickat = TW_GetTicks() - nexttickat;
+			nexttickat = qtimer.elapsed() - nexttickat;
 		else
-			nexttickat = TW_GetTicks() + mspertick;
+			nexttickat = qtimer.elapsed() + mspertick;
 	} else {
 		if (nexttickat > 0)
-			nexttickat = TW_GetTicks() - nexttickat;
+			nexttickat = qtimer.elapsed() - nexttickat;
 	}
 }
 
@@ -73,7 +79,7 @@ int waitfortick(void)
 {
 	int	ms;
 
-	ms = nexttickat - TW_GetTicks();
+	ms = nexttickat - qtimer.elapsed();
 	if (showhistogram)
 		if (ms < (int)(sizeof hist / sizeof *hist))
 			++hist[ms >= 0 ? ms + 1 : 0];
@@ -87,7 +93,7 @@ int waitfortick(void)
 	while (ms < 0)
 		ms += mspertick;
 
-	TW_Delay(ms);
+	QThread::usleep(ms * 1000);
 
 	++utick;
 	nexttickat += mspertick;
@@ -125,13 +131,14 @@ static void shutdown(void)
 	}
 }
 
+
 /* Initialize and reset the timer.
  */
 int generictimerinitialize(int _showhistogram)
 {
 	showhistogram = _showhistogram;
 	atexit(shutdown);
-	TW_StartTicker();
+	qtimer.start();
 	settimer(-1);
 	return TRUE;
 }

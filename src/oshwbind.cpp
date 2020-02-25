@@ -9,8 +9,6 @@
 
 #include <QBitmap>
 #include <QPainter>
-#include <QThread>
-#include <QElapsedTimer>
 
 /* Values global to this module.
  */
@@ -297,22 +295,4 @@ extern "C" TW_Surface* TW_LoadBMP(const char* szFilename)
 	}
 
 	return pSurface;
-}
-
-
-static QElapsedTimer qtimer;
-extern "C" void TW_StartTicker()
-{
-	qtimer.start();
-}
-
-extern "C" uint32_t TW_GetTicks()
-{
-	return qtimer.elapsed();
-}
-
-
-extern "C" void TW_Delay(uint32_t nMS)
-{
-	QThread::usleep(nMS * 1000);
 }
