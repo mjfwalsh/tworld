@@ -16,7 +16,6 @@ public:
 	TileWorldApp(int& argc, char** argv);
 	~TileWorldApp();
 
-	int RunTWorld();
 	void ExitTWorld();
 	void InitDirs();
 	const char *GetDir(int t);

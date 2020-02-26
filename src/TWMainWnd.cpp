@@ -993,7 +993,7 @@ void TileWorldMainWnd::OnFindReturnPressed()
 
 	int n = m_pSortFilterProxyModel->rowCount();
 	if (n == 0) {
-		ding();
+		bell();
 		return;
 	}
 
@@ -1048,9 +1048,10 @@ QString TileWorldMainWnd::DisplayPasswordPrompt()
 
 /* Ring the bell.
  */
-void ding(void)
+void bell(void)
 {
-	QApplication::beep();
+	int v = getintsetting("volume");
+	if(v > 0) QApplication::beep();
 }
 
 /*

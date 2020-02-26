@@ -9,6 +9,8 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
+
+#include	"tworld.h"
 #include	"defs.h"
 #include	"err.h"
 #include	"series.h"
@@ -22,50 +24,14 @@
 #include	"sdlsfx.h"
 #include	"res.h"
 
-/* Bell-ringing macro.
- */
-#define	bell()	(silence ? (void)0 : ding())
-
-enum { Play_None, Play_Normal, Play_Back, Play_Verify };
-
-/* The data needed to identify what level is being played.
- */
-typedef	struct gamespec {
-	gameseries	series;		/* the complete set of levels */
-	int		currentgame;	/* which level is currently selected */
-	int		playmode;	/* which mode to play */
-	int		usepasswds;	/* FALSE if passwords are to be ignored */
-	int		status;		/* final status of last game played */
-	int		enddisplay;	/* TRUE if the final level was completed */
-	int		melindacount;	/* count for Melinda's free pass */
-} gamespec;
-
 /* History of levelsets in order of last used date/time.
  */
 static history *historylist = NULL;
 static int	historycount = 0;
 
-/* Structure used to hold the complete list of available series.
- */
-typedef	struct seriesdata {
-	gameseries *list;		/* the array of available series */
-	int		count;		/* size of array */
-	mapfileinfo *mflist;	/* List of all levelset files */
-	int		mfcount;	/* Number of levelset files */
-	tablespec	table;		/* table for displaying the array */
-} seriesdata;
-
-/* TRUE suppresses sound and the console bell.
- */
-static int	silence = FALSE;
-
 /* FALSE suppresses all password checking.
  */
 static int	usepasswds = TRUE;
-
-/* TRUE if the user requested an idle-time histogram.
- */
-static int	showhistogram = FALSE;
 
 /* Slowdown factor, used for debugging.
  */
@@ -74,14 +40,6 @@ static int	mudsucking = 1;
 /* Frame-skipping disable flag.
  */
 static int	noframeskip = FALSE;
-
-/* The sound buffer scaling factor.
- */
-static int	soundbufsize = -1;
-
-/* The initial volume level.
- */
-static int	volumelevel = -1;
 
 /*
  * Basic game activities.
@@ -356,7 +314,7 @@ static int selectlevelbypassword(gamespec *gs)
 
 /* Load the levelset history.
  */
-static int loadhistory(void)
+int loadhistory(void)
 {
 	fileinfo	file;
 	char	buf[256];
@@ -445,7 +403,7 @@ static void updatehistory(char const *name, char const *passwd, int number)
 
 /* Save the levelset history.
  */
-static void savehistory(void)
+void savehistory(void)
 {
 	fileinfo	file;
 	history    *h;
@@ -1232,41 +1190,6 @@ static int choosegame(gamespec *gs, char const *lastseries)
 	return selectseriesandlevel(gs, &s, FALSE, lastseries);
 }
 
-/*
- * Initialization functions.
- */
-
-/* Run the initialization routines of oshw and the resource module.
- */
-static int initializesystem(void)
-{
-#ifdef NDEBUG
-	mudsucking = 1;
-#endif
-	setmudsuckingfactor(mudsucking);
-	if (!oshwinitialize(silence, soundbufsize, showhistogram))
-		return FALSE;
-	if (!initresources())
-		return FALSE;
-	setkeyboardrepeat(TRUE);
-	if (volumelevel < 0)
-		volumelevel = getintsetting("volume");
-	if (volumelevel >= 0)
-		setvolume(volumelevel);
-
-	return TRUE;
-}
-
-/* Time for everyone to clean up and go home.
- */
-static void shutdownsystem(void)
-{
-	savesettings();
-	savehistory();
-	shutdowngamestate();
-	freeallresources();
-}
-
 /* Determine what to play. A list of available series is drawn up; if
  * only one is found, it is selected automatically. Otherwise, if the
  * listseries option is TRUE, the available series are displayed on
@@ -1292,11 +1215,6 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 		return -1;
 	}
 
-	if (!initializesystem()) {
-		errmsg(NULL, "cannot initialize program due to previous errors");
-		return -1;
-	}
-
 	/* extensions cannot be read until the system is initialized */
 	if (series.count == 1)
 		readextensions(series.list);
@@ -1304,8 +1222,17 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 	return selectseriesandlevel(gs, &series, TRUE, lastseries);
 }
 
+
+/* Time for everyone to clean up and go home.
+ */
+static void shutdownsystem(void)
+{
+	shutdowngamestate();
+	freeallresources();
+}
+
 /*
- * The main function.
+ * The old main function.
  */
 
 int tworld()
@@ -1314,24 +1241,35 @@ int tworld()
 	char	lastseries[sizeof spec.series.filebase];
 	int		f;
 
-	//initdirs();
-	loadhistory();
-	loadsettings();
+	// set mudsucking
+#ifdef NDEBUG
+	mudsucking = 1;
+#endif
+	setmudsuckingfactor(mudsucking);
+
+	// initial setup of resource system
+	if (!initresources()) {
+		errmsg(NULL, "failed to initialise resources");
+		return EXIT_FAILURE;
+	}
 
 	atexit(shutdownsystem);
 
+	// determine the current selected series
 	char const *selectedseries = getstringsetting("selectedseries");
 	if (selectedseries && strlen(selectedseries) < sizeof lastseries)
 		strcpy(lastseries, selectedseries);
 	else
 		lastseries[0] = '\0';
 
+	// Pick the level to play. Defaults to last played if available.
 	f = choosegameatstartup(&spec, lastseries);
 	if (f < 0)
 		return EXIT_FAILURE;
 	else if (f == 0)
 		return EXIT_SUCCESS;
 
+	// plays the selected level
 	while (f > 0) {
 		pushsubtitle(NULL);
 		while (runcurrentlevel(&spec)) { }

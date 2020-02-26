@@ -21,24 +21,13 @@ struct gameseries;
 	#define OSHW_EXTERN extern
 #endif
 
-/* This is the declaration of the top layer's main function. It is
- * called directly from the real main() inside the OS/hardware layer.
+/* Initialise the c stuff in tworld.c and play the game
  */
 OSHW_EXTERN int tworld(); // tworld.c
 
-/* Initialize the OS/hardware interface. This function must be called
- * before any others in the oshw library. If silence is TRUE, the
- * sound system will be disabled, as if no soundcard was present. If
- * showhistogram is TRUE, then during shutdown the timer module will
- * send a histogram to stdout describing the amount of time the
- * program explicitly yielded to other processes. (This feature is for
- * debugging purposes.) soundbufsize is a number between 0 and 3 which
- * is used to scale the size of the sound buffer. A larger number is
- * more efficient, but pushes the sound effects farther out of
- * synchronization with the video.
+/* Save history file
  */
-OSHW_EXTERN int oshwinitialize(int silence, int soundbufsize, int showhistogram); // tworld.c
-
+OSHW_EXTERN void savehistory(); // tworld.c
 
 /*
  * Keyboard input functions.
@@ -139,7 +128,7 @@ OSHW_EXTERN const char *displaypasswordprompt(); // TWMainWnd.cpp
 
 /* Ring the bell.
  */
-OSHW_EXTERN void ding(void); // TWMainWnd.cpp
+OSHW_EXTERN void bell(void); // TWMainWnd.cpp
 
 /* Set the program's subtitle.
  */

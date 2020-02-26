@@ -5,9 +5,11 @@
 
 #include "TWApp.h"
 #include "TWMainWnd.h"
+#include "tworld.h"
 #include "oshwbind.h"
 #include "timer.h"
 #include "sdlsfx.h"
+#include "settings.h"
 #include "defs.h"
 #include "oshw.h"
 #include "res.h"
@@ -62,19 +64,18 @@ void eventupdate(int wait)
  * more efficient, but pushes the sound effects farther out of
  * synchronization with the video.
  */
-int oshwinitialize(int silence, int soundbufsize, int showhistogram)
+bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram)
 {
-	return g_pApp->Initialize(silence, soundbufsize, showhistogram);
-}
+	// load history and settings files first as they're need by everything else
+	loadhistory();
+	loadsettings();
 
-bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize,
-	bool bShowHistogram)
-{
 	m_bSilence = bSilence;
 	m_bShowHistogram = bShowHistogram;
 
 	g_pMainWnd = new TileWorldMainWnd;
 	g_pMainWnd->setWindowTitle(applicationName());
+	g_pMainWnd->SetKeyboardRepeat(TRUE);
 
 	if ( ! (
 		generictimerinitialize(bShowHistogram) &&
@@ -96,11 +97,6 @@ void copytoclipboard(char const *text)
 	QClipboard* pClipboard = QApplication::clipboard();
 	if (pClipboard == 0) return;
 	pClipboard->setText(text);
-}
-
-int TileWorldApp::RunTWorld()
-{
-	return tworld();
 }
 
 const char *getdir(int t)
@@ -193,6 +189,11 @@ void TileWorldApp::InitDirs()
 
 void TileWorldApp::ExitTWorld()
 {
+	// These function need to called from here as they
+	// need to access TileWorldApp::GetDir
+	savesettings();
+	savehistory();
+
 	// Attempt to gracefully destroy application objects
 
 	// throw 1;
@@ -212,8 +213,10 @@ int main(int argc, char *argv[])
 	TileWorldApp app(argc, argv);
 	app.setApplicationName("Tile World");
 	app.InitDirs();
+	app.Initialize(false, -1, false);
+
 	#if not defined Q_OS_OSX
 		app.setWindowIcon(QIcon("tworld.png"));
 	#endif
-	return app.RunTWorld();
+	return tworld();
 }

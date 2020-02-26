@@ -19,11 +19,11 @@
 #define FILENAME_LEN 12
 
 // res dir
-const char *resPath;
-int resPathLen = 0;
+static const char *resPath;
+static int resPathLen = 0;
 
 // The active ruleset.
-int         currentRuleset;
+static int currentRuleset;
 
 /* Attempt to load the tile images.
  */
@@ -103,16 +103,6 @@ static int LoadSounds()
 	return count;
 }
 
-// set resPath and resPathLen
-void initVars()
-{
-	if(resPathLen == 0) {
-		resPath = getdir(RESDIR);
-		resPathLen = strlen(resPath) + FILENAME_LEN;
-		resPathLen *= sizeof(char *);
-		resPathLen++;
-	}
-}
 
 /* Load all resources that are available. FALSE is returned if the
  * tile images could not be loaded. (Sounds are not required in order
@@ -121,12 +111,11 @@ void initVars()
  */
 int loadgameresources(int ruleset)
 {
-	initVars();
-
 	currentRuleset = ruleset;
 	LoadImages();
 	if (LoadSounds() == 0) setaudiosystem(FALSE);
-	return TRUE;
+	//return TRUE;
+	return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
 }
 
 /* Parse the rc file and load the font and color scheme. FALSE is returned
@@ -134,7 +123,11 @@ int loadgameresources(int ruleset)
  */
 int initresources()
 {
-	initVars();
+	resPath = getdir(RESDIR);
+	resPathLen = strlen(resPath) + FILENAME_LEN;
+	resPathLen *= sizeof(char *);
+	resPathLen += 2;
+
 	return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
 }
 

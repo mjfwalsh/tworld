@@ -267,7 +267,7 @@ void freesfx(int index)
 
 /* Set the current volume level to v.
  */
-int setvolume(int v)
+static int _setvolume(int v)
 {
 	if (!hasaudio)
 		return 0;
@@ -276,6 +276,11 @@ int setvolume(int v)
 	else if (v > 10)
 		v = 10;
 	volume = (SDL_MIX_MAXVOLUME * v + 9) / 10;
+	return v;
+}
+int setvolume(int v)
+{
+	v = _setvolume(v);
 	setintsetting("volume", v);
 	return v;
 }
@@ -305,7 +310,12 @@ int sdlsfxinitialize(int silence, int _soundbufsize)
 	atexit(shutdown);
 	enabled = !silence;
 	soundbufsize = _soundbufsize;
-	if (enabled)
+
+	if (enabled) {
+		_setvolume(getintsetting("volume"));
 		setaudiosystem(TRUE);
+	} else {
+		_setvolume(0);
+	}
 	return TRUE;
 }
