@@ -373,12 +373,9 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	m_pSurface = static_cast<Qt_Surface*>(TW_NewSurface(w, h, false));
 	m_pInvSurface = static_cast<Qt_Surface*>(TW_NewSurface(4*geng.wtile, 2*geng.htile, false));
 
-	// get zoom
-	int percentZoom = getintsetting("zoom");
-	if(percentZoom == -1) percentZoom = 100;
-
-	// this func also sets the pixmap
-	this->SetScale(percentZoom, false);
+	// this sets the game and objects box
+	m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
+	m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
 
 	geng.screen = m_pSurface;
 	m_disploc = TW_Rect(0, 0, w, h);

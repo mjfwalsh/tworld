@@ -251,11 +251,8 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
+            <property name="minimumWidth">
+             <number>0</number>
             </property>
             <property name="autoFillBackground">
              <bool>true</bool>
@@ -508,6 +505,9 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="minimumWidth">
+                  <number>0</number>
                  </property>
                  <property name="autoFillBackground">
                   <bool>true</bool>

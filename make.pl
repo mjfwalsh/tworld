@@ -449,32 +449,41 @@ sub run_uic {
 	my $code = join '', <$PIPE>;
 	close $PIPE;
 
+	say "uic ran sucessfully";
+
 	# Pass the scale attribute directly to the game and objects
 	# widgets so the initial size corresponds to the users zoom preference.
 	$res += $code =~ s|(void setupUi\(.*?)\)|$1, double scale)|;
-	$res += $code =~ s|(m_pGameWidget->setMinimumSize\(.*?)(\);)|$1 * scale$2|;
-	$res += $code =~ s|(m_pObjectsWidget->setMinimumSize\(.*?)(\);)|$1 * scale$2|;
+
+	$res += $code =~ s|m_pGameWidget->setMinimumSize\(.*?\);|m_pGameWidget->setFixedSize(scale * DEFAULTTILE * NXTILES, scale * DEFAULTTILE * NYTILES);|;
+	$res += $code =~ s|m_pObjectsWidget->setMinimumSize\(.*?\);|m_pObjectsWidget->setFixedSize(scale * DEFAULTTILE * 4, scale * DEFAULTTILE * 2);|;
+
+	$res += $code =~ s|m_pMessagesFrame->setMinimumWidth\(.*?\);|m_pMessagesFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);|;
+	$res += $code =~ s|m_pInfoFrame->setMinimumWidth\(.*?\);|m_pInfoFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);|;
+
+	$res += $code =~ s|^(#include.*)\n\n|$1\n#include "../src/oshwbind.h"\n\n|m;
 
 	# Counterintuitive, using points makes the app less portable rather than more as
 	# operating systems assume a notional dpi instead of a real one (on Mac it's 72,
 	# on Windows and Linux it's 96). So switching to pixels ensures fonts will render
 	# the same on all three operating systems.
-	if($code =~ s|setPointSize|setPixelSize|g) {
-		$res++;
-	}
+	$res += $code =~ s|setPointSize|setPixelSize|g;
 
 	# fix macro include
 	$code =~ s| TWMAINWND_H| UI_TWMAINWND_H|g;
 
 	if(length $output_file == 0) {
 		print $code;
-		return $res == 4 ? 0 : 1;
-	} elsif($res == 4) {
+	} elsif($res == 10) {
 		open(my $OUT, '>', $output_file) || return 1;
 		print $OUT $code;
 		close $OUT;
+	}
+
+	if($res == 10) {
 		return 0;
 	} else {
+		say "Failed: script make $res replacements instead of 10";
 		return 1;
 	}
 }
