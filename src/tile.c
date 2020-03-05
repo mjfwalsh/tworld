@@ -961,6 +961,26 @@ static int extracttileimage(TW_Surface * tiles, int x, int y, int w, int h,
 	return TRUE;
 }
 
+/* Free all memory allocated for the current set of tile images.
+ */
+static void freetileset(void)
+{
+	int m, n;
+
+	for (n = 0; n < (int)(sizeof tileptr / sizeof *tileptr); ++n) {
+		tileptr[n].celcount = 0;
+		tileptr[n].transpsize = 0;
+		for (m = 0; m < 16; ++m) {
+			tileptr[n].opaque[m] = NULL;
+			tileptr[n].transp[m] = NULL;
+		}
+	}
+	geng.wtile = 0;
+	geng.htile = 0;
+	opaquetile = NULL;
+	freerememberedsurfaces();
+}
+
 /* Extract the large-format tile images from the given surface. The
  * surface is scanned to find the delimiter pixels. Upon return, the
  * pointers to each tile image is stored in the appropriate field of
@@ -1086,26 +1106,6 @@ static int initlargetileset(TW_Surface * tiles)
  * The exported functions.
  */
 
-/* Free all memory allocated for the current set of tile images.
- */
-void freetileset(void)
-{
-	int m, n;
-
-	for (n = 0; n < (int)(sizeof tileptr / sizeof *tileptr); ++n) {
-		tileptr[n].celcount = 0;
-		tileptr[n].transpsize = 0;
-		for (m = 0; m < 16; ++m) {
-			tileptr[n].opaque[m] = NULL;
-			tileptr[n].transp[m] = NULL;
-		}
-	}
-	geng.wtile = 0;
-	geng.htile = 0;
-	opaquetile = NULL;
-	freerememberedsurfaces();
-}
-
 /* Load the set of tile images stored in the given bitmap. Error
  * messages will be displayed if complain is TRUE. The return value is
  * TRUE if the tiles were successfully identified and loaded into
@@ -1149,8 +1149,9 @@ int loadtileset(char const *filename, int complain)
 
 /* Initialization.
  */
-int generictileinitialize(void)
+int tileinitialize(void)
 {
 	geng.mapvieworigin = -1;
+	atexit(freetileset);
 	return TRUE;
 }

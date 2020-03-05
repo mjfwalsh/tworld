@@ -19,8 +19,7 @@ public:
 	void ExitTWorld();
 	void InitDirs();
 	const char *GetDir(int t);
-
-	bool Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram);
+	bool Initialize();
 
 private:
 	char *appResDir;
@@ -29,8 +28,6 @@ private:
 	char *appDataDir;
 	char *userSolDir;
 	char *userDir;
-
-	bool m_bSilence, m_bShowHistogram;
 };
 
 

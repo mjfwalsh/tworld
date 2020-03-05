@@ -27,9 +27,7 @@ TileWorldMainWnd* g_pMainWnd = 0;
 
 TileWorldApp::TileWorldApp(int& argc, char** argv)
 	:
-	QApplication(argc, argv),
-	m_bSilence(false),
-	m_bShowHistogram(false)
+	QApplication(argc, argv)
 {
 	g_pApp = this;
 }
@@ -53,36 +51,54 @@ void eventupdate(int wait)
 }
 
 
-/* Initialize the OS/hardware interface. This function must be called
- * before any others in the oshw library. If silence is TRUE, the
- * sound system will be disabled, as if no soundcard was present. If
- * showhistogram is TRUE, then during shutdown the timer module will
- * send a histogram to stdout describing the amount of time the
- * program explicitly yielded to other processes. (This feature is for
- * debugging purposes.) soundbufsize is a number between 0 and 3 which
- * is used to scale the size of the sound buffer. A larger number is
- * more efficient, but pushes the sound effects farther out of
- * synchronization with the video.
+/* Main initialisation function
  */
-bool TileWorldApp::Initialize(bool bSilence, int nSoundBufSize, bool bShowHistogram)
+bool TileWorldApp::Initialize()
 {
-	// load history and settings files first as they're need by everything else
+	// set the application name - needed by InitDirs
+	setApplicationName("Tile World");
+
+	// setup the directories - needed by settings and history
+	InitDirs();
+
+	// load history
 	loadhistory();
+
+	// load history
 	loadsettings();
 
-	m_bSilence = bSilence;
-	m_bShowHistogram = bShowHistogram;
+	// set the window icon
+	#if not defined Q_OS_OSX
+	setWindowIcon(QIcon("tworld.png"));
+	#endif
 
+	// start the main window
 	g_pMainWnd = new TileWorldMainWnd;
 	g_pMainWnd->setWindowTitle(applicationName());
 	g_pMainWnd->SetKeyboardRepeat(TRUE);
 
-	if ( ! (
-		generictimerinitialize(bShowHistogram) &&
-		generictileinitialize() &&
-		sdlsfxinitialize(bSilence, nSoundBufSize)
-	   ) )
+	// initialise timer
+	if (!timerinitialize()) {
+		errmsg(NULL, "failed to initialise timer");
 		return false;
+	}
+
+	// initialise tiles
+	if (!tileinitialize()) {
+		errmsg(NULL, "failed to initialise tiles");
+		return false;
+	}
+
+	// initialise sounds
+	if (!sfxinitialize()) {
+		errmsg(NULL, "failed to load sounds");
+	}
+
+	// initial setup of resource system
+	if (!initresources()) {
+		errmsg(NULL, "failed to initialise resources");
+		return false;
+	}
 
 	return true;
 }
@@ -211,12 +227,6 @@ void TileWorldApp::ExitTWorld()
 int main(int argc, char *argv[])
 {
 	TileWorldApp app(argc, argv);
-	app.setApplicationName("Tile World");
-	app.InitDirs();
-	app.Initialize(false, -1, false);
-
-	#if not defined Q_OS_OSX
-		app.setWindowIcon(QIcon("tworld.png"));
-	#endif
+	if(!app.Initialize()) return 1;
 	return tworld();
 }

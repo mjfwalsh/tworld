@@ -24,6 +24,11 @@ typedef	struct unslistentry {
 	int			note;		/* the entry's annotation ID, if any */
 } unslistentry;
 
+/* Whether the module has been initialised
+ */
+static int 	initialised = 0;
+
+
 /* The pool of strings. In here are stored the level set names and the
  * annotations. The string IDs are simple offsets from the strings
  * pointer.
@@ -223,31 +228,9 @@ int markunsolvablelevels(gameseries *series)
 	return count;
 }
 
-/* Read the list of unsolvable levels from the given filename. If the
- * filename does not contain a path, then the function looks for the
- * file in the resource directory and the user's save directory.
- */
-int loadunslistfromfile(char const *filename)
-{
-	fileinfo	file = {0};
-
-	if (openfileindir(&file, RESDIR, filename, "r", NULL)) {
-		readunslist(&file);
-		fileclose(&file, NULL);
-	}
-	if (!haspathname(filename)) {
-		clearfileinfo(&file);
-		if (openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
-			readunslist(&file);
-			fileclose(&file, NULL);
-		}
-	}
-	return TRUE;
-}
-
 /* Free all memory associated with the list of unsolvable levels.
  */
-void clearunslist(void)
+static void clearunslist(void)
 {
 	free(unslist);
 	listcount = 0;
@@ -263,4 +246,31 @@ void clearunslist(void)
 	stringsused = 0;
 	stringsallocated = 0;
 	strings = NULL;
+}
+
+/* Read the list of unsolvable levels from the given filename. If the
+ * filename does not contain a path, then the function looks for the
+ * file in the resource directory and the user's save directory.
+ */
+int loadunslistfromfile(char const *filename)
+{
+	fileinfo	file = {0};
+
+	if(!initialised) {
+		atexit(clearunslist);
+		initialised = 1;
+	}
+
+	if (openfileindir(&file, RESDIR, filename, "r", NULL)) {
+		readunslist(&file);
+		fileclose(&file, NULL);
+	}
+	if (!haspathname(filename)) {
+		clearfileinfo(&file);
+		if (openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
+			readunslist(&file);
+			fileclose(&file, NULL);
+		}
+	}
+	return TRUE;
 }

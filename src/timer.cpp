@@ -32,8 +32,9 @@ static int	nexttickat = 0;
 /* A histogram of how many milliseconds the program spends sleeping
  * per tick.
  */
-static int	showhistogram = FALSE;
+#ifndef NDEBUG
 static unsigned	hist[100];
+#endif
 
 /* Set the length (in real time) of a second of game time. A value of
  * zero selects the default length of one second.
@@ -80,9 +81,11 @@ int waitfortick(void)
 	int	ms;
 
 	ms = nexttickat - qtimer.elapsed();
-	if (showhistogram)
-		if (ms < (int)(sizeof hist / sizeof *hist))
-			++hist[ms >= 0 ? ms + 1 : 0];
+
+#ifndef NDEBUG
+	if (ms < (int)(sizeof hist / sizeof *hist))
+		++hist[ms >= 0 ? ms + 1 : 0];
+#endif
 
 	if (ms <= 0) {
 		++utick;
@@ -111,34 +114,33 @@ int advancetick(void)
  */
 static void shutdown(void)
 {
+	settimer(-1);
+
+#ifndef NDEBUG
 	unsigned long	n;
 	int			i;
 
-	settimer(-1);
-
-	if (showhistogram) {
-		n = 0;
-		for (i = 0 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
-			n += hist[i];
-		if (n) {
-			puts("Histogram of idle time (ms/tick)");
-			if (hist[0])
-				printf("NEG: %.1f%%\n", (hist[0] * 100.0) / n);
-			for (i = 1 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
-				if (hist[i])
-					printf("%3d: %.1f%%\n", i - 1, (hist[i] * 100.0) / n);
-		}
+	n = 0;
+	for (i = 0 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
+		n += hist[i];
+	if (n) {
+		puts("Histogram of idle time (ms/tick)");
+		if (hist[0])
+			printf("NEG: %.1f%%\n", (hist[0] * 100.0) / n);
+		for (i = 1 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
+			if (hist[i])
+				printf("%3d: %.1f%%\n", i - 1, (hist[i] * 100.0) / n);
 	}
+#endif
 }
 
 
 /* Initialize and reset the timer.
  */
-int generictimerinitialize(int _showhistogram)
+bool timerinitialize()
 {
-	showhistogram = _showhistogram;
 	atexit(shutdown);
 	qtimer.start();
 	settimer(-1);
-	return TRUE;
+	return true;
 }

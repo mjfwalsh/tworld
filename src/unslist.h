@@ -29,10 +29,6 @@ OSHW_EXTERN int loadunslistfromfile(char const *filename);
  */
 extern int markunsolvablelevels(gameseries *series);
 
-/* Free all memory associated with the list of unsolvable levels.
- */
-OSHW_EXTERN void clearunslist(void);
-
 #undef OSHW_EXTERN
 
 #endif

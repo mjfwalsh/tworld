@@ -256,7 +256,7 @@ OSHW_EXTERN void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id);
 
 /* Initialisation function
  */
-OSHW_EXTERN int generictileinitialize(void);
+OSHW_EXTERN int tileinitialize();
 
 
 #undef OSHW_EXTERN

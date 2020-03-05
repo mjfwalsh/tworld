@@ -53,13 +53,9 @@ OSHW_EXTERN int setvolume(int volume);
  */
 OSHW_EXTERN int changevolume(int delta);
 
-/* Release all memory used for the given sound effect's wave data.
- */
-OSHW_EXTERN void freesfx(int index);
-
 /* The initialization function for the sound module.
  */
-OSHW_EXTERN int sdlsfxinitialize(int silence, int soundbufsize);
+OSHW_EXTERN int sfxinitialize();
 
 #undef OSHW_EXTERN
 

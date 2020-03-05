@@ -38,7 +38,9 @@ OSHW_EXTERN int advancetick(void);
 
 /* Initialisation function
  */
-OSHW_EXTERN int generictimerinitialize(int showhistogram);
+#ifdef __cplusplus
+extern "C" bool timerinitialize();
+#endif
 
 #undef OSHW_EXTERN
 

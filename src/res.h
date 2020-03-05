@@ -29,10 +29,6 @@ OSHW_EXTERN int initresources();
  */
 OSHW_EXTERN int loadgameresources(int ruleset);
 
-/* Release all memory allocated for the resources.
- */
-OSHW_EXTERN void freeallresources();
-
 #undef OSHW_EXTERN
 
 #endif

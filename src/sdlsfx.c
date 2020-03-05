@@ -36,10 +36,6 @@ static SDL_AudioSpec	spec;
  */
 static sfxinfo		sounds[SND_COUNT];
 
-/* TRUE if sound-playing has been enabled.
- */
-static int		enabled = FALSE;
-
 /* TRUE if the program is currently talking to a sound device.
  */
 static int		hasaudio = FALSE;
@@ -50,8 +46,21 @@ static int		volume = SDL_MIX_MAXVOLUME;
 
 /* The sound buffer size scaling factor.
  */
-static int		soundbufsize = 0;
+static const int		soundbufsize = 0;
 
+/* Release all memory for the given sound effect.
+ */
+static void freesfx(int index)
+{
+	if (sounds[index].wave) {
+		SDL_LockAudio();
+		free(sounds[index].wave);
+		sounds[index].wave = NULL;
+		sounds[index].pos = 0;
+		sounds[index].playing = FALSE;
+		SDL_UnlockAudio();
+	}
+}
 
 /* The callback function that is called by the sound driver to supply
  * the latest sound effects. All the sound effects are checked, and
@@ -106,9 +115,6 @@ int setaudiosystem(int active)
 	SDL_AudioSpec	des;
 	int			n;
 
-	if (!enabled)
-		return !active;
-
 	if (!active) {
 		if (hasaudio) {
 			SDL_PauseAudio(TRUE);
@@ -161,8 +167,6 @@ int loadsfxfromfile(int index, char const *filename)
 		return TRUE;
 	}
 
-	if (!enabled)
-		return FALSE;
 	if (!hasaudio)
 		if (!setaudiosystem(TRUE))
 			return FALSE;
@@ -251,20 +255,6 @@ void setsoundeffects(int action)
 	}
 }
 
-/* Release all memory for the given sound effect.
- */
-void freesfx(int index)
-{
-	if (sounds[index].wave) {
-		SDL_LockAudio();
-		free(sounds[index].wave);
-		sounds[index].wave = NULL;
-		sounds[index].pos = 0;
-		sounds[index].playing = FALSE;
-		SDL_UnlockAudio();
-	}
-}
-
 /* Set the current volume level to v.
  */
 static int _setvolume(int v)
@@ -300,22 +290,19 @@ static void shutdown(void)
 	if (SDL_WasInit(SDL_INIT_AUDIO))
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	hasaudio = FALSE;
+
+	for (int n = 0; n < SND_COUNT; ++n)
+		freesfx(n);
 }
 
-/* Initialize the module. If silence is TRUE, then the program will
- * leave sound output disabled.
+/* Initialize the module.
  */
-int sdlsfxinitialize(int silence, int _soundbufsize)
+int sfxinitialize()
 {
 	atexit(shutdown);
-	enabled = !silence;
-	soundbufsize = _soundbufsize;
 
-	if (enabled) {
-		_setvolume(getintsetting("volume"));
-		setaudiosystem(TRUE);
-	} else {
-		_setvolume(0);
-	}
+	_setvolume(getintsetting("volume"));
+	setaudiosystem(TRUE);
+
 	return TRUE;
 }

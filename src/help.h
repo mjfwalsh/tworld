@@ -7,18 +7,9 @@
 #ifndef	HEADER_help_h_
 #define	HEADER_help_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /* Version and license information.
  */
 extern char const *aboutText;
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

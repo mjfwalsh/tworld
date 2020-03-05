@@ -131,15 +131,3 @@ int initresources()
 	return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
 }
 
-
-
-/* Free all resources.
- */
-void freeallresources(void)
-{
-	int	n;
-	freetileset();
-	clearunslist();
-	for (n = 0 ; n < SND_COUNT ; ++n)
-		freesfx(n);
-}

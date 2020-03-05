@@ -33,10 +33,6 @@ static int	historycount = 0;
  */
 static int	usepasswds = TRUE;
 
-/* Slowdown factor, used for debugging.
- */
-static int	mudsucking = 1;
-
 /* Frame-skipping disable flag.
  */
 static int	noframeskip = FALSE;
@@ -1222,15 +1218,6 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 	return selectseriesandlevel(gs, &series, TRUE, lastseries);
 }
 
-
-/* Time for everyone to clean up and go home.
- */
-static void shutdownsystem(void)
-{
-	shutdowngamestate();
-	freeallresources();
-}
-
 /*
  * The old main function.
  */
@@ -1241,19 +1228,7 @@ int tworld()
 	char	lastseries[sizeof spec.series.filebase];
 	int		f;
 
-	// set mudsucking
-#ifdef NDEBUG
-	mudsucking = 1;
-#endif
-	setmudsuckingfactor(mudsucking);
-
-	// initial setup of resource system
-	if (!initresources()) {
-		errmsg(NULL, "failed to initialise resources");
-		return EXIT_FAILURE;
-	}
-
-	atexit(shutdownsystem);
+	atexit(shutdowngamestate);
 
 	// determine the current selected series
 	char const *selectedseries = getstringsetting("selectedseries");

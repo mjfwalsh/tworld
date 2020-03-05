@@ -19,10 +19,6 @@
  */
 OSHW_EXTERN int loadtileset(char const *filename, int complain);
 
-/* Free all memory associated with the current tile images.
- */
-OSHW_EXTERN void freetileset(void);
-
 #undef OSHW_EXTERN
 
 #endif
