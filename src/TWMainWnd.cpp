@@ -37,7 +37,9 @@ extern int pedanticmode;
 
 #include <QSortFilterProxyModel>
 
+#if defined(Q_OS_WIN)
 #include <QStyle>
+#endif
 
 #include <QPainter>
 
@@ -100,7 +102,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	// load style sheet
 	QFile File(appResDir + "/stylesheet.qss");
 	File.open(QFile::ReadOnly);
-	QString StyleSheet = QLatin1String(File.readAll());
+	QString StyleSheet(File.readAll());
 	this->setStyleSheet(StyleSheet);
 
 	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );

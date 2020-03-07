@@ -118,7 +118,7 @@ typedef struct TW_Rect
 #ifdef __cplusplus
 	TW_Rect() {}
 	TW_Rect(int _x, int _y, int _w, int _h) : x(_x), y(_y), w(_w), h(_h) {}
-	TW_Rect(const QRect& qr) : x(qr.x()), y(qr.y()), w(qr.width()), h(qr.height()) {}
+	explicit TW_Rect(const QRect& qr) : x(qr.x()), y(qr.y()), w(qr.width()), h(qr.height()) {}
 	operator QRect() const {return QRect(x, y, w, h);}
 #endif
 } TW_Rect;

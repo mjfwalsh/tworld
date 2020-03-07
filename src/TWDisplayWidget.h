@@ -8,7 +8,7 @@
 
 
 #include <QWidget>
-#include <QtGui/QPixmap>
+#include <QPixmap>
 
 
 // QLabel's setPixmap seems to trigger a re-layout of the parent

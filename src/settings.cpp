@@ -5,9 +5,9 @@
  */
 
 #include "settings.h"
-
 #include "err.h"
 #include "fileio.h"
+#include "defs.h"
 
 #include <cstdlib>
 #include <fstream>
