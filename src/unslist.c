@@ -168,15 +168,15 @@ static int readunslist(fileinfo *file)
 		for (p = buf ; isspace(*p) ; ++p) ;
 		if (!*p || *p == '#')
 			continue;
-		if (sscanf(p, "[%[^]]]", token) == 1) {
+		if (sscanf(p, "[%999[^]]]", token) == 1) {
 			setid = lookupsetname(token, TRUE);
 			continue;
 		}
-		n = sscanf(p, "%d: %04X%08lX: %[^\n\r]",
+		n = sscanf(p, "%5d: %04X%08lX: %200[^\n\r]",
 			&levelnum, &size, &hashval, token);
 		if (n > 0 && levelnum > 0 && levelnum < 65536 && setid) {
 			if (n == 1) {
-				n = sscanf(p, "%*d: %s", token);
+				n = sscanf(p, "%*d: %2s", token);
 				if (n > 0 && !strcmp(token, "ok")) {
 					removefromunslist(setid, levelnum);
 					continue;

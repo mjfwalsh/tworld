@@ -69,7 +69,6 @@ int getscoresforlevel(gameseries const *series, int level,
 	int *base, int *bonus, long *total)
 {
 	gamesetup   *game;
-	int		levelscore, timescore;
 	long	totalscore;
 	int		n;
 
@@ -79,8 +78,8 @@ int getscoresforlevel(gameseries const *series, int level,
 	for (n = 0, game = series->games ; n < series->count ; ++n, ++game) {
 		if (n >= series->allocated)
 			break;
-		levelscore = 0;
-		timescore = 0;
+		int levelscore = 0;
+		int timescore = 0;
 		if (hassolution(game)) {
 			levelscore = game->number * 500;
 			if (game->time)
@@ -204,7 +203,7 @@ int createscorelist(gameseries const *series, int usepasswds, int **plevellist,
 	ptrs[n++] = textheap + used;
 	used += 1 + strlen(strcpy(textheap + used, "2-Total Score"));
 	ptrs[n++] = textheap + used;
-	used += 1 + sprintf(textheap + used, "3+%s", cdecimal(totalscore));
+	sprintf(textheap + used, "3+%s", cdecimal(totalscore));
 	if (plevellist)
 		levellist[count] = -1;
 	++count;

@@ -41,10 +41,10 @@ char const * messageTypeNames[MessageTypeCount] = { "win", "die", "time" };
 int loadmessagesfromfile(char const *filename)
 {
 	char *fname = getpathforfileindir(RESDIR, filename);
-	ifstream in(fname);
+	ifstream infile(fname);
 	free(fname);
 
-	if (!in)
+	if (!infile)
 		return FALSE;
 
 	vector<string> newmessages;
@@ -52,7 +52,7 @@ int loadmessagesfromfile(char const *filename)
 	bitset<MessageTypeCount> isactive;
 	isactive.set(MessageDie);
 	string line;
-	while (getline(in, line)) {
+	while (getline(infile, line)) {
 		// Just in case DOS line endings on Linux. Not sure if needed.
 		string::iterator rpos(find(line.begin(), line.end(), '\r'));
 		if (rpos != line.end())
@@ -62,10 +62,10 @@ int loadmessagesfromfile(char const *filename)
 		if (line[0] == ':') {
 			isactive.reset();
 
-			istringstream in(line);
-			in.get(); // Discard ':'
+			istringstream instr(line);
+			instr.get(); // Discard ':'
 			string type;
-			while (in >> type) {
+			while (instr >> type) {
 				int typenum = find(messageTypeNames,
 					messageTypeNames + MessageTypeCount, type)
 					- messageTypeNames;

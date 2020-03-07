@@ -90,16 +90,6 @@ int filerewind(fileinfo *file, char const *msg)
 	return TRUE;
 }
 
-/* fseek().
- */
-int fileskip(fileinfo *file, int offset, char const *msg)
-{
-	errno = 0;
-	if (!fseek(file->fp, offset, SEEK_CUR))
-		return TRUE;
-	return fileerr(file, msg);
-}
-
 /* feof().
  */
 int filetestend(fileinfo *file)
@@ -153,8 +143,6 @@ void *filereadbuf(fileinfo *file, unsigned long size, char const *msg)
  */
 int filegetline(fileinfo *file, char *buf, int *len, char const *msg)
 {
-	int	n, ch;
-
 	if (!*len) {
 		*buf = '\0';
 		return TRUE;
@@ -162,8 +150,9 @@ int filegetline(fileinfo *file, char *buf, int *len, char const *msg)
 	errno = 0;
 	if (!fgets(buf, *len, file->fp))
 		return fileerr(file, msg);
-	n = strlen(buf);
+	int n = strlen(buf);
 	if (n == *len - 1 && buf[n] != '\n') {
+		int ch;
 		do
 			ch = fgetc(file->fp);
 		while (ch != EOF && ch != '\n');

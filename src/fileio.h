@@ -30,10 +30,6 @@ extern int filewrite(fileinfo *file, void const *data, unsigned long size,
 			 char const *msg);
 extern void fileclose(fileinfo *file, char const *msg);
 
-/* fileskip() works like fseek() with whence set to SEEK_CUR.
- */
-extern int fileskip(fileinfo *file, int offset, char const *msg);
-
 /* filetestend() forces a check for EOF by attempting to read a byte
  * from the file, and ungetting the byte if one is successfully read.
  */

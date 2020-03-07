@@ -44,16 +44,6 @@ void setpedanticmode(int v)
 	pedanticmode = v;
 }
 
-/* Set the slowdown factor.
- */
-int setmudsuckingfactor(int mud)
-{
-	if (mud < 1)
-		return FALSE;
-	mudsucking = mud;
-	return TRUE;
-}
-
 /* Configure the game logic, and some of the OS/hardware layer, as
  * required for the given ruleset. Do nothing if the requested ruleset
  * is already the current ruleset.

@@ -76,14 +76,6 @@ extern int savesolutions(gameseries *series);
  */
 extern void clearsolutions(gameseries *series);
 
-/* Read the solution file at filename to see if it contains a set
- * name. If so, copy it into buffer and return its length in bytes (up
- * to 255). Zero is returned if the solution file contains no set
- * name. A negative value is returned if the file cannot be read or is
- * not a valid solution file.
- */
-extern int loadsolutionsetname(char const *filename, char *buffer);
-
 /* Produce a list of available solution files associated with the
  * given series (i.e. that have the name of the series as their
  * prefix). An array of filenames is returned through pfilelist, the

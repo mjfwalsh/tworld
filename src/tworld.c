@@ -105,20 +105,18 @@ static int setcurrentgame(gamespec *gs, int n)
  */
 static int changecurrentgame(gamespec *gs, int offset)
 {
-	int	sign, m, n;
-
 	if (offset == 0)
 		return FALSE;
 
-	m = gs->currentgame;
-	n = m + offset;
+	int m = gs->currentgame;
+	int n = m + offset;
 	if (n < 0)
 		n = 0;
 	else if (n >= gs->series.count)
 		n = gs->series.count - 1;
 
 	if (gs->usepasswds && n > 0) {
-		sign = offset < 0 ? -1 : +1;
+		int sign = offset < 0 ? -1 : +1;
 		for ( ; n >= 0 && n < gs->series.count ; n += sign) {
 			if (!n || (gs->series.games[n].sgflags & SGF_HASPASSWD)
 				|| issolved(gs, n - 1)) {
@@ -175,7 +173,6 @@ static int showsolutionfiles(gamespec *gs)
 {
 	tablespec		table;
 	char const	      **filelist;
-	int			readonly = FALSE;
 	int			count, current, f, n;
 
 	if (haspathname(gs->series.name) || (gs->series.savefilename
@@ -204,10 +201,6 @@ static int showsolutionfiles(gamespec *gs)
 	for (;;) {
 		f = displaylist(&table, &n, LIST_SOLUTIONFILES);
 		if (f == CmdProceed) {
-			readonly = FALSE;
-			break;
-		} else if (f == CmdSeeScores) {
-			readonly = TRUE;
 			break;
 		} else if (f == CmdQuitLevel) {
 			n = -1;
@@ -222,10 +215,7 @@ static int showsolutionfiles(gamespec *gs)
 		int l = (sizeof(char*) * strlen(filelist[n])) + 1;
 		x_cmalloc(gs->series.savefilename, l);
 		strcpy(gs->series.savefilename, filelist[n]);
-		if (readsolutions(&gs->series)) {
-			if (readonly)
-				gs->series.gsflags |= GSF_NOSAVING;
-		} else {
+		if (!readsolutions(&gs->series)) {
 			bell();
 		}
 		n = gs->currentgame;
@@ -341,8 +331,8 @@ int loadhistory(void)
 		hname	= strtok(NULL, "\r\n");
 
 		if ( ! (hdate && htime && hpasswd && hnumber && hname  &&
-				sscanf(hdate, "%d-%d-%d", &hyear, &hmon, &hmday) == 3  &&
-				sscanf(htime, "%d:%d:%d", &hhour, &hmin, &hsec) == 3  &&
+				sscanf(hdate, "%4d-%2d-%2d", &hyear, &hmon, &hmday) == 3  &&
+				sscanf(htime, "%2d:%2d:%2d", &hhour, &hmin, &hsec) == 3  &&
 				*hpasswd  && *hnumber && *hname) )
 			continue;
 
@@ -431,7 +421,6 @@ void savehistory(void)
 static int startinput(gamespec *gs)
 {
 	static int	lastlevel = -1;
-	int		cmd;
 
 	if (gs->currentgame != lastlevel) {
 		lastlevel = gs->currentgame;
@@ -440,7 +429,7 @@ static int startinput(gamespec *gs)
 	drawscreen(TRUE);
 	gs->playmode = Play_None;
 	for (;;) {
-		cmd = input(TRUE);
+		int cmd = input(TRUE);
 		if (cmd >= CmdMoveFirst && cmd <= CmdMoveLast) {
 			gs->playmode = Play_Normal;
 			return cmd;
@@ -569,10 +558,8 @@ static int endinput(gamespec *gs)
  */
 static int finalinput(gamespec *gs)
 {
-	int	cmd;
-
 	for (;;) {
-		cmd = input(TRUE);
+		int cmd = input(TRUE);
 		switch (cmd) {
 		case CmdSameLevel:
 			return TRUE;
@@ -1092,7 +1079,7 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 	char const *defaultseries)
 {
-	int f, n;
+	int n;
 
 	if (series->count < 1) {
 		errmsg(NULL, "no level sets found");
@@ -1119,7 +1106,7 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 			int preLevelSet = n;
 
 			for (;;) {
-				f = chooseseries(series, &n, founddefault);
+				int f = chooseseries(series, &n, founddefault);
 				if (f == CmdProceed) {
 					getseriesfromlist(&gs->series, series->list, n);
 					break;

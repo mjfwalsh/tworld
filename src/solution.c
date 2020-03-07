@@ -344,7 +344,7 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 {
 	action const       *move;
 	unsigned char      *data;
-	int			size, delta, when, i;
+	int			size, when;
 
 	free(game->solutiondata);
 	game->solutionsize = 0;
@@ -354,7 +354,7 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 
 	size = 21;
 	move = solution->moves.list + 1;
-	for (i = 1 ; i < solution->moves.count ; ++i, ++move)
+	for (int i = 1 ; i < solution->moves.count ; ++i, ++move)
 		size += !isorthogonal(move->dir) ? 5
 			: move[0].when - move[-1].when <= (1 << 3) ? 1
 			: move[0].when - move[-1].when <= (1 << 11) ? 2 : 4;
@@ -385,8 +385,8 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 	when = -1;
 	size = 16;
 	move = solution->moves.list;
-	for (i = 0 ; i < solution->moves.count ; ++i, ++move) {
-		delta = -when - 1;
+	for (int i = 0 ; i < solution->moves.count ; ++i, ++move) {
+		int delta = -when - 1;
 		when = move->when;
 		delta += when;
 		if (ismousemove(move->dir)
@@ -669,49 +669,6 @@ void clearsolutions(gameseries *series)
 	clearfileinfo(&series->savefile);
 }
 
-/* Extract just the set name from the given solution file.
- */
-int loadsolutionsetname(char const *filename, char *buffer)
-{
-	fileinfo		file;
-	unsigned long	dwrd;
-	unsigned short	word;
-	int			size;
-
-	clearfileinfo(&file);
-	if (!openfileindir(&file, SOLUTIONDIR, filename, "rb", NULL))
-		return -1;
-
-	if (!filereadint32(&file, &dwrd, NULL) || dwrd != CSSIG)
-		goto badfile;
-	if (!filereadint32(&file, &dwrd, NULL))
-		goto badfile;
-	dwrd = (dwrd >> 24) & 0xFF;
-	if (!fileskip(&file, dwrd, NULL) || !filereadint32(&file, &dwrd, NULL))
-		goto badfile;
-	size = dwrd - 16;
-	if (size <= 0)
-		goto nosetname;
-
-	if (!filereadint16(&file, &word, NULL)
-		|| !filereadint32(&file, &dwrd, NULL))
-		goto badfile;
-	if (word || dwrd)
-		goto nosetname;
-	if (!fileskip(&file, 10, NULL) || !fileread(&file, buffer, size, NULL))
-		goto badfile;
-
-	fileclose(&file, NULL);
-	return size;
-
-badfile:
-	fileclose(&file, NULL);
-	return -1;
-nosetname:
-	fileclose(&file, NULL);
-	return 0;
-}
-
 /*
  * Creating the list of solution files.
  */
@@ -733,10 +690,9 @@ typedef	struct solutiondata {
 static int getsolutionfile(char const *filename, void *data)
 {
 	solutiondata       *sdata = data;
-	int			n;
 
 	if (!memcmp(filename, sdata->prefix, sdata->prefixlen)) {
-		n = strlen(filename) + 1;
+		int n = strlen(filename) + 1;
 		x_alloc(sdata->pool, sdata->allocated + n + 2);
 		sdata->pool[sdata->allocated++] = '1';
 		sdata->pool[sdata->allocated++] = '-';

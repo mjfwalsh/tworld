@@ -581,7 +581,7 @@ static TW_Surface *extractmaskedtile(TW_Surface * src,
 	TW_Surface *dest;
 	TW_Surface *temp;
 	TW_Rect rect;
-	unsigned char *s, *d;
+	unsigned char *d;
 	uint32_t transp, black;
 	int x, y;
 
@@ -599,14 +599,11 @@ static TW_Surface *extractmaskedtile(TW_Surface * src,
 	TW_SwitchSurfaceToImage(dest);
 
 	d = (uint8_t *) dest->pixels;
-	s = (uint8_t *) src->pixels + ymask * src->pitch
-		+ xmask * src->bytesPerPixel;
 	for (y = 0; y < dest->h; ++y) {
 		for (x = 0; x < dest->w; ++x) {
 			if (TW_PixelAt(src, xmask + x, ymask + y) == black)
 				((uint32_t *) d)[x] = transp;
 		}
-		s += src->pitch;
 		d += dest->pitch;
 	}
 
@@ -631,12 +628,11 @@ static int initsmalltileset(TW_Surface * tiles)
 {
 	TW_Surface *s;
 	uint32_t magenta;
-	int id, n;
 
 	magenta = TW_MapRGB(255, 0, 255);
 
-	for (n = 0; n < (int)(sizeof tileidmap / sizeof *tileidmap); ++n) {
-		id = tileidmap[n].id;
+	for (int n = 0; n < (int)(sizeof tileidmap / sizeof *tileidmap); ++n) {
+		int id = tileidmap[n].id;
 		tileptr[id].opaque[0] = NULL;
 		tileptr[id].transp[0] = NULL;
 		tileptr[id].celcount = 0;

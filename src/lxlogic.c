@@ -267,7 +267,6 @@ static void applyicewallturn(creature *cr)
  */
 static int trapfrombutton(int pos)
 {
-	xyconn     *xy;
 	int		i;
 
 	if (pedanticmode) {
@@ -284,6 +283,7 @@ static int trapfrombutton(int pos)
 				return -1;
 		}
 	} else {
+		xyconn *xy;
 		for (xy = traplist(), i = traplistsize() ; i ; ++xy, --i)
 			if (xy->from == pos)
 				return xy->to;
@@ -295,7 +295,6 @@ static int trapfrombutton(int pos)
  */
 static int clonerfrombutton(int pos)
 {
-	xyconn     *xy;
 	int		i;
 
 	if (pedanticmode) {
@@ -310,6 +309,7 @@ static int clonerfrombutton(int pos)
 				return i;
 		}
 	} else {
+		xyconn *xy;
 		for (xy = clonerlist(), i = clonerlistsize() ; i ; ++xy, --i)
 			if (xy->from == pos)
 				return xy->to;
@@ -718,7 +718,6 @@ static int canpushblock(creature *block, int dir, int flags)
  */
 static int canmakemove(creature const *cr, int dir, int flags)
 {
-	creature   *other;
 	int		floor;
 	int		to, y, x;
 
@@ -777,6 +776,7 @@ static int canmakemove(creature const *cr, int dir, int flags)
 			return FALSE;
 		if (ismarkedanimated(to))
 			return FALSE;
+		creature   *other;
 		other = lookupcreature(to, FALSE);
 		if (other && other->id == Block) {
 			if (!canpushblock(other, dir, flags & ~CMM_RELEASING))
@@ -933,7 +933,6 @@ static void choosecreaturemove(creature *cr)
 static void choosechipmove(creature *cr, int discard)
 {
 	int	dir;
-	int	f1, f2;
 
 	chippushing() = FALSE;
 
@@ -960,8 +959,8 @@ static void choosechipmove(creature *cr, int discard)
 
 	if (isdiagonal(dir)) {
 		if (cr->dir & dir) {
-			f1 = canmakemove(cr, cr->dir, CMM_PUSHBLOCKS);
-			f2 = canmakemove(cr, cr->dir ^ dir, CMM_PUSHBLOCKS);
+			int f1 = canmakemove(cr, cr->dir, CMM_PUSHBLOCKS);
+			int f2 = canmakemove(cr, cr->dir ^ dir, CMM_PUSHBLOCKS);
 			dir = !f1 && f2 ? dir ^ cr->dir : cr->dir;
 		} else {
 			if (canmakemove(cr, dir & (EAST | WEST), CMM_PUSHBLOCKS))
@@ -1173,7 +1172,6 @@ static void springtrap(int pos)
  */
 static int startmovement(creature *cr, int releasing)
 {
-	creature   *other;
 	int		dir;
 	int		floorfrom;
 
@@ -1247,6 +1245,7 @@ static int startmovement(creature *cr, int releasing)
 	}
 	if (cr->id == Chip) {
 		couldntmove() = FALSE;
+		creature   *other;
 		other = lookupcreature(cr->pos, FALSE);
 		if (other) {
 			removechip(CHIP_COLLIDED, other);
@@ -1478,7 +1477,6 @@ static int endmovement(creature *cr, int stationary)
 static int advancecreature(creature *cr, int releasing)
 {
 	char	tdir = NIL;
-	int		f;
 
 	if (cr->moving <= 0 && !isanimation(cr->id)) {
 		if (releasing) {
@@ -1490,7 +1488,7 @@ static int advancecreature(creature *cr, int releasing)
 				return -1;
 			return +1;
 		}
-		f = startmovement(cr, releasing);
+		int f = startmovement(cr, releasing);
 		if (f > 0)
 			cr->hidden = FALSE;
 		if (pedanticmode && f == 0 && !endmovement(cr, TRUE))
@@ -1530,7 +1528,7 @@ static void dumpmap(void)
 		for (x = 0 ; x < CXGRID ; ++x)
 			fprintf(stderr, "%02X%c", state->map[y + x].top.id,
 				(state->map[y + x].top.state ?
-					state->map[y + x].top.state & 0x40 ? '*' : '.' : ' '));
+					(state->map[y + x].top.state & 0x40) ? '*' : '.' : ' '));
 		fputc('\n', stderr);
 	}
 	fputc('\n', stderr);
@@ -1539,8 +1537,8 @@ static void dumpmap(void)
 			cr->id, "-^<?v?\?\?>"[(int)cr->dir],
 			cr->moving, cr->pos % CXGRID, cr->pos / CXGRID,
 			cr->hidden ? " dead" : "",
-			cr->state & CS_SLIDETOKEN ? " slide-token" : "",
-			cr->state & CS_REVERSE ? " reversing" : "");
+			(cr->state & CS_SLIDETOKEN) ? " slide-token" : "",
+			(cr->state & CS_REVERSE) ? " reversing" : "");
 	fflush(stderr);
 }
 
@@ -1606,7 +1604,6 @@ static void initialhousekeeping(void)
 {
 	creature   *chip;
 	creature   *cr;
-	int		pos;
 
 #ifndef NDEBUG
 	verifymap();
@@ -1649,7 +1646,7 @@ static void initialhousekeeping(void)
 	}
 
 	if (togglestate()) {
-		for (pos = 0 ; pos < CXGRID * CYGRID ; ++pos) {
+		for (int pos = 0 ; pos < CXGRID * CYGRID ; ++pos) {
 			if (floorat(pos) == SwitchWall_Open
 				|| floorat(pos) == SwitchWall_Closed)
 				floorat(pos) ^= togglestate();
@@ -1661,7 +1658,6 @@ static void initialhousekeeping(void)
 	if (currentinput() == CmdDebugCmd2) {
 		dumpmap();
 		exit(0);
-		currentinput() = NIL;
 	} else if (currentinput() == CmdDebugCmd1) {
 		static int mark = 0;
 		warn("Mark %d (%d).", ++mark, currenttime());

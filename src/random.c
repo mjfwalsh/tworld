@@ -44,15 +44,6 @@ static void nextrandom(prng *gen)
 		gen->value = nextvalue(gen->value);
 }
 
-/* Create a new PRNG, reset to the shared sequence.
- */
-prng createprng(void)
-{
-	prng gen;
-	resetprng(&gen);
-	return gen;
-}
-
 /* We start off a fresh series by taking the current time. A few
  * numbers are generated and discarded to work out any biases in the
  * seed value.
@@ -79,17 +70,6 @@ int random4(prng *gen)
 {
 	nextrandom(gen);
 	return gen->value >> 29;
-}
-
-/* Randomly select an element from a list of three values.
- */
-int randomof3(prng *gen, int a, int b, int c)
-{
-	int	n;
-
-	nextrandom(gen);
-	n = (int)((3.0 * (gen->value & 0x3FFFFFFFUL)) / (double)0x40000000UL);
-	return n < 2 ? n < 1 ? a : b : c;
 }
 
 /* Randomly permute a list of three values. Two random numbers are

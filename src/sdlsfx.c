@@ -223,7 +223,7 @@ void playsoundeffects(unsigned long sfx)
 	for (i = 0, flag = 1 ; i < SND_COUNT ; ++i, flag <<= 1) {
 		if (sfx & flag) {
 			sounds[i].playing = TRUE;
-			if (sounds[i].pos && i < SND_ONESHOT_COUNT)
+			if (i < SND_ONESHOT_COUNT && sounds[i].pos)
 				sounds[i].pos = 0;
 		} else {
 			if (i >= SND_ONESHOT_COUNT)
@@ -238,14 +238,12 @@ void playsoundeffects(unsigned long sfx)
  */
 void setsoundeffects(int action)
 {
-	int	i;
-
 	if (!hasaudio || !volume)
 		return;
 
 	if (action < 0) {
 		SDL_LockAudio();
-		for (i = 0 ; i < SND_COUNT ; ++i) {
+		for (int i = 0 ; i < SND_COUNT ; ++i) {
 			sounds[i].playing = FALSE;
 			sounds[i].pos = 0;
 		}

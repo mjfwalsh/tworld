@@ -1522,13 +1522,11 @@ int TileWorldMainWnd::WindowMapPos(int x, int y)
  */
 int TileWorldMainWnd::RetrieveMouseCommand(void)
 {
-	int	n;
-
 	switch (mouseinfo.state) {
 		case KS_PRESSED:
 			mouseinfo.state = KS_OFF;
 			if (mouseinfo.button == TW_BUTTON_LEFT) {
-				n = WindowMapPos(mouseinfo.x, mouseinfo.y);
+				int n = WindowMapPos(mouseinfo.x, mouseinfo.y);
 				if (n >= 0) {
 					mouseinfo.state = KS_DOWNBUTOFF1;
 					return CmdAbsMouseMoveFirst + n;

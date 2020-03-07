@@ -568,10 +568,9 @@ static creature *lookupcreature(int pos, int includechip)
 static creature *lookupblock(int pos)
 {
 	creature   *cr;
-	int		id, n;
 
 	if (blocks) {
-		for (n = 0 ; n < blockcount ; ++n)
+		for (int n = 0 ; n < blockcount ; ++n)
 			if (blocks[n]->pos == pos && !blocks[n]->hidden)
 				return blocks[n];
 	}
@@ -579,7 +578,7 @@ static creature *lookupblock(int pos)
 	cr = allocatecreature();
 	cr->id = Block;
 	cr->pos = pos;
-	id = cellat(pos)->top.id;
+	int id = cellat(pos)->top.id;
 	if (id == Block_Static)
 		cr->dir = NIL;
 	else if (creatureid(id) == Block)
@@ -865,7 +864,7 @@ static struct { unsigned char chip, block, creature; } const movelaws[] = {
 static int pushblock(int pos, int dir, int flags)
 {
 	creature   *cr;
-	int		slipdir, r;
+	int		r;
 
 	_assert(cellat(pos)->top.id == Block_Static);
 	_assert(dir != NIL);
@@ -876,7 +875,7 @@ static int pushblock(int pos, int dir, int flags)
 		return FALSE;
 	}
 	if (cr->state & (CS_SLIP | CS_SLIDE)) {
-		slipdir = getslipdir(cr);
+		int slipdir = getslipdir(cr);
 		if (dir == slipdir || dir == back(slipdir))
 			if (!(flags & CMM_TELEPORTPUSH))
 				return FALSE;
@@ -1059,7 +1058,6 @@ static void choosecreaturemove(creature *cr)
 			case Bug:
 			case Paramecium:
 			case Teeth:
-				choices[0] = controllerdir();
 				cr->tdir = controllerdir();
 				return;
 				break;
@@ -1785,10 +1783,9 @@ static void floormovements(void)
 {
 	creature   *cr;
 	int		floor, slipdir;
-	int		savedcount, n;
 
-	for (n = 0 ; n < slipcount ; ++n) {
-		savedcount = slipcount;
+	for (int n = 0 ; n < slipcount ; ++n) {
+		int savedcount = slipcount;
 		cr = slips[n].cr;
 		if (!(slips[n].cr->state & (CS_SLIP | CS_SLIDE)))
 			continue;
@@ -1877,14 +1874,14 @@ static void dumpmap(void)
 		}
 		fprintf(stderr, "%s%s%s%s%s%s%s%s%s",
 			cr->hidden ? " hidden" : "",
-			cr->state & CS_RELEASED ? " released" : "",
-			cr->state & CS_CLONING ? " cloning" : "",
-			cr->state & CS_HASMOVED ? " has-moved" : "",
-			cr->state & CS_TURNING ? " turning" : "",
-			cr->state & CS_SLIP ? " slipping" : "",
-			cr->state & CS_SLIDE ? " sliding" : "",
-			cr->state & CS_DEFERPUSH ? " deferred-push" : "",
-			cr->state & CS_MUTANT ? " mutant" : "");
+			(cr->state & CS_RELEASED) ? " released" : "",
+			(cr->state & CS_CLONING) ? " cloning" : "",
+			(cr->state & CS_HASMOVED) ? " has-moved" : "",
+			(cr->state & CS_TURNING) ? " turning" : "",
+			(cr->state & CS_SLIP) ? " slipping" : "",
+			(cr->state & CS_SLIDE) ? " sliding" : "",
+			(cr->state & CS_DEFERPUSH) ? " deferred-push" : "",
+			(cr->state & CS_MUTANT) ? " mutant" : "");
 		if (x < slipcount)
 			fprintf(stderr, " %c", "-^<?v?\?\?>"[(int)slips[x].dir]);
 		fputc('\n', stderr);
@@ -1902,14 +1899,14 @@ static void dumpmap(void)
 		}
 		fprintf(stderr, "%s%s%s%s%s%s%s%s%s",
 			cr->hidden ? " hidden" : "",
-			cr->state & CS_RELEASED ? " released" : "",
-			cr->state & CS_CLONING ? " cloning" : "",
-			cr->state & CS_HASMOVED ? " has-moved" : "",
-			cr->state & CS_TURNING ? " turning" : "",
-			cr->state & CS_SLIP ? " slipping" : "",
-			cr->state & CS_SLIDE ? " sliding" : "",
-			cr->state & CS_DEFERPUSH ? " deferred-push" : "",
-			cr->state & CS_MUTANT ? " mutant" : "");
+			(cr->state & CS_RELEASED) ? " released" : "",
+			(cr->state & CS_CLONING) ? " cloning" : "",
+			(cr->state & CS_HASMOVED) ? " has-moved" : "",
+			(cr->state & CS_TURNING) ? " turning" : "",
+			(cr->state & CS_SLIP) ? " slipping" : "",
+			(cr->state & CS_SLIDE) ? " sliding" : "",
+			(cr->state & CS_DEFERPUSH) ? " deferred-push" : "",
+			(cr->state & CS_MUTANT) ? " mutant" : "");
 		if (x < slipcount)
 			fprintf(stderr, " %c", "-^<?v?\?\?>"[(int)slips[x].dir]);
 		fputc('\n', stderr);
@@ -1949,8 +1946,6 @@ static void verifymap(void)
  */
 static void initialhousekeeping(void)
 {
-	int	n;
-
 #ifndef NDEBUG
 	if (currentinput() == CmdDebugCmd2) {
 		dumpmap();
@@ -1988,7 +1983,7 @@ static void initialhousekeeping(void)
 		laststepping = stepping();
 
 	if (!(currenttime() & 3)) {
-		for (n = 1 ; n < creaturecount ; ++n) {
+		for (int n = 1 ; n < creaturecount ; ++n) {
 			if (creatures[n]->state & CS_TURNING) {
 				creatures[n]->state &= ~(CS_TURNING | CS_HASMOVED);
 				updatecreature(creatures[n]);

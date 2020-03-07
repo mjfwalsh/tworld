@@ -189,8 +189,6 @@ public:
 
 	Qt_Surface* DisplayFormat();
 
-	int hasAlphaChannel = -1;
-
 	inline uint32_t PixelAt(int x, int y) const
 	{
 		return m_image.pixel(x, y);

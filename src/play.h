@@ -106,12 +106,6 @@ extern int checksolution(void);
  */
 extern void setpedanticmode(int v);
 
-/* Slow down the game clock by the given factor. Used for debugging
- * purposes.
- */
-extern int setmudsuckingfactor(int mud);
-
-
 #ifdef __cplusplus
 }
 #endif

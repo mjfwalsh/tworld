@@ -429,7 +429,7 @@ static char *readconfigfile(fileinfo *file, gameseries *series)
 	n = sizeof buf - 1;
 	if (!filegetline(file, buf, &n, "invalid configuration file"))
 		return NULL;
-	if (sscanf(buf, "file = %[^\n\r]", datfilename) != 1) {
+	if (sscanf(buf, "file = %99[^\n\r]", datfilename) != 1) {
 		fileerr(file, "bad filename in configuration file");
 		return NULL;
 	}
@@ -444,7 +444,7 @@ static char *readconfigfile(fileinfo *file, gameseries *series)
 		for (p = buf ; isspace(*p) ; ++p) ;
 		if (!*p || *p == '#')
 			continue;
-		if (sscanf(buf, "%[^= \t] = %s", name, value) != 2) {
+		if (sscanf(buf, "%99[^= \t] = %99s", name, value) != 2) {
 			fileerr(file, "invalid configuration file syntax");
 			return NULL;
 		}

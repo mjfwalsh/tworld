@@ -9,10 +9,6 @@
 
 #include	"defs.h"
 
-/* Create a fresh PRNG.
- */
-extern prng createprng(void);
-
 /* Mark an existing PRNG as beginning a new sequence.
  */
 extern void resetprng(prng *gen);
@@ -28,11 +24,6 @@ extern void restartprng(prng *gen, unsigned long initial);
 /* Return a random integer between zero and three, inclusive.
  */
 extern int random4(prng *gen);
-
-/* Randomly select one of the three integer arguments as the return
- * value.
- */
-extern int randomof3(prng *gen, int a, int b, int c);
 
 /* Randomly permute an array of three integers.
  */
