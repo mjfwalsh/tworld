@@ -22,7 +22,6 @@
 #include	"fileio.h"
 #include	"timer.h"
 #include	"sdlsfx.h"
-#include	"res.h"
 
 /* History of levelsets in order of last used date/time.
  */

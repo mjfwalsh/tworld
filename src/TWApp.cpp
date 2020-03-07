@@ -14,12 +14,10 @@
 #include "oshw.h"
 #include "res.h"
 #include "err.h"
+#include "fileio.h"
 
 #include <QClipboard>
-#include <QDir>
-#include <QStandardPaths>
 
-#include <string.h>
 #include <stdlib.h>
 
 TileWorldApp* g_pApp = 0;
@@ -55,11 +53,11 @@ void eventupdate(int wait)
  */
 bool TileWorldApp::Initialize()
 {
-	// set the application name - needed by InitDirs
+	// set the application name - needed by initdirs
 	setApplicationName("Tile World");
 
 	// setup the directories - needed by settings and history
-	InitDirs();
+	initdirs();
 
 	// load history
 	loadhistory();
@@ -115,98 +113,9 @@ void copytoclipboard(char const *text)
 	pClipboard->setText(text);
 }
 
-const char *getdir(int t)
-{
-	return g_pApp->GetDir(t);
-}
-
-const char *TileWorldApp::GetDir(int t)
-{
-	switch(t) {
-	case RESDIR:
-		return appResDir;
-	case SERIESDIR:
-		return userSetsDir;
-	case USER_SERIESDATDIR:
-		return userDataDir;
-	case GLOBAL_SERIESDATDIR:
-		return appDataDir;
-	case SOLUTIONDIR:
-		return userSolDir;
-	case SETTINGSDIR:
-		return userDir;
-	case NULLDIR:
-	default:
-		return NULL;
-	}
-}
-
-
-void TileWorldApp::InitDirs()
-{
-	auto checkDir = [](QString d)
-	{
-		QDir dir(d);
-		if (!dir.exists() && !dir.mkpath(".")) {
-			die("Unable to create folder %s", d.toUtf8().constData());
-		}
-	};
-
-	// Get the app resources
-	QString appRootDir = QApplication::applicationDirPath();
-	#if defined Q_OS_OSX
-	QDir appShareDir(appRootDir + "/../Resources");
-	#elif defined Q_OS_UNIX
-	QDir appShareDir(appRootDir + "/../share/tworld");
-	#endif
-
-	#if defined Q_OS_UNIX
-	if (appShareDir.exists()) appRootDir = appShareDir.path();
-	#endif
-
-	// change pwd to appRootDir
-	QDir::setCurrent(appRootDir);
-
-	// these folders should already exist
-	QString appResDirQ =  QString(appRootDir + "/res");
-	QString appDataDirQ =  QString(appRootDir + "/data");
-
-	// set user directory
-	QString userDirQ = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-	checkDir(userDirQ);
-
-	// ~/Library/Application Support/Tile World/sets
-	QString userSetsDirQ = QString(userDirQ + "/sets");
-	checkDir(userSetsDirQ);
-
-	// ~/Library/Application Support/Tile World/data
-	QString userDataDirQ = QString(userDirQ + "/data");
-	checkDir(userDataDirQ);
-
-	// ~/Library/Application Support/Tile World/solutions
-	QString userSolDirQ = QString(userDirQ + "/solutions");
-	checkDir(userSolDirQ);
-
-	// translate QString to const char*
-	x_cmalloc(appResDir, appResDirQ.length() + 1);
-	x_cmalloc(userSetsDir, userSetsDirQ.length() + 1);
-	x_cmalloc(userDataDir, userDataDirQ.length() + 1);
-	x_cmalloc(appDataDir, appDataDirQ.length() + 1);
-	x_cmalloc(userSolDir, userSolDirQ.length() + 1);
-	x_cmalloc(userDir, userDirQ.length() + 1);
-
-	strcpy(appResDir, appResDirQ.toUtf8().constData());
-	strcpy(userSetsDir, userSetsDirQ.toUtf8().constData());
-	strcpy(userDataDir, userDataDirQ.toUtf8().constData());
-	strcpy(appDataDir, appDataDirQ.toUtf8().constData());
-	strcpy(userSolDir, userSolDirQ.toUtf8().constData());
-	strcpy(userDir, userDirQ.toUtf8().constData());
-}
-
 void TileWorldApp::ExitTWorld()
 {
-	// These function need to called from here as they
-	// need to access TileWorldApp::GetDir
+	// These functions should only be run when exiting gracefully
 	savesettings();
 	savehistory();
 

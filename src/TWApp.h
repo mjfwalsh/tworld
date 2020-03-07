@@ -17,17 +17,7 @@ public:
 	~TileWorldApp();
 
 	void ExitTWorld();
-	void InitDirs();
-	const char *GetDir(int t);
 	bool Initialize();
-
-private:
-	char *appResDir;
-	char *userSetsDir;
-	char *userDataDir;
-	char *appDataDir;
-	char *userSolDir;
-	char *userDir;
 };
 
 

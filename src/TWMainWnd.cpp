@@ -14,6 +14,7 @@
 #include "state.h"
 #include "play.h"
 #include "oshw.h"
+#include "fileio.h"
 #include "err.h"
 #include "help.h"
 #include "timer.h"
@@ -94,7 +95,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
 	// resdir
-	QString appResDir(g_pApp->GetDir(RESDIR));
+	QString appResDir(getdir(RESDIR));
 
 	// load style sheet
 	QFile File(appResDir + "/stylesheet.qss");
@@ -1137,12 +1138,12 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 	// save for use on display
 	m_sLevelPackName = sSetName;
 
-	dataDir.setPath(g_pApp->GetDir(GLOBAL_SERIESDATDIR));
+	dataDir.setPath(getdir(GLOBAL_SERIESDATDIR));
 	sFilePath = dataDir.filePath(sSetName + ".ccx");
 	sFile.setFileName(sFilePath);
 
 	if(!sFile.exists()) {
-		dataDir.setPath(g_pApp->GetDir(USER_SERIESDATDIR));
+		dataDir.setPath(getdir(USER_SERIESDATDIR));
 		sFilePath = dataDir.filePath(sSetName + ".ccx");
 	}
 

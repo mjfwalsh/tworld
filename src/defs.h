@@ -88,13 +88,13 @@ enum {
 /* enum for different directories
  */
 enum {
-	NULLDIR, // no dir
 	RESDIR,
 	SERIESDIR,
 	USER_SERIESDATDIR,
 	GLOBAL_SERIESDATDIR,
 	SOLUTIONDIR,
-	SETTINGSDIR
+	SETTINGSDIR,
+	NUMBER_OF_DIRS
 };
 
 /* File I/O structure.

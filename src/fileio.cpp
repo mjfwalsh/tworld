@@ -1,8 +1,12 @@
-/* fileio.c: Simple file/directory access functions with error-handling.
+/* fileio.cpp: Simple file/directory access functions with error-handling.
  *
- * Copyright (C) 2001-2017 by Brian Raiter and Eric Schmidt, under the
+ * Copyright (C) 2001-2020 by Brian Raiter, Eric Schmidt, and Michael Walsh. Licensed under the
  * GNU General Public License. No warranty. See COPYING for details.
  */
+
+#include	<QDir>
+#include	<QApplication>
+#include	<QStandardPaths>
 
 #include	<stdio.h>
 #include	<stdlib.h>
@@ -10,9 +14,11 @@
 #include	<errno.h>
 #include	<dirent.h>
 #include	<sys/stat.h>
+#include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"
-#include	"res.h"
+
+static char *dirs[NUMBER_OF_DIRS];
 
 /* The function used to display error messages relating to file I/O.
  */
@@ -266,6 +272,13 @@ int filewriteint32(fileinfo *file, unsigned long val32, char const *msg)
  * Directory-handling functions.
  */
 
+/* Access a dir path.
+ */
+const char *getdir(int t)
+{
+	return dirs[t];
+}
+
 /* Return TRUE if name contains a path but is not a directory itself.
  */
 int haspathname(char const *name)
@@ -288,8 +301,8 @@ char *getpathforfileindir(int dirInt, char const *filename)
 {
 	char       *path;
 	int		m, n;
-
-	char const *dir = getdir(dirInt);
+	char const *dir;
+	dir = getdir(dirInt);
 
 	if (haspathname(filename)) {
 		die("getpathforfileindir: path passed as filename %s", filename);
@@ -317,7 +330,7 @@ int openfileindir(fileinfo *file, int dirInt, char const *filename,
 	char const *name = getpathforfileindir(dirInt, filename);
 
 	if (!file->name) {
-		x_malloc(file->name, strlen(filename) + 1);
+		x_cmalloc(file->name, strlen(filename) + 1);
 		strcpy(file->name, filename);
 		file->dir = dirInt;
 	}
@@ -333,7 +346,8 @@ int openfileindir(fileinfo *file, int dirInt, char const *filename,
  */
 int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 {
-	const char *dir = getdir(dirInt);
+	const char *dir;
+	dir = getdir(dirInt);
 
 	char	       *filename = NULL;
 	DIR		       *dp;
@@ -349,7 +363,7 @@ int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 	while ((dent = readdir(dp))) {
 		if (dent->d_name[0] == '.')
 			continue;
-		x_alloc(filename, strlen(dent->d_name) + 1);
+		x_cmalloc(filename, strlen(dent->d_name) + 1);
 		strcpy(filename, dent->d_name);
 		r = (*filecallback)(filename, data);
 		if (r < 0)
@@ -362,4 +376,67 @@ int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 		free(filename);
 	closedir(dp);
 	return TRUE;
+}
+
+/* Save a dir path.
+ */
+static void savedir(int dirInt, const char *dirPath, int dirPathLength)
+{
+	x_cmalloc(dirs[dirInt], dirPathLength);
+	strcpy(dirs[dirInt], dirPath);
+}
+
+/* Initialise the directories using Qt standard paths
+ */
+void initdirs()
+{
+	auto checkDir = [](QString d)
+	{
+		QDir dir(d);
+		if (!dir.exists() && !dir.mkpath(".")) {
+			die("Unable to create folder %s", d.toUtf8().constData());
+		}
+	};
+
+	// Get the app resources
+	QString appRootDir = QApplication::applicationDirPath();
+	#if defined Q_OS_OSX
+	QDir appShareDir(appRootDir + "/../Resources");
+	#elif defined Q_OS_UNIX
+	QDir appShareDir(appRootDir + "/../share/tworld");
+	#endif
+
+	#if defined Q_OS_UNIX
+	if (appShareDir.exists()) appRootDir = appShareDir.path();
+	#endif
+
+	// change pwd to appRootDir
+	QDir::setCurrent(appRootDir);
+
+	// these folders should already exist
+	QString appResDirQ =  QString(appRootDir + "/res");
+	QString appDataDirQ =  QString(appRootDir + "/data");
+
+	// set user directory
+	QString userDirQ = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	checkDir(userDirQ);
+
+	// ~/Library/Application Support/Tile World/sets
+	QString userSetsDirQ = QString(userDirQ + "/sets");
+	checkDir(userSetsDirQ);
+
+	// ~/Library/Application Support/Tile World/data
+	QString userDataDirQ = QString(userDirQ + "/data");
+	checkDir(userDataDirQ);
+
+	// ~/Library/Application Support/Tile World/solutions
+	QString userSolDirQ = QString(userDirQ + "/solutions");
+	checkDir(userSolDirQ);
+
+	savedir(RESDIR, appResDirQ.toUtf8().constData(), appResDirQ.length() + 1);
+	savedir(SERIESDIR, userSetsDirQ.toUtf8().constData(), userSetsDirQ.length() + 1);
+	savedir(USER_SERIESDATDIR, userDataDirQ.toUtf8().constData(), userDataDirQ.length() + 1);
+	savedir(GLOBAL_SERIESDATDIR, appDataDirQ.toUtf8().constData(), appDataDirQ.length() + 1);
+	savedir(SOLUTIONDIR, userSolDirQ.toUtf8().constData(), userSolDirQ.length() + 1);
+	savedir(SETTINGSDIR, userDirQ.toUtf8().constData(), userDirQ.length() + 1);
 }

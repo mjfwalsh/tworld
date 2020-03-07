@@ -13,6 +13,14 @@
 extern "C" {
 #endif
 
+/* Initialise the directories using Qt standard paths
+ */
+extern void initdirs();
+
+/* function to access app dir
+ */
+extern const char *getdir(int t);
+
 /* Reset a fileinfo structure to indicate no file.
  */
 extern void clearfileinfo(fileinfo *file);
