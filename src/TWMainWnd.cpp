@@ -107,6 +107,8 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 
 	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );
 
+	// initalise blank mouseinfo status before applying event filter
+	mouseinfo.state = 0;
 	g_pApp->installEventFilter(this);
 
 	connect( m_pTblList, SIGNAL(activated(const QModelIndex&)), this, SLOT(OnListItemActivated(const QModelIndex&)) );
@@ -762,13 +764,6 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 	QMessageBox msgBox(this);
 
 	if (nCompleted > 0)	 { // Success
-		const char* szMsg;
-		if (m_bReplay) {
-			szMsg = "Alright!";
-		} else {
-			szMsg = getmessage(MessageWin, "You won!");
-		}
-
 		QString sText;
 		QTextStream strm(&sText);
 		strm.setLocale(m_locale);
@@ -778,7 +773,13 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		if (!sAuthor.isEmpty())
 			strm << "by " << sAuthor;
 
-		strm << "<hr><br><big><b>" << szMsg << "</b></big><br>";
+		strm << "<hr><br><big><b>";
+		if (m_bReplay) {
+			strm << "Alright!";
+		} else {
+			strm << QString::fromStdString(getmessage(MessageWin, "You won!"));
+		}
+		strm << "</b></big><br>";
 
 		if (!m_bReplay) {
 			if (m_bTimedLevel && m_nBestTime != TIME_NIL) {
@@ -841,7 +842,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 			msgBox.setIcon(QMessageBox::Warning);
 			msgBox.setWindowTitle("Replay Failed");
 		} else {
-			const char* szMsg;
+			std::string szMsg;
 			if (bTimeout) {
 				szMsg = getmessage(MessageTime, "You ran out of time.");
 			} else {
@@ -849,7 +850,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 			}
 
 			msgBox.setTextFormat(Qt::PlainText);
-			msgBox.setText(szMsg);
+			msgBox.setText(QString::fromStdString(szMsg));
 			// On Windows, using setIcon with QMessageBox::Warning causes the corresponding
 			// system sound to play. Using setIconPixmap avoids this. But avoid doing this
 			// on Linux as it can produce a style warning.

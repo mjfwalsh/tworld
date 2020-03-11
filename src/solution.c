@@ -666,7 +666,6 @@ void clearsolutions(gameseries *series)
 	series->solheadersize = 0;
 	series->solheaderflags = 0;
 	fileclose(&series->savefile, NULL);
-	clearfileinfo(&series->savefile);
 }
 
 /*

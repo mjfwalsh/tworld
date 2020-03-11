@@ -8,6 +8,8 @@
 #define HEADER_messages_h_
 
 #ifdef __cplusplus
+	#include <string>
+
 	#define OSHW_EXTERN extern "C"
 #else
 	#define OSHW_EXTERN extern
@@ -22,7 +24,11 @@ enum
 };
 
 OSHW_EXTERN int loadmessagesfromfile(char const *filename);
-OSHW_EXTERN char const *getmessage(int type, char const *alt);
+
+#ifdef __cplusplus
+std::string getmessage(int type, std::string alt);
+#endif
+
 
 #undef OSHW_EXTERN
 

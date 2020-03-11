@@ -392,6 +392,7 @@ void freeseriesdata(gameseries *series)
 	series->savefilename = NULL;
 	series->gsflags = 0;
 	series->solheaderflags = 0;
+	series->mapfiledir = 0;
 
 	for (n = 0, game = series->games ; n < series->count ; ++n, ++game) {
 		free(game->leveldata);
@@ -562,7 +563,7 @@ static int getseriesfile(char const *filename, void *data)
 		if(!f) warn("cannot use %s: %s unavailable", filename, datfilename);
 
 		fileclose(&series->mapfile, NULL);
-		clearfileinfo(&series->mapfile);
+
 		if (f) {
 			x_cmalloc(series->mapfilename, strlen(datfilename) + 1);
 			strcpy(series->mapfilename, datfilename);
@@ -602,7 +603,7 @@ static int getmapfile(char const *filename, void *data)
 	s.ruleset = Ruleset_None;
 	f = readseriesheader(&s);
 	fileclose(&file, NULL);
-	clearfileinfo(&file);
+
 	if (f) {
 		mfinfovector *v = &sdata->mfinfo;
 		mapfileinfo key;

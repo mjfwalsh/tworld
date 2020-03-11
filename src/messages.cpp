@@ -24,7 +24,6 @@ using std::ifstream;
 using std::find;
 using std::getline;
 using std::istringstream;
-using std::strcpy;
 using std::string;
 using std::vector;
 
@@ -91,7 +90,7 @@ int loadmessagesfromfile(char const *filename)
 	return TRUE;
 }
 
-char const* getmessage(int type, char const* alt)
+std::string getmessage(int type, std::string alt)
 {
 	if (type < 0 || type >= MessageTypeCount || typeindex[type].size() == 0)
 		return alt;
@@ -103,9 +102,6 @@ char const* getmessage(int type, char const* alt)
 	if(messages[mnum].empty()){
 		return alt;
 	} else {
-		char *x;
-		x_cmalloc(x, messages[mnum].length() + 1);
-		strcpy(x, messages[mnum].c_str());
-		return x;
+		return messages[mnum];
 	}
 }

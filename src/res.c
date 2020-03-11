@@ -43,6 +43,7 @@ static void LoadImages()
 	if(!loadtileset(fp, TRUE)) {
 		die(fp, "no valid tilesets found");
 	}
+	free(fp);
 }
 
 /* Load all of the sound resources.
@@ -55,7 +56,9 @@ static int addSound(int i, const char *file)
 	strcat(fp, "/");
 	strcat(fp, file);
 
-	return loadsfxfromfile(i, fp);
+	int rv = loadsfxfromfile(i, fp);
+	free(fp);
+	return rv;
 }
 
 static int LoadSounds()
@@ -115,8 +118,7 @@ int loadgameresources(int ruleset)
 	currentRuleset = ruleset;
 	LoadImages();
 	if (LoadSounds() == 0) setaudiosystem(FALSE);
-	//return TRUE;
-	return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
+	return TRUE;
 }
 
 /* Parse the rc file and load the font and color scheme. FALSE is returned

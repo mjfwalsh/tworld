@@ -254,23 +254,21 @@ static void clearunslist(void)
  */
 int loadunslistfromfile(char const *filename)
 {
-	fileinfo	file = {0};
+	fileinfo	file;
 
 	if(!initialised) {
 		atexit(clearunslist);
 		initialised = 1;
 	}
 
-	if (openfileindir(&file, RESDIR, filename, "r", NULL)) {
-		readunslist(&file);
-		fileclose(&file, NULL);
-	}
-	if (!haspathname(filename)) {
-		clearfileinfo(&file);
-		if (openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
-			readunslist(&file);
-			fileclose(&file, NULL);
+	clearfileinfo(&file);
+	if (!openfileindir(&file, RESDIR, filename, "r", NULL)) {
+		if (!openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
+			return FALSE;
 		}
 	}
+
+	readunslist(&file);
+	fileclose(&file, NULL);
 	return TRUE;
 }

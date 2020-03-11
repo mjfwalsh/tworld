@@ -13,10 +13,8 @@
 	#define OSHW_EXTERN extern
 #endif
 
-/* Parse the rc file and initialize the resources that are needed at
- * the start of the program (i.e., the font and color settings).
- * FALSE is returned if the rc file contained errors or if a resource
- * could not be loaded.
+/* Initialize the resources that are needed at the start of the program
+ * FALSE is returned if a resource could not be loaded.
  */
 OSHW_EXTERN int initresources();
 

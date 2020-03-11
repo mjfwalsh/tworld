@@ -31,6 +31,10 @@ int fileerr_(char const *cfile, unsigned long lineno,
 		errmsg_(file->name ? file->name : "file error",
 			errno ? strerror(errno) : msg);
 	}
+	if (file->alloc) {
+		free(file->name);
+		clearfileinfo(file);
+	}
 	return FALSE;
 }
 
@@ -43,9 +47,9 @@ int fileerr_(char const *cfile, unsigned long lineno,
 void clearfileinfo(fileinfo *file)
 {
 	file->name = NULL;
-	free(file->name);
 	file->fp = NULL;
 	file->alloc = FALSE;
+	file->dir = -1;
 }
 
 /* Hack to get around MinGW (really msvcrt.dll) not supporting 'x' modifier
@@ -82,8 +86,7 @@ void fileclose(fileinfo *file, char const *msg)
 	}
 	if (file->alloc) {
 		free(file->name);
-		file->name = NULL;
-		file->alloc = FALSE;
+		clearfileinfo(file);
 	}
 }
 
@@ -304,14 +307,10 @@ char *getpathforfileindir(int dirInt, char const *filename)
 	char const *dir;
 	dir = getdir(dirInt);
 
-	if (haspathname(filename)) {
-		die("getpathforfileindir: path passed as filename %s", filename);
-	}
-
 	m = strlen(filename);
 	n = strlen(dir);
 
-	x_cmalloc(path, m + n + 1);
+	x_cmalloc(path, m + n + 2);
 	memcpy(path, dir, n);
 	path[n++] = '/';
 	memcpy(path + n, filename, m + 1);
@@ -327,9 +326,10 @@ char *getpathforfileindir(int dirInt, char const *filename)
 int openfileindir(fileinfo *file, int dirInt, char const *filename,
 	char const *mode, char const *msg)
 {
-	char const *name = getpathforfileindir(dirInt, filename);
+	char *name = getpathforfileindir(dirInt, filename);
 
 	if (!file->name) {
+		file->alloc = TRUE;
 		x_cmalloc(file->name, strlen(filename) + 1);
 		strcpy(file->name, filename);
 		file->dir = dirInt;
@@ -337,6 +337,7 @@ int openfileindir(fileinfo *file, int dirInt, char const *filename,
 
 	errno = 0;
 	file->fp = FOPEN(name, mode);
+	free(name);
 	if (file->fp) return TRUE;
 	return fileerr(file, msg);
 }
@@ -349,7 +350,6 @@ int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 	const char *dir;
 	dir = getdir(dirInt);
 
-	char	       *filename = NULL;
 	DIR		       *dp;
 	struct dirent      *dent;
 	int			r;
@@ -357,23 +357,23 @@ int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 	if (!(dp = opendir(dir))) {
 		fileinfo tmp;
 		tmp.name = (char*)dir;
+		tmp.alloc = TRUE;
 		return fileerr(&tmp, "couldn't access directory");
 	}
 
 	while ((dent = readdir(dp))) {
 		if (dent->d_name[0] == '.')
 			continue;
+
+		char *filename;
 		x_cmalloc(filename, strlen(dent->d_name) + 1);
 		strcpy(filename, dent->d_name);
+
 		r = (*filecallback)(filename, data);
-		if (r < 0)
-			break;
-		else if (r > 0)
-			filename = NULL;
+		free(filename);
+		if (r < 0) break;
 	}
 
-	if (filename)
-		free(filename);
 	closedir(dp);
 	return TRUE;
 }
@@ -386,10 +386,21 @@ static void savedir(int dirInt, const char *dirPath, int dirPathLength)
 	strcpy(dirs[dirInt], dirPath);
 }
 
+/* free stuff
+ */
+static void shutdown()
+{
+	for(int i = 0; i < NUMBER_OF_DIRS; i++) {
+		free(dirs[i]);
+	}
+}
+
 /* Initialise the directories using Qt standard paths
  */
 void initdirs()
 {
+	atexit(shutdown);
+
 	auto checkDir = [](QString d)
 	{
 		QDir dir(d);
