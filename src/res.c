@@ -124,13 +124,15 @@ int loadgameresources(int ruleset)
 /* Parse the rc file and load the font and color scheme. FALSE is returned
  * if an error occurs.
  */
-int initresources()
+void initresources()
 {
 	resPath = getdir(RESDIR);
 	resPathLen = strlen(resPath) + FILENAME_LEN;
 	resPathLen *= sizeof(char *);
 	resPathLen += 2;
 
-	return loadunslistfromfile("unslist.txt") && loadmessagesfromfile("messages.txt");
+	loadmessagesfromfile("messages.txt");
+
+	loadunslistfromfile("unslist.txt");
 }
 

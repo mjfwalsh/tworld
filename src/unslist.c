@@ -252,7 +252,7 @@ static void clearunslist(void)
  * filename does not contain a path, then the function looks for the
  * file in the resource directory and the user's save directory.
  */
-int loadunslistfromfile(char const *filename)
+void loadunslistfromfile(char const *filename)
 {
 	fileinfo	file;
 
@@ -264,11 +264,11 @@ int loadunslistfromfile(char const *filename)
 	clearfileinfo(&file);
 	if (!openfileindir(&file, RESDIR, filename, "r", NULL)) {
 		if (!openfileindir(&file, SETTINGSDIR, filename, "r", NULL)) {
-			return FALSE;
+			errmsg(filename, "Failed to load list of unsolvable levels");
+			return;
 		}
 	}
 
 	readunslist(&file);
 	fileclose(&file, NULL);
-	return TRUE;
 }

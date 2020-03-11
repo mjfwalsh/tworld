@@ -19,7 +19,7 @@
  * filename does not contain a path, then the function looks for the
  * file in the resource directory and the user's save directory.
  */
-OSHW_EXTERN int loadunslistfromfile(char const *filename);
+OSHW_EXTERN void loadunslistfromfile(char const *filename);
 
 /* Look up all the levels in the given series, and mark the ones that
  * appear in the list of unsolvable levels by initializing the

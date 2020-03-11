@@ -93,10 +93,7 @@ bool TileWorldApp::Initialize()
 	}
 
 	// initial setup of resource system
-	if (!initresources()) {
-		errmsg(NULL, "failed to initialise resources");
-		return false;
-	}
+	initresources();
 
 	return true;
 }

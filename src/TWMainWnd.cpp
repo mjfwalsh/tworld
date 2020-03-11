@@ -777,7 +777,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		if (m_bReplay) {
 			strm << "Alright!";
 		} else {
-			strm << QString::fromStdString(getmessage(MessageWin, "You won!"));
+			strm << getmessage(MessageWin, "You won!");
 		}
 		strm << "</b></big><br>";
 
@@ -842,7 +842,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 			msgBox.setIcon(QMessageBox::Warning);
 			msgBox.setWindowTitle("Replay Failed");
 		} else {
-			std::string szMsg;
+			QString szMsg;
 			if (bTimeout) {
 				szMsg = getmessage(MessageTime, "You ran out of time.");
 			} else {
@@ -850,7 +850,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 			}
 
 			msgBox.setTextFormat(Qt::PlainText);
-			msgBox.setText(QString::fromStdString(szMsg));
+			msgBox.setText(szMsg);
 			// On Windows, using setIcon with QMessageBox::Warning causes the corresponding
 			// system sound to play. Using setIconPixmap avoids this. But avoid doing this
 			// on Linux as it can produce a style warning.
