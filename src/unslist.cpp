@@ -1,4 +1,4 @@
-/* unslist.c: Functions to manage the list of unsolvable levels.
+/* unslist.cpp: Functions to manage the list of unsolvable levels.
  *
  * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
  * License. No warranty. See COPYING for details.
@@ -71,7 +71,7 @@ static int storestring(char const *str)
 	len = strlen(str) + 1;
 	if (stringsused + len > stringsallocated) {
 		stringsallocated = stringsallocated ? 2 * stringsallocated : 256;
-		x_alloc(strings, stringsallocated);
+		x_type_alloc(char, strings, stringsallocated);
 		if (!stringsused) {
 			*strings = '\0';
 			++stringsused;
@@ -102,7 +102,7 @@ static int lookupsetname(char const *name, int add)
 
 	if (namescount >= namesallocated) {
 		namesallocated = namesallocated ? 2 * namesallocated : 8;
-		x_alloc(names, namesallocated * sizeof *names);
+		x_type_alloc(int, names, namesallocated * sizeof *names);
 	}
 	names[namescount] = storestring(name);
 	return names[namescount++];
@@ -119,7 +119,7 @@ static int addtounslist(int setid, int levelnum,
 {
 	if (listcount == listallocated) {
 		listallocated = listallocated ? listallocated * 2 : 16;
-		x_alloc(unslist, listallocated * sizeof *unslist);
+		x_type_alloc(unslistentry, unslist, listallocated * sizeof *unslist);
 	}
 	unslist[listcount].setid = setid;
 	unslist[listcount].levelnum = levelnum;
