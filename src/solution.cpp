@@ -1,4 +1,4 @@
-/* solution.c: Functions for reading and writing the solution files.
+/* solution.cpp: Functions for reading and writing the solution files.
  *
  * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
  * License. No warranty. See COPYING for details.
@@ -160,7 +160,7 @@ void initmovelist(actlist *list)
 {
 	if (!list->allocated || !list->list) {
 		list->allocated = 16;
-		x_alloc(list->list, list->allocated * sizeof *list->list);
+		x_type_alloc(action, list->list, list->allocated * sizeof *list->list);
 	}
 	list->count = 0;
 }
@@ -171,7 +171,7 @@ void addtomovelist(actlist *list, action move)
 {
 	if (list->count >= list->allocated) {
 		list->allocated *= 2;
-		x_alloc(list->list, list->allocated * sizeof *list->list);
+		x_type_alloc(action, list->list, list->allocated * sizeof *list->list);
 	}
 	list->list[list->count++] = move;
 }
@@ -358,7 +358,7 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 		size += !isorthogonal(move->dir) ? 5
 			: move[0].when - move[-1].when <= (1 << 3) ? 1
 			: move[0].when - move[-1].when <= (1 << 11) ? 2 : 4;
-	data = malloc(size);
+	data = (unsigned char *)malloc(size);
 	if (!data) {
 		errmsg(NULL, "failed to record level %d solution:"
 			" out of memory", game->number);
@@ -441,7 +441,7 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 	}
 
 	game->solutionsize = size;
-	game->solutiondata = realloc(data, size);
+	game->solutiondata = (unsigned char *)realloc(data, size);
 	if (!game->solutiondata)
 		game->solutiondata = data;
 	return TRUE;
@@ -542,7 +542,7 @@ static int opensolutionfile(fileinfo *file, char const *datname, int writable)
 					&& tolower(datname[n - 2]) == 'a'
 					&& tolower(datname[n - 1]) == 't')
 			n -= 4;
-		x_alloc(buf, n + 5);
+		x_type_alloc(char, buf, n + 5);
 		memcpy(buf, datname, n);
 		memcpy(buf + n, ".tws", 5);
 		filename = buf;
@@ -688,11 +688,11 @@ typedef	struct solutiondata {
  */
 static int getsolutionfile(char const *filename, void *data)
 {
-	solutiondata       *sdata = data;
+	solutiondata       *sdata = (solutiondata *)data;
 
 	if (!memcmp(filename, sdata->prefix, sdata->prefixlen)) {
 		int n = strlen(filename) + 1;
-		x_alloc(sdata->pool, sdata->allocated + n + 2);
+		x_type_alloc(char, sdata->pool, sdata->allocated + n + 2);
 		sdata->pool[sdata->allocated++] = '1';
 		sdata->pool[sdata->allocated++] = '-';
 		memcpy(sdata->pool + sdata->allocated, filename, n);
@@ -735,8 +735,8 @@ int createsolutionfilelist(gameseries const *series, int morethanone,
 		return FALSE;
 	}
 
-	filelist = malloc(s.count * sizeof *filelist);
-	table->items = malloc((s.count + 1) * sizeof *table->items);
+	filelist = (const char **)malloc(s.count * sizeof *filelist);
+	table->items = (const char **)malloc((s.count + 1) * sizeof *table->items);
 	if (!filelist || !table->items)
 		memerrexit();
 	table->rows = s.count + 1;
