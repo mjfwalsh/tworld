@@ -1,4 +1,4 @@
-/* tworld.c: The top-level module.
+/* tworld.cpp: The top-level module.
  *
  * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag,
  * Eric Schmidt and Michael Walsh
@@ -336,7 +336,7 @@ int loadhistory(void)
 			continue;
 
 		++historycount;
-		x_alloc(historylist, historycount * sizeof *historylist);
+		x_type_alloc(history, historylist, historycount * sizeof *historylist);
 		h = historylist + historycount - 1;
 
 		sprintf(h->name, "%.*s", (int)(sizeof h->name - 1), hname);
@@ -372,7 +372,7 @@ static void updatehistory(char const *name, char const *passwd, int number)
 
 	if (i == historycount) {
 		++historycount;
-		x_alloc(historylist, historycount * sizeof *historylist);
+		x_type_alloc(history, historylist, historycount * sizeof *historylist);
 	}
 
 	for (j = i; j > 0; --j) {
@@ -974,8 +974,8 @@ size_t _alloc = 0; \
 _alloc += 3 + strlen(heading); \
 for (int _n = 0; _n < (count); ++_n) \
 	_alloc += 3 + strlen(L(data)[_n] R); \
-char const **_ptrs = malloc(((count) + 1) * sizeof *_ptrs); \
-char *_textheap = malloc(_alloc); \
+char const **_ptrs = (const char **)malloc(((count) + 1) * sizeof *_ptrs); \
+char *_textheap = (char *)malloc(_alloc); \
 if (!_ptrs || !_textheap) memerrexit(); \
 \
 int _n = 0; \
