@@ -299,8 +299,11 @@ int sfxinitialize()
 {
 	atexit(shutdown);
 
-	_setvolume(getintsetting("volume"));
+	// turn on sound system
 	setaudiosystem(TRUE);
+
+	// set volume
+	_setvolume(getintsetting("volume"));
 
 	return TRUE;
 }
