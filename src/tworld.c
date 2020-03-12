@@ -854,7 +854,7 @@ static int runcurrentlevel(gamespec *gs)
 
 	setplaypausebutton(TRUE);
 
-	name = gs->series.filebase;
+	name = gs->series.name;
 
 	updatehistory(name,
 		gs->series.games[gs->currentgame].passwd,
@@ -1044,7 +1044,7 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 		else {
 			tablespec gstable;
 			PRODUCE_SINGLE_COLUMN_TABLE(gstable, "Profile",
-				chosengsl->list, chosengsl->count, series->list[,].filebase);
+				chosengsl->list, chosengsl->count, series->list[,].name);
 			int m = 0;
 			for (;;) {
 				f = displaylist(&gstable, &m, LIST_SERIES);
@@ -1093,7 +1093,7 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 		if (defaultseries) {
 			n = series->count;
 			while (n)
-				if (!strcmp(series->list[--n].filebase, defaultseries)) {
+				if (!strcmp(series->list[--n].name, defaultseries)) {
 					founddefault = TRUE;
 					break;
 				}
@@ -1123,15 +1123,15 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 	freeserieslist(series->list, series->count,
 		series->mflist, series->mfcount, &series->table);
 
-	setstringsetting("selectedseries", gs->series.filebase);
+	setstringsetting("selectedseries", gs->series.name);
 
 	if (!readseriesfile(&gs->series)) {
-		errmsg(gs->series.filebase, "cannot read data file");
+		errmsg(gs->series.name, "cannot read data file");
 		freeseriesdata(&gs->series);
 		return -1;
 	}
 	if (gs->series.count < 1) {
-		errmsg(gs->series.filebase, "no levels found in data file");
+		errmsg(gs->series.name, "no levels found in data file");
 		freeseriesdata(&gs->series);
 		return -1;
 	}
@@ -1142,7 +1142,7 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 	gs->currentgame = -1;
 	gs->melindacount = 0;
 
-	findlevelfromhistory(gs, gs->series.filebase);
+	findlevelfromhistory(gs, gs->series.name);
 
 	if (gs->currentgame < 0) {
 		gs->currentgame = 0;
@@ -1211,7 +1211,7 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 int tworld()
 {
 	gamespec	spec;
-	char	lastseries[sizeof spec.series.filebase];
+	char	lastseries[sizeof spec.series.name];
 	int		f;
 
 	atexit(shutdowngamestate);
@@ -1237,7 +1237,7 @@ int tworld()
 		savehistory();
 		popsubtitle();
 		cleardisplay();
-		strcpy(lastseries, spec.series.filebase);
+		strcpy(lastseries, spec.series.name);
 		freeseriesdata(&spec.series);
 		f = choosegame(&spec, lastseries);
 	};

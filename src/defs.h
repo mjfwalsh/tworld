@@ -284,7 +284,6 @@ typedef	struct gameseries {
 	char		*savefilename;	/* non-default name for said file */
 	int			solheaderflags;	/* solution flags (none defined yet) */
 	int			solheadersize;	/* size of extra solution header */
-	char		filebase[256];	/* the level set's filename */
 	char		name[256];	/* the filename minus any path */
 	unsigned char	solheader[256];	/* extra solution header bytes */
 } gameseries;

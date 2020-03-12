@@ -341,7 +341,7 @@ int readseriesfile(gameseries *series)
 	if (series->gsflags & GSF_ALLMAPSREAD)
 		return TRUE;
 	if (series->count <= 0) {
-		errmsg(series->filebase, "cannot read from empty level set");
+		errmsg(series->name, "cannot read from empty level set");
 		return FALSE;
 	}
 
@@ -406,8 +406,7 @@ void freeseriesdata(gameseries *series)
 
 	series->ruleset = Ruleset_None;
 	series->gsflags = 0;
-		*series->filebase = '\0';
-		*series->name = '\0';
+	*series->name = '\0';
 }
 
 /*
@@ -501,8 +500,8 @@ static int getseriesfile(char const *filename, void *data)
 	gameseries	       *series;
 	unsigned long	magic;
 	char	       *datfilename;
-	int			f;
 
+	// check is file is a dac file
 	clearfileinfo(&file);
 	if (!openfileindir(&file, sdata->curdir, filename, "rb", "unknown error"))
 		return 0;
@@ -516,62 +515,60 @@ static int getseriesfile(char const *filename, void *data)
 		fileclose(&file, NULL);
 		return 0;
 	}
+	fileclose(&file, NULL);
 
+	//  allocate memory if necessary
 	if (sdata->count >= sdata->allocated) {
 		sdata->allocated = sdata->count + 1;
 		x_alloc(sdata->list, sdata->allocated * sizeof *sdata->list);
 	}
 	series = sdata->list + sdata->count;
+
+	// init a blank gameseries struct
 	series->mapfilename = NULL;
 	series->mapfiledir = 0;
 	clearfileinfo(&series->savefile);
+	clearfileinfo(&series->mapfile);
 	series->savefilename = NULL;
 	series->gsflags = 0;
 	series->solheaderflags = 0;
 	series->allocated = 0;
+	series->mapfiledir = 0;
 	series->count = 0;
 	series->final = 0;
 	series->ruleset = Ruleset_None;
 	series->games = NULL;
-	sprintf(series->filebase, "%.*s", (int)(sizeof series->filebase - 1),
-		filename);
+
+	// set the file name
 	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1), filename);
 
-	f = FALSE;
-
-	fileclose(&file, NULL);
+	// read the dac file contents
 	if (!openfileindir(&file, sdata->curdir, filename, "r", "unknown error"))
 		return 0;
-	clearfileinfo(&series->mapfile);
-	free(series->mapfilename);
-	series->mapfilename = NULL;
-	series->mapfiledir = 0;
 	datfilename = readconfigfile(&file, series);
 	fileclose(&file, NULL);
-	if (datfilename) {
-		int datdir;
-		if (openfileindir(&series->mapfile, GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)) {
-			f = readseriesheader(series);
-			datdir = GLOBAL_SERIESDATDIR;
-		} else {
-			datdir = USER_SERIESDATDIR;
-			if (openfileindir(&series->mapfile, USER_SERIESDATDIR, datfilename, "rb", NULL)) {
-				f = readseriesheader(series);
-			}
-		}
+	if (!datfilename) return 0;
 
-		if(!f) warn("cannot use %s: %s unavailable", filename, datfilename);
-
-		fileclose(&series->mapfile, NULL);
-
-		if (f) {
-			x_cmalloc(series->mapfilename, strlen(datfilename) + 1);
-			strcpy(series->mapfilename, datfilename);
-			series->mapfiledir = datdir;
-		}
+	// search for the corresponding dat file and open it
+	int datdir;
+	if (!openfileindir(&series->mapfile, datdir = GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)
+			&& !openfileindir(&series->mapfile, datdir = USER_SERIESDATDIR, datfilename, "rb", NULL)) {
+		warn("cannot use %s: %s is missing", filename, datfilename);
+		return 0;
 	}
-	if (f)
+
+	// process dat file header
+	if(readseriesheader(series)) {
+		x_cmalloc(series->mapfilename, strlen(datfilename) + 1);
+		strcpy(series->mapfilename, datfilename);
+		series->mapfiledir = datdir;
 		++sdata->count;
+	} else {
+		warn("cannot use %s: %s unavailable", filename, datfilename);
+	}
+
+	fileclose(&series->mapfile, NULL);
+
 	return 0;
 }
 
@@ -608,8 +605,7 @@ static int getmapfile(char const *filename, void *data)
 		mfinfovector *v = &sdata->mfinfo;
 		mapfileinfo key;
 		key.filename = (char*)filename;
-		mapfileinfo *existingmf =
-			bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
+		mapfileinfo *existingmf = bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
 		if (existingmf) {
 			existingmf->path = sdata->curdir;
 			existingmf->levelcount = s.count;
@@ -706,10 +702,7 @@ static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, in
 	series->final = 0;
 	series->ruleset = ruleset;
 	series->games = NULL;
-	sprintf(series->filebase, "%.*s", (int)(sizeof series->filebase - 1),
-		newdacname);
-	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1),
-		newdacname);
+	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1), newdacname);
 
 	x_cmalloc(series->mapfilename, strlen(datfile->filename));
 	strcpy(series->mapfilename, datfile->filename);
@@ -791,13 +784,12 @@ static int getseriesfiles(gameseries ** list, int *count,
 	}
 
 	removefilenamesuffixes(&s.mfinfo);
-	qsort(s.mfinfo.buf, s.mfinfo.count,
-		sizeof *s.mfinfo.buf, compare_mapfileinfo);
+	qsort(s.mfinfo.buf, s.mfinfo.count, sizeof *s.mfinfo.buf, compare_mapfileinfo);
 
-		*list = s.list;
-		*count = s.count;
-		*mflist = s.mfinfo.buf;
-		*mfcount = s.mfinfo.count;
+	*list = s.list;
+	*count = s.count;
+	*mflist = s.mfinfo.buf;
+	*mfcount = s.mfinfo.count;
 
 	return TRUE;
 }

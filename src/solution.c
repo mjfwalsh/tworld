@@ -566,7 +566,7 @@ int readsolutions(gameseries *series)
 	if (!series->savefile.name)
 		series->savefile.name = series->savefilename;
 	if ((!series->savefile.name && (series->gsflags & GSF_NODEFAULTSAVE))
-		|| !opensolutionfile(&series->savefile, series->filebase, FALSE)) {
+		|| !opensolutionfile(&series->savefile, series->name, FALSE)) {
 		series->solheaderflags = 0;
 		series->solheadersize = 0;
 		return TRUE;
@@ -627,7 +627,7 @@ int savesolutions(gameseries *series)
 		series->savefile.name = series->savefilename;
 	if (!series->savefile.name && (series->gsflags & GSF_NODEFAULTSAVE))
 		return TRUE;
-	if (!opensolutionfile(&series->savefile, series->filebase, TRUE))
+	if (!opensolutionfile(&series->savefile, series->name, TRUE))
 		return FALSE;
 
 	if (!writesolutionheader(&series->savefile, series->ruleset,
