@@ -9,6 +9,12 @@
 
 #include	"state.h"
 
+#ifdef __cplusplus
+	#define OSHW_EXTERN extern "C"
+#else
+	#define OSHW_EXTERN extern
+#endif
+
 /* Turning macros.
  */
 #define	left(dir)	((((dir) << 1) | ((dir) >> 3)) & 15)
@@ -29,13 +35,13 @@ struct gamelogic {
 
 /* The available game logic engines.
  */
-extern gamelogic *lynxlogicstartup(void);
-extern gamelogic *mslogicstartup(void);
+OSHW_EXTERN gamelogic *lynxlogicstartup(void);
+OSHW_EXTERN gamelogic *mslogicstartup(void);
 
 /* The high simluation fidelity flag: if true, the simulation should
  * forgo "standard play" in favor of being as true as possible to the
  * original source material.
  */
-extern int	pedanticmode;
+OSHW_EXTERN int	pedanticmode;
 
 #endif

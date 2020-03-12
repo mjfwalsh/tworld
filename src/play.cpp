@@ -1,4 +1,4 @@
-/* play.c: Top-level game-playing functions.
+/* play.cpp: Top-level game-playing functions.
  *
  * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag,
  * Eric Schmidt and Michael Walsh.
