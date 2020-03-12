@@ -1,4 +1,4 @@
-/* help.c: Displaying online help.
+/* help.cpp: Displaying online help.
  *
  * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag,
  * Eric Schmidt and Michael Walsh.

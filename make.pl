@@ -149,7 +149,7 @@ sub compile_file {
 	}
 
 	# compile time stamp
-	if($input_file eq 'src/help.c') {
+	if($input_file eq 'src/help.cpp') {
 		my $time_stamp = strftime('%d %B %Y', localtime);
 		$time_stamp =~ s/^0+//;
 
@@ -194,8 +194,8 @@ sub compile {
 	if(!-d 'obj') { mkdir 'obj'; }
 
 	# compile
-	my @files_to_compile = qw|src/tworld.cpp src/series.cpp src/play.cpp src/encoding.c src/solution.cpp
-	src/res.c src/lxlogic.c src/mslogic.c src/unslist.cpp src/messages.cpp src/help.c
+	my @files_to_compile = qw|src/tworld.cpp src/series.cpp src/play.cpp src/encoding.cpp src/solution.cpp
+	src/res.c src/lxlogic.c src/mslogic.c src/unslist.cpp src/messages.cpp src/help.cpp
 	src/score.cpp src/random.c src/settings.cpp src/fileio.cpp src/err.c src/tile.c
 	src/timer.cpp src/sdlsfx.c src/oshwbind.cpp src/CCMetaData.cpp src/TWDisplayWidget.cpp
 	src/TWProgressBar.cpp src/TWMainWnd.ui src/TWMainWnd.cpp src/TWMainWnd.h
@@ -246,7 +246,7 @@ sub linker {
 
 	# now that we're linking, compile help for timestamp if we haven't already done so
 	if($need_updated_time_stamp) {
-		compile_file('src/help.c', 1);
+		compile_file('src/help.cpp', 1);
 	}
 
 	# run link command

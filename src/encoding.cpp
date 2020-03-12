@@ -1,4 +1,4 @@
-/* encoding.c: Functions to read the level data.
+/* encoding.cpp: Functions to read the level data.
  *
  * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
  * License. No warranty. See COPYING for details.
