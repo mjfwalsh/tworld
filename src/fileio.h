@@ -63,7 +63,7 @@ extern int filewriteint32(fileinfo *file, unsigned long val32,
 /* Read size bytes from the given file and return the bytes in a
  * newly allocated buffer.
  */
-extern void *filereadbuf(fileinfo *file, unsigned long size, char const *msg);
+extern unsigned char *filereadbuf(fileinfo *file, unsigned long size, char const *msg);
 
 /* Read one full line from fp and store the first len characters,
  * including any trailing newline. len receives the length of the line

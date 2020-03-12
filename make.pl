@@ -194,7 +194,7 @@ sub compile {
 	if(!-d 'obj') { mkdir 'obj'; }
 
 	# compile
-	my @files_to_compile = qw|src/tworld.c src/series.c src/play.c src/encoding.c src/solution.c
+	my @files_to_compile = qw|src/tworld.c src/series.cpp src/play.c src/encoding.c src/solution.c
 	src/res.c src/lxlogic.c src/mslogic.c src/unslist.c src/messages.cpp src/help.c
 	src/score.cpp src/random.c src/settings.cpp src/fileio.cpp src/err.c src/tile.c
 	src/timer.cpp src/sdlsfx.c src/oshwbind.cpp src/CCMetaData.cpp src/TWDisplayWidget.cpp

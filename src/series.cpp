@@ -39,7 +39,7 @@ static void addgameseries(intlist *g, int gameseriesindex, int ruleset)
 {
 	g += ruleset;
 	++g->count;
-	x_alloc(g->list, g->count * sizeof g->list);
+	x_type_alloc(int, g->list, g->count * sizeof g->list);
 	g->list[g->count-1] = gameseriesindex;
 }
 
@@ -49,7 +49,7 @@ static void addgameseries(intlist *g, int gameseriesindex, int ruleset)
 static void addlevelfile(mfinfovector *v, char *filename, int levelcount, int path)
 {
 	++v->count;
-	x_alloc(v->buf, v->count * sizeof *v->buf);
+	x_type_alloc(mapfileinfo, v->buf, v->count * sizeof *v->buf);
 	v->buf[v->count-1].filename = filename;
 	for (int n = 0; n < Ruleset_Count; ++n) {
 		v->buf[v->count-1].sfilelst[n].list = NULL;
@@ -353,7 +353,7 @@ int readseriesfile(gameseries *series)
 			return FALSE;
 	}
 
-	x_alloc(series->games, series->count * sizeof *series->games);
+	x_type_alloc(gamesetup, series->games, series->count * sizeof *series->games);
 	memset(series->games + series->allocated, 0,
 		(series->count - series->allocated) * sizeof *series->games);
 	series->allocated = series->count;
@@ -520,7 +520,7 @@ static int getseriesfile(char const *filename, void *data)
 	//  allocate memory if necessary
 	if (sdata->count >= sdata->allocated) {
 		sdata->allocated = sdata->count + 1;
-		x_alloc(sdata->list, sdata->allocated * sizeof *sdata->list);
+		x_type_alloc(gameseries, sdata->list, sdata->allocated * sizeof *sdata->list);
 	}
 	series = sdata->list + sdata->count;
 
@@ -605,7 +605,7 @@ static int getmapfile(char const *filename, void *data)
 		mfinfovector *v = &sdata->mfinfo;
 		mapfileinfo key;
 		key.filename = (char*)filename;
-		mapfileinfo *existingmf = bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
+		mapfileinfo *existingmf = (mapfileinfo *)bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
 		if (existingmf) {
 			existingmf->path = sdata->curdir;
 			existingmf->levelcount = s.count;
@@ -689,7 +689,7 @@ static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, in
 
 	if (s->count >= s->allocated) {
 		s->allocated = s->count + 1;
-		x_alloc(s->list, s->allocated * sizeof *s->list);
+		x_type_alloc(gameseries, s->list, s->allocated * sizeof *s->list);
 	}
 	gameseries *series = s->list + s->count;
 	clearfileinfo(&series->mapfile);
@@ -757,7 +757,7 @@ static int getseriesfiles(gameseries ** list, int *count,
 	seriesdata	s;
 
 	s.mfinfo.buf = NULL;
-	x_alloc(s.mfinfo.buf, sizeof *s.mfinfo.buf); /* Ensure buf not null */
+	x_type_alloc(mapfileinfo, s.mfinfo.buf, sizeof *s.mfinfo.buf); /* Ensure buf not null */
 	s.mfinfo.count = 0;
 	s.list = NULL;
 	s.allocated = 0;
@@ -832,8 +832,8 @@ int createserieslist(gameseries **pserieslist, int *pcount,
 
 	rulesetname[Ruleset_Lynx] = "Lynx";
 	rulesetname[Ruleset_MS] = "MS";
-	ptrs = malloc((listsize + 1) * 2 * sizeof *ptrs);
-	textheap = malloc((listsize + 1) * (col + 32));
+	ptrs = (const char **)malloc((listsize + 1) * 2 * sizeof *ptrs);
+	textheap = (char *)malloc((listsize + 1) * (col + 32));
 	if (!ptrs || !textheap)
 		memerrexit();
 
@@ -866,7 +866,7 @@ void getseriesfromlist(gameseries *dest, gameseries const *list, int index)
 
 	*dest = list[index];
 	n = strlen(list[index].mapfilename) + 1;
-	if (!(dest->mapfilename = malloc(n)))
+	if (!(dest->mapfilename = (char *)malloc(n)))
 		memerrexit();
 	memcpy(dest->mapfilename, list[index].mapfilename, n);
 }

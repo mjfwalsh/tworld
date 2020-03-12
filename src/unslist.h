@@ -27,7 +27,7 @@ OSHW_EXTERN void loadunslistfromfile(char const *filename);
  * their unsolvable fields explicitly set to NULL. The number of
  * unsolvable levels is returned.
  */
-extern int markunsolvablelevels(gameseries *series);
+OSHW_EXTERN int markunsolvablelevels(gameseries *series);
 
 #undef OSHW_EXTERN
 

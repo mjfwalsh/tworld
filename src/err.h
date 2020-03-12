@@ -11,6 +11,7 @@
  */
 #define	memerrexit()	(die("out of memory"))
 #define	x_alloc(p, n)	{void *oldp = p; if(!(p = realloc(p, n))) {free(oldp);memerrexit();}}
+#define	x_type_alloc(t, p, n)	{t *oldp = p; if(!(p = (t *)realloc(p, n))) {free(oldp);memerrexit();}}
 #define	x_malloc(p, n)	if(!(p = malloc(n))) memerrexit();
 #define	x_cmalloc(p, n)	if(!(p = (char *)malloc(n))) memerrexit();
 

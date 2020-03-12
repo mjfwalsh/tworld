@@ -128,11 +128,11 @@ int fileread(fileinfo *file, void *data, unsigned long size, char const *msg)
 
 /* Read size bytes from the given file into a newly allocated buffer.
  */
-void *filereadbuf(fileinfo *file, unsigned long size, char const *msg)
+unsigned char *filereadbuf(fileinfo *file, unsigned long size, char const *msg)
 {
-	void       *buf;
+	unsigned char       *buf;
 
-	if (!(buf = malloc(size))) {
+	if (!(buf = (unsigned char *)malloc(size))) {
 		fileerr(file, msg);
 		return NULL;
 	}
