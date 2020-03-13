@@ -36,8 +36,8 @@
  * for a given id.
  */
 typedef struct tilemap {
-	TW_Surface *opaque[16];		/* one or more opaque images */
-	TW_Surface *transp[16];		/* one or more transparent images */
+	Qt_Surface *opaque[16];		/* one or more opaque images */
+	Qt_Surface *transp[16];		/* one or more transparent images */
 	char celcount;				/* count of animated images */
 	char transpsize;			/* flags for the transparent size */
 } tilemap;
@@ -192,7 +192,7 @@ static tileidinfo const tileidmap[NTILES] = {
 
 /* The heap of remembered surfaces.
  */
-static TW_Surface **surfaceheap = NULL;
+static Qt_Surface **surfaceheap = NULL;
 static int surfacesused = 0;
 static int surfacesallocated = 0;
 
@@ -202,15 +202,15 @@ static tilemap tileptr[NTILES];
 
 /* An internal buffer surface.
  */
-static TW_Surface *opaquetile = NULL;
+static Qt_Surface *opaquetile = NULL;
 
 /* Add the given surface to the heap of remembered surfaces.
  */
-static void remembersurface(TW_Surface * surface)
+static void remembersurface(Qt_Surface * surface)
 {
 	if (surfacesused >= surfacesallocated) {
 		surfacesallocated += 256;
-		x_type_alloc(TW_Surface *, surfaceheap, surfacesallocated * sizeof *surfaceheap);
+		x_type_alloc(Qt_Surface *, surfaceheap, surfacesallocated * sizeof *surfaceheap);
 	}
 	surfaceheap[surfacesused++] = surface;
 }
@@ -223,7 +223,7 @@ static void freerememberedsurfaces(void)
 
 	for (n = 0; n < surfacesused; ++n)
 		if (surfaceheap[n])
-			TW_FreeSurface(surfaceheap[n]);
+			delete surfaceheap[n];
 	free(surfaceheap);
 	surfaceheap = NULL;
 	surfacesused = 0;
@@ -241,7 +241,7 @@ static int settilesize(int w, int h)
 	}
 	geng.wtile = w;
 	geng.htile = h;
-	opaquetile = TW_NewSurface(w, h, FALSE);
+	opaquetile = new Qt_Surface(w, h, FALSE);
 	remembersurface(opaquetile);
 	return TRUE;
 }
@@ -253,17 +253,17 @@ static int settilesize(int w, int h)
 /* Overlay a transparent tile image into the given tile-sized buffer.
  * index supplies the index of the transparent image.
  */
-static void addtransparenttile(TW_Surface * dest, int id, int index)
+static void addtransparenttile(Qt_Surface * dest, int id, int index)
 {
-	TW_Surface *src;
-	TW_Rect rect = { 0, 0, geng.wtile, geng.htile };
+	Qt_Surface *src;
+	TW_Rect rect(0, 0, geng.wtile, geng.htile);
 
 	src = tileptr[id].transp[index];
 	if (tileptr[id].transpsize & SIZE_EXTLEFT)
 		rect.x += geng.wtile;
 	if (tileptr[id].transpsize & SIZE_EXTUP)
 		rect.y += geng.htile;
-	TW_BlitSurface(src, &rect, dest, NULL);
+	Qt_Surface::BlitSurface(src, &rect, dest, NULL);
 }
 
 /* Return a surface for the given creature or animation. rect is
@@ -273,10 +273,10 @@ static void addtransparenttile(TW_Surface * dest, int id, int index)
  * appropriately when the creature's image is larger than a single
  * tile.
  */
-static TW_Surface *getcreatureimage(TW_Rect *rect,
+static Qt_Surface *getcreatureimage(TW_Rect *rect,
 					 int id, int dir, int moving, int frame)
 {
-	TW_Surface *s;
+	Qt_Surface *s;
 	tilemap const *q;
 	int n;
 
@@ -321,9 +321,9 @@ static TW_Surface *getcreatureimage(TW_Rect *rect,
  * pixels, the image returned is constructed in a private surface). If
  * rect is not NULL, the width and height fields are filled in.
  */
-static TW_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
+static Qt_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
 {
-	TW_Surface *dest;
+	Qt_Surface *dest;
 	int nt, nb;
 
 	if (!tileptr[top].celcount)
@@ -338,7 +338,7 @@ static TW_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
 	if (bot == Nothing || bot == Empty || !tileptr[top].transp[0]) {
 		if (tileptr[top].opaque[nt])
 			return tileptr[top].opaque[nt];
-		TW_BlitSurface(tileptr[Empty].opaque[0], NULL, opaquetile, NULL);
+		Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], NULL, opaquetile, NULL);
 		addtransparenttile(opaquetile, top, nt);
 		return opaquetile;
 	}
@@ -348,9 +348,9 @@ static TW_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
 	nb = (timerval + 1) % tileptr[bot].celcount;
 	dest = tileptr[Overlay_Buffer].opaque[0];
 	if (tileptr[bot].opaque[nb]) {
-		TW_BlitSurface(tileptr[bot].opaque[nb], NULL, dest, NULL);
+		Qt_Surface::BlitSurface(tileptr[bot].opaque[nb], NULL, dest, NULL);
 	} else {
-		TW_BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
+		Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
 		addtransparenttile(dest, bot, nb);
 	}
 	addtransparenttile(dest, top, nt);
@@ -368,18 +368,17 @@ static TW_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
 
 /* Copy a single tile to the position (xpos, ypos).
  */
-static void drawfulltile(TW_Surface * dest, int xpos, int ypos,
-	TW_Surface * src)
+static void drawfulltile(Qt_Surface * dest, int xpos, int ypos,
+	Qt_Surface * src)
 {
-	TW_Rect rect = { xpos, ypos, src->w, src->h };
+	TW_Rect rect(xpos, ypos, src->w, src->h);
 
-	if (TW_BlitSurface(src, NULL, dest, &rect))
-		warn("%s", TW_GetError());
+	Qt_Surface::BlitSurface(src, NULL, dest, &rect);
 }
 
 /* Draw a tile of the given id at the position (xpos, ypos).
  */
-void drawfulltileid(TW_Surface * dest, int xpos, int ypos, int id)
+void drawfulltileid(Qt_Surface * dest, int xpos, int ypos, int id)
 {
 	drawfulltile(dest, xpos, ypos, gettileimage(id));
 }
@@ -387,7 +386,7 @@ void drawfulltileid(TW_Surface * dest, int xpos, int ypos, int id)
 /* Copy a tile to the position (xpos, ypos) but clipped to the
  * displayloc rectangle.
  */
-static void drawclippedtile(TW_Rect const *rect, TW_Surface * src,
+static void drawclippedtile(TW_Rect const *rect, Qt_Surface * src,
 	TW_Rect displayloc)
 {
 	int xoff, yoff, w, h;
@@ -408,10 +407,9 @@ static void drawclippedtile(TW_Rect const *rect, TW_Surface * src,
 		return;
 
 	{
-		TW_Rect srect = { xoff, yoff, w, h };
-		TW_Rect drect = { rect->x + xoff, rect->y + yoff, 0, 0 };
-		if (TW_BlitSurface(src, &srect, geng.screen, &drect))
-			warn("%s", TW_GetError());
+		TW_Rect srect(xoff, yoff, w, h);
+		TW_Rect drect(rect->x + xoff, rect->y + yoff, 0, 0);
+		Qt_Surface::BlitSurface(src, &srect, geng.screen, &drect);
 	}
 }
 
@@ -425,7 +423,7 @@ extern int pedanticmode;
 void displaymapview(gamestate const *state, TW_Rect displayloc)
 {
 	TW_Rect rect;
-	TW_Surface *s;
+	Qt_Surface *s;
 	creature const *cr;
 	int xdisppos, ydisppos;
 	int xorigin, yorigin;
@@ -498,44 +496,35 @@ void displaymapview(gamestate const *state, TW_Rect displayloc)
 /* Create a new surface containing a single tile without any
  * transparent pixels.
  */
-static TW_Surface *extractopaquetile(TW_Surface * src,
+static Qt_Surface *extractopaquetile(Qt_Surface * src,
 	int ximg, int yimg, int wimg, int himg)
 {
-	TW_Surface *dest;
-	TW_Rect rect;
+	Qt_Surface *dest = new Qt_Surface(wimg, himg, FALSE);
+	TW_Rect rect(ximg, yimg, wimg, himg);
 
-	rect.x = ximg;
-	rect.y = yimg;
-	rect.w = wimg;
-	rect.h = himg;
-	dest = TW_NewSurface(rect.w, rect.h, FALSE);
-	TW_BlitSurface(src, &rect, dest, NULL);
+	Qt_Surface::BlitSurface(src, &rect, dest, NULL);
 	return dest;
 }
 
 /* Create a new surface containing a single tile with transparent
  * pixels, as indicated by the given color key.
  */
-static TW_Surface *extractkeyedtile(TW_Surface * src,
+static Qt_Surface *extractkeyedtile(Qt_Surface * src,
 	int ximg, int yimg, int wimg, int himg, uint32_t transpclr)
 {
-	TW_Surface *dest;
-	TW_Surface *temp;
-	TW_Rect rect;
+	Qt_Surface *dest = new Qt_Surface(wimg, himg, TRUE);
+	Qt_Surface *temp;
 
-	dest = TW_NewSurface(wimg, himg, TRUE);
-	TW_FillRect(dest, NULL, TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT));
-	TW_SetColorKey(src, transpclr);
-	rect.x = ximg;
-	rect.y = yimg;
-	rect.w = dest->w;
-	rect.h = dest->h;
-	TW_BlitSurface(src, &rect, dest, NULL);
-	TW_ResetColorKey(src);
+	dest->FillRect(NULL, TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT));
+	src->SetColorKey(transpclr);
+	TW_Rect rect(ximg, yimg, dest->w, dest->h);
+
+	Qt_Surface::BlitSurface(src, &rect, dest, NULL);
+	src->ResetColorKey();
 
 	temp = dest;
-	dest = TW_DisplayFormat(temp);
-	TW_FreeSurface(temp);
+	dest = temp->DisplayFormat();
+	delete temp;
 	if (!dest)
 		die("%s", TW_GetError());
 	return dest;
@@ -545,28 +534,22 @@ static TW_Surface *extractkeyedtile(TW_Surface * src,
  * given transparent color are replaced with the corresponding pixels
  * from the empty tile.
  */
-static TW_Surface *extractemptytile(TW_Surface * src,
+static Qt_Surface *extractemptytile(Qt_Surface * src,
 	int ximg, int yimg, int wimg, int himg, uint32_t transpclr)
 {
-	TW_Surface *dest;
-	TW_Surface *temp;
-	TW_Rect rect;
-
-	dest = TW_NewSurface(wimg, himg, FALSE);
+	Qt_Surface *dest = new Qt_Surface(wimg, himg, FALSE);
+	Qt_Surface *temp;
 
 	if (tileptr[Empty].opaque[0])
-		TW_BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
-	TW_SetColorKey(src, transpclr);
-	rect.x = ximg;
-	rect.y = yimg;
-	rect.w = dest->w;
-	rect.h = dest->h;
-	TW_BlitSurface(src, &rect, dest, NULL);
-	TW_ResetColorKey(src);
+		Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
+	src->SetColorKey(transpclr);
+	TW_Rect rect(ximg, yimg, dest->w, dest->h);
+	Qt_Surface::BlitSurface(src, &rect, dest, NULL);
+	src->ResetColorKey();
 
 	temp = dest;
-	dest = TW_DisplayFormat(temp);
-	TW_FreeSurface(temp);
+	dest = temp->DisplayFormat();
+	delete temp;
 	if (!dest)
 		die("%s", TW_GetError());
 	return dest;
@@ -575,41 +558,37 @@ static TW_Surface *extractemptytile(TW_Surface * src,
 /* Create a new surface containing a single tile with transparent
  * pixels, as indicated by the mask tile.
  */
-static TW_Surface *extractmaskedtile(TW_Surface * src,
+static Qt_Surface *extractmaskedtile(Qt_Surface * src,
 	int ximg, int yimg, int wimg, int himg, int xmask, int ymask)
 {
-	TW_Surface *dest;
-	TW_Surface *temp;
-	TW_Rect rect;
+	Qt_Surface *temp;
+
 	unsigned char *d;
 	uint32_t transp, black;
 	int x, y;
+	TW_Rect rect(ximg, yimg, wimg, himg);
 
-	rect.x = ximg;
-	rect.y = yimg;
-	rect.w = wimg;
-	rect.h = himg;
-	dest = TW_NewSurface(rect.w, rect.h, TRUE);
-	TW_BlitSurface(src, &rect, dest, NULL);
+	Qt_Surface *dest = new Qt_Surface(rect.w, rect.h, TRUE);
+	Qt_Surface::BlitSurface(src, &rect, dest, NULL);
 
 	black = TW_MapRGB(0, 0, 0);
 	transp = TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT);
 
-	TW_SwitchSurfaceToImage(src);
-	TW_SwitchSurfaceToImage(dest);
+	src->SwitchToImage();
+	dest->SwitchToImage();
 
 	d = (uint8_t *) dest->pixels;
 	for (y = 0; y < dest->h; ++y) {
 		for (x = 0; x < dest->w; ++x) {
-			if (TW_PixelAt(src, xmask + x, ymask + y) == black)
+			if (src->PixelAt(xmask + x, ymask + y) == black)
 				((uint32_t *) d)[x] = transp;
 		}
 		d += dest->pitch;
 	}
 
 	temp = dest;
-	dest = TW_DisplayFormat(temp);
-	TW_FreeSurface(temp);
+	dest = temp->DisplayFormat();
+	delete temp;
 	if (!dest)
 		die("%s", TW_GetError());
 	return dest;
@@ -624,9 +603,9 @@ static TW_Surface *extractmaskedtile(TW_Surface * src,
  * in tiles that are allowed to have transparencies are made
  * transparent.
  */
-static int initsmalltileset(TW_Surface * tiles)
+static int initsmalltileset(Qt_Surface * tiles)
 {
-	TW_Surface *s;
+	Qt_Surface *s;
 	uint32_t magenta;
 
 	magenta = TW_MapRGB(255, 0, 255);
@@ -671,9 +650,9 @@ static int initsmalltileset(TW_Surface * tiles)
  * as transparent pixels. Then fill in the values of the tileptr
  * array, using tileidmap to identify the individual tile images.
  */
-static int initmaskedtileset(TW_Surface * tiles)
+static int initmaskedtileset(Qt_Surface * tiles)
 {
-	TW_Surface *s;
+	Qt_Surface *s;
 	int id, n;
 
 	for (n = 0; n < (int)(sizeof tileidmap / sizeof *tileidmap); ++n) {
@@ -719,8 +698,8 @@ static int initmaskedtileset(TW_Surface * tiles)
  * array at ptrs. transpclr indicates the color of the pixels to
  * replace with the corresponding pixels from the Empty tile.
  */
-static int extractopaquetileseq(TW_Surface * tiles, TW_Rect const *rect,
-	int count, TW_Surface ** ptrs, uint32_t transpclr)
+static int extractopaquetileseq(Qt_Surface * tiles, TW_Rect const *rect,
+	int count, Qt_Surface ** ptrs, uint32_t transpclr)
 {
 	int x, n;
 
@@ -738,8 +717,8 @@ static int extractopaquetileseq(TW_Surface * tiles, TW_Rect const *rect,
  * array at ptrs. transpclr indicates the color of the pixels to make
  * transparent.
  */
-static int extracttransptileseq(TW_Surface * tiles, TW_Rect const *rect,
-	int count, TW_Surface ** ptrs, uint32_t transpclr)
+static int extracttransptileseq(Qt_Surface * tiles, TW_Rect const *rect,
+	int count, Qt_Surface ** ptrs, uint32_t transpclr)
 {
 	int x, n;
 
@@ -760,7 +739,7 @@ static int extracttransptileseq(TW_Surface * tiles, TW_Rect const *rect,
  * return, the pointer at pd is updated to point to the first byte in
  * the buffer after the copied tile images.
  */
-static int extracttileimage(TW_Surface * tiles, int x, int y, int w, int h,
+static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 	int id, int shape, uint32_t transpclr)
 {
 	TW_Rect rect;
@@ -982,18 +961,18 @@ static void freetileset(void)
  * pointers to each tile image is stored in the appropriate field of
  * the tileptr array.
  */
-static int initlargetileset(TW_Surface * tiles)
+static int initlargetileset(Qt_Surface * tiles)
 {
 	TW_Rect *tilepos = NULL;
 	uint32_t transpclr;
 	int row, nextrow;
 	int n, x, y, w, h;
 
-	TW_SwitchSurfaceToImage(tiles);
+	tiles->SwitchToImage();
 
-	transpclr = TW_PixelAt(tiles, 1, 0);
+	transpclr = tiles->PixelAt(1, 0);
 	for (w = 1; w < tiles->w; ++w)
-		if (TW_PixelAt(tiles, w, 0) != transpclr)
+		if (tiles->PixelAt(w, 0) != transpclr)
 			break;
 	if (w == tiles->w) {
 		warn("Can't find tile separators");
@@ -1004,7 +983,7 @@ static int initlargetileset(TW_Surface * tiles)
 		return FALSE;
 	}
 	for (h = 1; h < tiles->h; ++h)
-		if (TW_PixelAt(tiles, 0, h) != transpclr)
+		if (tiles->PixelAt(0, h) != transpclr)
 			break;
 	--h;
 	if (h % 4 != 0) {
@@ -1033,7 +1012,7 @@ static int initlargetileset(TW_Surface * tiles)
 				w = 0;
 				break;
 			}
-			if (TW_PixelAt(tiles, x + w * geng.wtile, row) != transpclr)
+			if (tiles->PixelAt(x + w * geng.wtile, row) != transpclr)
 				break;
 		}
 		if (!w) {
@@ -1048,7 +1027,7 @@ static int initlargetileset(TW_Surface * tiles)
 					break;
 				}
 				nextrow += geng.htile;
-			} while (TW_PixelAt(tiles, 0, nextrow) == transpclr);
+			} while (tiles->PixelAt(0, nextrow) == transpclr);
 			if (!h) {
 				warn("incomplete tile set: missing %02X", tileidmap[n].id);
 				goto failure;
@@ -1109,10 +1088,9 @@ static int initlargetileset(TW_Surface * tiles)
  */
 int loadtileset(char const *filename, int complain)
 {
-	TW_Surface *tiles = NULL;
+	Qt_Surface *tiles = new Qt_Surface(filename);
 	int f, w, h;
 
-	tiles = TW_LoadBMP(filename);
 	if (!tiles) {
 		if (complain)
 			errmsg(filename, "cannot read bitmap: %s", TW_GetError());
@@ -1139,7 +1117,7 @@ int loadtileset(char const *filename, int complain)
 		f = FALSE;
 	}
 
-	TW_FreeSurface(tiles);
+	delete tiles;
 	return f;
 }
 

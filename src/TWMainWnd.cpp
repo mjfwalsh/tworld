@@ -168,8 +168,8 @@ TileWorldMainWnd::~TileWorldMainWnd()
 {
 	g_pApp->removeEventFilter(this);
 
-	TW_FreeSurface(m_pInvSurface);
-	TW_FreeSurface(m_pSurface);
+	delete m_pInvSurface;
+	delete m_pSurface;
 }
 
 
@@ -371,12 +371,12 @@ int creategamedisplay(void)
 
 bool TileWorldMainWnd::CreateGameDisplay()
 {
-	TW_FreeSurface(m_pSurface);
-	TW_FreeSurface(m_pInvSurface);
+	delete m_pSurface;
+	delete m_pInvSurface;
 
 	int w = NXTILES*geng.wtile, h = NYTILES*geng.htile;
-	m_pSurface = static_cast<Qt_Surface*>(TW_NewSurface(w, h, false));
-	m_pInvSurface = static_cast<Qt_Surface*>(TW_NewSurface(4*geng.wtile, 2*geng.htile, false));
+	m_pSurface = new Qt_Surface(w, h, false);
+	m_pInvSurface = new Qt_Surface(4*geng.wtile, 2*geng.htile, false);
 
 	// this sets the game and objects box
 	m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
@@ -807,10 +807,10 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 		msgBox.setTextFormat(Qt::RichText);
 		msgBox.setText(sText);
 
-		Qt_Surface* pSurface = static_cast<Qt_Surface*>(TW_NewSurface(geng.wtile, geng.htile, false));
+		Qt_Surface* pSurface = new Qt_Surface(geng.wtile, geng.htile, false);
 		drawfulltileid(pSurface, 0, 0, Exited_Chip);
 		msgBox.setIconPixmap(pSurface->GetPixmap());
-		TW_FreeSurface(pSurface);
+		delete pSurface;
 
 		msgBox.setWindowTitle(m_bReplay ? "Replay Completed" : "Level Completed");
 

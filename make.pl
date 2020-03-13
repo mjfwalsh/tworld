@@ -21,14 +21,11 @@ my $cmd;
 my $need_updated_time_stamp = 1;
 
 # windows vars
-my $compiler = $^O eq 'MSWin32' ? 'gcc' : 'cc';
 my $executable_name = $^O eq 'MSWin32' ? 'tworld.exe' : 'tworld';
 
 # compiler options
 my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
-my @c_base = ($compiler, '-std=gnu11');
-my @cpp_base = qw|c++ -std=gnu++11|;
-my @common_params = qw|-Wall -pedantic -DNDEBUG -O2 -I. -Werror|;
+my @params = qw|c++ -std=gnu++11 -Wall -pedantic -DNDEBUG -O2 -I. -Werror|;
 
 # set these later if we need them
 my @qt_opts;
@@ -85,16 +82,11 @@ sub compile_file {
 
 	my @check_files = ($input_file);
 
-	if($output_file =~ s/\.(c|cpp)$/.o/) {
+	if($output_file =~ s/\.cpp$/.o/) {
 		$action = "Compiling $output_file...";
 
 		# basic compiler params
-		if($1 eq 'c') {
-			push @args, @c_base;
-		} else {
-			push @args, @cpp_base;
-		}
-		push @args, @common_params;
+		push @args, @params;
 
 		# filter source code to find dependancies and sdl/qt requirements
 		my $r = filter_file($input_file);

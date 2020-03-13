@@ -16,13 +16,60 @@ genericglobals	geng;
 
 Qt_Surface::Qt_Surface()
 {
-	w = h = 0;
-	bytesPerPixel = 0;
-	pitch = 0;
-	pixels = 0;
-	m_bColorKeySet = false;
-	m_nColorKey = 0;
 }
+
+/* Create a fresh surface. If transparency is true, the surface is
+ * created with 32-bit pixels, so as to ensure a complete alpha
+ * channel. Otherwise, the surface is created with the same format as
+ * the screen.
+ */
+Qt_Surface::Qt_Surface(int w, int h, int bTransparent)
+{
+	if (bTransparent) {
+		QImage image(w, h, QImage::Format_ARGB32);
+		image.fill(0);
+		this->SetImage(image);
+	} else {
+		QPixmap pixmap(w, h);
+		pixmap.fill(Qt::black);
+		this->SetPixmap(pixmap);
+	}
+}
+
+
+/* Load the given bitmap file.
+ */
+Qt_Surface::Qt_Surface(const char* szFilename)
+{
+	QImage image(szFilename);
+	if (image.isNull())
+		return;
+
+	image = image.convertToFormat(QImage::Format_ARGB32);
+	// Doesn't seem to be necessary, but just in case...
+
+	this->SetImage(image);
+
+	// https://stackoverflow.com/questions/6157286/checking-if-a-qimage-has-an-alpha-channel
+	this->hasAlphaChannel = 0;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+	int bytes = image.sizeInBytes();
+#else
+	int bytes = image.byteCount();
+#endif
+	void* pixels = image.bits();
+	int i = 0;
+	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
+		if (qAlpha(*pixel) != UCHAR_MAX) {
+			this->hasAlphaChannel = 1;
+			break;
+		}
+		i++;
+	}
+}
+
+
 
 void Qt_Surface::Init(const QPaintDevice& dev)
 {
@@ -163,90 +210,6 @@ Qt_Surface* Qt_Surface::DisplayFormat()
 }
 
 
-/* Create a fresh surface. If transparency is true, the surface is
- * created with 32-bit pixels, so as to ensure a complete alpha
- * channel. Otherwise, the surface is created with the same format as
- * the screen.
- */
-TW_Surface* TW_NewSurface(int w, int h, int bTransparent)
-{
-	Qt_Surface* pSurface = new Qt_Surface();
-
-	if (bTransparent) {
-		QImage image(w, h, QImage::Format_ARGB32);
-		image.fill(0);
-		pSurface->SetImage(image);
-	} else {
-		QPixmap pixmap(w, h);
-		pixmap.fill(Qt::black);
-		pSurface->SetPixmap(pixmap);
-	}
-
-	return pSurface;
-}
-
-
-void TW_FreeSurface(TW_Surface* s)
-{
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	delete pSurface;
-}
-
-
-void TW_SwitchSurfaceToImage(TW_Surface* s)
-{
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	pSurface->SwitchToImage();
-}
-
-
-void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor)
-{
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(pDst);
-	pSurface->FillRect(pDstRect, nColor);
-}
-
-
-int TW_BlitSurface(TW_Surface* _pSrc, const TW_Rect* pSrcRect,
-	TW_Surface* _pDst, const TW_Rect* pDstRect)
-{
-	Qt_Surface* pDst = static_cast<Qt_Surface*>(_pDst);
-	Qt_Surface* pSrc = static_cast<Qt_Surface*>(_pSrc);
-
-	Qt_Surface::BlitSurface(pSrc, pSrcRect, pDst, pDstRect);
-	return 0;
-}
-
-
-void TW_SetColorKey(TW_Surface* s, uint32_t nColorKey)
-{
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	pSurface->SetColorKey(nColorKey);
-}
-
-void TW_ResetColorKey(TW_Surface* s)
-{
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	pSurface->ResetColorKey();
-}
-
-
-TW_Surface* TW_DisplayFormat(TW_Surface* s)
-{
-	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
-	return pSurface->DisplayFormat();
-}
-
-
-/* Return the color of the pixel at (x, y) on the given surface. (The
- * surface must be locked before calling this function.)
- */
-uint32_t TW_PixelAt(const TW_Surface* s, int x, int y)
-{
-	const Qt_Surface* pSurface = static_cast<const Qt_Surface*>(s);
-	return pSurface->PixelAt(x, y);
-}
-
 
 uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -259,40 +222,4 @@ uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	// TODO: for 8-bit
 	return qRgba(r, g, b, a);
-}
-
-
-/* Load the given bitmap file.
- */
-TW_Surface* TW_LoadBMP(const char* szFilename)
-{
-	QImage image(szFilename);
-	if (image.isNull())
-		return 0;
-
-	image = image.convertToFormat(QImage::Format_ARGB32);
-	// Doesn't seem to be necessary, but just in case...
-
-	Qt_Surface* pSurface = new Qt_Surface();
-	pSurface->SetImage(image);
-
-	// https://stackoverflow.com/questions/6157286/checking-if-a-qimage-has-an-alpha-channel
-	pSurface->hasAlphaChannel = 0;
-
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-	int bytes = image.sizeInBytes();
-#else
-	int bytes = image.byteCount();
-#endif
-	void* pixels = image.bits();
-	int i = 0;
-	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
-		if (qAlpha(*pixel) != UCHAR_MAX) {
-			pSurface->hasAlphaChannel = 1;
-			break;
-		}
-		i++;
-	}
-
-	return pSurface;
 }

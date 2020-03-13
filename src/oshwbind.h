@@ -17,12 +17,8 @@ struct gamestate;
 
 /* Constants
  */
+#define TW_ALPHA_TRANSPARENT 0
 
-enum
-{
-	TW_ALPHA_TRANSPARENT = 0,
-	TW_ALPHA_OPAQUE      = 255
-};
 
 /* The dimensions of the visible area of the map (in tiles).
  */
@@ -99,9 +95,7 @@ enum
 
 typedef struct TW_Rect
 {
-	int x, y;
-	int w, h;
-
+	int x, y, w, h;
 
 	TW_Rect() {}
 	TW_Rect(int _x, int _y, int _w, int _h) : x(_x), y(_y), w(_w), h(_h) {}
@@ -110,45 +104,17 @@ typedef struct TW_Rect
 } TW_Rect;
 
 
-typedef struct TW_Surface
-{
-	int w, h;
-	int bytesPerPixel;
-	int pitch;
-	void* pixels;
-	int hasAlphaChannel;
-} TW_Surface;
-
-/*
- * Values global to this module. All the globals are placed in here,
- * in order to minimize pollution of the main module's namespace.
- */
-typedef	struct genericglobals
-{
-	/*
-	 * Shared variables.
-	 */
-
-	short		wtile;		/* width of one tile in pixels */
-	short		htile;		/* height of one tile in pixels */
-	TW_Surface	       *screen;		/* the display */
-
-	/* Coordinates of the NW corner of the visible part of the map
-	 * (measured in quarter-tiles), or -1 if no map is currently visible.
-	 */
-	int			mapvieworigin;
-
-} genericglobals;
-
-/* generic module's structure of globals.
- */
-extern genericglobals geng;
-
-
-class Qt_Surface : public TW_Surface
+class Qt_Surface
 {
 public:
 	Qt_Surface();
+	Qt_Surface(int w, int h, int bTransparent);
+	Qt_Surface(const char* szFilename);
+
+	int w = 0;
+	int h = 0;
+	int pitch = 0;
+	void* pixels;
 
 	void SetPixmap(const QPixmap& pixmap);
 	void SetImage(const QImage& image);
@@ -183,38 +149,48 @@ private:
 	QPixmap m_pixmap;
 	QImage m_image;
 
-	bool m_bColorKeySet;
-	uint32_t m_nColorKey;
+	int bytesPerPixel = 0;
+	int hasAlphaChannel = -1;
+	bool m_bColorKeySet = false;
+	uint32_t m_nColorKey = 0;
 
 	void Init(const QPaintDevice& dev);
 	void InitImage();
 };
 
 
+/*
+ * Values global to this module. All the globals are placed in here,
+ * in order to minimize pollution of the main module's namespace.
+ */
+typedef	struct genericglobals
+{
+	/*
+	 * Shared variables.
+	 */
+
+	short		wtile;		/* width of one tile in pixels */
+	short		htile;		/* height of one tile in pixels */
+	Qt_Surface	       *screen;		/* the display */
+
+	/* Coordinates of the NW corner of the visible part of the map
+	 * (measured in quarter-tiles), or -1 if no map is currently visible.
+	 */
+	int			mapvieworigin;
+
+} genericglobals;
+
+/* generic module's structure of globals.
+ */
+extern genericglobals geng;
+
+
+
 /* Functions
  */
 
-extern TW_Surface* TW_NewSurface(int w, int h, int bTransparent);
-extern void TW_FreeSurface(TW_Surface* pSurface);
-
-extern void TW_SwitchSurfaceToImage(TW_Surface* pSurface);
-
-extern void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor);
-
-extern int TW_BlitSurface(TW_Surface* pSrc, const TW_Rect* pSrcRect,
-							   TW_Surface* pDst, const TW_Rect* pDstRect);
-extern void TW_SetColorKey(TW_Surface* pSurface, uint32_t nColorKey);
-extern void TW_ResetColorKey(TW_Surface* pSurface);
-
-extern TW_Surface* TW_DisplayFormat(TW_Surface* pSurface);
-
-extern uint32_t TW_PixelAt(const TW_Surface* pSurface, int x, int y);
-
 extern uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b);
 extern uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-
-extern TW_Surface* TW_LoadBMP(const char* szFilename);
-
 
 #define  TW_GetError()  "unspecified error"
 
@@ -232,7 +208,7 @@ extern void displaymapview(struct gamestate const *state, TW_Rect disploc);
 
 /* Draw a tile of the given id at the position (xpos, ypos).
  */
-extern void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id);
+extern void drawfulltileid(Qt_Surface *dest, int xpos, int ypos, int id);
 
 /* Initialisation function
  */
