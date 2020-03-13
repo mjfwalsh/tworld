@@ -8,21 +8,15 @@
 #ifndef	HEADER_series_h_
 #define	HEADER_series_h_
 
-#ifdef __cplusplus
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
-
 #include	"defs.h"
 
 /* Load all levels of the given series.
  */
-OSHW_EXTERN int readseriesfile(gameseries *series);
+extern int readseriesfile(gameseries *series);
 
 /* Release all resources associated with a gameseries structure.
  */
-OSHW_EXTERN void freeseriesdata(gameseries *series);
+extern void freeseriesdata(gameseries *series);
 
 /* Produce a list all available data files. pserieslist receives the
  * location of an array of gameseries structures, one per data file
@@ -36,20 +30,20 @@ OSHW_EXTERN void freeseriesdata(gameseries *series);
  * returned. FALSE is returned if no series files are found. An
  * unrecoverable error will cause the function to abort the program.
  */
-OSHW_EXTERN int createserieslist(gameseries **pserieslist,
+extern int createserieslist(gameseries **pserieslist,
 					int *pcount, mapfileinfo **pmflist, int *pmfcount,
 					tablespec *table);
 
 /* Make an independent copy of a single gameseries structure from
  * a list obtained from createserieslist().
  */
-OSHW_EXTERN void getseriesfromlist(gameseries *dest,
+extern void getseriesfromlist(gameseries *dest,
 				  gameseries const *list, int index);
 
 /* Free the memory used by the table created in createserieslist().
  * The pointers can be NULL.
  */
-OSHW_EXTERN void freeserieslist(gameseries *list, int count,
+extern void freeserieslist(gameseries *list, int count,
 			mapfileinfo *mflist, int mfcount,
 			tablespec *table);
 
@@ -60,7 +54,7 @@ OSHW_EXTERN void freeserieslist(gameseries *list, int count,
  * data could not be matched, or if it matched more than one level
  * (ugh).
  */
-OSHW_EXTERN int findlevelinseries(gameseries const *series,
+extern int findlevelinseries(gameseries const *series,
 				 int number, char const *passwd);
 
 #endif

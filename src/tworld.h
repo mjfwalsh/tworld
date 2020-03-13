@@ -9,12 +9,6 @@
 #ifndef	HEADER_tworld_h_
 #define	HEADER_tworld_h_
 
-#ifdef __cplusplus
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
-
 #include	"defs.h"
 
 enum { Play_None, Play_Normal, Play_Back, Play_Verify };
@@ -43,6 +37,6 @@ typedef	struct seriesdata {
 
 /* Load the levelset history.
  */
-OSHW_EXTERN int loadhistory(void);
+extern int loadhistory(void);
 
 #endif

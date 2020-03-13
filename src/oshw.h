@@ -15,19 +15,13 @@
 struct gamestate;
 struct gameseries;
 
-#ifdef __cplusplus
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
-
 /* Initialise the c stuff in tworld.c and play the game
  */
-OSHW_EXTERN int tworld(); // tworld.c
+extern int tworld(); // tworld.c
 
 /* Save history file
  */
-OSHW_EXTERN void savehistory(); // tworld.c
+extern void savehistory(); // tworld.c
 
 /*
  * Keyboard input functions.
@@ -36,20 +30,20 @@ OSHW_EXTERN void savehistory(); // tworld.c
 /* Turn keyboard repeat on or off. If enable is TRUE, the keys other
  * than the direction keys will repeat at the standard rate.
  */
-OSHW_EXTERN int setkeyboardrepeat(int enable); // TWMainWnd.cpp
+extern int setkeyboardrepeat(int enable); // TWMainWnd.cpp
 
 /* Alter the behavior of the keys used to indicate movement in the
  * game. If enable is TRUE, the direction keys repeat whenever the
  * program polls the keyboard. Otherwise, the direction keys do not
  * repeat until the program polls the keyboard three times.
  */
-OSHW_EXTERN int setkeyboardarrowsrepeat(int enable); // TWMainWnd.cpp
+extern int setkeyboardarrowsrepeat(int enable); // TWMainWnd.cpp
 
 /* Return the latest/current keystroke. If wait is TRUE and no
  * keystrokes are pending, the function blocks until a keystroke
  * arrives.
  */
-OSHW_EXTERN int input(int wait); // in.cpp
+extern int input(int wait); // in.cpp
 
 
 /*
@@ -60,17 +54,17 @@ OSHW_EXTERN int input(int wait); // in.cpp
  * game (e.g., sized according to the tiles and the font). FALSE is
  * returned on error.
  */
-OSHW_EXTERN int creategamedisplay(void); // TWMainWnd.cpp
+extern int creategamedisplay(void); // TWMainWnd.cpp
 
 /* Fill the display with the background color.
  */
-OSHW_EXTERN void cleardisplay(void); // TWMainWnd.cpp
+extern void cleardisplay(void); // TWMainWnd.cpp
 
 /* Display the current game state. timeleft and besttime provide the
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-OSHW_EXTERN int displaygame(struct gamestate const *state,
+extern int displaygame(struct gamestate const *state,
 				int timeleft, int besttime); // TWMainWnd.cpp
 
 /* Display a short message appropriate to the end of a level's game
@@ -81,7 +75,7 @@ OSHW_EXTERN int displaygame(struct gamestate const *state,
  * the program will wait for subsequent user input, otherwise the
  * command returned will be used as the next action.
  */
-OSHW_EXTERN int displayendmessage(int basescore, int timescore,
+extern int displayendmessage(int basescore, int timescore,
 				 long totalscore, int completed); // TWMainWnd.cpp
 
 
@@ -107,7 +101,7 @@ typedef enum {
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-OSHW_EXTERN int displaylist(tablespec const *table, int *index,
+extern int displaylist(tablespec const *table, int *index,
 	DisplayListType listtype); // TWMainWnd.cpp
 
 /* Input prompts.
@@ -115,11 +109,11 @@ OSHW_EXTERN int displaylist(tablespec const *table, int *index,
 
 /* Display an confirm yes/no dialog
  */
-OSHW_EXTERN int displayyesnoprompt(const char* prompt); // TWMainWnd.cpp
+extern int displayyesnoprompt(const char* prompt); // TWMainWnd.cpp
 
 /* Display an text prompt for a password
  */
-OSHW_EXTERN const char *displaypasswordprompt(); // TWMainWnd.cpp
+extern const char *displaypasswordprompt(); // TWMainWnd.cpp
 
 
 /*
@@ -128,34 +122,32 @@ OSHW_EXTERN const char *displaypasswordprompt(); // TWMainWnd.cpp
 
 /* Ring the bell.
  */
-OSHW_EXTERN void bell(void); // TWMainWnd.cpp
+extern void bell(void); // TWMainWnd.cpp
 
 /* Set the program's subtitle.
  */
-OSHW_EXTERN void changesubtitle(char const *subtitle);
-OSHW_EXTERN void popsubtitle();
-OSHW_EXTERN void pushsubtitle(char const *subtitle);
+extern void changesubtitle(char const *subtitle);
+extern void popsubtitle();
+extern void pushsubtitle(char const *subtitle);
 
 /* Get the selected ruleset.
  */
-OSHW_EXTERN int getselectedruleset(void); // TWMainWnd.cpp
+extern int getselectedruleset(void); // TWMainWnd.cpp
 
 /* Read any additional data for the series.
  */
-OSHW_EXTERN void readextensions(struct gameseries *series); // TWMainWnd.cpp
+extern void readextensions(struct gameseries *series); // TWMainWnd.cpp
 
 /* Get number of seconds to skip at start of playback.
  */
-OSHW_EXTERN int getreplaysecondstoskip(void); // TWMainWnd.cpp
+extern int getreplaysecondstoskip(void); // TWMainWnd.cpp
 
 /* Copy text to clipboard.
  */
-OSHW_EXTERN void copytoclipboard(char const *text); // TWApp.cpp
+extern void copytoclipboard(char const *text); // TWApp.cpp
 
 /* Change play button symbol
  */
-OSHW_EXTERN void setplaypausebutton(int p); // TWMainWnd.cpp
-
-#undef OSHW_EXTERN
+extern void setplaypausebutton(int p); // TWMainWnd.cpp
 
 #endif

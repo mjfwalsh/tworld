@@ -8,19 +8,10 @@
 #ifndef	HEADER_qt_oshwbind_h_
 #define	HEADER_qt_oshwbind_h_
 
-
 #include <stdint.h>
-
-
-#ifdef __cplusplus
-	#include <Qt>
-	#include <QPixmap>
-	#include <QImage>
-
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
+#include <Qt>
+#include <QPixmap>
+#include <QImage>
 
 struct gamestate;
 
@@ -41,8 +32,6 @@ enum
 /* The width/height of a tile in pixels at 100% zoom
  */
 #define DEFAULTTILE		48
-
-#ifdef __cplusplus
 
 enum
 {
@@ -104,8 +93,6 @@ enum
 	TW_BUTTON_MIDDLE	= Qt::MidButton
 };
 
-#endif
-
 
 /* Types
  */
@@ -115,12 +102,11 @@ typedef struct TW_Rect
 	int x, y;
 	int w, h;
 
-#ifdef __cplusplus
+
 	TW_Rect() {}
 	TW_Rect(int _x, int _y, int _w, int _h) : x(_x), y(_y), w(_w), h(_h) {}
 	explicit TW_Rect(const QRect& qr) : x(qr.x()), y(qr.y()), w(qr.width()), h(qr.height()) {}
 	operator QRect() const {return QRect(x, y, w, h);}
-#endif
 } TW_Rect;
 
 
@@ -158,8 +144,6 @@ typedef	struct genericglobals
  */
 extern genericglobals geng;
 
-
-#ifdef __cplusplus
 
 class Qt_Surface : public TW_Surface
 {
@@ -206,32 +190,30 @@ private:
 	void InitImage();
 };
 
-#endif
-
 
 /* Functions
  */
 
-OSHW_EXTERN TW_Surface* TW_NewSurface(int w, int h, int bTransparent);
-OSHW_EXTERN void TW_FreeSurface(TW_Surface* pSurface);
+extern TW_Surface* TW_NewSurface(int w, int h, int bTransparent);
+extern void TW_FreeSurface(TW_Surface* pSurface);
 
-OSHW_EXTERN void TW_SwitchSurfaceToImage(TW_Surface* pSurface);
+extern void TW_SwitchSurfaceToImage(TW_Surface* pSurface);
 
-OSHW_EXTERN void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor);
+extern void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor);
 
-OSHW_EXTERN int TW_BlitSurface(TW_Surface* pSrc, const TW_Rect* pSrcRect,
+extern int TW_BlitSurface(TW_Surface* pSrc, const TW_Rect* pSrcRect,
 							   TW_Surface* pDst, const TW_Rect* pDstRect);
-OSHW_EXTERN void TW_SetColorKey(TW_Surface* pSurface, uint32_t nColorKey);
-OSHW_EXTERN void TW_ResetColorKey(TW_Surface* pSurface);
+extern void TW_SetColorKey(TW_Surface* pSurface, uint32_t nColorKey);
+extern void TW_ResetColorKey(TW_Surface* pSurface);
 
-OSHW_EXTERN TW_Surface* TW_DisplayFormat(TW_Surface* pSurface);
+extern TW_Surface* TW_DisplayFormat(TW_Surface* pSurface);
 
-OSHW_EXTERN uint32_t TW_PixelAt(const TW_Surface* pSurface, int x, int y);
+extern uint32_t TW_PixelAt(const TW_Surface* pSurface, int x, int y);
 
-OSHW_EXTERN uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b);
-OSHW_EXTERN uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+extern uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b);
+extern uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
-OSHW_EXTERN TW_Surface* TW_LoadBMP(const char* szFilename);
+extern TW_Surface* TW_LoadBMP(const char* szFilename);
 
 
 #define  TW_GetError()  "unspecified error"
@@ -239,25 +221,22 @@ OSHW_EXTERN TW_Surface* TW_LoadBMP(const char* szFilename);
 /* Process all pending events. If wait is TRUE and no events are
  * currently pending, the function blocks until an event arrives.
  */
-OSHW_EXTERN void eventupdate(int wait);
+extern void eventupdate(int wait);
 
 /* Render the view of the visible area of the map to the display, with
  * the view position centered on the display as much as possible. The
  * gamestate's map and the list of creatures are consulted to
  * determine what to render.
  */
-OSHW_EXTERN void displaymapview(struct gamestate const *state, TW_Rect disploc);
+extern void displaymapview(struct gamestate const *state, TW_Rect disploc);
 
 /* Draw a tile of the given id at the position (xpos, ypos).
  */
-OSHW_EXTERN void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id);
+extern void drawfulltileid(TW_Surface *dest, int xpos, int ypos, int id);
 
 /* Initialisation function
  */
-OSHW_EXTERN int tileinitialize();
-
-
-#undef OSHW_EXTERN
+extern int tileinitialize();
 
 
 #endif

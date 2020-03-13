@@ -7,9 +7,6 @@
 #ifndef HEADER_settings_h_
 #define HEADER_settings_h_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 void loadsettings(void);
 
@@ -25,8 +22,5 @@ void setintsetting(char const * name, int val);
 char const * getstringsetting(char const * name);
 void setstringsetting(char const * name, char const * val);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

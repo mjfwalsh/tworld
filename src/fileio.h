@@ -9,10 +9,6 @@
 
 #include	"defs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Initialise the directories using Qt standard paths
  */
 extern void initdirs();
@@ -110,8 +106,5 @@ extern int fileerr_(char const *cfile, unsigned long lineno,
 			fileinfo *file, char const *msg);
 #define	fileerr(file, msg)	(fileerr_(__FILE__, __LINE__, (file), (msg)))
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

@@ -9,10 +9,6 @@
 
 #include	"defs.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Return the user's scores for a given level. The last three arguments
  * receive the base score for the level, the time bonus for the level,
  * and the total score for the series.
@@ -47,8 +43,5 @@ char const *timestring(int lvlnum, char const *lvltitle, int besttime,
  * gameseries. */
 char const* leveltimes(gameseries const *series);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

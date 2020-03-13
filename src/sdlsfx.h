@@ -9,21 +9,16 @@
 #ifndef	HEADER_sdlsfx_h_
 #define	HEADER_sdlsfx_h_
 
-#ifdef __cplusplus
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
 
 /* Activate or deactivate the sound system. The return value is TRUE
  * if the sound system is (or already was) active.
  */
-OSHW_EXTERN int setaudiosystem(int active);
+extern int setaudiosystem(int active);
 
 /* Load a wave file into memory. index indicates which sound effect to
  * associate the sound with. FALSE is returned if an error occurs.
  */
-OSHW_EXTERN int loadsfxfromfile(int index, char const *filename);
+extern int loadsfxfromfile(int index, char const *filename);
 
 /* Specify the sounds effects to be played at this time. sfx is the
  * bitwise-or of any number of sound effects. If a non-continuous
@@ -31,7 +26,7 @@ OSHW_EXTERN int loadsfxfromfile(int index, char const *filename);
  * continuous sound effects that are currently playing that are not
  * set in sfx will stop playing.
  */
-OSHW_EXTERN void playsoundeffects(unsigned long sfx);
+extern void playsoundeffects(unsigned long sfx);
 
 /* Control sound-effect production depending on the value of action.
  * A negative value turns off all sound effects that are playing. A
@@ -39,7 +34,7 @@ OSHW_EXTERN void playsoundeffects(unsigned long sfx);
  * positive value continues the sound effects at the point at which
  * they were suspended.
  */
-OSHW_EXTERN void setsoundeffects(int action);
+extern void setsoundeffects(int action);
 
 /* Set the current volume level. Volume ranges from 0 (silence) to 10
  * (the default). Setting the sound to zero causes sound effects to be
@@ -47,16 +42,14 @@ OSHW_EXTERN void setsoundeffects(int action);
  * volume level will be displayed to the user. FALSE is returned if
  * the sound system is not currently active.
  */
-OSHW_EXTERN int setvolume(int volume);
+extern int setvolume(int volume);
 
 /* Alters the current volume level by delta.
  */
-OSHW_EXTERN int changevolume(int delta);
+extern int changevolume(int delta);
 
 /* The initialization function for the sound module.
  */
-OSHW_EXTERN int sfxinitialize();
-
-#undef OSHW_EXTERN
+extern int sfxinitialize();
 
 #endif

@@ -168,7 +168,7 @@ Qt_Surface* Qt_Surface::DisplayFormat()
  * channel. Otherwise, the surface is created with the same format as
  * the screen.
  */
-extern "C" TW_Surface* TW_NewSurface(int w, int h, int bTransparent)
+TW_Surface* TW_NewSurface(int w, int h, int bTransparent)
 {
 	Qt_Surface* pSurface = new Qt_Surface();
 
@@ -186,28 +186,28 @@ extern "C" TW_Surface* TW_NewSurface(int w, int h, int bTransparent)
 }
 
 
-extern "C" void TW_FreeSurface(TW_Surface* s)
+void TW_FreeSurface(TW_Surface* s)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
 	delete pSurface;
 }
 
 
-extern "C" void TW_SwitchSurfaceToImage(TW_Surface* s)
+void TW_SwitchSurfaceToImage(TW_Surface* s)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
 	pSurface->SwitchToImage();
 }
 
 
-extern "C" void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor)
+void TW_FillRect(TW_Surface* pDst, const TW_Rect* pDstRect, uint32_t nColor)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(pDst);
 	pSurface->FillRect(pDstRect, nColor);
 }
 
 
-extern "C" int TW_BlitSurface(TW_Surface* _pSrc, const TW_Rect* pSrcRect,
+int TW_BlitSurface(TW_Surface* _pSrc, const TW_Rect* pSrcRect,
 	TW_Surface* _pDst, const TW_Rect* pDstRect)
 {
 	Qt_Surface* pDst = static_cast<Qt_Surface*>(_pDst);
@@ -218,20 +218,20 @@ extern "C" int TW_BlitSurface(TW_Surface* _pSrc, const TW_Rect* pSrcRect,
 }
 
 
-extern "C" void TW_SetColorKey(TW_Surface* s, uint32_t nColorKey)
+void TW_SetColorKey(TW_Surface* s, uint32_t nColorKey)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
 	pSurface->SetColorKey(nColorKey);
 }
 
-extern "C" void TW_ResetColorKey(TW_Surface* s)
+void TW_ResetColorKey(TW_Surface* s)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
 	pSurface->ResetColorKey();
 }
 
 
-extern "C" TW_Surface* TW_DisplayFormat(TW_Surface* s)
+TW_Surface* TW_DisplayFormat(TW_Surface* s)
 {
 	Qt_Surface* pSurface = static_cast<Qt_Surface*>(s);
 	return pSurface->DisplayFormat();
@@ -241,21 +241,21 @@ extern "C" TW_Surface* TW_DisplayFormat(TW_Surface* s)
 /* Return the color of the pixel at (x, y) on the given surface. (The
  * surface must be locked before calling this function.)
  */
-extern "C" uint32_t TW_PixelAt(const TW_Surface* s, int x, int y)
+uint32_t TW_PixelAt(const TW_Surface* s, int x, int y)
 {
 	const Qt_Surface* pSurface = static_cast<const Qt_Surface*>(s);
 	return pSurface->PixelAt(x, y);
 }
 
 
-extern "C" uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b)
+uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b)
 {
 	// TODO: for 8-bit
 	return qRgb(r, g, b);
 }
 
 
-extern "C" uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	// TODO: for 8-bit
 	return qRgba(r, g, b, a);
@@ -264,7 +264,7 @@ extern "C" uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 /* Load the given bitmap file.
  */
-extern "C" TW_Surface* TW_LoadBMP(const char* szFilename)
+TW_Surface* TW_LoadBMP(const char* szFilename)
 {
 	QImage image(szFilename);
 	if (image.isNull())

@@ -7,13 +7,7 @@
 #ifndef HEADER_messages_h_
 #define HEADER_messages_h_
 
-#ifdef __cplusplus
-	#include <QString>
-
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
+#include <QString>
 
 enum
 {
@@ -23,13 +17,9 @@ enum
 	MessageTypeCount
 };
 
-OSHW_EXTERN void loadmessagesfromfile(char const *filename);
+extern void loadmessagesfromfile(char const *filename);
 
-#ifdef __cplusplus
 extern QString getmessage(int type, QString alt);
-#endif
 
-
-#undef OSHW_EXTERN
 
 #endif

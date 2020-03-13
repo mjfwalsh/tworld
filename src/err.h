@@ -16,10 +16,6 @@
 #define	x_type_malloc(t, p, n)	if(!(p = (t *)malloc(n))) memerrexit();
 #define	x_cmalloc(p, n)	if(!(p = (char *)malloc(n))) memerrexit();
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Log an error message and continue.
  */
 extern void warn_(char const *fmt, ...);
@@ -31,10 +27,6 @@ extern void errmsg_(char const *prefix, char const *fmt, ...);
 /* Display an error message and abort.
  */
 extern void die_(char const *fmt, ...) __attribute__((noreturn));
-
-#ifdef __cplusplus
-}
-#endif
 
 /* A really ugly hack used to smuggle extra arguments into variadic
  * functions.

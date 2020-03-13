@@ -22,10 +22,6 @@ enum {
  */
 extern int batchmode;
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 /* Change the current gameplay mode. This affects the running of the
  * timer and the handling of the keyboard.
@@ -106,8 +102,5 @@ extern int checksolution(void);
  */
 extern void setpedanticmode(int v);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

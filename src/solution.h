@@ -7,12 +7,6 @@
 #ifndef	HEADER_solution_h_
 #define	HEADER_solution_h_
 
-#ifdef __cplusplus
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
-
 #include	"defs.h"
 
 /* A structure holding all the data needed to reconstruct a solution.
@@ -31,37 +25,37 @@ extern int	readonly;
 
 /* Initialize or reinitialize list as empty.
  */
-OSHW_EXTERN void initmovelist(actlist *list);
+extern void initmovelist(actlist *list);
 
 /* Append move to the end of list.
  */
-OSHW_EXTERN void addtomovelist(actlist *list, action move);
+extern void addtomovelist(actlist *list, action move);
 
 /* Make to an independent copy of from.
  */
-OSHW_EXTERN void copymovelist(actlist *to, actlist const *from);
+extern void copymovelist(actlist *to, actlist const *from);
 
 /* Deallocate list.
  */
-OSHW_EXTERN void destroymovelist(actlist *list);
+extern void destroymovelist(actlist *list);
 
 /* Expand a level's solution data into the actual solution, including
  * the full list of moves. FALSE is returned if the solution is
  * invalid or absent.
  */
-OSHW_EXTERN int expandsolution(solutioninfo *solution, gamesetup const *game);
+extern int expandsolution(solutioninfo *solution, gamesetup const *game);
 
 /* Take the given solution and compress it, storing the compressed
  * data as part of the level's setup. FALSE is returned if an error
  * occurs. (It is not an error to compress the null solution.)
  */
-OSHW_EXTERN int contractsolution(solutioninfo const *solution, gamesetup *game);
+extern int contractsolution(solutioninfo const *solution, gamesetup *game);
 
 /* Read all the solutions for the given series into memory. FALSE is
  * returned if an error occurs. Note that it is not an error for the
  * solution file to not exist.
  */
-OSHW_EXTERN int readsolutions(gameseries *series);
+extern int readsolutions(gameseries *series);
 
 /* Write out all the solutions for the given series. The solution file
  * is created if it does not currently exist. The solution file's
@@ -69,12 +63,12 @@ OSHW_EXTERN int readsolutions(gameseries *series);
  * is done if the directory's name has been unset, however.) FALSE is
  * returned if an error occurs.
  */
-OSHW_EXTERN int savesolutions(gameseries *series);
+extern int savesolutions(gameseries *series);
 
 /* Free all memory allocated for storing the game's solutions, and mark
  * the levels as being unsolved.
  */
-OSHW_EXTERN void clearsolutions(gameseries *series);
+extern void clearsolutions(gameseries *series);
 
 /* Produce a list of available solution files associated with the
  * given series (i.e. that have the name of the series as their
@@ -84,12 +78,12 @@ OSHW_EXTERN void clearsolutions(gameseries *series);
  * was returned. If morethanone is TRUE, and less than two solution
  * files are found, FALSE is returned and the table is not created.
  */
-OSHW_EXTERN int createsolutionfilelist(gameseries const *series, int morethanone,
+extern int createsolutionfilelist(gameseries const *series, int morethanone,
 				  char const ***pfilelist, int *pcount,
 				  tablespec *table);
 
 /* Free the memory allocated by createsolutionfilelist().
  */
-OSHW_EXTERN void freesolutionfilelist(char const **filelist, tablespec *table);
+extern void freesolutionfilelist(char const **filelist, tablespec *table);
 
 #endif

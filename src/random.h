@@ -9,19 +9,13 @@
 
 #include	"defs.h"
 
-#ifdef __cplusplus
-	#define OSHW_EXTERN extern "C"
-#else
-	#define OSHW_EXTERN extern
-#endif
-
 /* Mark an existing PRNG as beginning a new sequence.
  */
-OSHW_EXTERN void resetprng(prng *gen);
+extern void resetprng(prng *gen);
 
 /* Restart an existing PRNG upon a predetermined sequence.
  */
-OSHW_EXTERN void restartprng(prng *gen, unsigned long initial);
+extern void restartprng(prng *gen, unsigned long initial);
 
 /* Retrieve the original seed value of the current sequence.
  */
@@ -29,14 +23,14 @@ OSHW_EXTERN void restartprng(prng *gen, unsigned long initial);
 
 /* Return a random integer between zero and three, inclusive.
  */
-OSHW_EXTERN int random4(prng *gen);
+extern int random4(prng *gen);
 
 /* Randomly permute an array of three integers.
  */
-OSHW_EXTERN void randomp3(prng *gen, int *array);
+extern void randomp3(prng *gen, int *array);
 
 /* Randomly permute an array of four integers.
  */
-OSHW_EXTERN void randomp4(prng *gen, int *array);
+extern void randomp4(prng *gen, int *array);
 
 #endif
