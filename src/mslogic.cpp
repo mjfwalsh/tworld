@@ -1,4 +1,4 @@
-/* mslogic.c: The game logic for the MS ruleset.
+/* mslogic.cpp: The game logic for the MS ruleset.
  *
  * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
  * License. No warranty. See COPYING for details.
@@ -209,7 +209,7 @@ static creature *allocatecreature(void)
 			currentcrpoollump = currentcrpoollump->next;
 			currentcrpoollump->count = crpoollumpsize;
 		} else {
-			x_malloc(next, sizeof *next);
+			x_type_malloc(crpoollump, next, sizeof *next);
 			next->count = crpoollumpsize;
 			next->prev = currentcrpoollump;
 			next->next = NULL;
@@ -245,7 +245,7 @@ static creature *addtocreaturelist(creature *cr)
 {
 	if (creaturecount >= creaturesallocated) {
 		creaturesallocated = creaturesallocated ? creaturesallocated * 2 : 16;
-		x_alloc(creatures, creaturesallocated * sizeof *creatures);
+		x_type_alloc(creature *, creatures, creaturesallocated * sizeof *creatures);
 	}
 	creatures[creaturecount++] = cr;
 	return cr;
@@ -264,7 +264,7 @@ static creature *addtoblocklist(creature *cr)
 {
 	if (blockcount >= blocksallocated) {
 		blocksallocated = blocksallocated ? blocksallocated * 2 : 16;
-		x_alloc(blocks, blocksallocated * sizeof *blocks);
+		x_type_alloc(creature *, blocks, blocksallocated * sizeof *blocks);
 	}
 	blocks[blockcount++] = cr;
 	return cr;
@@ -292,7 +292,7 @@ static creature *appendtosliplist(creature *cr, int dir)
 
 	if (slipcount >= slipsallocated) {
 		slipsallocated = slipsallocated ? slipsallocated * 2 : 16;
-		x_alloc(slips, slipsallocated * sizeof *slips);
+		x_type_alloc(slipper, slips, slipsallocated * sizeof *slips);
 	}
 	slips[slipcount].cr = cr;
 	slips[slipcount].dir = dir;
@@ -313,7 +313,7 @@ static creature *prependtosliplist(creature *cr, int dir)
 
 	if (slipcount >= slipsallocated) {
 		slipsallocated = slipsallocated ? slipsallocated * 2 : 16;
-		x_alloc(slips, slipsallocated * sizeof *slips);
+		x_type_alloc(slipper, slips, slipsallocated * sizeof *slips);
 	}
 	for (n = slipcount ; n ; --n)
 		slips[n] = slips[n - 1];
@@ -641,17 +641,17 @@ static void addcreaturetomap(creature const *cr)
  */
 static creature *awakencreature(int pos)
 {
-	creature   *new;
+	creature   *n;
 	int		tileid;
 
 	tileid = cellat(pos)->top.id;
 	if (!iscreature(tileid) || creatureid(tileid) == Chip)
 		return NULL;
-	new = allocatecreature();
-	new->id = creatureid(tileid);
-	new->dir = creaturedirid(tileid);
-	new->pos = pos;
-	return new->id == Block ? addtoblocklist(new) : addtocreaturelist(new);
+	n = allocatecreature();
+	n->id = creatureid(tileid);
+	n->dir = creaturedirid(tileid);
+	n->pos = pos;
+	return n->id == Block ? addtoblocklist(n) : addtocreaturelist(n);
 }
 
 /* Mark a creature as dead.

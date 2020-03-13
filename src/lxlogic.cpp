@@ -1,4 +1,4 @@
-/* lxlogic.c: The game logic for the Lynx ruleset.
+/* lxlogic.cpp: The game logic for the Lynx ruleset.
  *
  * Copyright (C) 2001-2015 by Brian Raiter and Eric Schmidt, under the GNU
  * General Public License. No warranty. See COPYING for details.
@@ -2019,7 +2019,7 @@ gamelogic *lynxlogicstartup(void)
 {
 	static gamelogic	logic;
 
-	creaturearray = calloc(MAX_CREATURES + 1, sizeof *creaturearray);
+	creaturearray = (creature *)calloc(MAX_CREATURES + 1, sizeof *creaturearray);
 	if (!creaturearray)
 		memerrexit();
 	lastrndslidedir = NORTH;
