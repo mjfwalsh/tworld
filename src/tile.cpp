@@ -1,4 +1,4 @@
-/* tile.c: Functions for rendering tile images.
+/* tile.cpp: Functions for rendering tile images.
  *
  * Copyright (C) 2001-2010 by Brian Raiter and Madhav Shanbhag,
  * under the GNU General Public License. No warranty. See COPYING for details.
@@ -210,7 +210,7 @@ static void remembersurface(TW_Surface * surface)
 {
 	if (surfacesused >= surfacesallocated) {
 		surfacesallocated += 256;
-		x_alloc(surfaceheap, surfacesallocated * sizeof *surfaceheap);
+		x_type_alloc(TW_Surface *, surfaceheap, surfacesallocated * sizeof *surfaceheap);
 	}
 	surfaceheap[surfacesused++] = surface;
 }
@@ -1015,7 +1015,7 @@ static int initlargetileset(TW_Surface * tiles)
 	if (!settilesize(w, h))
 		return FALSE;
 
-	x_alloc(tilepos, (sizeof tileidmap / sizeof *tileidmap) * sizeof *tilepos);
+	x_type_alloc(TW_Rect, tilepos, (sizeof tileidmap / sizeof *tileidmap) * sizeof *tilepos);
 
 	row = 0;
 	nextrow = geng.htile + 1;
