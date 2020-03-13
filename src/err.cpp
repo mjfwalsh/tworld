@@ -1,4 +1,4 @@
-/* err.c: Error handling and reporting.
+/* err.cpp: Error handling and reporting.
  *
  * Copyright (C) 2001-2006 by Brian Raiter, under the GNU General Public
  * License. No warranty. See COPYING for details.

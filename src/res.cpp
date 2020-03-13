@@ -1,4 +1,4 @@
-/* res.c: Functions for loading resources from external files.
+/* res.cpp: Functions for loading resources from external files.
  *
  * Copyright (C) 2001-2020 by Brian Raiter, Eric Schmidt and Michael Walsh.
  * Licensed under the GNU General Public License. No warranty.
@@ -8,8 +8,8 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	"defs.h"
-#include	"err.h"
 #include	"messages.h"
+#include	"err.h"
 #include	"unslist.h"
 #include	"res.h"
 #include	"tile.h"
