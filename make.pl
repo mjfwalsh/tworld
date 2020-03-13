@@ -197,7 +197,7 @@ sub compile {
 	my @files_to_compile = qw|src/tworld.cpp src/series.cpp src/play.cpp src/encoding.cpp src/solution.cpp
 	src/res.cpp src/lxlogic.cpp src/mslogic.cpp src/unslist.cpp src/messages.cpp src/help.cpp
 	src/score.cpp src/random.cpp src/settings.cpp src/fileio.cpp src/err.cpp src/tile.cpp
-	src/timer.cpp src/sdlsfx.c src/oshwbind.cpp src/CCMetaData.cpp src/TWDisplayWidget.cpp
+	src/timer.cpp src/sdlsfx.cpp src/oshwbind.cpp src/CCMetaData.cpp src/TWDisplayWidget.cpp
 	src/TWProgressBar.cpp src/TWMainWnd.ui src/TWMainWnd.cpp src/TWMainWnd.h
 	obj/moc_TWMainWnd.cpp src/TWApp.cpp|;
 

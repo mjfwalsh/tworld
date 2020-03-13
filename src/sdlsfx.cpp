@@ -1,4 +1,4 @@
-/* sdlsfx.c: Creating the program's sound effects.
+/* sdlsfx.cpp: Creating the program's sound effects.
  *
  * Copyright (C) 2001-2019 by Brian Raiter, Madhav Shanbhag and Michael Walsh.
  * Licensed under the GNU General Public License.
@@ -183,7 +183,7 @@ int loadsfxfromfile(int index, char const *filename)
 		warn("can't create converter for %s: %s", filename, SDL_GetError());
 		return FALSE;
 	}
-	if (!(wavecvt = malloc(lengthin * convert.len_mult)))
+	if (!(wavecvt = (Uint8 *)malloc(lengthin * convert.len_mult)))
 		memerrexit();
 	memcpy(wavecvt, wavein, lengthin);
 	SDL_FreeWAV(wavein);
