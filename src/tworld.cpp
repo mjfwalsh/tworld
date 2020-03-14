@@ -1120,8 +1120,7 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 			}
 		}
 	}
-	freeserieslist(series->list, series->count,
-		series->mflist, series->mfcount, &series->table);
+	freeserieslist(series->list, series->count, series->mflist, series->mfcount);
 
 	setstringsetting("selectedseries", gs->series.name);
 
@@ -1166,8 +1165,7 @@ static int choosegame(gamespec *gs, char const *lastseries)
 {
 	seriesdata	s;
 
-	if (!createserieslist(&s.list, &s.count, &s.mflist, &s.mfcount,
-			&s.table))
+	if (!createserieslist(&s.list, &s.count, &s.mflist, &s.mfcount))
 		return -1;
 	return selectseriesandlevel(gs, &s, FALSE, lastseries);
 }
@@ -1189,7 +1187,7 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 	seriesdata	series;
 
 	if (!createserieslist(&series.list, &series.count,
-			&series.mflist, &series.mfcount, &series.table))
+			&series.mflist, &series.mfcount))
 		return -1;
 
 	if (series.count <= 0) {

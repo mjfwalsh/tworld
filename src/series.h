@@ -31,8 +31,7 @@ extern void freeseriesdata(gameseries *series);
  * unrecoverable error will cause the function to abort the program.
  */
 extern int createserieslist(gameseries **pserieslist,
-					int *pcount, mapfileinfo **pmflist, int *pmfcount,
-					tablespec *table);
+					int *pcount, mapfileinfo **pmflist, int *pmfcount);
 
 /* Make an independent copy of a single gameseries structure from
  * a list obtained from createserieslist().
@@ -44,8 +43,7 @@ extern void getseriesfromlist(gameseries *dest,
  * The pointers can be NULL.
  */
 extern void freeserieslist(gameseries *list, int count,
-			mapfileinfo *mflist, int mfcount,
-			tablespec *table);
+			mapfileinfo *mflist, int mfcount);
 
 /* A function for looking up a specific level in a series by number
  * and/or password. If number is -1, only the password will be

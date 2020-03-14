@@ -802,16 +802,12 @@ static int getseriesfiles(gameseries ** list, int *count,
  * NULL, limits the results to just the series with that filename.
  */
 int createserieslist(gameseries **pserieslist, int *pcount,
-	mapfileinfo **pmflist, int *pmfcount, tablespec *table)
+	mapfileinfo **pmflist, int *pmfcount)
 {
-	static char const  *rulesetname[Ruleset_Count];
 	gameseries	       *serieslist;
-	char const	      **ptrs;
-	char	       *textheap;
 	int			listsize;
 	mapfileinfo	       *mapfilelist;
 	int			mapfilelistsize;
-	int			used, col, n, y;
 
 	if (!getseriesfiles(&serieslist, &listsize, &mapfilelist, &mapfilelistsize))
 		return FALSE;
@@ -820,41 +816,6 @@ int createserieslist(gameseries **pserieslist, int *pcount,
 	*pmflist = mapfilelist;
 	*pmfcount = mapfilelistsize;
 
-	if (!table)
-		return TRUE;
-
-	col = 8;
-	for (n = 0 ; n < listsize ; ++n)
-		if (col < (int)strlen(serieslist[n].name))
-			col = strlen(serieslist[n].name);
-	if (col > 48)
-		col = 48;
-
-	rulesetname[Ruleset_Lynx] = "Lynx";
-	rulesetname[Ruleset_MS] = "MS";
-	ptrs = (const char **)malloc((listsize + 1) * 2 * sizeof *ptrs);
-	textheap = (char *)malloc((listsize + 1) * (col + 32));
-	if (!ptrs || !textheap)
-		memerrexit();
-
-	n = 0;
-	used = 0;
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "1-Filename"));
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "1.Ruleset"));
-	for (y = 0 ; y < listsize ; ++y) {
-		ptrs[n++] = textheap + used;
-		used += 1 + sprintf(textheap + used,
-			"1-%-*s", col, serieslist[y].name);
-		ptrs[n++] = textheap + used;
-		used += 1 + sprintf(textheap + used,
-			"1.%s", rulesetname[serieslist[y].ruleset]);
-	}
-
-	table->rows = listsize + 1;
-	table->cols = 2;
-	table->items = ptrs;
 	return TRUE;
 }
 
@@ -874,7 +835,7 @@ void getseriesfromlist(gameseries *dest, gameseries const *list, int index)
 /* Free all memory allocated by the createserieslist() table.
  */
 void freeserieslist(gameseries *list, int count,
-	mapfileinfo *mflist, int mfcount, tablespec *table)
+	mapfileinfo *mflist, int mfcount)
 {
 	int	n;
 
@@ -890,10 +851,6 @@ void freeserieslist(gameseries *list, int count,
 				free(mflist[n].sfilelst[m].list);
 		}
 		free(mflist);
-	}
-	if (table) {
-		free((void*)table->items[0]);
-		free(table->items);
 	}
 }
 
