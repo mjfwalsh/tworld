@@ -525,7 +525,7 @@ static int writesolution(fileinfo *file, gamesetup const *game)
 
 /* Locate the solution file for the given data file and open it.
  */
-static int opensolutionfile(fileinfo *file, char const *datname, int writable)
+static int opensolutionfile(gameseries *series, bool writable)
 {
 	char       *buf = NULL;
 	char const *filename;
@@ -534,21 +534,23 @@ static int opensolutionfile(fileinfo *file, char const *datname, int writable)
 	if (writable && readonly)
 		return FALSE;
 
-	if (file->name) {
-		filename = file->name;
+	if (series->savefilename) {
+		filename = series->savefilename;
+	} else if (series->savefile.name) {
+		filename = series->savefile.name;
 	} else {
-		n = strlen(datname);
-		if (datname[n - 4] == '.' && tolower(datname[n - 3]) == 'd'
-					&& tolower(datname[n - 2]) == 'a'
-					&& tolower(datname[n - 1]) == 't')
+		n = strlen(series->name);
+		if (series->name[n - 4] == '.' && tolower(series->name[n - 3]) == 'd'
+					&& tolower(series->name[n - 2]) == 'a'
+					&& tolower(series->name[n - 1]) == 't')
 			n -= 4;
 		x_type_alloc(char, buf, n + 5);
-		memcpy(buf, datname, n);
+		memcpy(buf, series->name, n);
 		memcpy(buf + n, ".tws", 5);
 		filename = buf;
 	}
 
-	n = openfileindir(file, SOLUTIONDIR, filename,
+	n = openfileindir(&series->savefile, SOLUTIONDIR, filename,
 		writable ? "wb" : "rb",
 		writable ? "can't access file" : NULL);
 	if (buf)
@@ -563,13 +565,17 @@ int readsolutions(gameseries *series)
 	gamesetup	gametmp = {0};
 	int		n;
 
-	if (!series->savefile.name)
-		series->savefile.name = series->savefilename;
-	if ((!series->savefile.name && (series->gsflags & GSF_NODEFAULTSAVE))
-		|| !opensolutionfile(&series->savefile, series->name, FALSE)) {
+	if ((series->gsflags & GSF_NODEFAULTSAVE)
+		|| !opensolutionfile(series, FALSE)) {
 		series->solheaderflags = 0;
 		series->solheadersize = 0;
 		return TRUE;
+	}
+
+	// save filename
+	if (!series->savefilename) {
+		x_cmalloc(series->savefilename, strlen(series->savefile.name) + 1)
+		strcpy(series->savefilename, series->savefile.name);
 	}
 
 	if (!readsolutionheader(&series->savefile, series->ruleset,
@@ -623,11 +629,9 @@ int savesolutions(gameseries *series)
 
 	if (series->savefile.fp)
 		fileclose(&series->savefile, NULL);
-	if (!series->savefile.name)
-		series->savefile.name = series->savefilename;
 	if (!series->savefile.name && (series->gsflags & GSF_NODEFAULTSAVE))
 		return TRUE;
-	if (!opensolutionfile(&series->savefile, series->name, TRUE))
+	if (!opensolutionfile(series, TRUE))
 		return FALSE;
 
 	if (!writesolutionheader(&series->savefile, series->ruleset,
@@ -707,10 +711,9 @@ static int getsolutionfile(char const *filename, void *data)
  * prefix). An array of filenames is returned through pfilelist, the
  * array's size is returned through pcount, and the table of the
  * filenames is returned through table. FALSE is returned if no table
- * was returned. If morethanone is TRUE, and less than two solution
- * files are found, FALSE is returned and the table is not created.
+ * was returned.
  */
-int createsolutionfilelist(gameseries const *series, int morethanone,
+int createsolutionfilelist(gameseries const *series,
 	char const ***pfilelist, int *pcount, tablespec *table)
 {
 	solutiondata	s;
@@ -730,7 +733,7 @@ int createsolutionfilelist(gameseries const *series, int morethanone,
 	if (!findfiles(SOLUTIONDIR, &s, getsolutionfile) || !s.count)
 		return FALSE;
 
-	if (s.count == 0 || (s.count == 1 && morethanone)) {
+	if (s.count == 0) {
 		free(s.pool);
 		return FALSE;
 	}

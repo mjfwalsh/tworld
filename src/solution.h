@@ -75,10 +75,9 @@ extern void clearsolutions(gameseries *series);
  * prefix). An array of filenames is returned through pfilelist, the
  * array's size is returned through pcount, and the table of the
  * filenames is returned through table. FALSE is returned if no table
- * was returned. If morethanone is TRUE, and less than two solution
- * files are found, FALSE is returned and the table is not created.
+ * was returned.
  */
-extern int createsolutionfilelist(gameseries const *series, int morethanone,
+extern int createsolutionfilelist(gameseries const *series,
 				  char const ***pfilelist, int *pcount,
 				  tablespec *table);
 

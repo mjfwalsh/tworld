@@ -178,7 +178,7 @@ static int showsolutionfiles(gamespec *gs)
 			&& haspathname(gs->series.savefilename))) {
 		bell();
 		return FALSE;
-	} else if (!createsolutionfilelist(&gs->series, FALSE, &filelist,
+	} else if (!createsolutionfilelist(&gs->series, &filelist,
 			&count, &table)) {
 		bell();
 		return FALSE;
@@ -238,31 +238,25 @@ static int showscores(gamespec *gs)
 	int		count, f, n;
 
 restart:
-	if (!createscorelist(&gs->series, gs->usepasswds, &levellist,
-			&count, &table)) {
-		bell();
-		return ret;
-	}
-	for (n = 0 ; n < count ; ++n)
+	createscorelist(&gs->series, gs->usepasswds, &levellist, &count, &table);
+
+	for (n = 0; n < count; ++n)
 		if (levellist[n] == gs->currentgame)
 			break;
+
 	pushsubtitle(gs->series.name);
 	for (;;) {
 		f = displaylist(&table, &n, LIST_SCORES);
 		if (f == CmdProceed) {
 			n = levellist[n];
 			break;
-		} else if (f == CmdSeeSolutionFiles) {
-			if (!(gs->series.gsflags & GSF_NODEFAULTSAVE)) {
-				n = levellist[n];
-				break;
-			}
 		} else if (f == CmdQuitLevel) {
 			n = -1;
 			break;
 		}
 	}
 	popsubtitle();
+
 	freescorelist(levellist, &table);
 	if (f == CmdSeeSolutionFiles) {
 		setcurrentgame(gs, n);
