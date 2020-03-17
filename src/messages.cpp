@@ -47,7 +47,7 @@ void loadmessagesfromfile(char const *filename)
 		QString line = infile.readLine().trimmed(); // removes any extra CRs or LFs
 
 		if (line.isEmpty()) continue;
-		if (line.front() == ':') {
+		if (line[0] == ':') {
 			isactive.fill(false);
 
 			line.remove(0, 1); // Discard ':'
@@ -59,7 +59,7 @@ void loadmessagesfromfile(char const *filename)
 					isactive.setBit(typenum);
 			}
 		} else {
-			for (size_t i = 0; i < isactive.size(); ++i) {
+			for (int i = 0; i < isactive.size(); ++i) {
 				if (isactive.testBit(i))
 					typeindex[i].push_back(messages.size());
 			}

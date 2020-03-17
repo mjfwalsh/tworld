@@ -120,7 +120,7 @@ typedef	struct prng {
 
 /* A move is specified by its direction and when it takes place.
  */
-typedef	struct action { unsigned int when:23, dir:9; } action;
+typedef	struct action { int when:23, dir:9; } action;
 
 /* A structure for managing the memory holding the moves of a game.
  */
