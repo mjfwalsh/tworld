@@ -8,6 +8,8 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
+#include	<vector>
+#include	<string>
 #include	"defs.h"
 #include	"err.h"
 #include	"fileio.h"
@@ -629,7 +631,7 @@ int savesolutions(gameseries *series)
 
 	if (series->savefile.fp)
 		fileclose(&series->savefile, NULL);
-	if (!series->savefile.name && (series->gsflags & GSF_NODEFAULTSAVE))
+	if (series->gsflags & GSF_NODEFAULTSAVE)
 		return TRUE;
 	if (!opensolutionfile(series, TRUE))
 		return FALSE;
@@ -679,9 +681,7 @@ void clearsolutions(gameseries *series)
 /* Mini-structure for passing data in and out of findfiles().
  */
 typedef	struct solutiondata {
-	char       *pool;		/* the found filenames, pooled together */
-	int		allocated;	/* number of bytes allocated for the pool */
-	int		count;		/* number of filenames in the pool */
+	std::vector<std::string> filelist;
 	char const *prefix;		/* the filename prefix to seek */
 	int		prefixlen;	/* length of the filename prefix */
 } solutiondata;
@@ -695,13 +695,7 @@ static int getsolutionfile(char const *filename, void *data)
 	solutiondata       *sdata = (solutiondata *)data;
 
 	if (!memcmp(filename, sdata->prefix, sdata->prefixlen)) {
-		int n = strlen(filename) + 1;
-		x_type_alloc(char, sdata->pool, sdata->allocated + n + 2);
-		sdata->pool[sdata->allocated++] = '1';
-		sdata->pool[sdata->allocated++] = '-';
-		memcpy(sdata->pool + sdata->allocated, filename, n);
-		sdata->allocated += n;
-		++sdata->count;
+		sdata->filelist.push_back(filename);
 	}
 	return 0;
 }
@@ -714,15 +708,11 @@ static int getsolutionfile(char const *filename, void *data)
  * was returned.
  */
 int createsolutionfilelist(gameseries const *series,
-	char const ***pfilelist, int *pcount, tablespec *table)
+	std::vector<std::string> *filelist, int *pcount, tablespec *table)
 {
 	solutiondata	s;
-	char const	      **filelist;
-	int			offset, i, n;
+	int			n;
 
-	s.pool = NULL;
-	s.allocated = 0;
-	s.count = 0;
 	s.prefix = series->name;
 	s.prefixlen = n = strlen(series->name);
 	if (n > 4 && s.prefix[n - 4] == '.' && tolower(s.prefix[n - 3]) == 'd'
@@ -730,43 +720,23 @@ int createsolutionfilelist(gameseries const *series,
 			&& tolower(s.prefix[n - 1]) == 't')
 		s.prefixlen -= 4;
 
-	if (!findfiles(SOLUTIONDIR, &s, getsolutionfile) || !s.count)
+	if (!findfiles(SOLUTIONDIR, &s, getsolutionfile))
 		return FALSE;
 
-	if (s.count == 0) {
-		free(s.pool);
+	if (s.filelist.size() == 0) {
 		return FALSE;
 	}
 
-	filelist = (const char **)malloc(s.count * sizeof *filelist);
-	table->items = (const char **)malloc((s.count + 1) * sizeof *table->items);
-	if (!filelist || !table->items)
-		memerrexit();
-	table->rows = s.count + 1;
+	table->rows = s.filelist.size() + 1;
 	table->cols = 1;
-	table->items[0] = "1-Select a solution file";
-	offset = 0;
-	for (i = 0 ; i < s.count ; ++i) {
-		n = strlen(s.pool + offset) + 1;
-		filelist[i] = s.pool + offset + 2;
-		table->items[i + 1] = s.pool + offset;
-		offset += n;
+	table->items.push_back({1, LeftAlign, "Select a solution file"});
+
+	for (unsigned int i = 0; i < s.filelist.size(); i++) {
+		table->items.push_back({1, LeftAlign, s.filelist[i]});
 	}
 
-	*pfilelist = filelist;
-	if (pcount)
-		*pcount = s.count;
+	*filelist = s.filelist;
+	*pcount = s.filelist.size();
+
 	return TRUE;
-}
-
-
-/* Free the memory allocated by createsolutionfilelist().
- */
-void freesolutionfilelist(char const **filelist, tablespec *table)
-{
-	free(filelist);
-	if (table) {
-		free((void*)table->items[1]);
-		free(table->items);
-	}
 }

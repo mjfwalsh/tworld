@@ -5,11 +5,12 @@
  * See COPYING for details.
  */
 
-#include	<stdio.h>
+//#include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 
 #include	<sstream>
+#include	<vector>
 
 #include	"defs.h"
 #include	"err.h"
@@ -17,50 +18,21 @@
 #include	"score.h"
 
 using std::ostringstream;
+using std::vector;
 using std::string;
-
-/* Translate a number into a string.
- */
-static char const *decimal(long number)
-{
-	static char		buf[32];
-	char	       *dest = buf + sizeof buf;
-	unsigned long	n;
-
-	n = number >= 0 ? (unsigned long)number : (unsigned long)-(number + 1) + 1;
-	*--dest = '\0';
-	do {
-		*--dest = '0' + n % 10;
-		n /= 10;
-	} while (n);
-	if (number < 0)
-		*--dest = '-';
-	return dest;
-}
 
 /* Translate a number into a string, complete with commas.
  */
-static char const *cdecimal(long number)
+static std::string cdecimal(long number)
 {
-	static char		buf[32];
-	char	       *dest = buf + sizeof buf;
-	unsigned long	n;
-	int			i = 0;
+	string numWithCommas = std::to_string(number);
+	int insertPosition = numWithCommas.length() - 3;
+	while (insertPosition > 0) {
+		numWithCommas.insert(insertPosition, ",");
+		insertPosition-=3;
+	}
 
-	n = number >= 0 ? (unsigned long)number : (unsigned long)-(number + 1) + 1;
-	*--dest = '\0';
-	do {
-		++i;
-		if (i % 4 == 0) {
-			*--dest = ',';
-			++i;
-		}
-		*--dest = '0' + n % 10;
-		n /= 10;
-	} while (n);
-	if (number < 0)
-		*--dest = '-';
-	return dest;
+	return numWithCommas;
 }
 
 /* Return the user's scores for a given level.
@@ -103,132 +75,99 @@ int getscoresforlevel(gameseries const *series, int level,
  * which the user doesn't know the password are in the table, but
  * without any information besides the level's number.
  */
-int createscorelist(gameseries const *series, int usepasswds, int **plevellist,
-	int *pcount, tablespec *table)
+void createscorelist(gameseries const *series, int usepasswds, int **plevellist,
+	int *pcount, tablespec *rtable)
 {
 	gamesetup  *game;
-	char const **ptrs;
-	char       *textheap;
-	char       *blank;
+	tableCell blank;
+	std::vector<tableCell> table;
 	int	       *levellist = NULL;
 	int		levelscore, timescore;
 	long	totalscore;
 	int		count;
-	int		used, j, n;
 
-	if (plevellist) {
-		levellist = (int*)malloc((series->count + 2) * sizeof *levellist);
-		if (!levellist)
-			memerrexit();
-	}
-	ptrs = (char const **)malloc((series->count + 2) * 5 * sizeof *ptrs);
-	textheap = (char*)malloc((series->count + 2) * 128);
-	if (!ptrs || !textheap)
+	levellist = (int*)malloc((series->count + 2) * sizeof *levellist);
+	if (!levellist)
 		memerrexit();
+
 	totalscore = 0;
 
-	n = 0;
-	used = 0;
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "1+Level"));
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "1-Name"));
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "1+Base"));
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "1+Bonus"));
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "1+Score"));
+	table.push_back({1, RightAlign, "Level"});
+	table.push_back({1, LeftAlign, "Name"});
+	table.push_back({1, RightAlign, "Base"});
+	table.push_back({1, RightAlign, "Bonus"});
+	table.push_back({1, RightAlign, "Score"});
 
-	blank = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "4- "));
+	blank = {4, LeftAlign, " "};
 
+	int j;
 	count = 0;
 	for (j = 0, game = series->games ; j < series->count ; ++j, ++game) {
 		if (j >= series->allocated)
 			break;
 
-		ptrs[n++] = textheap + used;
-		used += 1 + sprintf(textheap + used, "1+%s", decimal(game->number));
+		table.push_back({1, RightAlign, std::to_string(game->number)});
+
 		if (hassolution(game)) {
-			ptrs[n++] = textheap + used;
-			used += 1 + sprintf(textheap + used, "1-%.64s", game->name);
+			table.push_back({1, LeftAlign, game->name});
+
 			if (game->sgflags & SGF_REPLACEABLE) {
-				ptrs[n++] = textheap + used;
-				used += 1 + strlen(strcpy(textheap + used, "3.*BAD*"));
+				table.push_back({3, CenterAlign, " (Deleted) "});
 			} else {
 				levelscore = 500 * game->number;
-				ptrs[n++] = textheap + used;
-				used += 1 + sprintf(textheap + used, "1+%s",
-					cdecimal(levelscore));
-				ptrs[n++] = textheap + used;
+				table.push_back({1, RightAlign, cdecimal(levelscore)});
+
 				if (game->time) {
-					timescore = 10 * (game->time
-						- game->besttime / TICKS_PER_SECOND);
-					used += 1 + sprintf(textheap + used, "1+%s",
-						cdecimal(timescore));
+					timescore = 10 * (game->time - game->besttime / TICKS_PER_SECOND);
+					table.push_back({1, RightAlign, cdecimal(timescore)});
 				} else {
 					timescore = 0;
-					strcpy(textheap + used, "1+---");
-					used += 6;
+					table.push_back({1, RightAlign, "---"});
 				}
-				ptrs[n++] = textheap + used;
-				used += 1 + sprintf(textheap + used, "1+%s",
-					cdecimal(levelscore + timescore));
+				table.push_back({1, RightAlign, cdecimal(levelscore + timescore)});
 				totalscore += levelscore + timescore;
 			}
-			if (plevellist)
-				levellist[count] = j;
+			levellist[count] = j;
 			++count;
 		} else {
 			if (!usepasswds || (game->sgflags & SGF_HASPASSWD)) {
-				ptrs[n++] = textheap + used;
-				used += 1 + sprintf(textheap + used, "4-%s", game->name);
-				if (plevellist)
-					levellist[count] = j;
+				table.push_back({4, LeftAlign, game->name});
+
+				levellist[count] = j;
 			} else {
-				ptrs[n++] = blank;
-				if (plevellist)
-					levellist[count] = -1;
+				table.push_back(blank);
+				levellist[count] = -1;
 			}
 			++count;
 		}
 	}
 
-	while (ptrs[n - 1] == blank) {
-		n -= 2;
+	while (table[table.size()-1].text == blank.text
+			&& table[table.size()-1].colspan == blank.colspan) {
+		table.pop_back();
+		table.pop_back();
 		--count;
 	}
 
-	ptrs[n++] = textheap + used;
-	used += 1 + strlen(strcpy(textheap + used, "2-Total Score"));
-	ptrs[n++] = textheap + used;
-	sprintf(textheap + used, "3+%s", cdecimal(totalscore));
-	if (plevellist)
-		levellist[count] = -1;
+	table.push_back({2, LeftAlign, "Total Score"});
+	table.push_back({3, RightAlign, cdecimal(totalscore)});
+
+	levellist[count] = -1;
 	++count;
 
-	if (plevellist)
-		*plevellist = levellist;
-	if (pcount)
-		*pcount = count;
+	*plevellist = levellist;
+	*pcount = count;
 
-	table->rows = count + 1;
-	table->cols = 5;
-	table->items = ptrs;
-
-	return TRUE;
+	rtable->rows = count + 1;
+	rtable->cols = 5;
+	rtable->items = table;
 }
 
 /* Free the memory allocated by createscorelist() or createtimelist().
  */
-void freescorelist(int *levellist, tablespec *table)
+void freescorelist(int *levellist)
 {
 	free(levellist);
-	if (table) {
-		free((void*)table->items[0]);
-		free(table->items);
-	}
 }
 
 char const* timestring(int lvlnum, char const *lvltitle, int besttime,

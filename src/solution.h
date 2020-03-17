@@ -78,11 +78,6 @@ extern void clearsolutions(gameseries *series);
  * was returned.
  */
 extern int createsolutionfilelist(gameseries const *series,
-				  char const ***pfilelist, int *pcount,
-				  tablespec *table);
-
-/* Free the memory allocated by createsolutionfilelist().
- */
-extern void freesolutionfilelist(char const **filelist, tablespec *table);
+	std::vector<std::string> *filelist, int *pcount, tablespec *table);
 
 #endif

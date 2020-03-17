@@ -11,6 +11,9 @@
 
 #include	<stdio.h>
 #include	<time.h>
+#include	<vector>
+#include	<string>
+#include	<Qt>
 
 /* The standard Boolean values.
  */
@@ -23,20 +26,25 @@
 
 /* Definition of the contents and layout of a table.
  *
- * The strings making up the contents of a table are each prefixed
- * with two characters that indicate the formatting of their cell. The
- * first character is a digit, usually "1", indicating the number of
- * columns that cell occupies. The second character indicates the
- * placement of the string in that cell: "-" to align to the left of
- * the cell, "+" to align to the right, "." to center the text, and
- * "!" to permit the cell to occupy multiple lines, with word
- * wrapping. At most one cell in a given row can be word-wrapped.
+ * Each table cell is a struct containing the column span, alignment
+ * and text.
  */
+struct tableCell {
+	int colspan;
+	int align;
+	std::string text;
+};
+
 typedef	struct tablespec {
 	short	rows;		/* number of rows */
 	short	cols;		/* number of columns */
-	char const  **items;	/* the table's contents */
+	std::vector<tableCell> items; /* the table's contents */
 } tablespec;
+
+const int LeftAlign = (Qt::AlignLeft | Qt::AlignVCenter);
+const int RightAlign = (Qt::AlignRight | Qt::AlignVCenter);
+const int CenterAlign = (Qt::AlignHCenter | Qt::AlignVCenter);
+
 
 /* The dimensions of a level.
  */

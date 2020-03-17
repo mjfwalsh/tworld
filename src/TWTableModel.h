@@ -44,8 +44,7 @@ protected:
 	struct ItemInfo
 	{
 		QString sText;
-		Qt::Alignment align;
-		ItemInfo() : align(Qt::AlignCenter) {}
+		int align;
 	};
 
 	int m_nRows, m_nCols;
@@ -68,35 +67,17 @@ void TWTableModel::SetTableSpec(const tablespec* pSpec)
 
 	m_nRows = pSpec->rows;
 	m_nCols = pSpec->cols;
-	int n = m_nRows * m_nCols;
 
 	m_vecItems.clear();
-	m_vecItems.reserve(n);
+	m_vecItems.resize(m_nRows * m_nCols);
 
-	ItemInfo dummyItemInfo;
+	std::vector<tableCell> pp = pSpec->items;
+	for (unsigned int i = 0, h = 0; i < pp.size(); i++, h++) {
+		m_vecItems[h] = {QString::fromStdString(pp[i].text), pp[i].align};
 
-	const char* const * pp = pSpec->items;
-	for (int i = 0; i < n; ++pp) {
-		const char* p = *pp;
-		ItemInfo ii;
-
-		ii.sText = p + 2;
-
-		char c = p[1];
-		Qt::Alignment ha = (c=='+' ? Qt::AlignRight : c=='.' ? Qt::AlignHCenter : Qt::AlignLeft);
-		ii.align = (ha | Qt::AlignVCenter);
-
-		m_vecItems.push_back(ii);
-
-		int d = p[0] - '0';
-		for (int j = 1; j < d; ++j) {
-			m_vecItems.push_back(dummyItemInfo);
-		}
-
-		i += d;
+		h += pp[i].colspan - 1;
 	}
 
-	//reset();
 	endResetModel();
 }
 
@@ -120,7 +101,7 @@ QVariant TWTableModel::GetData(int row, int col, int role) const
 			return ii.sText;
 
 		case Qt::TextAlignmentRole:
-			return int(ii.align);
+			return ii.align;
 
 		default:
 			return QVariant();
