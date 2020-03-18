@@ -10,7 +10,7 @@
 #include <QLocale>
 
 #include "../obj/ui_TWMainWnd.h"
-
+#include "TWTableSpec.h"
 #include "CCMetaData.h"
 #include "oshwbind.h"
 #include "defs.h"
@@ -126,7 +126,7 @@ public:
 	void ClearDisplay();
 	bool DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
-	int DisplayList(const tablespec* pTableSpec, int* pnIndex, DisplayListType eListType);
+	int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, DisplayListType eListType);
 	bool DisplayYesNoPrompt(const char* prompt);
 	QString DisplayPasswordPrompt();
 	int GetSelectedRuleset();

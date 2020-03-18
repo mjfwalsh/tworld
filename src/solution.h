@@ -7,6 +7,7 @@
 #ifndef	HEADER_solution_h_
 #define	HEADER_solution_h_
 
+#include	"TWTableSpec.h"
 #include	"defs.h"
 
 /* A structure holding all the data needed to reconstruct a solution.
@@ -78,6 +79,6 @@ extern void clearsolutions(gameseries *series);
  * was returned.
  */
 extern int createsolutionfilelist(gameseries const *series,
-	std::vector<std::string> *filelist, int *pcount, tablespec *table);
+	std::vector<std::string> *filelist, int *pcount, TWTableSpec *table);
 
 #endif

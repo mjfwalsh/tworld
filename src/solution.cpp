@@ -12,6 +12,7 @@
 #include	<vector>
 #include	<string>
 
+#include	"TWTableSpec.h"
 #include	"defs.h"
 #include	"fileio.h"
 #include	"series.h"
@@ -710,7 +711,7 @@ static int getsolutionfile(char const *filename, void *data)
  * was returned.
  */
 int createsolutionfilelist(gameseries const *series,
-	std::vector<std::string> *filelist, int *pcount, tablespec *table)
+	std::vector<std::string> *filelist, int *pcount, TWTableSpec *table)
 {
 	solutiondata	s;
 	int			n;
@@ -729,12 +730,9 @@ int createsolutionfilelist(gameseries const *series,
 		return FALSE;
 	}
 
-	table->rows = s.filelist.size() + 1;
-	table->cols = 1;
-	table->items.push_back({1, LeftAlign, "Select a solution file"});
-
+	table->addCell("Select a solution file");
 	for (unsigned int i = 0; i < s.filelist.size(); i++) {
-		table->items.push_back({1, LeftAlign, s.filelist[i]});
+		table->addCell(s.filelist[i]);
 	}
 
 	*filelist = s.filelist;

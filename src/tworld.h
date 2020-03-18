@@ -9,6 +9,7 @@
 #ifndef	HEADER_tworld_h_
 #define	HEADER_tworld_h_
 
+#include	"TWTableSpec.h"
 #include	"defs.h"
 
 enum { Play_None, Play_Normal, Play_Back, Play_Verify };
@@ -32,7 +33,7 @@ typedef	struct seriesdata {
 	int		count;		/* size of array */
 	mapfileinfo *mflist;	/* List of all levelset files */
 	int		mfcount;	/* Number of levelset files */
-	tablespec	table;		/* table for displaying the array */
+	TWTableSpec	*table;		/* table for displaying the array */
 } seriesdata;
 
 /* Load the levelset history.

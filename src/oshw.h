@@ -9,6 +9,7 @@
 #ifndef	HEADER_oshw_h_
 #define	HEADER_oshw_h_
 
+#include	"TWTableSpec.h"
 #include	"defs.h"
 
 struct gamestate;
@@ -100,7 +101,7 @@ typedef enum {
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-extern int displaylist(tablespec const *table, int *index,
+extern int displaylist(TWTableSpec *table, int *index,
 	DisplayListType listtype); // TWMainWnd.cpp
 
 /* Input prompts.

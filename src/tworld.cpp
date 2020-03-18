@@ -13,6 +13,7 @@
 #include	<vector>
 #include	<string>
 
+#include	"TWTableSpec.h"
 #include	"tworld.h"
 #include	"defs.h"
 #include	"series.h"
@@ -173,7 +174,7 @@ static int melindawatching(gamespec const *gs)
  */
 static int showsolutionfiles(gamespec *gs)
 {
-	tablespec		table;
+	TWTableSpec		table(1);
 	std::vector<std::string>	      filelist;
 	int			count, current, f, n;
 
@@ -235,12 +236,10 @@ static int showsolutionfiles(gamespec *gs)
  */
 static int showscores(gamespec *gs)
 {
-	tablespec	table;
+	TWTableSpec	table(5);
 	int	       *levellist;
-	int		ret = FALSE;
-	int		count, f, n;
+	int		count, n;
 
-restart:
 	createscorelist(&gs->series, gs->usepasswds, &levellist, &count, &table);
 
 	for (n = 0; n < count; ++n)
@@ -249,7 +248,7 @@ restart:
 
 	pushsubtitle(gs->series.name);
 	for (;;) {
-		f = displaylist(&table, &n, LIST_SCORES);
+		int f = displaylist(&table, &n, LIST_SCORES);
 		if (f == CmdProceed) {
 			n = levellist[n];
 			break;
@@ -261,14 +260,10 @@ restart:
 	popsubtitle();
 
 	freescorelist(levellist);
-	if (f == CmdSeeSolutionFiles) {
-		setcurrentgame(gs, n);
-		ret = showsolutionfiles(gs);
-		goto restart;
-	}
+
 	if (n < 0)
-		return ret;
-	return setcurrentgame(gs, n) || ret;
+		return 0;
+	return setcurrentgame(gs, n);
 }
 
 /* Obtain a password from the user and move to the requested level.
@@ -967,13 +962,11 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
 }
 
 #define PRODUCE_SINGLE_COLUMN_TABLE(table, heading, data, count, L, R) do { \
-(table).items.push_back({1, LeftAlign, heading}); \
+(table).addCell(heading); \
 \
 for (int _y = 0 ; _y < (count) ; ++_y) { \
-	(table).items.push_back({1, LeftAlign, L(data)[_y] R}); \
+	(table).addCell(L(data)[_y] R); \
 } \
-(table).rows = (count) + 1; \
-(table).cols = 1; \
 } while (0)
 
 
@@ -997,7 +990,7 @@ static int findseries(seriesdata *series, int idx)
 /* Helper function for selectseriesandlevel */
 static int chooseseries(seriesdata *series, int *pn, int founddefault)
 {
-	tablespec mftable;
+	TWTableSpec mftable(1);
 	PRODUCE_SINGLE_COLUMN_TABLE(mftable, "Levelset",
 		series->mflist, series->mfcount, , .filename);
 
@@ -1018,7 +1011,7 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 		if (chosengsl->count == 1)
 			chosenseries = chosengsl->list[0];
 		else {
-			tablespec gstable;
+			TWTableSpec gstable(1);
 			PRODUCE_SINGLE_COLUMN_TABLE(gstable, "Profile",
 				chosengsl->list, chosengsl->count, series->list[,].name);
 			int m = 0;

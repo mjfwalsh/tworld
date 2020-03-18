@@ -7,6 +7,7 @@
 #ifndef	HEADER_score_h_
 #define	HEADER_score_h_
 
+#include	"TWTableSpec.h"
 #include	"defs.h"
 
 /* Return the user's scores for a given level. The last three arguments
@@ -27,7 +28,7 @@ extern int getscoresforlevel(gameseries const *series, int level,
  * is returned if an error occurs.
  */
 extern void createscorelist(gameseries const *series, int usepasswds,
-			   int **plevellist, int *pcount, tablespec *table);
+			   int **plevellist, int *pcount, TWTableSpec *table);
 
 
 /* Free all memory allocated by the above functions.

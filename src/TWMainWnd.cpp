@@ -31,7 +31,7 @@
 
 #include "TWMainWnd.h"
 #include "TWApp.h"
-#include "TWTableModel.h"
+#include "TWTableSpec.h"
 #include "oshwbind.h"
 #include "defs.h"
 #include "messages.h"
@@ -879,12 +879,12 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-int displaylist(tablespec const *table, int *index, DisplayListType listtype)
+int displaylist(TWTableSpec *table, int *index, DisplayListType listtype)
 {
 	return g_pMainWnd->DisplayList(table, index, listtype);
 }
 
-int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
+int TileWorldMainWnd::DisplayList(TWTableSpec* model, int* pnIndex,
 		DisplayListType eListType)
 {
 	int nCmd = 0;
@@ -914,18 +914,17 @@ int TileWorldMainWnd::DisplayList(const tablespec* pTableSpec, int* pnIndex,
 
 	// dummy scope to force model destructors before ExitTWorld
 	{
-		TWTableModel model;
-		model.SetTableSpec(pTableSpec);
+		model->fixRows();
 		QSortFilterProxyModel proxyModel;
 		m_pSortFilterProxyModel = &proxyModel;
 		proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
 		proxyModel.setFilterKeyColumn(-1);
-		proxyModel.setSourceModel(&model);
+		proxyModel.setSourceModel(model);
 		m_pTblList->setModel(&proxyModel);
 
 		m_pTblList->horizontalHeader()->setStretchLastSection(true);
 
-		QModelIndex index = proxyModel.mapFromSource(model.index(*pnIndex, 0));
+		QModelIndex index = proxyModel.mapFromSource(model->index(*pnIndex, 0));
 		m_pTblList->setCurrentIndex(index);
 		m_pTblList->resizeColumnsToContents();
 		m_pTblList->resizeRowsToContents();

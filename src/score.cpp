@@ -11,13 +11,13 @@
 #include	<sstream>
 #include	<vector>
 
+#include	"TWTableSpec.h"
 #include	"defs.h"
 #include	"play.h"
 #include	"score.h"
 #include	"err.h"
 
 using std::ostringstream;
-using std::vector;
 using std::string;
 
 /* Translate a number into a string, complete with commas.
@@ -75,11 +75,9 @@ int getscoresforlevel(gameseries const *series, int level,
  * without any information besides the level's number.
  */
 void createscorelist(gameseries const *series, int usepasswds, int **plevellist,
-	int *pcount, tablespec *rtable)
+	int *pcount, TWTableSpec *table)
 {
 	gamesetup  *game;
-	tableCell blank;
-	std::vector<tableCell> table;
 	int	       *levellist = NULL;
 	int		levelscore, timescore;
 	long	totalscore;
@@ -91,75 +89,71 @@ void createscorelist(gameseries const *series, int usepasswds, int **plevellist,
 
 	totalscore = 0;
 
-	table.push_back({1, RightAlign, "Level"});
-	table.push_back({1, LeftAlign, "Name"});
-	table.push_back({1, RightAlign, "Base"});
-	table.push_back({1, RightAlign, "Bonus"});
-	table.push_back({1, RightAlign, "Score"});
-
-	blank = {4, LeftAlign, " "};
+	table->addCell(RightAlign, "Level");
+	table->addCell(LeftAlign,  "Name");
+	table->addCell(RightAlign, "Base");
+	table->addCell(RightAlign, "Bonus");
+	table->addCell(RightAlign, "Score");
 
 	int j;
+	int blankLines = 0;
 	count = 0;
 	for (j = 0, game = series->games ; j < series->count ; ++j, ++game) {
 		if (j >= series->allocated)
 			break;
 
-		table.push_back({1, RightAlign, std::to_string(game->number)});
+		table->addCell(RightAlign, std::to_string(game->number));
 
 		if (hassolution(game)) {
-			table.push_back({1, LeftAlign, game->name});
+			table->addCell(LeftAlign, game->name);
 
 			if (game->sgflags & SGF_REPLACEABLE) {
-				table.push_back({3, CenterAlign, " (Deleted) "});
+				table->addCell(3, CenterAlign, " (Deleted) ");
 			} else {
 				levelscore = 500 * game->number;
-				table.push_back({1, RightAlign, cdecimal(levelscore)});
+				table->addCell(RightAlign, cdecimal(levelscore));
 
 				if (game->time) {
 					timescore = 10 * (game->time - game->besttime / TICKS_PER_SECOND);
-					table.push_back({1, RightAlign, cdecimal(timescore)});
+					table->addCell(RightAlign, cdecimal(timescore));
 				} else {
 					timescore = 0;
-					table.push_back({1, RightAlign, "---"});
+					table->addCell(RightAlign, "---");
 				}
-				table.push_back({1, RightAlign, cdecimal(levelscore + timescore)});
+				table->addCell(RightAlign, cdecimal(levelscore + timescore));
 				totalscore += levelscore + timescore;
 			}
 			levellist[count] = j;
+			blankLines = 0;
 			++count;
 		} else {
 			if (!usepasswds || (game->sgflags & SGF_HASPASSWD)) {
-				table.push_back({4, LeftAlign, game->name});
+				table->addCell(4, LeftAlign, game->name);
 
 				levellist[count] = j;
+				blankLines = 0;
 			} else {
-				table.push_back(blank);
+				table->addCell(4, LeftAlign, ""); // blank line
+				blankLines++;
 				levellist[count] = -1;
 			}
 			++count;
 		}
 	}
 
-	while (table[table.size()-1].text == blank.text
-			&& table[table.size()-1].colspan == blank.colspan) {
-		table.pop_back();
-		table.pop_back();
-		--count;
-	}
+	// trim empty rows
+	table->trimCells(blankLines * 5);
+	count -= blankLines;
 
-	table.push_back({2, LeftAlign, "Total Score"});
-	table.push_back({3, RightAlign, cdecimal(totalscore)});
+	// add trailing row
+	table->addCell(2, LeftAlign, "Total Score");
+	table->addCell(3, RightAlign, cdecimal(totalscore));
 
 	levellist[count] = -1;
 	++count;
 
 	*plevellist = levellist;
 	*pcount = count;
-
-	rtable->rows = count + 1;
-	rtable->cols = 5;
-	rtable->items = table;
 }
 
 /* Free the memory allocated by createscorelist() or createtimelist().

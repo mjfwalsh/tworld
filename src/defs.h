@@ -26,27 +26,9 @@
 #define	FALSE	0
 #endif
 
-/* Definition of the contents and layout of a table.
- *
- * Each table cell is a struct containing the column span, alignment
- * and text.
- */
-struct tableCell {
-	int colspan;
-	int align;
-	std::string text;
-};
-
-typedef	struct tablespec {
-	short	rows;		/* number of rows */
-	short	cols;		/* number of columns */
-	std::vector<tableCell> items; /* the table's contents */
-} tablespec;
-
 const int LeftAlign = (Qt::AlignLeft | Qt::AlignVCenter);
 const int RightAlign = (Qt::AlignRight | Qt::AlignVCenter);
 const int CenterAlign = (Qt::AlignHCenter | Qt::AlignVCenter);
-
 
 /* The dimensions of a level.
  */
