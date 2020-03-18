@@ -98,8 +98,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	QString StyleSheet(File.readAll());
 	this->setStyleSheet(StyleSheet);
 
-	m_pTblList->setItemDelegate( new TWStyledItemDelegate(m_pTblList) );
-
 	// initalise blank mouseinfo status before applying event filter
 	mouseinfo.state = 0;
 	g_pApp->installEventFilter(this);

@@ -3,31 +3,7 @@
  * See COPYING for details.
  */
 
-#include <QStyledItemDelegate>
-#include <QStyleOptionViewItem>
 #include <QAbstractTableModel>
-
-class TWStyledItemDelegate : public QStyledItemDelegate
-{
-public:
-	TWStyledItemDelegate(QObject* pParent = 0)
-		: QStyledItemDelegate(pParent) {}
-
-	virtual void paint(QPainter* pPainter, const QStyleOptionViewItem& option,
-		const QModelIndex& index) const;
-};
-
-
-void TWStyledItemDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& _option,
-	const QModelIndex& index) const
-{
-	QStyleOptionViewItem option = _option;
-	option.state &= ~QStyle::State_HasFocus;
-	QStyledItemDelegate::paint(pPainter, option, index);
-}
-
-// ... All this just to remove a silly little dotted focus rectangle
-
 
 class TWTableModel : public QAbstractTableModel
 {
