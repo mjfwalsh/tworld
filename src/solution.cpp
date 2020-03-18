@@ -8,13 +8,15 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
+
 #include	<vector>
 #include	<string>
+
 #include	"defs.h"
-#include	"err.h"
 #include	"fileio.h"
 #include	"series.h"
 #include	"solution.h"
+#include	"err.h"
 
 /*
  * The following is a description of the solution file format. Note that

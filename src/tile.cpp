@@ -6,11 +6,12 @@
 
 #include	<stdio.h>
 #include	<stdlib.h>
+
 #include	"tile.h"
 #include	"oshwbind.h"
 #include	"defs.h"
-#include	"err.h"
 #include	"state.h"
+#include	"err.h"
 
 /* Direction offsets.
  */

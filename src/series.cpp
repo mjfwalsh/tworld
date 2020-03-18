@@ -10,13 +10,14 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
+
 #include	"defs.h"
-#include	"err.h"
 #include	"fileio.h"
 #include	"solution.h"
 #include	"unslist.h"
 #include	"series.h"
 #include	"oshw.h"
+#include	"err.h"
 
 /* The signature bytes of the data files.
  */

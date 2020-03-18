@@ -8,7 +8,9 @@
 
 #include <QMainWindow>
 #include <QLocale>
+
 #include "../obj/ui_TWMainWnd.h"
+
 #include "CCMetaData.h"
 #include "oshwbind.h"
 #include "defs.h"

@@ -14,9 +14,10 @@
 #include	<errno.h>
 #include	<dirent.h>
 #include	<sys/stat.h>
+
 #include	"defs.h"
-#include	"err.h"
 #include	"fileio.h"
+#include	"err.h"
 
 static char *dirs[NUMBER_OF_DIRS];
 

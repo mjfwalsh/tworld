@@ -3,6 +3,32 @@
  * See COPYING for details.
  */
 
+#include <QApplication>
+#include <QClipboard>
+#include <QEvent>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QPushButton>
+#include <QTextDocument>
+#include <QSortFilterProxyModel>
+#if defined(Q_OS_WIN)
+#include <QStyle>
+#endif
+#include <QPainter>
+#include <QDir>
+#include <QFileInfo>
+#include <QString>
+#include <QTextStream>
+#include <QTimer>
+#include <QFontMetrics>
+#include <QRect>
+
+#include <string.h>
+
+#include <cmath>
+
 #include "TWMainWnd.h"
 #include "TWApp.h"
 #include "TWTableModel.h"
@@ -15,50 +41,17 @@
 #include "play.h"
 #include "oshw.h"
 #include "fileio.h"
-#include "err.h"
 #include "help.h"
 #include "timer.h"
 #include "sdlsfx.h"
-
-extern int pedanticmode;
-
-#include <QApplication>
-#include <QClipboard>
-
-#include <QEvent>
-#include <QKeyEvent>
-#include <QMouseEvent>
-
-#include <QMessageBox>
-#include <QInputDialog>
-#include <QPushButton>
-
-#include <QTextDocument>
-
-#include <QSortFilterProxyModel>
-
-#if defined(Q_OS_WIN)
-#include <QStyle>
-#endif
-
-#include <QPainter>
-
-#include <QDir>
-#include <QFileInfo>
-
-#include <QString>
-#include <QTextStream>
-#include <QTimer>
-#include <QFontMetrics>
-#include <QRect>
-
-#include <string.h>
-#include <cmath>
+#include "err.h"
 
 using namespace std;
 
 #define CONTINUE_PROPRGATION false
 #define STOP_PROPRGATION true
+
+extern int pedanticmode;
 
 constexpr TileWorldMainWnd::keycmdmap TileWorldMainWnd::keycmds[];
 

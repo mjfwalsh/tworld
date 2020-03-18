@@ -3,10 +3,9 @@
  * See COPYING for details.
  */
 
-#include "TWProgressBar.h"
-
 #include <QPainter>
 
+#include "TWProgressBar.h"
 
 TWProgressBar::TWProgressBar(QWidget* pParent)
 	:

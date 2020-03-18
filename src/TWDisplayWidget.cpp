@@ -3,9 +3,9 @@
  * See COPYING for details.
  */
 
-#include "TWDisplayWidget.h"
-
 #include <QPainter>
+
+#include "TWDisplayWidget.h"
 
 TWDisplayWidget::TWDisplayWidget(QWidget* pParent)
 	:

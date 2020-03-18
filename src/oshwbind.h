@@ -8,10 +8,11 @@
 #ifndef	HEADER_qt_oshwbind_h_
 #define	HEADER_qt_oshwbind_h_
 
-#include <stdint.h>
 #include <Qt>
 #include <QPixmap>
 #include <QImage>
+
+#include <stdint.h>
 
 struct gamestate;
 

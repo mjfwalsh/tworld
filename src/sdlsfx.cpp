@@ -5,13 +5,15 @@
  * No warranty. See COPYING for details.
  */
 
+#include	<SDL.h>
+
 #include	<stdlib.h>
 #include	<string.h>
-#include	<SDL.h>
+
 #include	"sdlsfx.h"
-#include	"err.h"
 #include	"settings.h"
 #include	"defs.h"
+#include	"err.h"
 
 /* Some generic default settings for the audio output.
  */

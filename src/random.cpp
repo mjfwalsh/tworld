@@ -18,6 +18,7 @@
 
 #include	<stdlib.h>
 #include	<time.h>
+
 #include	"defs.h"
 #include	"random.h"
 

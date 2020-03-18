@@ -5,11 +5,12 @@
  */
 
 #include	<stdlib.h>
+
 #include	"defs.h"
-#include	"err.h"
 #include	"state.h"
 #include	"random.h"
 #include	"logic.h"
+#include	"err.h"
 
 /* A number well above the maximum number of creatures that could possibly
  * exist simultaneously.

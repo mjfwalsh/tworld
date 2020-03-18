@@ -8,10 +8,11 @@
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
+
 #include	"defs.h"
-#include	"err.h"
 #include	"fileio.h"
 #include	"unslist.h"
+#include	"err.h"
 
 /* The information comprising one entry in the list of unsolvable
  * levels.

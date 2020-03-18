@@ -5,10 +5,10 @@
  * No warranty. See COPYING for details.
  */
 
-#include	"oshwbind.h"
-
 #include <QBitmap>
 #include <QPainter>
+
+#include "oshwbind.h"
 
 /* Values global to this module.
  */

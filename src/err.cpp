@@ -7,6 +7,7 @@
 #include	<stdlib.h>
 #include	<stdarg.h>
 #include	<stdio.h>
+
 #include	"err.h"
 
 /* "Hidden" arguments to warn_, errmsg_, and die_.

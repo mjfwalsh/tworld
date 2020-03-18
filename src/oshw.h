@@ -9,7 +9,6 @@
 #ifndef	HEADER_oshw_h_
 #define	HEADER_oshw_h_
 
-#include	<stdarg.h>
 #include	"defs.h"
 
 struct gamestate;

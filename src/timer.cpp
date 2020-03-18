@@ -4,9 +4,10 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include	<stdlib.h>
 #include	<QThread>
 #include	<QElapsedTimer>
+
+#include	<stdlib.h>
 
 #include	"defs.h"
 #include	"timer.h"

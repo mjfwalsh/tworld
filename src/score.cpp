@@ -5,7 +5,6 @@
  * See COPYING for details.
  */
 
-//#include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -13,9 +12,9 @@
 #include	<vector>
 
 #include	"defs.h"
-#include	"err.h"
 #include	"play.h"
 #include	"score.h"
+#include	"err.h"
 
 using std::ostringstream;
 using std::vector;

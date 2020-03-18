@@ -5,10 +5,11 @@
  */
 
 #include	<string.h>
+
 #include	"defs.h"
 #include	"state.h"
-#include	"err.h"
 #include	"encoding.h"
+#include	"err.h"
 
 /* Read a 16-bit value, stored little-endian, from the level data
  * stream.

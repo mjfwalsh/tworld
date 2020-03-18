@@ -9,12 +9,12 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
+
 #include	<vector>
 #include	<string>
 
 #include	"tworld.h"
 #include	"defs.h"
-#include	"err.h"
 #include	"series.h"
 #include	"play.h"
 #include	"score.h"
@@ -24,6 +24,7 @@
 #include	"fileio.h"
 #include	"timer.h"
 #include	"sdlsfx.h"
+#include	"err.h"
 
 /* History of levelsets in order of last used date/time.
  */

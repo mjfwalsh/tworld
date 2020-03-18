@@ -3,6 +3,10 @@
  * See COPYING for details.
  */
 
+#include <QClipboard>
+
+#include <stdlib.h>
+
 #include "TWApp.h"
 #include "TWMainWnd.h"
 #include "tworld.h"
@@ -13,12 +17,8 @@
 #include "defs.h"
 #include "oshw.h"
 #include "res.h"
-#include "err.h"
 #include "fileio.h"
-
-#include <QClipboard>
-
-#include <stdlib.h>
+#include "err.h"
 
 TileWorldApp* g_pApp = 0;
 TileWorldMainWnd* g_pMainWnd = 0;

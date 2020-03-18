@@ -4,14 +4,14 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include "messages.h"
-#include "fileio.h"
-#include "err.h"
-
 #include <QStringList>
 #include <QFile>
 #include <QBitArray>
 #include <QVector>
+
+#include "messages.h"
+#include "fileio.h"
+#include "err.h"
 
 QStringList messages;
 QVector<size_t> typeindex[MessageTypeCount];

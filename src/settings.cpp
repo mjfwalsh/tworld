@@ -4,16 +4,16 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include "settings.h"
-#include "err.h"
-#include "fileio.h"
-#include "defs.h"
-
 #include <cstdlib>
 #include <fstream>
 #include <map>
 #include <sstream>
 #include <utility>
+
+#include "settings.h"
+#include "fileio.h"
+#include "defs.h"
+#include "err.h"
 
 using std::free;
 using std::getline;

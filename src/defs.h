@@ -9,11 +9,13 @@
 #ifndef	HEADER_defs_h_
 #define	HEADER_defs_h_
 
+#include	<Qt>
+
 #include	<stdio.h>
 #include	<time.h>
+
 #include	<vector>
 #include	<string>
-#include	<Qt>
 
 /* The standard Boolean values.
  */

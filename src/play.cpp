@@ -8,8 +8,8 @@
 
 #include	<stdlib.h>
 #include	<string.h>
+
 #include	"defs.h"
-#include	"err.h"
 #include	"state.h"
 #include	"encoding.h"
 #include	"oshw.h"
@@ -20,6 +20,7 @@
 #include	"play.h"
 #include	"timer.h"
 #include	"sdlsfx.h"
+#include	"err.h"
 
 /* The current state of the current game.
  */

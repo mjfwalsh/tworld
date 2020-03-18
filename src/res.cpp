@@ -7,14 +7,15 @@
 
 #include	<stdlib.h>
 #include	<string.h>
+
 #include	"defs.h"
 #include	"messages.h"
-#include	"err.h"
 #include	"unslist.h"
 #include	"res.h"
 #include	"tile.h"
 #include	"fileio.h"
 #include	"sdlsfx.h"
+#include	"err.h"
 
 // the length of the longest res filename
 #define FILENAME_LEN 12
