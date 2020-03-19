@@ -33,6 +33,9 @@ public:
 
 	void trimCells(int num);
 
+	inline int cols() const
+		{return m_nCols;}
+
 protected:
 	struct ItemInfo {
 		int align;

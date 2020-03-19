@@ -12,8 +12,6 @@
 #include <QPixmap>
 #include <QImage>
 
-#include <stdint.h>
-
 struct gamestate;
 
 /* Constants
@@ -110,7 +108,7 @@ class Qt_Surface
 public:
 	Qt_Surface();
 	Qt_Surface(int w, int h, int bTransparent);
-	Qt_Surface(const char* szFilename);
+	explicit Qt_Surface(const char* szFilename);
 
 	int w = 0;
 	int h = 0;

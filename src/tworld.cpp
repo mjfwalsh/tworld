@@ -961,14 +961,6 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
 	}
 }
 
-#define PRODUCE_SINGLE_COLUMN_TABLE(table, heading, data, count, L, R) do { \
-(table).addCell(heading); \
-\
-for (int _y = 0 ; _y < (count) ; ++_y) { \
-	(table).addCell(L(data)[_y] R); \
-} \
-} while (0)
-
 
 /* Determine the index in series->mflist where the gameseries with index idx
  * is found. Returns 0 if there is no such index. */
@@ -991,8 +983,10 @@ static int findseries(seriesdata *series, int idx)
 static int chooseseries(seriesdata *series, int *pn, int founddefault)
 {
 	TWTableSpec mftable(1);
-	PRODUCE_SINGLE_COLUMN_TABLE(mftable, "Levelset",
-		series->mflist, series->mfcount, , .filename);
+	mftable.addCell("Levelset");
+	for (int y = 0 ; y < series->mfcount; y++) {
+		mftable.addCell(series->mflist[y].filename);
+	}
 
 	/* Choose mapfile to be selected by default */
 	int n = (founddefault ? findseries(series, *pn) : 0);
@@ -1012,8 +1006,11 @@ static int chooseseries(seriesdata *series, int *pn, int founddefault)
 			chosenseries = chosengsl->list[0];
 		else {
 			TWTableSpec gstable(1);
-			PRODUCE_SINGLE_COLUMN_TABLE(gstable, "Profile",
-				chosengsl->list, chosengsl->count, series->list[,].name);
+			gstable.addCell("Profile");
+			for (int y = 0; y < chosengsl->count; y++) {
+				gstable.addCell(series->list[chosengsl->list[y]].name);
+			}
+
 			int m = 0;
 			for (;;) {
 				f = displaylist(&gstable, &m, LIST_SERIES);

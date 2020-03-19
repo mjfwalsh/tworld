@@ -8,58 +8,47 @@
 #include <fstream>
 #include <map>
 #include <sstream>
-#include <utility>
 
 #include "settings.h"
 #include "fileio.h"
 #include "defs.h"
 #include "err.h"
 
-using std::free;
-using std::getline;
-using std::ifstream;
-using std::istringstream;
-using std::map;
-using std::move;
-using std::ofstream;
-using std::ostringstream;
-using std::string;
+using namespace std;
 
-namespace
-{
-	map<string, string> settings;
-}
-
-char const * sfname = "settings";
+map<string, string> settings;
+char const *sfname = "settings";
 
 void loadsettings()
 {
-	char *fname = getpathforfileindir(SETTINGSDIR, sfname);
-	ifstream in(fname);
-	free(fname);
+	if(!settings.empty()) {
+		warn("Settings already loaded");
+		return;
+	}
+
+	char *fpath = getpathforfileindir(SETTINGSDIR, sfname);
+	ifstream in(fpath);
+	free(fpath);
 
 	if (!in)
 		return;
 
-	map<string, string> newsettings;
 	string line;
 	while (getline(in, line)) {
 		size_t pos(line.find('='));
 		if (pos != string::npos)
-		newsettings.insert({line.substr(0, pos), line.substr(pos+1)});
+		settings.insert({line.substr(0, pos), line.substr(pos+1)});
 	}
 
 	if (!in.eof())
 		warn("Error reading settings file");
-
-	settings = move(newsettings);
 }
 
 void savesettings()
 {
-	char *fname = getpathforfileindir(SETTINGSDIR, sfname);
-	ofstream out(fname);
-	free(fname);
+	char *fpath = getpathforfileindir(SETTINGSDIR, sfname);
+	ofstream out(fpath);
+	free(fpath);
 
 	if (!out) {
 		warn("Could not open settings file");
@@ -77,10 +66,10 @@ void savesettings()
 
 int getintsetting(char const * name)
 {
-	std::map<string, string>::const_iterator loc(settings.find(name));
+	map<string, string>::const_iterator loc(settings.find(name));
 	if (loc == settings.end())
 		return -1;
-	std::istringstream in(loc->second);
+	istringstream in(loc->second);
 	int i;
 	if (!(in >> i))
 		return -1;
@@ -89,14 +78,14 @@ int getintsetting(char const * name)
 
 void setintsetting(char const * name, int val)
 {
-	std::ostringstream out;
+	ostringstream out;
 	out << val;
 	settings[name] = out.str();
 }
 
 char const * getstringsetting(char const * name)
 {
-	std::map<string, string>::const_iterator loc(settings.find(name));
+	map<string, string>::const_iterator loc(settings.find(name));
 	if (loc == settings.end())
 		return nullptr;
 	return loc->second.c_str();

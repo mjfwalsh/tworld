@@ -884,7 +884,7 @@ int displaylist(TWTableSpec *table, int *index, DisplayListType listtype)
 	return g_pMainWnd->DisplayList(table, index, listtype);
 }
 
-int TileWorldMainWnd::DisplayList(TWTableSpec* model, int* pnIndex,
+int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 		DisplayListType eListType)
 {
 	int nCmd = 0;
@@ -912,19 +912,19 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* model, int* pnIndex,
 	menu_Zoom->setEnabled(false);
 	menu_Solution->setEnabled(false);
 
-	// dummy scope to force model destructors before ExitTWorld
+	// dummy scope to force table spec destructors before ExitTWorld
 	{
-		model->fixRows();
+		table->fixRows();
 		QSortFilterProxyModel proxyModel;
 		m_pSortFilterProxyModel = &proxyModel;
 		proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
 		proxyModel.setFilterKeyColumn(-1);
-		proxyModel.setSourceModel(model);
+		proxyModel.setSourceModel(table);
 		m_pTblList->setModel(&proxyModel);
 
-		m_pTblList->horizontalHeader()->setStretchLastSection(true);
+		m_pTblList->horizontalHeader()->setStretchLastSection(table->cols() == 1);
 
-		QModelIndex index = proxyModel.mapFromSource(model->index(*pnIndex, 0));
+		QModelIndex index = proxyModel.mapFromSource(table->index(*pnIndex, 0));
 		m_pTblList->setCurrentIndex(index);
 		m_pTblList->resizeColumnsToContents();
 		m_pTblList->resizeRowsToContents();
