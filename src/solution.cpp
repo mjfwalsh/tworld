@@ -206,24 +206,24 @@ static int readsolutionheader(fileinfo *file, int ruleset, int *flags,
 	unsigned short	f;
 	unsigned char	n;
 
-	if (!filereadint32(file, &sig, "not a valid solution file"))
+	if (!file->filereadint32(&sig, "not a valid solution file"))
 		return FALSE;
 	if (sig != CSSIG)
 		return fileerr(file, "not a valid solution file");
-	if (!filereadint8(file, &n, "not a valid solution file"))
+	if (!file->filereadint8(&n, "not a valid solution file"))
 		return FALSE;
 	if (n != ruleset)
 		return fileerr(file, "solution file is for a different ruleset"
 			" than the level set file");
-	if (!filereadint16(file, &f, "not a valid solution file"))
+	if (!file->filereadint16(&f, "not a valid solution file"))
 		return FALSE;
 	*flags = (int)f;
 
-	if (!filereadint8(file, &n, "not a valid solution file"))
+	if (!file->filereadint8(&n, "not a valid solution file"))
 		return FALSE;
 	*extrasize = n;
 	if (n)
-		if (!fileread(file, extra, *extrasize, "not a valid solution file"))
+		if (!file->fileread(extra, *extrasize, "not a valid solution file"))
 			return FALSE;
 
 	return TRUE;
@@ -234,11 +234,11 @@ static int readsolutionheader(fileinfo *file, int ruleset, int *flags,
 static int writesolutionheader(fileinfo *file, int ruleset, int flags,
 	int extrasize, unsigned char const *extra)
 {
-	return filewriteint32(file, CSSIG, NULL)
-		&& filewriteint8(file, ruleset, NULL)
-		&& filewriteint16(file, flags, NULL)
-		&& filewriteint8(file, extrasize, NULL)
-		&& filewrite(file, extra, extrasize, NULL);
+	return file->filewriteint32(CSSIG, NULL)
+		&& file->filewriteint8(ruleset, NULL)
+		&& file->filewriteint16(flags, NULL)
+		&& file->filewriteint8(extrasize, NULL)
+		&& file->filewrite(extra, extrasize, NULL);
 }
 
 /* Write the name of the level set to the given solution file.
@@ -249,9 +249,9 @@ static int writesolutionsetname(fileinfo *file, char const *setname)
 	int		n;
 
 	n = strlen(setname) + 1;
-	return filewriteint32(file, n + 16, NULL)
-		&& filewrite(file, zeroes, 16, NULL)
-		&& filewrite(file, setname, n, NULL);
+	return file->filewriteint32(n + 16, NULL)
+		&& file->filewrite(zeroes, 16, NULL)
+		&& file->filewrite(setname, n, NULL);
 }
 
 /*
@@ -471,12 +471,12 @@ static int readsolution(fileinfo *file, gamesetup *game)
 	if (!file->fp)
 		return TRUE;
 
-	if (!filereadint32(file, &size, NULL) || size == 0xFFFFFFFF)
+	if (!file->filereadint32(&size, NULL) || size == 0xFFFFFFFF)
 		return FALSE;
 	if (!size)
 		return TRUE;
 	game->solutionsize = size;
-	game->solutiondata = filereadbuf(file, size, "unexpected EOF");
+	game->solutiondata = file->filereadbuf(size, "unexpected EOF");
 	if (!game->solutiondata || (size <= 16 && size != 6))
 		return fileerr(file, "invalid data in solution file");
 	game->number = (game->solutiondata[1] << 8) | game->solutiondata[0];
@@ -510,14 +510,14 @@ static int readsolution(fileinfo *file, gamesetup *game)
 static int writesolution(fileinfo *file, gamesetup const *game)
 {
 	if (game->solutionsize && (game->sgflags & SGF_REPLACEABLE) == 0) {
-		if (!filewriteint32(file, game->solutionsize, "write error")
-			|| !filewrite(file, game->solutiondata,
+		if (!file->filewriteint32(game->solutionsize, "write error")
+			|| !file->filewrite(game->solutiondata,
 				game->solutionsize, "write error"))
 			return FALSE;
 	} else if (game->sgflags & SGF_HASPASSWD) {
-		if (!filewriteint32(file, 6, "write error")
-			|| !filewriteint16(file, game->number, "write error")
-			|| !filewrite(file, game->passwd, 4, "write error"))
+		if (!file->filewriteint32(6, "write error")
+			|| !file->filewriteint16(game->number, "write error")
+			|| !file->filewrite(game->passwd, 4, "write error"))
 			return FALSE;
 	}
 
@@ -555,7 +555,7 @@ static int opensolutionfile(gameseries *series, bool writable)
 		filename = buf;
 	}
 
-	n = openfileindir(&series->savefile, SOLUTIONDIR, filename,
+	n = series->savefile.openfileindir(SOLUTIONDIR, filename,
 		writable ? "wb" : "rb",
 		writable ? "can't access file" : NULL);
 	if (buf)
@@ -618,7 +618,7 @@ int readsolutions(gameseries *series)
 		series->games[n].solutiondata = gametmp.solutiondata;
 	}
 
-	fileclose(&series->savefile, NULL);
+	series->savefile.fileclose(NULL);
 	return TRUE;
 }
 
@@ -633,7 +633,7 @@ int savesolutions(gameseries *series)
 		return TRUE;
 
 	if (series->savefile.fp)
-		fileclose(&series->savefile, NULL);
+		series->savefile.fileclose(NULL);
 	if (series->gsflags & GSF_NODEFAULTSAVE)
 		return TRUE;
 	if (!opensolutionfile(series, TRUE))
@@ -653,7 +653,7 @@ int savesolutions(gameseries *series)
 				"saved-game file has become corrupted!");
 	}
 
-	fileclose(&series->savefile, NULL);
+	series->savefile.fileclose(NULL);
 	return TRUE;
 }
 
@@ -674,7 +674,7 @@ void clearsolutions(gameseries *series)
 	}
 	series->solheadersize = 0;
 	series->solheaderflags = 0;
-	fileclose(&series->savefile, NULL);
+	series->savefile.fileclose(NULL);
 }
 
 /*

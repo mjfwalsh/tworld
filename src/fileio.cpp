@@ -23,18 +23,17 @@ static char *dirs[NUMBER_OF_DIRS];
 
 /* The function used to display error messages relating to file I/O.
  */
-int fileerr_(char const *cfile, unsigned long lineno,
-	fileinfo *file, char const *msg)
+int fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg)
 {
 	if (msg) {
 		err_cfile_ = cfile;
 		err_lineno_ = lineno;
-		errmsg_(file->name ? file->name : "file error",
+		errmsg_(this->name ? this->name : "file error",
 			errno ? strerror(errno) : msg);
 	}
-	if (file->alloc) {
-		free(file->name);
-		clearfileinfo(file);
+	if (this->alloc) {
+		free(this->name);
+		this->clearfileinfo();
 	}
 	return FALSE;
 }
@@ -45,12 +44,12 @@ int fileerr_(char const *cfile, unsigned long lineno,
 
 /* Clear the fields of the fileinfo struct.
  */
-void clearfileinfo(fileinfo *file)
+void fileinfo::clearfileinfo()
 {
-	file->name = NULL;
-	file->fp = NULL;
-	file->alloc = FALSE;
-	file->dir = -1;
+	this->name = NULL;
+	this->fp = NULL;
+	this->alloc = FALSE;
+	this->dir = -1;
 }
 
 /* Hack to get around MinGW (really msvcrt.dll) not supporting 'x' modifier
@@ -77,71 +76,71 @@ static FILE *FOPEN(char const *name, char const *mode)
 /* Close the file, clear the file pointer, and free the name buffer if
  * necessary.
  */
-void fileclose(fileinfo *file, char const *msg)
+void fileinfo::fileclose(char const *msg)
 {
 	errno = 0;
-	if (file->fp) {
-		if (fclose(file->fp) == EOF)
-			fileerr(file, msg);
-		file->fp = NULL;
+	if (this->fp) {
+		if (fclose(this->fp) == EOF)
+			fileerr(this, msg);
+		this->fp = NULL;
 	}
-	if (file->alloc) {
-		free(file->name);
-		clearfileinfo(file);
+	if (this->alloc) {
+		free(this->name);
+		this->clearfileinfo();
 	}
 }
 
 /* rewind().
  */
-int filerewind(fileinfo *file, char const *msg)
+int fileinfo::filerewind(char const *msg)
 {
 	(void)msg;
-	rewind(file->fp);
+	rewind(this->fp);
 	return TRUE;
 }
 
 /* feof().
  */
-int filetestend(fileinfo *file)
+int fileinfo::filetestend()
 {
 	int	ch;
 
-	if (feof(file->fp))
+	if (feof(this->fp))
 		return TRUE;
-	ch = fgetc(file->fp);
+	ch = fgetc(this->fp);
 	if (ch == EOF)
 		return TRUE;
-	ungetc(ch, file->fp);
+	ungetc(ch, this->fp);
 	return FALSE;
 }
 
 /* read().
  */
-int fileread(fileinfo *file, void *data, unsigned long size, char const *msg)
+int fileinfo::fileread(void *data, unsigned long size, char const *msg)
 {
 	if (!size)
 		return TRUE;
 	errno = 0;
-	if (fread(data, size, 1, file->fp) == 1)
+	if (fread(data, size, 1, this->fp) == 1)
 		return TRUE;
-	return fileerr(file, msg);
+	return fileerr(this, msg);
 }
 
 /* Read size bytes from the given file into a newly allocated buffer.
  */
-unsigned char *filereadbuf(fileinfo *file, unsigned long size, char const *msg)
+unsigned char *fileinfo::filereadbuf(unsigned long size, char const *msg)
 {
 	unsigned char       *buf;
 
 	if (!(buf = (unsigned char *)malloc(size))) {
-		fileerr(file, msg);
+		fileerr(this, msg);
 		return NULL;
 	}
 	if (!size)
 		return buf;
 	errno = 0;
-	if (fread(buf, size, 1, file->fp) != 1) {
-		fileerr(file, msg);
+	if (fread(buf, size, 1, this->fp) != 1) {
+		fileerr(this, msg);
 		free(buf);
 		return NULL;
 	}
@@ -151,20 +150,20 @@ unsigned char *filereadbuf(fileinfo *file, unsigned long size, char const *msg)
 /* Read one full line from fp and store the first len characters,
  * including any trailing newline.
  */
-int filegetline(fileinfo *file, char *buf, int *len, char const *msg)
+int fileinfo::filegetline(char *buf, int *len, char const *msg)
 {
 	if (!*len) {
 		*buf = '\0';
 		return TRUE;
 	}
 	errno = 0;
-	if (!fgets(buf, *len, file->fp))
-		return fileerr(file, msg);
+	if (!fgets(buf, *len, this->fp))
+		return fileerr(this, msg);
 	int n = strlen(buf);
 	if (n == *len - 1 && buf[n] != '\n') {
 		int ch;
 		do
-			ch = fgetc(file->fp);
+			ch = fgetc(this->fp);
 		while (ch != EOF && ch != '\n');
 	} else
 		buf[n--] = '\0';
@@ -174,102 +173,102 @@ int filegetline(fileinfo *file, char *buf, int *len, char const *msg)
 
 /* write().
  */
-int filewrite(fileinfo *file, void const *data, unsigned long size,
+int fileinfo::filewrite(void const *data, unsigned long size,
 	char const *msg)
 {
 	if (!size)
 		return TRUE;
 	errno = 0;
-	if (fwrite(data, size, 1, file->fp) == 1)
+	if (fwrite(data, size, 1, this->fp) == 1)
 		return TRUE;
-	return fileerr(file, msg);
+	return fileerr(this, msg);
 }
 
 /* Read one byte as an unsigned integer value.
  */
-int filereadint8(fileinfo *file, unsigned char *val8, char const *msg)
+int fileinfo::filereadint8(unsigned char *val8, char const *msg)
 {
 	int	byte;
 
 	errno = 0;
-	if ((byte = fgetc(file->fp)) == EOF)
-		return fileerr(file, msg);
+	if ((byte = fgetc(this->fp)) == EOF)
+		return fileerr(this, msg);
 	*val8 = (unsigned char)byte;
 	return TRUE;
 }
 
 /* Write one byte as an unsigned integer value.
  */
-int filewriteint8(fileinfo *file, unsigned char val8, char const *msg)
+int fileinfo::filewriteint8(unsigned char val8, char const *msg)
 {
 	errno = 0;
-	if (fputc(val8, file->fp) != EOF)
+	if (fputc(val8, this->fp) != EOF)
 		return TRUE;
-	return fileerr(file, msg);
+	return fileerr(this, msg);
 }
 
 /* Read two bytes as an unsigned integer value stored in little-endian.
  */
-int filereadint16(fileinfo *file, unsigned short *val16, char const *msg)
+int fileinfo::filereadint16(unsigned short *val16, char const *msg)
 {
 	int	byte;
 
 	errno = 0;
-	if ((byte = fgetc(file->fp)) != EOF) {
+	if ((byte = fgetc(this->fp)) != EOF) {
 		*val16 = (unsigned char)byte;
-		if ((byte = fgetc(file->fp)) != EOF) {
+		if ((byte = fgetc(this->fp)) != EOF) {
 			*val16 |= (unsigned char)byte << 8;
 			return TRUE;
 		}
 	}
-	return fileerr(file, msg);
+	return fileerr(this, msg);
 }
 
 /* Write two bytes as an unsigned integer value in little-endian.
  */
-int filewriteint16(fileinfo *file, unsigned short val16, char const *msg)
+int fileinfo::filewriteint16(unsigned short val16, char const *msg)
 {
 	errno = 0;
-	if (fputc(val16 & 0xFF, file->fp) != EOF
-		&& fputc((val16 >> 8) & 0xFF, file->fp) != EOF)
+	if (fputc(val16 & 0xFF, this->fp) != EOF
+		&& fputc((val16 >> 8) & 0xFF, this->fp) != EOF)
 		return TRUE;
-	return fileerr(file, msg);
+	return fileerr(this, msg);
 }
 
 /* Read four bytes as an unsigned integer value stored in little-endian.
  */
-int filereadint32(fileinfo *file, unsigned long *val32, char const *msg)
+int fileinfo::filereadint32(unsigned long *val32, char const *msg)
 {
 	int	byte;
 
 	errno = 0;
-	if ((byte = fgetc(file->fp)) != EOF) {
+	if ((byte = fgetc(this->fp)) != EOF) {
 		*val32 = (unsigned int)byte;
-		if ((byte = fgetc(file->fp)) != EOF) {
+		if ((byte = fgetc(this->fp)) != EOF) {
 			*val32 |= (unsigned int)byte << 8;
-			if ((byte = fgetc(file->fp)) != EOF) {
+			if ((byte = fgetc(this->fp)) != EOF) {
 				*val32 |= (unsigned int)byte << 16;
-				if ((byte = fgetc(file->fp)) != EOF) {
+				if ((byte = fgetc(this->fp)) != EOF) {
 					*val32 |= (unsigned int)byte << 24;
 					return TRUE;
 				}
 			}
 		}
 	}
-	return fileerr(file, msg);
+	return fileerr(this, msg);
 }
 
 /* Write four bytes as an unsigned integer value in little-endian.
  */
-int filewriteint32(fileinfo *file, unsigned long val32, char const *msg)
+int fileinfo::filewriteint32(unsigned long val32, char const *msg)
 {
 	errno = 0;
-	if (fputc(val32 & 0xFF, file->fp) != EOF
-			&& fputc((val32 >> 8) & 0xFF, file->fp) != EOF
-			&& fputc((val32 >> 16) & 0xFF, file->fp) != EOF
-			&& fputc((val32 >> 24) & 0xFF, file->fp) != EOF)
+	if (fputc(val32 & 0xFF, this->fp) != EOF
+			&& fputc((val32 >> 8) & 0xFF, this->fp) != EOF
+			&& fputc((val32 >> 16) & 0xFF, this->fp) != EOF
+			&& fputc((val32 >> 24) & 0xFF, this->fp) != EOF)
 		return TRUE;
-	return fileerr(file, msg);
+	return fileerr(this, msg);
 }
 
 /*
@@ -324,23 +323,23 @@ char *getpathforfileindir(int dirInt, char const *filename)
  * does not already have a filename assigned to it, use name (after making an
  * independent copy).
  */
-int openfileindir(fileinfo *file, int dirInt, char const *filename,
+int fileinfo::openfileindir(int dirInt, char const *filename,
 	char const *mode, char const *msg)
 {
 	char *name = getpathforfileindir(dirInt, filename);
 
-	if (!file->name) {
-		file->alloc = TRUE;
-		x_cmalloc(file->name, strlen(filename) + 1);
-		strcpy(file->name, filename);
-		file->dir = dirInt;
+	if (!this->name) {
+		this->alloc = TRUE;
+		x_cmalloc(this->name, strlen(filename) + 1);
+		strcpy(this->name, filename);
+		this->dir = dirInt;
 	}
 
 	errno = 0;
-	file->fp = FOPEN(name, mode);
+	this->fp = FOPEN(name, mode);
 	free(name);
-	if (file->fp) return TRUE;
-	return fileerr(file, msg);
+	if (this->fp) return TRUE;
+	return fileerr(this, msg);
 }
 
 /* Read the given directory and call filecallback once for each file

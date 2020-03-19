@@ -17,6 +17,8 @@
 #include	<vector>
 #include	<string>
 
+#include	"fileio.h"
+
 /* The standard Boolean values.
  */
 #ifndef	TRUE
@@ -76,27 +78,6 @@ enum {
 	Ruleset_Count,
 	Ruleset_First = Ruleset_Lynx
 };
-
-/* enum for different directories
- */
-enum {
-	RESDIR,
-	SERIESDIR,
-	USER_SERIESDATDIR,
-	GLOBAL_SERIESDATDIR,
-	SOLUTIONDIR,
-	SETTINGSDIR,
-	NUMBER_OF_DIRS
-};
-
-/* File I/O structure.
- */
-typedef	struct fileinfo {
-	char       *name;		/* the name of the file */
-    int        dir;         /* the directory the file is in */
-	FILE       *fp;		/* the real file handle */
-	char	alloc;		/* TRUE if name was allocated internally */
-} fileinfo;
 
 /* Pseudorandom number generators.
  */
