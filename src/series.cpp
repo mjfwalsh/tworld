@@ -265,7 +265,7 @@ badlevel:
 	free(game->leveldata);
 	game->levelsize = 0;
 	game->leveldata = NULL;
-	errmsg(file->name, "level %d: invalid level data", game->number);
+	warn("%s: level %d: invalid level data", file->name, game->number);
 	return FALSE;
 }
 
@@ -342,7 +342,7 @@ int readseriesfile(gameseries *series)
 	if (series->gsflags & GSF_ALLMAPSREAD)
 		return TRUE;
 	if (series->count <= 0) {
-		errmsg(series->name, "cannot read from empty level set");
+		warn("%s: cannot read from empty level set", series->name);
 		return FALSE;
 	}
 
@@ -683,7 +683,7 @@ static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, in
 	char *newdacname = generatenewdacname(datfile, ruleset);
 	int ok = createnewdacfile(newdacname, datfile, ruleset);
 	if (!ok) {
-		errmsg(newdacname, "Attempt to create %s ruleset .dac for %s failed",
+		warn("%s: Attempt to create %s ruleset .dac for %s failed", newdacname,
 			ruleset == Ruleset_MS ? "MS" : "Lynx", datfile->filename);
 	}
 	if (errno == EEXIST) return NULL;
@@ -780,7 +780,7 @@ static int getseriesfiles(gameseries ** list, int *count,
 
 	createallmissingseries(&s);
 	if (!s.count) {
-		errmsg(NULL, "no series files found");
+		warn("no series files found");
 		return FALSE;
 	}
 

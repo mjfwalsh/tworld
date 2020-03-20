@@ -191,8 +191,6 @@ extern genericglobals geng;
 extern uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b);
 extern uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
-#define  TW_GetError()  "unspecified error"
-
 /* Process all pending events. If wait is TRUE and no events are
  * currently pending, the function blocks until an event arrives.
  */

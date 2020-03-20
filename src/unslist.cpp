@@ -265,7 +265,7 @@ void loadunslistfromfile(char const *filename)
 	file.clearfileinfo();
 	if (!file.openfileindir(RESDIR, filename, "r", NULL)) {
 		if (!file.openfileindir(SETTINGSDIR, filename, "r", NULL)) {
-			errmsg(filename, "Failed to load list of unsolvable levels");
+			warn("%s: Failed to load list of unsolvable levels", filename);
 			return;
 		}
 	}

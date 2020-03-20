@@ -23,7 +23,7 @@ void loadmessagesfromfile(char const *filename)
 {
 	// Dont load twice
 	if(!messages.isEmpty()) {
-		errmsg(filename, "Attempt to load message files a second time");
+		warn("%s: Attempt to load message files a second time", filename);
 		return;
 	}
 
@@ -32,7 +32,7 @@ void loadmessagesfromfile(char const *filename)
 	QFile infile(fname);
 	free(fname);
 	if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		errmsg(filename, "Failed to load messages file");
+		warn("%s: Failed to load messages file", filename);
 		return;
 	}
 

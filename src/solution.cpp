@@ -337,7 +337,7 @@ int expandsolution(solutioninfo *solution, gamesetup const *game)
 	return TRUE;
 
 truncated:
-	errmsg(NULL, "level %d: truncated solution data", game->number);
+	warn("level %d: truncated solution data", game->number);
 	initmovelist(&solution->moves);
 	return FALSE;
 }
@@ -365,7 +365,7 @@ int contractsolution(solutioninfo const *solution, gamesetup *game)
 			: move[0].when - move[-1].when <= (1 << 11) ? 2 : 4;
 	data = (unsigned char *)malloc(size);
 	if (!data) {
-		errmsg(NULL, "failed to record level %d solution:"
+		warn("failed to record level %d solution:"
 			" out of memory", game->number);
 		return FALSE;
 	}
@@ -593,8 +593,8 @@ int readsolutions(gameseries *series)
 			break;
 		if (gametmp.sgflags & SGF_SETNAME) {
 			if (strcmp(gametmp.name, series->name)) {
-				errmsg(series->name, "ignoring solution file %s as it was"
-					" recorded for a different level set: %s",
+				warn("%s: ignoring solution file %s as it was"
+					" recorded for a different level set: %s", series->name,
 					series->savefile.name, gametmp.name);
 				series->gsflags |= GSF_NOSAVING;
 				return FALSE;

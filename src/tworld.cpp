@@ -1045,7 +1045,7 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 	int n;
 
 	if (series->count < 1) {
-		errmsg(NULL, "no level sets found");
+		warn("no level sets found");
 		return -1;
 	}
 
@@ -1089,12 +1089,12 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, int autoplay,
 	setstringsetting("selectedseries", gs->series.name);
 
 	if (!readseriesfile(&gs->series)) {
-		errmsg(gs->series.name, "cannot read data file");
+		warn("%s: cannot read data file", gs->series.name);
 		freeseriesdata(&gs->series);
 		return -1;
 	}
 	if (gs->series.count < 1) {
-		errmsg(gs->series.name, "no levels found in data file");
+		warn("%s: no levels found in data file", gs->series.name);
 		freeseriesdata(&gs->series);
 		return -1;
 	}
@@ -1155,7 +1155,7 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 		return -1;
 
 	if (series.count <= 0) {
-		errmsg(NULL, "no level sets found");
+		warn("no level sets found");
 		return -1;
 	}
 

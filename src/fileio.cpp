@@ -28,7 +28,7 @@ int fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg)
 	if (msg) {
 		err_cfile_ = cfile;
 		err_lineno_ = lineno;
-		errmsg_(this->name ? this->name : "file error",
+		warn_(this->name ? this->name : "file error",
 			errno ? strerror(errno) : msg);
 	}
 	if (this->alloc) {

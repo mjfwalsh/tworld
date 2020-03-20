@@ -300,7 +300,7 @@ static int expandmsdatlevel(gamestate *state)
 	return TRUE;
 
 badlevel:
-	errmsg(NULL, "level %d: invalid data", setup->number);
+	warn("level %d: invalid data", setup->number);
 	return FALSE;
 }
 

@@ -527,7 +527,7 @@ static Qt_Surface *extractkeyedtile(Qt_Surface * src,
 	dest = temp->DisplayFormat();
 	delete temp;
 	if (!dest)
-		die("%s", TW_GetError());
+		die("unspecified error");
 	return dest;
 }
 
@@ -552,7 +552,7 @@ static Qt_Surface *extractemptytile(Qt_Surface * src,
 	dest = temp->DisplayFormat();
 	delete temp;
 	if (!dest)
-		die("%s", TW_GetError());
+		die("unspecified error");
 	return dest;
 }
 
@@ -591,7 +591,7 @@ static Qt_Surface *extractmaskedtile(Qt_Surface * src,
 	dest = temp->DisplayFormat();
 	delete temp;
 	if (!dest)
-		die("%s", TW_GetError());
+		die("unspecified error");
 	return dest;
 }
 
@@ -1094,7 +1094,7 @@ int loadtileset(char const *filename, int complain)
 
 	if (!tiles) {
 		if (complain)
-			errmsg(filename, "cannot read bitmap: %s", TW_GetError());
+			warn("%s: cannot read bitmap: unspecified error", filename);
 		return FALSE;
 	}
 
@@ -1113,7 +1113,7 @@ int loadtileset(char const *filename, int complain)
 		f = settilesize(w, h) && initsmalltileset(tiles);
 	} else {
 		if (complain)
-			errmsg(filename, "image file has invalid dimensions (%dx%d)",
+			warn("%s: image file has invalid dimensions (%dx%d)", filename,
 				tiles->w, tiles->h);
 		f = FALSE;
 	}

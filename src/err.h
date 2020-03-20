@@ -20,10 +20,6 @@
  */
 extern void warn_(char const *fmt, ...);
 
-/* Display an error message.
- */
-extern void errmsg_(char const *prefix, char const *fmt, ...);
-
 /* Display an error message and abort.
  */
 extern void die_(char const *fmt, ...) __attribute__((noreturn));
@@ -34,7 +30,6 @@ extern void die_(char const *fmt, ...) __attribute__((noreturn));
 extern char const      *err_cfile_;
 extern unsigned long	err_lineno_;
 #define	warn	(err_cfile_ = __FILE__, err_lineno_ = __LINE__, warn_)
-#define	errmsg	(err_cfile_ = __FILE__, err_lineno_ = __LINE__, errmsg_)
 #define	die	(err_cfile_ = __FILE__, err_lineno_ = __LINE__, die_)
 
 #endif

@@ -77,19 +77,19 @@ bool TileWorldApp::Initialize()
 
 	// initialise timer
 	if (!timerinitialize()) {
-		errmsg(NULL, "failed to initialise timer");
+		warn("failed to initialise timer");
 		return false;
 	}
 
 	// initialise tiles
 	if (!tileinitialize()) {
-		errmsg(NULL, "failed to initialise tiles");
+		warn("failed to initialise tiles");
 		return false;
 	}
 
 	// initialise sounds
 	if (!sfxinitialize()) {
-		errmsg(NULL, "failed to load sounds");
+		warn("failed to load sounds");
 	}
 
 	// initial setup of resource system

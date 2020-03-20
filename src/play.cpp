@@ -78,7 +78,7 @@ static int setrulesetbehavior(int ruleset)
 			settimersecond(1100 * mudsucking);
 			break;
 		default:
-			errmsg(NULL, "unknown ruleset requested (ruleset=%d)", ruleset);
+			warn("unknown ruleset requested (ruleset=%d)", ruleset);
 			return FALSE;
 	}
 
@@ -217,7 +217,7 @@ int doturn(int cmd)
 	state.soundeffects &= ~((1 << SND_ONESHOT_COUNT) - 1);
 	state.currenttime = gettickcount();
 	if (state.currenttime >= MAXIMUM_TICK_COUNT) {
-		errmsg(NULL, "timer reached its maximum of %d.%d hours; quitting now",
+		warn("timer reached its maximum of %d.%d hours; quitting now",
 			MAXIMUM_TICK_COUNT / (TICKS_PER_SECOND * 3600),
 			(MAXIMUM_TICK_COUNT / (TICKS_PER_SECOND * 360)) % 10);
 		return -1;
