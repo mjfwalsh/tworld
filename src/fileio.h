@@ -32,7 +32,7 @@ extern const char *getdir(int t);
 extern int haspathname(char const *name);
 
 /* Return the pathname for a directory and/or filename, using the same
- * algorithm to construct the path as openfileindir(). The caller must
+ * algorithm to construct the path as open(). The caller must
  * free the returned buffer.
  */
 extern char *getpathforfileindir(int dirInt, char const *filename);
@@ -54,58 +54,54 @@ extern int findfiles(int dirInt, void *data,
 class fileinfo
 {
 public:
-	/* Reset a fileinfo structure to indicate no file.
-	 */
-	void clearfileinfo();
-
 	/* The following functions correspond directly to C's standard I/O
 	 * functions. If msg is NULL, no error will be displayed if
 	 * the operation fails. If msg points to a string, an error will
 	 * be displayed. The text of msg will be used only if errno is
 	 * zero; otherwise a message appropriate to the error will be used.
 	 */
-	int filerewind(char const *msg);
-	int fileread(void *data, unsigned long size, char const *msg);
-	int filewrite(void const *data, unsigned long size, char const *msg);
-	void fileclose(char const *msg);
+	int rewind();
+	int read(void *data, unsigned long size, char const *msg = NULL);
+	int write(void const *data, unsigned long size, char const *msg = NULL);
+	void close();
 
-	/* filetestend() forces a check for EOF by attempting to read a byte
+	/* testend() forces a check for EOF by attempting to read a byte
 	 * from the file, and ungetting the byte if one is successfully read.
 	 */
-	int filetestend();
+	int testend();
 
 	/* The following functions read and write an unsigned integer value
 	 * from the current position in the given file. For the multi-byte
 	 * values, the value is assumed to be stored in little-endian.
 	 */
-	int filereadint8(unsigned char *val8, char const *msg);
-	int filewriteint8(unsigned char val8, char const *msg);
-	int filereadint16(unsigned short *val16, char const *msg);
-	int filewriteint16(unsigned short val16, char const *msg);
-	int filereadint32(unsigned long *val32, char const *msg);
-	int filewriteint32(unsigned long val32, char const *msg);
+	int readint8(unsigned char *val8, char const *msg = NULL);
+	int writeint8(unsigned char val8, char const *msg = NULL);
+	int readint16(unsigned short *val16, char const *msg = NULL);
+	int writeint16(unsigned short val16, char const *msg = NULL);
+	int readint32(unsigned long *val32, char const *msg = NULL);
+	int writeint32(unsigned long val32, char const *msg = NULL);
 
 	/* Read size bytes from the given file and return the bytes in a
 	 * newly allocated buffer.
 	 */
-	unsigned char *filereadbuf(unsigned long size, char const *msg);
+	unsigned char *readbuf(unsigned long size, char const *msg);
 
 	/* Read one full line from fp and store the first len characters,
 	 * including any trailing newline. len receives the length of the line
 	 * stored in buf, minus any trailing newline, upon return.
 	 */
-	int filegetline(char *buf, int *len, char const *msg);
+	int getline(char *buf, int *len, char const *msg);
 
 	/* Open a file, using dir as the directory if filename is not already
 	 * a complete pathname. FALSE is returned if the directory could not
 	 * be created.
 	 */
-	int openfileindir(int dirInt, char const *filename,
+	int open(int dirInt, char const *filename,
 				 char const *mode, char const *msg);
 
 	/* Test if the filehandle is open
 	 */
-	bool isOpen();
+	bool isopen();
 
 	/* Alias for printf
 	 */
@@ -124,10 +120,14 @@ public:
 		{return name;}
 
 private:
-	char       *name;		/* the name of the file */
-    int        dir;         /* the directory the file is in */
-	FILE       *fp;		/* the real file handle */
-	char	alloc;		/* TRUE if name was allocated internally */
+	/* Reset a fileinfo structure to indicate no file.
+	 */
+	void clearfileinfo();
+
+	char	*name = NULL;		/* the name of the file */
+    int		dir = -1;			/* the directory the file is in */
+	FILE	*fp  = NULL;		/* the real file handle */
+	bool	alloc = false;		/* true if name was allocated internally */
 };
 
 #define	fileerr(file, msg)	((file)->fileerr_(__FILE__, __LINE__, (msg)))

@@ -303,13 +303,12 @@ int loadhistory(void)
 	historycount = 0;
 	free(historylist);
 
-	file.clearfileinfo();
-	if (!file.openfileindir(SETTINGSDIR, "history", "r", NULL))
+	if (!file.open(SETTINGSDIR, "history", "r", NULL))
 		return FALSE;
 
 	for (;;) {
 		n = sizeof buf - 1;
-		if (!file.filegetline(buf, &n, NULL))
+		if (!file.getline(buf, &n, NULL))
 			break;
 
 		if (buf[0] == '#')
@@ -343,7 +342,7 @@ int loadhistory(void)
 		h->dt.tm_isdst = -1;
 	}
 
-	file.fileclose(NULL);
+	file.close();
 
 	return TRUE;
 }
@@ -386,8 +385,7 @@ void savehistory(void)
 	history    *h;
 	int		i;
 
-	file.clearfileinfo();
-	if (!file.openfileindir(SETTINGSDIR, "history", "w", NULL))
+	if (!file.open(SETTINGSDIR, "history", "w", NULL))
 		return;
 
 	h = historylist;
@@ -398,7 +396,7 @@ void savehistory(void)
 			h->passwd, h->levelnumber, h->name);
 	}
 
-	file.fileclose(NULL);
+	file.close();
 }
 
 /*

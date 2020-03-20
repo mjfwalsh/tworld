@@ -162,11 +162,11 @@ static int readseriesheader(gameseries *series)
 	unsigned short	val16;
 	int			ruleset;
 
-	if (!series->mapfile.filereadint16(&val16, "not a valid data file"))
+	if (!series->mapfile.readint16(&val16, "not a valid data file"))
 		return FALSE;
 	if (val16 != SIG_DATFILE)
 		return fileerr(&series->mapfile, "not a valid data file");
-	if (!series->mapfile.filereadint16(&val16, "not a valid data file"))
+	if (!series->mapfile.readint16(&val16, "not a valid data file"))
 		return FALSE;
 	switch (val16) {
 		case SIG_DATFILE_MS:	ruleset = Ruleset_MS;		break;
@@ -177,7 +177,7 @@ static int readseriesheader(gameseries *series)
 	}
 	if (series->ruleset == Ruleset_None)
 		series->ruleset = ruleset;
-	if (!series->mapfile.filereadint16(&val16, "not a valid data file"))
+	if (!series->mapfile.readint16(&val16, "not a valid data file"))
 		return FALSE;
 	series->count = val16;
 	if (!series->count) {
@@ -198,9 +198,9 @@ static int readleveldata(fileinfo *file, gamesetup *game)
 	unsigned short		size;
 	int				n;
 
-	if (!file->filereadint16(&size, NULL))
+	if (!file->readint16(&size))
 		return FALSE;
-	data = file->filereadbuf(size, "missing or invalid level data");
+	data = file->readbuf(size, "missing or invalid level data");
 	if (!data)
 		return FALSE;
 	if (size < 2) {
@@ -346,8 +346,8 @@ int readseriesfile(gameseries *series)
 		return FALSE;
 	}
 
-	if (!series->mapfile.isOpen()) {
-		if (!series->mapfile.openfileindir(series->mapfiledir,
+	if (!series->mapfile.isopen()) {
+		if (!series->mapfile.open(series->mapfiledir,
 				series->mapfilename, "rb", "unknown error"))
 			return FALSE;
 		if (!readseriesheader(series))
@@ -359,13 +359,13 @@ int readseriesfile(gameseries *series)
 		(series->count - series->allocated) * sizeof *series->games);
 	series->allocated = series->count;
 	n = 0;
-	while (n < series->count && !series->mapfile.filetestend()) {
+	while (n < series->count && !series->mapfile.testend()) {
 		if (readleveldata(&series->mapfile, series->games + n))
 			++n;
 		else
 			--series->count;
 	}
-	series->mapfile.fileclose(NULL);
+	series->mapfile.close();
 	series->gsflags |= GSF_ALLMAPSREAD;
 	if (series->gsflags & GSF_LYNXFIXES)
 		undomschanges(series);
@@ -384,8 +384,7 @@ void freeseriesdata(gameseries *series)
 
 	clearsolutions(series);
 
-	series->mapfile.fileclose(NULL);
-	series->mapfile.clearfileinfo();
+	series->mapfile.close();
 	free(series->mapfilename);
 	series->mapfilename = NULL;
 	series->mapfiledir = 0;
@@ -428,7 +427,7 @@ static char *readconfigfile(fileinfo *file, gameseries *series)
 	int		lineno, n;
 
 	n = sizeof buf - 1;
-	if (!file->filegetline(buf, &n, "invalid configuration file"))
+	if (!file->getline(buf, &n, "invalid configuration file"))
 		return NULL;
 	if (sscanf(buf, "file = %99[^\n\r]", datfilename) != 1) {
 		fileerr(file, "bad filename in configuration file");
@@ -440,7 +439,7 @@ static char *readconfigfile(fileinfo *file, gameseries *series)
 	}
 	for (lineno = 2 ; ; ++lineno) {
 		n = sizeof buf - 1;
-		if (!file->filegetline(buf, &n, NULL))
+		if (!file->getline(buf, &n, NULL))
 			break;
 		for (p = buf ; isspace(*p) ; ++p) ;
 		if (!*p || *p == '#')
@@ -503,20 +502,19 @@ static int getseriesfile(char const *filename, void *data)
 	char	       *datfilename;
 
 	// check is file is a dac file
-	file.clearfileinfo();
-	if (!file.openfileindir(sdata->curdir, filename, "rb", "unknown error"))
+	if (!file.open(sdata->curdir, filename, "rb", "unknown error"))
 		return 0;
-	if (!file.filereadint32(&magic, "unexpected EOF")) {
-		file.fileclose(NULL);
+	if (!file.readint32(&magic, "unexpected EOF")) {
+		file.close();
 		return 0;
 	}
-	file.filerewind(NULL);
+	file.rewind();
 	if (magic != SIG_DACFILE) {
 		fileerr(&file, "not a valid data file");
-		file.fileclose(NULL);
+		file.close();
 		return 0;
 	}
-	file.fileclose(NULL);
+	file.close();
 
 	//  allocate memory if necessary
 	if (sdata->count >= sdata->allocated) {
@@ -528,8 +526,8 @@ static int getseriesfile(char const *filename, void *data)
 	// init a blank gameseries struct
 	series->mapfilename = NULL;
 	series->mapfiledir = 0;
-	series->savefile.clearfileinfo();
-	series->mapfile.clearfileinfo();
+	series->savefile = fileinfo();
+	series->mapfile = fileinfo();
 	series->savefilename = NULL;
 	series->gsflags = 0;
 	series->solheaderflags = 0;
@@ -544,16 +542,16 @@ static int getseriesfile(char const *filename, void *data)
 	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1), filename);
 
 	// read the dac file contents
-	if (!file.openfileindir(sdata->curdir, filename, "r", "unknown error"))
+	if (!file.open(sdata->curdir, filename, "r", "unknown error"))
 		return 0;
 	datfilename = readconfigfile(&file, series);
-	file.fileclose(NULL);
+	file.close();
 	if (!datfilename) return 0;
 
 	// search for the corresponding dat file and open it
 	int datdir;
-	if (!series->mapfile.openfileindir(datdir = GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)
-			&& !series->mapfile.openfileindir(datdir = USER_SERIESDATDIR, datfilename, "rb", NULL)) {
+	if (!series->mapfile.open(datdir = GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)
+			&& !series->mapfile.open(datdir = USER_SERIESDATDIR, datfilename, "rb", NULL)) {
 		warn("cannot use %s: %s is missing", filename, datfilename);
 		return 0;
 	}
@@ -568,7 +566,7 @@ static int getseriesfile(char const *filename, void *data)
 		warn("cannot use %s: %s unavailable", filename, datfilename);
 	}
 
-	series->mapfile.fileclose(NULL);
+	series->mapfile.close();
 
 	return 0;
 }
@@ -584,23 +582,22 @@ static int getmapfile(char const *filename, void *data)
 	unsigned long	magic;
 	int			f;
 
-	file.clearfileinfo();
-	if (!file.openfileindir(sdata->curdir, filename, "rb", "unknown error"))
+	if (!file.open(sdata->curdir, filename, "rb", "unknown error"))
 		return 0;
-	if (!file.filereadint32(&magic, "unexpected EOF")) {
-		file.fileclose(NULL);
+	if (!file.readint32(&magic, "unexpected EOF")) {
+		file.close();
 		return 0;
 	}
-	file.filerewind(NULL);
+	file.rewind();
 	if ((magic & 0xFFFF) != SIG_DATFILE) {
-		file.fileclose(NULL);
+		file.close();
 		return 0;
 	}
 
 	s.mapfile = file;
 	s.ruleset = Ruleset_None;
 	f = readseriesheader(&s);
-	file.fileclose(NULL);
+	file.close();
 
 	if (f) {
 		mfinfovector *v = &sdata->mfinfo;
@@ -655,8 +652,7 @@ char *generatenewdacname(mapfileinfo const *datfile, int ruleset)
 static int createnewdacfile(char const *name, mapfileinfo const *datfile, int ruleset)
 {
 	fileinfo file;
-	file.clearfileinfo();
-	if (!file.openfileindir(SERIESDIR, name, "wx", "unknown error"))
+	if (!file.open(SERIESDIR, name, "wx", "unknown error"))
 		return FALSE;
 
 	char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
@@ -666,7 +662,7 @@ static int createnewdacfile(char const *name, mapfileinfo const *datfile, int ru
 		fileerr(&file, "write error");
 		return FALSE;
 	}
-	file.fileclose(NULL);
+	file.close();
 
 	return TRUE;
 }
@@ -692,8 +688,8 @@ static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, in
 		x_type_alloc(gameseries, s->list, s->allocated * sizeof *s->list);
 	}
 	gameseries *series = s->list + s->count;
-	series->mapfile.clearfileinfo();
-	series->savefile.clearfileinfo();
+	series->mapfile = fileinfo();
+	series->savefile = fileinfo();
 	series->savefilename = NULL;
 	series->gsflags = 0;
 	series->solheaderflags = 0;

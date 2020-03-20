@@ -164,7 +164,7 @@ static int readunslist(fileinfo *file)
 	setid = 0;
 	for (lineno = 1 ; ; ++lineno) {
 		n = sizeof buf - 1;
-		if (!file->filegetline(buf, &n, NULL))
+		if (!file->getline(buf, &n, NULL))
 			break;
 		for (p = buf ; isspace(*p) ; ++p) ;
 		if (!*p || *p == '#')
@@ -262,14 +262,13 @@ void loadunslistfromfile(char const *filename)
 		initialised = 1;
 	}
 
-	file.clearfileinfo();
-	if (!file.openfileindir(RESDIR, filename, "r", NULL)) {
-		if (!file.openfileindir(SETTINGSDIR, filename, "r", NULL)) {
+	if (!file.open(RESDIR, filename, "r", NULL)) {
+		if (!file.open(SETTINGSDIR, filename, "r", NULL)) {
 			warn("%s: Failed to load list of unsolvable levels", filename);
 			return;
 		}
 	}
 
 	readunslist(&file);
-	file.fileclose(NULL);
+	file.close();
 }

@@ -48,7 +48,7 @@ void fileinfo::clearfileinfo()
 {
 	this->name = NULL;
 	this->fp = NULL;
-	this->alloc = FALSE;
+	this->alloc = false;
 	this->dir = -1;
 }
 
@@ -76,12 +76,12 @@ static FILE *FOPEN(char const *name, char const *mode)
 /* Close the file, clear the file pointer, and free the name buffer if
  * necessary.
  */
-void fileinfo::fileclose(char const *msg)
+void fileinfo::close()
 {
 	errno = 0;
 	if (this->fp) {
 		if (fclose(this->fp) == EOF)
-			fileerr(this, msg);
+			fileerr(this, NULL);
 		this->fp = NULL;
 	}
 	if (this->alloc) {
@@ -92,16 +92,15 @@ void fileinfo::fileclose(char const *msg)
 
 /* rewind().
  */
-int fileinfo::filerewind(char const *msg)
+int fileinfo::rewind()
 {
-	(void)msg;
-	rewind(this->fp);
+	::rewind(this->fp);
 	return TRUE;
 }
 
 /* feof().
  */
-int fileinfo::filetestend()
+int fileinfo::testend()
 {
 	int	ch;
 
@@ -116,7 +115,7 @@ int fileinfo::filetestend()
 
 /* read().
  */
-int fileinfo::fileread(void *data, unsigned long size, char const *msg)
+int fileinfo::read(void *data, unsigned long size, char const *msg)
 {
 	if (!size)
 		return TRUE;
@@ -128,7 +127,7 @@ int fileinfo::fileread(void *data, unsigned long size, char const *msg)
 
 /* Read size bytes from the given file into a newly allocated buffer.
  */
-unsigned char *fileinfo::filereadbuf(unsigned long size, char const *msg)
+unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
 {
 	unsigned char       *buf;
 
@@ -150,7 +149,7 @@ unsigned char *fileinfo::filereadbuf(unsigned long size, char const *msg)
 /* Read one full line from fp and store the first len characters,
  * including any trailing newline.
  */
-int fileinfo::filegetline(char *buf, int *len, char const *msg)
+int fileinfo::getline(char *buf, int *len, char const *msg)
 {
 	if (!*len) {
 		*buf = '\0';
@@ -173,8 +172,7 @@ int fileinfo::filegetline(char *buf, int *len, char const *msg)
 
 /* write().
  */
-int fileinfo::filewrite(void const *data, unsigned long size,
-	char const *msg)
+int fileinfo::write(void const *data, unsigned long size, char const *msg)
 {
 	if (!size)
 		return TRUE;
@@ -186,7 +184,7 @@ int fileinfo::filewrite(void const *data, unsigned long size,
 
 /* Read one byte as an unsigned integer value.
  */
-int fileinfo::filereadint8(unsigned char *val8, char const *msg)
+int fileinfo::readint8(unsigned char *val8, char const *msg)
 {
 	int	byte;
 
@@ -199,7 +197,7 @@ int fileinfo::filereadint8(unsigned char *val8, char const *msg)
 
 /* Write one byte as an unsigned integer value.
  */
-int fileinfo::filewriteint8(unsigned char val8, char const *msg)
+int fileinfo::writeint8(unsigned char val8, char const *msg)
 {
 	errno = 0;
 	if (fputc(val8, this->fp) != EOF)
@@ -209,7 +207,7 @@ int fileinfo::filewriteint8(unsigned char val8, char const *msg)
 
 /* Read two bytes as an unsigned integer value stored in little-endian.
  */
-int fileinfo::filereadint16(unsigned short *val16, char const *msg)
+int fileinfo::readint16(unsigned short *val16, char const *msg)
 {
 	int	byte;
 
@@ -226,7 +224,7 @@ int fileinfo::filereadint16(unsigned short *val16, char const *msg)
 
 /* Write two bytes as an unsigned integer value in little-endian.
  */
-int fileinfo::filewriteint16(unsigned short val16, char const *msg)
+int fileinfo::writeint16(unsigned short val16, char const *msg)
 {
 	errno = 0;
 	if (fputc(val16 & 0xFF, this->fp) != EOF
@@ -237,7 +235,7 @@ int fileinfo::filewriteint16(unsigned short val16, char const *msg)
 
 /* Read four bytes as an unsigned integer value stored in little-endian.
  */
-int fileinfo::filereadint32(unsigned long *val32, char const *msg)
+int fileinfo::readint32(unsigned long *val32, char const *msg)
 {
 	int	byte;
 
@@ -260,7 +258,7 @@ int fileinfo::filereadint32(unsigned long *val32, char const *msg)
 
 /* Write four bytes as an unsigned integer value in little-endian.
  */
-int fileinfo::filewriteint32(unsigned long val32, char const *msg)
+int fileinfo::writeint32(unsigned long val32, char const *msg)
 {
 	errno = 0;
 	if (fputc(val32 & 0xFF, this->fp) != EOF
@@ -273,7 +271,7 @@ int fileinfo::filewriteint32(unsigned long val32, char const *msg)
 
 /* Check if filehandle is open
  */
-bool fileinfo::isOpen()
+bool fileinfo::isopen()
 {
 	return (bool)this->fp;
 }
@@ -284,8 +282,8 @@ bool fileinfo::writef(const char *format, ...)
 {
     va_list argp;
     va_start(argp, format);
-
 	int wchars = vfprintf(this->fp, format, argp);
+	va_end(argp);
 	return wchars > -1;
 }
 
@@ -316,7 +314,7 @@ int haspathname(char const *name)
 }
 
 /* Return the pathname for a directory and/or filename, using the
- * same algorithm to construct the path as openfileindir().
+ * same algorithm to construct the path as open().
  */
 char *getpathforfileindir(int dirInt, char const *filename)
 {
@@ -341,13 +339,13 @@ char *getpathforfileindir(int dirInt, char const *filename)
  * does not already have a filename assigned to it, use name (after making an
  * independent copy).
  */
-int fileinfo::openfileindir(int dirInt, char const *filename,
+int fileinfo::open(int dirInt, char const *filename,
 	char const *mode, char const *msg)
 {
 	char *name = getpathforfileindir(dirInt, filename);
 
-	if (!this->name) {
-		this->alloc = TRUE;
+	if (!this->alloc) {
+		this->alloc = true;
 		x_cmalloc(this->name, strlen(filename) + 1);
 		strcpy(this->name, filename);
 		this->dir = dirInt;
