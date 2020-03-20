@@ -342,6 +342,20 @@ int fileinfo::openfileindir(int dirInt, char const *filename,
 	return fileerr(this, msg);
 }
 
+/* Mimic fileerr for folders.
+ */
+int direrr_(char const *cfile, unsigned long lineno, char const *dirname, char const *msg)
+{
+	if (msg) {
+		err_cfile_ = cfile;
+		err_lineno_ = lineno;
+		if(errno) warn_("%s: %s", dirname, strerror(errno));
+		else warn_(msg, dirname);
+	}
+	return FALSE;
+}
+#define	direrr(dirname, msg)	(direrr_(__FILE__, __LINE__, (dirname), (msg)))
+
 /* Read the given directory and call filecallback once for each file
  * contained in it.
  */
@@ -355,10 +369,7 @@ int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 	int			r;
 
 	if (!(dp = opendir(dir))) {
-		fileinfo tmp;
-		tmp.name = (char*)dir;
-		tmp.alloc = TRUE;
-		return fileerr(&tmp, "couldn't access directory");
+		return direrr(dir, "couldn't access directory");
 	}
 
 	while ((dent = readdir(dp))) {

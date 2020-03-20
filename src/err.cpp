@@ -17,7 +17,7 @@ unsigned long	err_lineno_ = 0;
 
 /* Values used for the first argument of usermessage().
  */
-enum { NOTIFY_DIE, NOTIFY_ERR, NOTIFY_LOG };
+enum { NOTIFY_DIE, NOTIFY_ERR };
 
 /* Display a message to the user. cfile and lineno can be NULL and 0
  * respectively; otherwise, they identify the source code location
@@ -30,13 +30,10 @@ enum { NOTIFY_DIE, NOTIFY_ERR, NOTIFY_LOG };
  * an error condition. NOTIFY_DIE should indicate to the user that the
  * program is about to shut down.
  */
-static void usermessage(int action, char const *prefix, char const *cfile,
-	unsigned long lineno, char const *fmt, va_list args)
+static void usermessage(int action, char const *cfile, unsigned long lineno,
+	char const *fmt, va_list args)
 {
-	fprintf(stderr, "%s: ", action == NOTIFY_DIE ? "FATAL" :
-							action == NOTIFY_ERR ? "error" : "warning");
-	if (prefix)
-		fprintf(stderr, "%s: ", prefix);
+	fputs(action == NOTIFY_DIE ? "FATAL: " : "error: ", stderr);
 	if (fmt)
 		vfprintf(stderr, fmt, args);
 	if (cfile)
@@ -52,7 +49,7 @@ void warn_(char const *fmt, ...)
 	va_list	args;
 
 	va_start(args, fmt);
-	usermessage(NOTIFY_LOG, NULL, err_cfile_, err_lineno_, fmt, args);
+	usermessage(NOTIFY_ERR, err_cfile_, err_lineno_, fmt, args);
 	va_end(args);
 	err_cfile_ = NULL;
 	err_lineno_ = 0;
@@ -65,7 +62,7 @@ void die_(char const *fmt, ...)
 	va_list	args;
 
 	va_start(args, fmt);
-	usermessage(NOTIFY_DIE, NULL, err_cfile_, err_lineno_, fmt, args);
+	usermessage(NOTIFY_DIE, err_cfile_, err_lineno_, fmt, args);
 	va_end(args);
 	exit(EXIT_FAILURE);
 }
