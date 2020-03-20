@@ -468,7 +468,7 @@ static int readsolution(fileinfo *file, gamesetup *game)
 	game->besttime = TIME_NIL;
 	game->solutionsize = 0;
 	game->solutiondata = NULL;
-	if (!file->fp)
+	if (!file->isOpen())
 		return TRUE;
 
 	if (!file->filereadint32(&size, NULL) || size == 0xFFFFFFFF)
@@ -541,8 +541,6 @@ static int opensolutionfile(gameseries *series, bool writable)
 
 	if (series->savefilename) {
 		filename = series->savefilename;
-	} else if (series->savefile.name) {
-		filename = series->savefile.name;
 	} else {
 		n = strlen(series->name);
 		if (series->name[n - 4] == '.' && tolower(series->name[n - 3]) == 'd'
@@ -558,8 +556,12 @@ static int opensolutionfile(gameseries *series, bool writable)
 	n = series->savefile.openfileindir(SOLUTIONDIR, filename,
 		writable ? "wb" : "rb",
 		writable ? "can't access file" : NULL);
-	if (buf)
+
+	if(n && buf) {
+		series->savefilename = (char *)filename;
+	} else if (buf) {
 		free(buf);
+	}
 	return n;
 }
 
@@ -577,12 +579,6 @@ int readsolutions(gameseries *series)
 		return TRUE;
 	}
 
-	// save filename
-	if (!series->savefilename) {
-		x_cmalloc(series->savefilename, strlen(series->savefile.name) + 1)
-		strcpy(series->savefilename, series->savefile.name);
-	}
-
 	if (!readsolutionheader(&series->savefile, series->ruleset,
 			&series->solheaderflags,
 			&series->solheadersize, series->solheader))
@@ -595,7 +591,7 @@ int readsolutions(gameseries *series)
 			if (strcmp(gametmp.name, series->name)) {
 				warn("%s: ignoring solution file %s as it was"
 					" recorded for a different level set: %s", series->name,
-					series->savefile.name, gametmp.name);
+					series->savefilename, gametmp.name);
 				series->gsflags |= GSF_NOSAVING;
 				return FALSE;
 			}
@@ -632,7 +628,7 @@ int savesolutions(gameseries *series)
 	if (readonly || (series->gsflags & GSF_NOSAVING))
 		return TRUE;
 
-	if (series->savefile.fp)
+	if (series->savefile.isOpen())
 		series->savefile.fileclose(NULL);
 	if (series->gsflags & GSF_NODEFAULTSAVE)
 		return TRUE;

@@ -265,7 +265,7 @@ badlevel:
 	free(game->leveldata);
 	game->levelsize = 0;
 	game->leveldata = NULL;
-	warn("%s: level %d: invalid level data", file->name, game->number);
+	warn("%s: level %d: invalid level data", file->getName(), game->number);
 	return FALSE;
 }
 
@@ -346,7 +346,7 @@ int readseriesfile(gameseries *series)
 		return FALSE;
 	}
 
-	if (!series->mapfile.fp) {
+	if (!series->mapfile.isOpen()) {
 		if (!series->mapfile.openfileindir(series->mapfiledir,
 				series->mapfilename, "rb", "unknown error"))
 			return FALSE;
@@ -661,9 +661,8 @@ static int createnewdacfile(char const *name, mapfileinfo const *datfile, int ru
 
 	char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
 	errno = 0;
-	int status = fprintf(file.fp, "file=%s\nruleset=%s\n",
-		datfile->filename, rulesetstr);
-	if (status < 0) {
+
+	if(file.writef("file=%s\nruleset=%s\n", datfile->filename, rulesetstr)) {
 		fileerr(&file, "write error");
 		return FALSE;
 	}

@@ -392,7 +392,7 @@ void savehistory(void)
 
 	h = historylist;
 	for (i = 0; i < historycount; ++i, ++h) {
-		fprintf(file.fp, "%04d-%02d-%02d %02d:%02d:%02d\t%s\t%d\t%s\n",
+		file.writef("%04d-%02d-%02d %02d:%02d:%02d\t%s\t%d\t%s\n",
 			1900 + h->dt.tm_year, 1 + h->dt.tm_mon, h->dt.tm_mday,
 			h->dt.tm_hour, h->dt.tm_min, h->dt.tm_sec,
 			h->passwd, h->levelnumber, h->name);

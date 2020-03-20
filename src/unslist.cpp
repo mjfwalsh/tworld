@@ -188,7 +188,7 @@ static int readunslist(fileinfo *file)
 				continue;
 			}
 		}
-		warn("%s:%d: syntax error", file->name, lineno);
+		warn("%s:%d: syntax error", file->getName(), lineno);
 	}
 	return TRUE;
 }

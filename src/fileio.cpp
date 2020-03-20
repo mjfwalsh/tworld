@@ -271,6 +271,24 @@ int fileinfo::filewriteint32(unsigned long val32, char const *msg)
 	return fileerr(this, msg);
 }
 
+/* Check if filehandle is open
+ */
+bool fileinfo::isOpen()
+{
+	return (bool)this->fp;
+}
+
+/* Write a formatted line
+ */
+bool fileinfo::writef(const char *format, ...)
+{
+    va_list argp;
+    va_start(argp, format);
+
+	int wchars = vfprintf(this->fp, format, argp);
+	return wchars > -1;
+}
+
 /*
  * Directory-handling functions.
  */

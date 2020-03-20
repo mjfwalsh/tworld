@@ -54,11 +54,6 @@ extern int findfiles(int dirInt, void *data,
 class fileinfo
 {
 public:
-	char       *name;		/* the name of the file */
-    int        dir;         /* the directory the file is in */
-	FILE       *fp;		/* the real file handle */
-	char	alloc;		/* TRUE if name was allocated internally */
-
 	/* Reset a fileinfo structure to indicate no file.
 	 */
 	void clearfileinfo();
@@ -108,20 +103,33 @@ public:
 	int openfileindir(int dirInt, char const *filename,
 				 char const *mode, char const *msg);
 
+	/* Test if the filehandle is open
+	 */
+	bool isOpen();
+
+	/* Alias for printf
+	 */
+	bool writef(const char *format, ...);
+
 	/* Display a simple error message prefixed by the name of the given
 	 * file. If errno is set, a message appropriate to the value is used;
 	 * otherwise the text pointed to by msg is used. If msg is NULL, the
 	 * function does nothing. The return value is always FALSE.
 	 */
 	int fileerr_(char const *cfile, unsigned long lineno, char const *msg);
+
+	/* Access the name var
+	 */
+	inline char *getName() const
+		{return name;}
+
+private:
+	char       *name;		/* the name of the file */
+    int        dir;         /* the directory the file is in */
+	FILE       *fp;		/* the real file handle */
+	char	alloc;		/* TRUE if name was allocated internally */
 };
 
-/* Display a simple error message prefixed by the name of the given
- * file. If errno is set, a message appropriate to the value is used;
- * otherwise the text pointed to by msg is used. If msg is NULL, the
- * function does nothing. The return value is always FALSE.
- */
-//extern int fileerr_(fileinfo *file, char const *cfile, unsigned long lineno, char const *msg);
 #define	fileerr(file, msg)	((file)->fileerr_(__FILE__, __LINE__, (msg)))
 
 #endif
