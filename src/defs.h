@@ -11,13 +11,9 @@
 
 #include	<Qt>
 
-#include	<stdio.h>
 #include	<time.h>
 
-#include	<vector>
-#include	<string>
-
-#include	"fileio.h"
+class fileinfo;
 
 /* Qt align values.
  */
@@ -243,10 +239,10 @@ typedef	struct gameseries {
 	int			ruleset;	/* the ruleset for the game file */
 	int			gsflags;	/* series flags (see below) */
 	gamesetup	*games;		/* the array of levels */
-	fileinfo	mapfile;	/* the file containing the levels */
+	fileinfo	*mapfile;	/* the file containing the levels */
 	char		*mapfilename;	/* the name of said file */
 	int			mapfiledir;	/* the dir the said file is in */
-	fileinfo	savefile;	/* the file holding the solutions */
+	fileinfo	*savefile;	/* the file holding the solutions */
 	char		*savefilename;	/* non-default name for said file */
 	int			solheaderflags;	/* solution flags (none defined yet) */
 	int			solheadersize;	/* size of extra solution header */

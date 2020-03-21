@@ -162,26 +162,26 @@ static bool readseriesheader(gameseries *series)
 	unsigned short	val16;
 	int			ruleset;
 
-	if (!series->mapfile.readint16(&val16, "not a valid data file"))
+	if (!series->mapfile->readint16(&val16, "not a valid data file"))
 		return false;
 	if (val16 != SIG_DATFILE)
-		return fileerr(&series->mapfile, "not a valid data file");
-	if (!series->mapfile.readint16(&val16, "not a valid data file"))
+		return fileerr(series->mapfile, "not a valid data file");
+	if (!series->mapfile->readint16(&val16, "not a valid data file"))
 		return false;
 	switch (val16) {
 		case SIG_DATFILE_MS:	ruleset = Ruleset_MS;		break;
 		case SIG_DATFILE_LYNX:	ruleset = Ruleset_Lynx;		break;
 		default:
-			fileerr(&series->mapfile, "data file uses an unrecognized ruleset");
+			fileerr(series->mapfile, "data file uses an unrecognized ruleset");
 			return false;
 	}
 	if (series->ruleset == Ruleset_None)
 		series->ruleset = ruleset;
-	if (!series->mapfile.readint16(&val16, "not a valid data file"))
+	if (!series->mapfile->readint16(&val16, "not a valid data file"))
 		return false;
 	series->count = val16;
 	if (!series->count) {
-		fileerr(&series->mapfile, "file contains no maps");
+		fileerr(series->mapfile, "file contains no maps");
 		return false;
 	}
 
@@ -346,8 +346,8 @@ bool readseriesfile(gameseries *series)
 		return false;
 	}
 
-	if (!series->mapfile.isopen()) {
-		if (!series->mapfile.open(series->mapfiledir,
+	if (!series->mapfile->isopen()) {
+		if (!series->mapfile->open(series->mapfiledir,
 				series->mapfilename, "rb", "unknown error"))
 			return false;
 		if (!readseriesheader(series))
@@ -359,13 +359,13 @@ bool readseriesfile(gameseries *series)
 		(series->count - series->allocated) * sizeof *series->games);
 	series->allocated = series->count;
 	n = 0;
-	while (n < series->count && !series->mapfile.testend()) {
-		if (readleveldata(&series->mapfile, series->games + n))
+	while (n < series->count && !series->mapfile->testend()) {
+		if (readleveldata(series->mapfile, series->games + n))
 			++n;
 		else
 			--series->count;
 	}
-	series->mapfile.close();
+	series->mapfile->close();
 	series->gsflags |= GSF_ALLMAPSREAD;
 	if (series->gsflags & GSF_LYNXFIXES)
 		undomschanges(series);
@@ -383,16 +383,17 @@ void freeseriesdata(gameseries *series)
 	int		n;
 
 	clearsolutions(series);
-
-	series->mapfile.close();
+	series->mapfile->close();
 	free(series->mapfilename);
 	series->mapfilename = NULL;
 	series->mapfiledir = 0;
-	free(series->savefilename);
 	series->savefilename = NULL;
 	series->gsflags = 0;
 	series->solheaderflags = 0;
 	series->mapfiledir = 0;
+
+	delete series->mapfile;
+	delete series->savefile;
 
 	for (n = 0, game = series->games ; n < series->count ; ++n, ++game) {
 		free(game->leveldata);
@@ -526,8 +527,8 @@ static int getseriesfile(char const *filename, void *data)
 	// init a blank gameseries struct
 	series->mapfilename = NULL;
 	series->mapfiledir = 0;
-	series->savefile = fileinfo();
-	series->mapfile = fileinfo();
+	series->savefile = new fileinfo();
+	series->mapfile = new fileinfo();
 	series->savefilename = NULL;
 	series->gsflags = 0;
 	series->solheaderflags = 0;
@@ -550,8 +551,8 @@ static int getseriesfile(char const *filename, void *data)
 
 	// search for the corresponding dat file and open it
 	int datdir;
-	if (!series->mapfile.open(datdir = GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)
-			&& !series->mapfile.open(datdir = USER_SERIESDATDIR, datfilename, "rb", NULL)) {
+	if (!series->mapfile->open(datdir = GLOBAL_SERIESDATDIR, datfilename, "rb", NULL)
+			&& !series->mapfile->open(datdir = USER_SERIESDATDIR, datfilename, "rb", NULL)) {
 		warn("cannot use %s: %s is missing", filename, datfilename);
 		return 0;
 	}
@@ -566,7 +567,7 @@ static int getseriesfile(char const *filename, void *data)
 		warn("cannot use %s: %s unavailable", filename, datfilename);
 	}
 
-	series->mapfile.close();
+	series->mapfile->close();
 
 	return 0;
 }
@@ -594,7 +595,7 @@ static int getmapfile(char const *filename, void *data)
 		return 0;
 	}
 
-	s.mapfile = file;
+	s.mapfile = &file;
 	s.ruleset = Ruleset_None;
 	f = readseriesheader(&s);
 	file.close();
@@ -688,8 +689,8 @@ static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, in
 		x_type_alloc(gameseries, s->list, s->allocated * sizeof *s->list);
 	}
 	gameseries *series = s->list + s->count;
-	series->mapfile = fileinfo();
-	series->savefile = fileinfo();
+	series->mapfile = new fileinfo();
+	series->savefile = new fileinfo();
 	series->savefilename = NULL;
 	series->gsflags = 0;
 	series->solheaderflags = 0;
@@ -814,29 +815,22 @@ bool createserieslist(gameseries **pserieslist, int *pcount,
 	return true;
 }
 
-/* Make an independent copy of a single gameseries structure from list.
- */
-void getseriesfromlist(gameseries *dest, gameseries const *list, int index)
-{
-	int	n;
-
-	*dest = list[index];
-	n = strlen(list[index].mapfilename) + 1;
-	if (!(dest->mapfilename = (char *)malloc(n)))
-		memerrexit();
-	memcpy(dest->mapfilename, list[index].mapfilename, n);
-}
 
 /* Free all memory allocated by the createserieslist() table.
  */
 void freeserieslist(gameseries *list, int count,
-	mapfileinfo *mflist, int mfcount)
+	mapfileinfo *mflist, int mfcount, int except)
 {
 	int	n;
 
 	if (list) {
-		for (n = 0 ; n < count ; ++n)
+		for (n = 0 ; n < count ; ++n) {
+			if(n == except) continue;
+
 			free(list[n].mapfilename);
+			delete list[n].savefile;
+			delete list[n].mapfile;
+		}
 		free(list);
 	}
 	if (mfcount) {

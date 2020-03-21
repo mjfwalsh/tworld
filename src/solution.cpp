@@ -552,7 +552,7 @@ static bool opensolutionfile(gameseries *series, bool writable)
 		filename = buf;
 	}
 
-	bool r = series->savefile.open(SOLUTIONDIR, filename,
+	bool r = series->savefile->open(SOLUTIONDIR, filename,
 		writable ? "wb" : "rb",
 		writable ? "can't access file" : NULL);
 
@@ -578,13 +578,13 @@ bool readsolutions(gameseries *series)
 		return true;
 	}
 
-	if (!readsolutionheader(&series->savefile, series->ruleset,
+	if (!readsolutionheader(series->savefile, series->ruleset,
 			&series->solheaderflags,
 			&series->solheadersize, series->solheader))
 		return false;
 
 	for (;;) {
-		if (!readsolution(&series->savefile, &gametmp))
+		if (!readsolution(series->savefile, &gametmp))
 			break;
 		if (gametmp.sgflags & SGF_SETNAME) {
 			if (strcmp(gametmp.name, series->name)) {
@@ -600,7 +600,7 @@ bool readsolutions(gameseries *series)
 		if (n < 0) {
 			n = findlevelinseries(series, 0, gametmp.passwd);
 			if (n < 0) {
-				fileerr(&series->savefile,
+				fileerr(series->savefile,
 					"unmatched password in solution file");
 				continue;
 			}
@@ -613,7 +613,7 @@ bool readsolutions(gameseries *series)
 		series->games[n].solutiondata = gametmp.solutiondata;
 	}
 
-	series->savefile.close();
+	series->savefile->close();
 	return true;
 }
 
@@ -627,28 +627,28 @@ bool savesolutions(gameseries *series)
 	if (readonly || (series->gsflags & GSF_NOSAVING))
 		return true;
 
-	if (series->savefile.isopen())
-		series->savefile.close();
+	if (series->savefile->isopen())
+		series->savefile->close();
 	if (series->gsflags & GSF_NODEFAULTSAVE)
 		return true;
 	if (!opensolutionfile(series, true))
 		return false;
 
-	if (!writesolutionheader(&series->savefile, series->ruleset,
+	if (!writesolutionheader(series->savefile, series->ruleset,
 			series->solheaderflags,
 			series->solheadersize, series->solheader))
-		return fileerr(&series->savefile,
+		return fileerr(series->savefile,
 			"saved-game file has become corrupted!");
-	if (!writesolutionsetname(&series->savefile, series->name))
-		return fileerr(&series->savefile,
+	if (!writesolutionsetname(series->savefile, series->name))
+		return fileerr(series->savefile,
 			"saved-game file has become corrupted!");
 	for (i = 0, game = series->games ; i < series->count ; ++i, ++game) {
-		if (!writesolution(&series->savefile, game))
-			return fileerr(&series->savefile,
+		if (!writesolution(series->savefile, game))
+			return fileerr(series->savefile,
 				"saved-game file has become corrupted!");
 	}
 
-	series->savefile.close();
+	series->savefile->close();
 	return true;
 }
 
@@ -669,7 +669,10 @@ void clearsolutions(gameseries *series)
 	}
 	series->solheadersize = 0;
 	series->solheaderflags = 0;
-	series->savefile.close();
+	series->savefile->close();
+
+	if(series->savefilename)
+		free(series->savefilename);
 }
 
 /*

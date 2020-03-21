@@ -43,7 +43,7 @@ extern void getseriesfromlist(gameseries *dest,
  * The pointers can be NULL.
  */
 extern void freeserieslist(gameseries *list, int count,
-			mapfileinfo *mflist, int mfcount);
+			mapfileinfo *mflist, int mfcount, int except);
 
 /* A function for looking up a specific level in a series by number
  * and/or password. If number is -1, only the password will be

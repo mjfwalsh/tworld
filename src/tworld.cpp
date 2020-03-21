@@ -1042,17 +1042,14 @@ static int chooseseries(seriesdata *series, int *pn, bool founddefault)
 static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
 	char const *defaultseries)
 {
-	int n;
+	int n = 0;
 
 	if (series->count < 1) {
 		warn("no level sets found");
 		return -1;
 	}
 
-	if (series->count == 1 && autoplay) {
-		getseriesfromlist(&gs->series, series->list, 0);
-	} else {
-		n = 0;
+	if (!autoplay || series->count > 1) {
 		bool founddefault = false;
 		if (defaultseries) {
 			n = series->count;
@@ -1063,19 +1060,16 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
 				}
 		}
 
-		if(founddefault && autoplay) {
-			getseriesfromlist(&gs->series, series->list, n);
-		} else {
+		if(!founddefault || !autoplay) {
 			int preLevelSet = n;
 
 			for (;;) {
 				int f = chooseseries(series, &n, founddefault);
 				if (f == CmdProceed) {
-					getseriesfromlist(&gs->series, series->list, n);
 					break;
 				} else if (f == CmdQuitLevel) {
 					if(founddefault) {
-						getseriesfromlist(&gs->series, series->list, preLevelSet);
+						n = preLevelSet;
 						break;
 					} else {
 						bell();
@@ -1084,8 +1078,14 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
 			}
 		}
 	}
-	freeserieslist(series->list, series->count, series->mflist, series->mfcount);
 
+	// assign the selected series to the gamespec
+	gs->series = series->list[n];
+
+	// free all the other series
+	freeserieslist(series->list, series->count, series->mflist, series->mfcount, n);
+
+	// change the selected series setting
 	setstringsetting("selectedseries", gs->series.name);
 
 	if (!readseriesfile(&gs->series)) {
