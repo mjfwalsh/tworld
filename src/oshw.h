@@ -30,20 +30,20 @@ extern void savehistory(); // tworld.c
 /* Turn keyboard repeat on or off. If enable is TRUE, the keys other
  * than the direction keys will repeat at the standard rate.
  */
-extern int setkeyboardrepeat(int enable); // TWMainWnd.cpp
+extern void setkeyboardrepeat(bool enable); // TWMainWnd.cpp
 
 /* Alter the behavior of the keys used to indicate movement in the
  * game. If enable is TRUE, the direction keys repeat whenever the
  * program polls the keyboard. Otherwise, the direction keys do not
  * repeat until the program polls the keyboard three times.
  */
-extern int setkeyboardarrowsrepeat(int enable); // TWMainWnd.cpp
+extern bool setkeyboardarrowsrepeat(bool enable); // TWMainWnd.cpp
 
 /* Return the latest/current keystroke. If wait is TRUE and no
  * keystrokes are pending, the function blocks until a keystroke
  * arrives.
  */
-extern int input(int wait); // in.cpp
+extern int input(bool wait); // in.cpp
 
 
 /*
@@ -64,7 +64,7 @@ extern void cleardisplay(void); // TWMainWnd.cpp
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-extern int displaygame(struct gamestate const *state,
+extern bool displaygame(struct gamestate const *state,
 				int timeleft, int besttime); // TWMainWnd.cpp
 
 /* Display a short message appropriate to the end of a level's game
@@ -148,6 +148,6 @@ extern void copytoclipboard(char const *text); // TWApp.cpp
 
 /* Change play button symbol
  */
-extern void setplaypausebutton(int p); // TWMainWnd.cpp
+extern void setplaypausebutton(bool p); // TWMainWnd.cpp
 
 #endif

@@ -58,7 +58,7 @@ public:
 	typedef	struct keycmdmap {
 		int		scancode;	/* the key's scan code */
 		int		cmd;		/* the command */
-		int		hold;		/* TRUE for repeating joystick-mode keys */
+		bool	hold;		/* TRUE for repeating joystick-mode keys */
 	} keycmdmap;
 
 	/* The complete list of key commands recognized by the game while
@@ -67,48 +67,48 @@ public:
 	 * the key must be up, or negative if it doesn't matter.
 	 */
 	static keycmdmap constexpr keycmds[] = {
-		{	TWK_UP,					CmdNorth,				TRUE	},
-		{	TWK_LEFT,				CmdWest,				TRUE	},
-		{	TWK_DOWN,				CmdSouth,				TRUE	},
-		{	TWK_RIGHT,				CmdEast,				TRUE	},
-		{	TWK_RETURN,				CmdProceed,				FALSE	},
+		{	TWK_UP,					CmdNorth,				true	},
+		{	TWK_LEFT,				CmdWest,				true	},
+		{	TWK_DOWN,				CmdSouth,				true	},
+		{	TWK_RIGHT,				CmdEast,				true	},
+		{	TWK_RETURN,				CmdProceed,				false	},
 
-		{	TWC_SEESCORES,			CmdSeeScores,			FALSE	},
-		{	TWC_SEESOLUTIONFILES,	CmdSeeSolutionFiles,	FALSE	},
-		{	TWC_TIMESCLIPBOARD,		CmdTimesClipboard,		FALSE	},
-		{	TWC_QUITLEVEL,			CmdQuitLevel,			FALSE	},
-		{	TWC_QUIT,				CmdQuit,				FALSE	},
+		{	TWC_SEESCORES,			CmdSeeScores,			false	},
+		{	TWC_SEESOLUTIONFILES,	CmdSeeSolutionFiles,	false	},
+		{	TWC_TIMESCLIPBOARD,		CmdTimesClipboard,		false	},
+		{	TWC_QUITLEVEL,			CmdQuitLevel,			false	},
+		{	TWC_QUIT,				CmdQuit,				false	},
 
-		{	TWC_PAUSEGAME,			CmdPauseGame,			FALSE	},
-		{	TWC_SAMELEVEL,			CmdSameLevel,			FALSE	},
-		{	TWC_NEXTLEVEL,			CmdNextLevel,			FALSE	},
-		{	TWC_PREVLEVEL,			CmdPrevLevel,			FALSE	},
-		{	TWC_GOTOLEVEL,			CmdGotoLevel,			FALSE	},
+		{	TWC_PAUSEGAME,			CmdPauseGame,			false	},
+		{	TWC_SAMELEVEL,			CmdSameLevel,			false	},
+		{	TWC_NEXTLEVEL,			CmdNextLevel,			false	},
+		{	TWC_PREVLEVEL,			CmdPrevLevel,			false	},
+		{	TWC_GOTOLEVEL,			CmdGotoLevel,			false	},
 
-		{	TWC_PLAYBACK,			CmdPlayback,			FALSE	},
-		{	TWC_CHECKSOLUTION,		CmdCheckSolution,		FALSE	},
-		{	TWC_DELSOLUTION,		CmdDelSolution,			FALSE	},
-		{	TWC_SEEK,				CmdSeek,				FALSE	},
+		{	TWC_PLAYBACK,			CmdPlayback,			false	},
+		{	TWC_CHECKSOLUTION,		CmdCheckSolution,		false	},
+		{	TWC_DELSOLUTION,		CmdDelSolution,			false	},
+		{	TWC_SEEK,				CmdSeek,				false	},
 
 #ifndef NDEBUG
-		{	TWK_DEBUG1,				CmdDebugCmd1,			FALSE	},
-		{	TWK_DEBUG2,				CmdDebugCmd2,			FALSE	},
+		{	TWK_DEBUG1,				CmdDebugCmd1,			false	},
+		{	TWK_DEBUG2,				CmdDebugCmd2,			false	},
 
-		{	TWK_CHIP,				CmdCheatICChip,			FALSE	},
-		{	TWK_RED,				CmdCheatKeyRed,			FALSE	},
-		{	TWK_BLUE,				CmdCheatKeyBlue,		FALSE	},
-		{	TWK_YELLOW,				CmdCheatKeyYellow,		FALSE	},
-		{	TWK_GREEN,				CmdCheatKeyGreen,		FALSE	},
+		{	TWK_CHIP,				CmdCheatICChip,			false	},
+		{	TWK_RED,				CmdCheatKeyRed,			false	},
+		{	TWK_BLUE,				CmdCheatKeyBlue,		false	},
+		{	TWK_YELLOW,				CmdCheatKeyYellow,		false	},
+		{	TWK_GREEN,				CmdCheatKeyGreen,		false	},
 
-		{	TWK_ICE,				CmdCheatBootsIce,		FALSE	},
-		{	TWK_SLIDE,				CmdCheatBootsSlide,		FALSE	},
-		{	TWK_FIRE,				CmdCheatBootsFire,		FALSE	},
-		{	TWK_WATER,				CmdCheatBootsWater,		FALSE	},
+		{	TWK_ICE,				CmdCheatBootsIce,		false	},
+		{	TWK_SLIDE,				CmdCheatBootsSlide,		false	},
+		{	TWK_FIRE,				CmdCheatBootsFire,		false	},
+		{	TWK_WATER,				CmdCheatBootsWater,		false	},
 
-		{	TWK_UP_CHEAT,			CmdCheatNorth,			TRUE	},
-		{	TWK_LEFT_CHEAT,			CmdCheatWest,			TRUE	},
-		{	TWK_DOWN_CHEAT,			CmdCheatSouth,			TRUE	},
-		{	TWK_RIGHT_CHEAT,		CmdCheatEast,			TRUE	},
+		{	TWK_UP_CHEAT,			CmdCheatNorth,			true	},
+		{	TWK_LEFT_CHEAT,			CmdCheatWest,			true	},
+		{	TWK_DOWN_CHEAT,			CmdCheatSouth,			true	},
+		{	TWK_RIGHT_CHEAT,		CmdCheatEast,			true	},
 #endif
 		{	0,	0,	0	}
 	};
@@ -119,7 +119,7 @@ public:
 	virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
 	virtual void closeEvent(QCloseEvent* pCloseEvent) override;
 
-	bool SetKeyboardRepeat(bool bEnable);
+	void SetKeyboardRepeat(bool bEnable);
 	int GetReplaySecondsToSkip() const;
 
 	bool CreateGameDisplay();
@@ -135,9 +135,9 @@ public:
 	void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
 
 	void ShowAbout();
-	void SetPlayPauseButton(int p);
-	int Input(int wait);
-	int SetKeyboardArrowsRepeat(int enable);
+	void SetPlayPauseButton(bool p);
+	int Input(bool wait);
+	bool SetKeyboardArrowsRepeat(bool enable);
 
 	void ChangeSubtitle(QString subtitle);
 	void PopSubtitle();
@@ -180,7 +180,7 @@ private:
 	int WindowMapPos(int x, int y);
 	void ResetKeyStates(void);
 	void RestartKeystates(void);
-	void KeyEventCallback(int scancode, int down);
+	void KeyEventCallback(int scancode, bool down);
 
 	// The complete array of key states.
 	char keystates[TWK_LAST];
@@ -189,7 +189,7 @@ private:
 	mouseaction	mouseinfo;
 
 	// TRUE if direction keys are to be treated as always repeating.
-	int		joystickstyle = FALSE;
+	bool joystickstyle = false;
 
 	// A map of keys that can be held down simultaneously to produce
 	// multiple commands.

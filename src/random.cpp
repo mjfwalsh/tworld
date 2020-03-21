@@ -54,7 +54,7 @@ void resetprng(prng *gen)
 	if (lastvalue > 0x7FFFFFFFUL)
 		lastvalue = nextvalue(nextvalue(nextvalue(nextvalue(time(NULL)))));
 	gen->value = gen->initial = lastvalue;
-	gen->shared = TRUE;
+	gen->shared = true;
 }
 
 /* Reset a PRNG to an independent sequence.
@@ -62,7 +62,7 @@ void resetprng(prng *gen)
 void restartprng(prng *gen, unsigned long seed)
 {
 	gen->value = gen->initial = seed & 0x7FFFFFFFUL;
-	gen->shared = FALSE;
+	gen->shared = false;
 }
 
 /* Use the top two bits to get a random number between 0 and 3.

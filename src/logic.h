@@ -21,9 +21,9 @@ typedef	struct gamelogic gamelogic;
 struct gamelogic {
 	int		ruleset;		  /* the ruleset */
 	gamestate  *state;			  /* ptr to the current game state */
-	int	      (*initgame)(gamelogic*);	  /* prepare to play a game */
+	bool	  (*initgame)(gamelogic*);	  /* prepare to play a game */
 	int	      (*advancegame)(gamelogic*); /* advance the game one tick */
-	int	      (*endgame)(gamelogic*);	  /* clean up after the game is done */
+	bool	  (*endgame)(gamelogic*);	  /* clean up after the game is done */
 	void      (*shutdown)(gamelogic*);	  /* turn off the logic engine */
 };
 
@@ -36,6 +36,6 @@ extern gamelogic *mslogicstartup(void);
  * forgo "standard play" in favor of being as true as possible to the
  * original source material.
  */
-extern int	pedanticmode;
+extern bool	pedanticmode;
 
 #endif

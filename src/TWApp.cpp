@@ -43,7 +43,7 @@ TileWorldApp::~TileWorldApp()
 /* Process all pending events. If wait is TRUE and no events are
  * currently pending, the function blocks until an event arrives.
  */
-void eventupdate(int wait)
+void eventupdate(bool wait)
 {
 	QApplication::processEvents(wait ? QEventLoop::WaitForMoreEvents : QEventLoop::AllEvents);
 }
@@ -73,7 +73,7 @@ bool TileWorldApp::Initialize()
 	// start the main window
 	g_pMainWnd = new TileWorldMainWnd;
 	g_pMainWnd->setWindowTitle(applicationName());
-	g_pMainWnd->SetKeyboardRepeat(TRUE);
+	g_pMainWnd->SetKeyboardRepeat(true);
 
 	// initialise timer
 	if (!timerinitialize()) {
@@ -82,10 +82,7 @@ bool TileWorldApp::Initialize()
 	}
 
 	// initialise tiles
-	if (!tileinitialize()) {
-		warn("failed to initialise tiles");
-		return false;
-	}
+	tileinitialize();
 
 	// initialise sounds
 	if (!sfxinitialize()) {

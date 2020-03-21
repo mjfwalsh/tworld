@@ -76,7 +76,7 @@ int gettickcount(void)
 /* Put the program to sleep until the next timer tick. If we've
  * already missed a timer tick, then wait for the next one.
  */
-int waitfortick(void)
+bool waitfortick()
 {
 	int	ms;
 
@@ -90,7 +90,7 @@ int waitfortick(void)
 	if (ms <= 0) {
 		++utick;
 		nexttickat += mspertick;
-		return FALSE;
+		return false;
 	}
 
 	while (ms < 0)
@@ -100,7 +100,7 @@ int waitfortick(void)
 
 	++utick;
 	nexttickat += mspertick;
-	return TRUE;
+	return true;
 }
 
 /* Move to the next timer tick without waiting.

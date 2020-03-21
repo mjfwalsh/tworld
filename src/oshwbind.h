@@ -107,7 +107,7 @@ class Qt_Surface
 {
 public:
 	Qt_Surface();
-	Qt_Surface(int w, int h, int bTransparent);
+	Qt_Surface(int w, int h, bool bTransparent);
 	explicit Qt_Surface(const char* szFilename);
 
 	int w = 0;
@@ -194,7 +194,7 @@ extern uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 /* Process all pending events. If wait is TRUE and no events are
  * currently pending, the function blocks until an event arrives.
  */
-extern void eventupdate(int wait);
+extern void eventupdate(bool wait);
 
 /* Render the view of the visible area of the map to the display, with
  * the view position centered on the display as much as possible. The
@@ -209,7 +209,7 @@ extern void drawfulltileid(Qt_Surface *dest, int xpos, int ypos, int id);
 
 /* Initialisation function
  */
-extern int tileinitialize();
+extern void tileinitialize();
 
 
 #endif

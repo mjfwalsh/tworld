@@ -24,10 +24,10 @@
 /* The data needed for each sound effect's wave.
  */
 typedef	struct sfxinfo {
-	Uint8	       *wave;		/* the actual wave data */
+	Uint8	    *wave;		/* the actual wave data */
 	Uint32		len;		/* size of the wave data */
 	int			pos;		/* how much has been played already */
-	int			playing;	/* is the wave currently playing? */
+	bool		playing;	/* is the wave currently playing? */
 } sfxinfo;
 
 /* The data needed to talk to the sound output device.
@@ -40,7 +40,7 @@ static sfxinfo		sounds[SND_COUNT];
 
 /* TRUE if the program is currently talking to a sound device.
  */
-static int		hasaudio = FALSE;
+static bool		hasaudio = false;
 
 /* The volume level.
  */
@@ -59,7 +59,7 @@ static void freesfx(int index)
 		free(sounds[index].wave);
 		sounds[index].wave = NULL;
 		sounds[index].pos = 0;
-		sounds[index].playing = FALSE;
+		sounds[index].playing = false;
 		SDL_UnlockAudio();
 	}
 }
@@ -91,7 +91,7 @@ static void sfxcallback(void *data, Uint8 *wave, int len)
 			SDL_MixAudio(wave, sounds[i].wave + sounds[i].pos, n, volume);
 			sounds[i].pos = 0;
 			if (i < SND_ONESHOT_COUNT) {
-				sounds[i].playing = FALSE;
+				sounds[i].playing = false;
 			} else if (sounds[i].playing) {
 				while (len - n >= (int)sounds[i].len) {
 					SDL_MixAudio(wave + n, sounds[i].wave, sounds[i].len, volume);
@@ -112,29 +112,29 @@ static void sfxcallback(void *data, Uint8 *wave, int len)
  * first time, the connection to the sound device is established. When
  * deactivating, the connection is closed.
  */
-int setaudiosystem(int active)
+bool setaudiosystem(bool active)
 {
 	SDL_AudioSpec	des;
 	int			n;
 
 	if (!active) {
 		if (hasaudio) {
-			SDL_PauseAudio(TRUE);
+			SDL_PauseAudio(true);
 			SDL_CloseAudio();
-			hasaudio = FALSE;
+			hasaudio = false;
 		}
-		return TRUE;
+		return true;
 	}
 
 	if (!SDL_WasInit(SDL_INIT_AUDIO)) {
 		if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
 			warn("Cannot initialize audio output: %s", SDL_GetError());
-			return FALSE;
+			return false;
 		}
 	}
 
 	if (hasaudio)
-		return TRUE;
+		return true;
 
 	des.freq = DEFAULT_SND_FREQ;
 	des.format = DEFAULT_SND_FMT;
@@ -145,18 +145,18 @@ int setaudiosystem(int active)
 	des.samples = (n << soundbufsize) >> 2;
 	if (SDL_OpenAudio(&des, &spec) < 0) {
 		warn("can't access audio output: %s", SDL_GetError());
-		return FALSE;
+		return false;
 	}
-	hasaudio = TRUE;
-	SDL_PauseAudio(FALSE);
+	hasaudio = true;
+	SDL_PauseAudio(false);
 
-	return TRUE;
+	return true;
 }
 
 /* Load a single wave file into memory. The wave data is converted to
  * the format expected by the sound device.
  */
-int loadsfxfromfile(int index, char const *filename)
+bool loadsfxfromfile(int index, char const *filename)
 {
 	SDL_AudioSpec	specin;
 	SDL_AudioCVT	convert;
@@ -166,24 +166,24 @@ int loadsfxfromfile(int index, char const *filename)
 
 	if (!filename || filename[0] == '\0') {
 		freesfx(index);
-		return TRUE;
+		return true;
 	}
 
 	if (!hasaudio)
-		if (!setaudiosystem(TRUE))
-			return FALSE;
+		if (!setaudiosystem(true))
+			return false;
 
 	if (!SDL_LoadWAV(filename, &specin, &wavein, &lengthin)) {
 		freesfx(index);
 		warn("can't load %s: %s", filename, SDL_GetError());
-		return FALSE;
+		return false;
 	}
 
 	if (SDL_BuildAudioCVT(&convert,
 			specin.format, specin.channels, specin.freq,
 			spec.format, spec.channels, spec.freq) < 0) {
 		warn("can't create converter for %s: %s", filename, SDL_GetError());
-		return FALSE;
+		return false;
 	}
 	if (!(wavecvt = (Uint8 *)malloc(lengthin * convert.len_mult)))
 		memerrexit();
@@ -193,7 +193,7 @@ int loadsfxfromfile(int index, char const *filename)
 	convert.len = lengthin;
 	if (SDL_ConvertAudio(&convert) < 0) {
 		warn("can't convert %s: %s", filename, SDL_GetError());
-		return FALSE;
+		return false;
 	}
 
 	freesfx(index);
@@ -201,10 +201,10 @@ int loadsfxfromfile(int index, char const *filename)
 	sounds[index].wave = convert.buf;
 	sounds[index].len = convert.len * convert.len_ratio;
 	sounds[index].pos = 0;
-	sounds[index].playing = FALSE;
+	sounds[index].playing = false;
 	SDL_UnlockAudio();
 
-	return TRUE;
+	return true;
 }
 
 /* Select the sounds effects to be played. sfx is a bitmask of sound
@@ -224,12 +224,12 @@ void playsoundeffects(unsigned long sfx)
 	SDL_LockAudio();
 	for (i = 0, flag = 1 ; i < SND_COUNT ; ++i, flag <<= 1) {
 		if (sfx & flag) {
-			sounds[i].playing = TRUE;
+			sounds[i].playing = true;
 			if (i < SND_ONESHOT_COUNT && sounds[i].pos)
 				sounds[i].pos = 0;
 		} else {
 			if (i >= SND_ONESHOT_COUNT)
-				sounds[i].playing = FALSE;
+				sounds[i].playing = false;
 		}
 	}
 	SDL_UnlockAudio();
@@ -246,7 +246,7 @@ void setsoundeffects(int action)
 	if (action < 0) {
 		SDL_LockAudio();
 		for (int i = 0 ; i < SND_COUNT ; ++i) {
-			sounds[i].playing = FALSE;
+			sounds[i].playing = false;
 			sounds[i].pos = 0;
 		}
 		SDL_UnlockAudio();
@@ -286,10 +286,10 @@ int changevolume(int delta)
  */
 static void shutdown(void)
 {
-	setaudiosystem(FALSE);
+	setaudiosystem(false);
 	if (SDL_WasInit(SDL_INIT_AUDIO))
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-	hasaudio = FALSE;
+	hasaudio = false;
 
 	for (int n = 0; n < SND_COUNT; ++n)
 		freesfx(n);
@@ -297,15 +297,15 @@ static void shutdown(void)
 
 /* Initialize the module.
  */
-int sfxinitialize()
+bool sfxinitialize()
 {
 	atexit(shutdown);
 
 	// turn on sound system
-	setaudiosystem(TRUE);
+	setaudiosystem(true);
 
 	// set volume
 	_setvolume(getintsetting("volume"));
 
-	return TRUE;
+	return true;
 }

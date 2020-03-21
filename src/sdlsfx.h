@@ -13,12 +13,12 @@
 /* Activate or deactivate the sound system. The return value is TRUE
  * if the sound system is (or already was) active.
  */
-extern int setaudiosystem(int active);
+extern bool setaudiosystem(bool active);
 
 /* Load a wave file into memory. index indicates which sound effect to
  * associate the sound with. FALSE is returned if an error occurs.
  */
-extern int loadsfxfromfile(int index, char const *filename);
+extern bool loadsfxfromfile(int index, char const *filename);
 
 /* Specify the sounds effects to be played at this time. sfx is the
  * bitwise-or of any number of sound effects. If a non-continuous
@@ -38,9 +38,7 @@ extern void setsoundeffects(int action);
 
 /* Set the current volume level. Volume ranges from 0 (silence) to 10
  * (the default). Setting the sound to zero causes sound effects to be
- * displayed as textual onomatopoeia. If display is TRUE, the new
- * volume level will be displayed to the user. FALSE is returned if
- * the sound system is not currently active.
+ * displayed as textual onomatopoeia.
  */
 extern int setvolume(int volume);
 
@@ -50,6 +48,6 @@ extern int changevolume(int delta);
 
 /* The initialization function for the sound module.
  */
-extern int sfxinitialize();
+extern bool sfxinitialize();
 
 #endif

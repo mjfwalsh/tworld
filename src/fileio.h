@@ -29,7 +29,7 @@ extern const char *getdir(int t);
 
 /* Return TRUE if name contains a path but is not a directory itself.
  */
-extern int haspathname(char const *name);
+extern bool haspathname(char const *name);
 
 /* Return the pathname for a directory and/or filename, using the same
  * algorithm to construct the path as open(). The caller must
@@ -48,7 +48,7 @@ extern char *getpathforfileindir(int dirInt, char const *filename);
  * and returns. FALSE is returned if the directory could not be
  * examined.
  */
-extern int findfiles(int dirInt, void *data,
+extern bool findfiles(int dirInt, void *data,
 			 int (*filecallback)(char const*, void*));
 
 class fileinfo
@@ -60,26 +60,26 @@ public:
 	 * be displayed. The text of msg will be used only if errno is
 	 * zero; otherwise a message appropriate to the error will be used.
 	 */
-	int rewind();
-	int read(void *data, unsigned long size, char const *msg = NULL);
-	int write(void const *data, unsigned long size, char const *msg = NULL);
+	void rewind();
+	bool read(void *data, unsigned long size, char const *msg = NULL);
+	bool write(void const *data, unsigned long size, char const *msg = NULL);
 	void close();
 
 	/* testend() forces a check for EOF by attempting to read a byte
 	 * from the file, and ungetting the byte if one is successfully read.
 	 */
-	int testend();
+	bool testend();
 
 	/* The following functions read and write an unsigned integer value
 	 * from the current position in the given file. For the multi-byte
 	 * values, the value is assumed to be stored in little-endian.
 	 */
-	int readint8(unsigned char *val8, char const *msg = NULL);
-	int writeint8(unsigned char val8, char const *msg = NULL);
-	int readint16(unsigned short *val16, char const *msg = NULL);
-	int writeint16(unsigned short val16, char const *msg = NULL);
-	int readint32(unsigned long *val32, char const *msg = NULL);
-	int writeint32(unsigned long val32, char const *msg = NULL);
+	bool readint8(unsigned char *val8, char const *msg = NULL);
+	bool writeint8(unsigned char val8, char const *msg = NULL);
+	bool readint16(unsigned short *val16, char const *msg = NULL);
+	bool writeint16(unsigned short val16, char const *msg = NULL);
+	bool readint32(unsigned long *val32, char const *msg = NULL);
+	bool writeint32(unsigned long val32, char const *msg = NULL);
 
 	/* Read size bytes from the given file and return the bytes in a
 	 * newly allocated buffer.
@@ -90,13 +90,13 @@ public:
 	 * including any trailing newline. len receives the length of the line
 	 * stored in buf, minus any trailing newline, upon return.
 	 */
-	int getline(char *buf, int *len, char const *msg);
+	bool getline(char *buf, int *len, char const *msg);
 
 	/* Open a file, using dir as the directory if filename is not already
 	 * a complete pathname. FALSE is returned if the directory could not
 	 * be created.
 	 */
-	int open(int dirInt, char const *filename,
+	bool open(int dirInt, char const *filename,
 				 char const *mode, char const *msg);
 
 	/* Test if the filehandle is open
@@ -112,7 +112,7 @@ public:
 	 * otherwise the text pointed to by msg is used. If msg is NULL, the
 	 * function does nothing. The return value is always FALSE.
 	 */
-	int fileerr_(char const *cfile, unsigned long lineno, char const *msg);
+	bool fileerr_(char const *cfile, unsigned long lineno, char const *msg);
 
 	/* Access the name var
 	 */

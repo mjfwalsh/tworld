@@ -24,7 +24,7 @@ extern int gettickcount(void);
 
 /* Put the program to sleep until the next timer tick.
  */
-extern int waitfortick(void);
+extern bool waitfortick(void);
 
 /* Force the timer to advance to the next tick.
  */

@@ -91,7 +91,7 @@ static int storestring(char const *str)
  * already in the list, then if add is TRUE the set name is added to
  * the list; otherwise zero is returned.
  */
-static int lookupsetname(char const *name, int add)
+static int lookupsetname(char const *name, bool add)
 {
 	int	i;
 
@@ -115,7 +115,7 @@ static int lookupsetname(char const *name, int add)
 
 /* Add a new entry with the given data to the list.
  */
-static int addtounslist(int setid, int levelnum,
+static bool addtounslist(int setid, int levelnum,
 	int size, unsigned long hashval, int note)
 {
 	if (listcount == listallocated) {
@@ -128,21 +128,21 @@ static int addtounslist(int setid, int levelnum,
 	unslist[listcount].hashval = hashval;
 	unslist[listcount].note = note;
 	++listcount;
-	return TRUE;
+	return true;
 }
 
 /* Remove all entries for the given level from the list. FALSE is
  * returned if the level was not on the list to begin with.
  */
-static int removefromunslist(int setid, int levelnum)
+static bool removefromunslist(int setid, int levelnum)
 {
-	int	i, f = FALSE;
+	bool f = false;
 
-	for (i = 0 ; i < listcount ; ++i) {
+	for (int i = 0 ; i < listcount ; ++i) {
 		if (unslist[i].setid == setid && unslist[i].levelnum == levelnum) {
 			--listcount;
 			unslist[i] = unslist[listcount];
-			f = TRUE;
+			f = true;
 		}
 	}
 	return f;
@@ -152,7 +152,7 @@ static int removefromunslist(int setid, int levelnum)
  * levels. Errors in the file are flagged but do not prevent the
  * function from reading the rest of the file.
  */
-static int readunslist(fileinfo *file)
+static bool readunslist(fileinfo *file)
 {
 	char		buf[256], token[256];
 	char const	       *p;
@@ -170,7 +170,7 @@ static int readunslist(fileinfo *file)
 		if (!*p || *p == '#')
 			continue;
 		if (sscanf(p, "[%999[^]]]", token) == 1) {
-			setid = lookupsetname(token, TRUE);
+			setid = lookupsetname(token, true);
 			continue;
 		}
 		n = sscanf(p, "%5d: %04X%08lX: %200[^\n\r]",
@@ -190,7 +190,7 @@ static int readunslist(fileinfo *file)
 		}
 		warn("%s:%d: syntax error", file->getName(), lineno);
 	}
-	return TRUE;
+	return true;
 }
 
 /*
@@ -209,7 +209,7 @@ int markunsolvablelevels(gameseries *series)
 	for (j = 0 ; j < series->count ; ++j)
 		series->games[j].unsolvable = NULL;
 
-	setid = lookupsetname(series->name, FALSE);
+	setid = lookupsetname(series->name, false);
 	if (!setid)
 		return 0;
 

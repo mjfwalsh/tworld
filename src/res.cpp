@@ -41,7 +41,7 @@ static void LoadImages()
 		strcat(fp, "/tiles.bmp");
 	}
 
-	if(!loadtileset(fp, TRUE)) {
+	if(!loadtileset(fp, true)) {
 		die(fp, "no valid tilesets found");
 	}
 	free(fp);
@@ -114,12 +114,12 @@ static int LoadSounds()
  * to run, and by this point we should already have a valid font and
  * color scheme set.)
  */
-int loadgameresources(int ruleset)
+bool loadgameresources(int ruleset)
 {
 	currentRuleset = ruleset;
 	LoadImages();
-	if (LoadSounds() == 0) setaudiosystem(FALSE);
-	return TRUE;
+	if (LoadSounds() == 0) setaudiosystem(false);
+	return true;
 }
 
 /* Parse the rc file and load the font and color scheme. FALSE is returned

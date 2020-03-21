@@ -19,15 +19,8 @@
 
 #include	"fileio.h"
 
-/* The standard Boolean values.
+/* Qt align values.
  */
-#ifndef	TRUE
-#define	TRUE	1
-#endif
-#ifndef	FALSE
-#define	FALSE	0
-#endif
-
 const int LeftAlign = (Qt::AlignLeft | Qt::AlignVCenter);
 const int RightAlign = (Qt::AlignRight | Qt::AlignVCenter);
 const int CenterAlign = (Qt::AlignHCenter | Qt::AlignVCenter);
@@ -84,7 +77,7 @@ enum {
 typedef	struct prng {
 	unsigned long	initial;	/* initial seed value */
 	unsigned long	value;		/* latest random value */
-	char		shared;		/* FALSE if independent sequence */
+	bool			shared;		/* false if independent sequence */
 } prng;
 
 /*

@@ -157,41 +157,41 @@ static unsigned long hashvalue(unsigned char const *data, unsigned int size)
 /* Examine the top of a data file and identify its type. FALSE is
  * returned if any header bytes appear to be invalid.
  */
-static int readseriesheader(gameseries *series)
+static bool readseriesheader(gameseries *series)
 {
 	unsigned short	val16;
 	int			ruleset;
 
 	if (!series->mapfile.readint16(&val16, "not a valid data file"))
-		return FALSE;
+		return false;
 	if (val16 != SIG_DATFILE)
 		return fileerr(&series->mapfile, "not a valid data file");
 	if (!series->mapfile.readint16(&val16, "not a valid data file"))
-		return FALSE;
+		return false;
 	switch (val16) {
 		case SIG_DATFILE_MS:	ruleset = Ruleset_MS;		break;
 		case SIG_DATFILE_LYNX:	ruleset = Ruleset_Lynx;		break;
 		default:
 			fileerr(&series->mapfile, "data file uses an unrecognized ruleset");
-			return FALSE;
+			return false;
 	}
 	if (series->ruleset == Ruleset_None)
 		series->ruleset = ruleset;
 	if (!series->mapfile.readint16(&val16, "not a valid data file"))
-		return FALSE;
+		return false;
 	series->count = val16;
 	if (!series->count) {
 		fileerr(&series->mapfile, "file contains no maps");
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Read a single level out of the given data file. The level's name,
  * password, and time limit are extracted from the data.
  */
-static int readleveldata(fileinfo *file, gamesetup *game)
+static bool readleveldata(fileinfo *file, gamesetup *game)
 {
 	unsigned char	       *data;
 	unsigned char const	       *dataend;
@@ -199,14 +199,14 @@ static int readleveldata(fileinfo *file, gamesetup *game)
 	int				n;
 
 	if (!file->readint16(&size))
-		return FALSE;
+		return false;
 	data = file->readbuf(size, "missing or invalid level data");
 	if (!data)
-		return FALSE;
+		return false;
 	if (size < 2) {
 		fileerr(file, "invalid level data");
 		free(data);
-		return FALSE;
+		return false;
 	}
 	game->levelsize = size;
 	game->leveldata = data;
@@ -259,14 +259,14 @@ static int readleveldata(fileinfo *file, gamesetup *game)
 		goto badlevel;
 
 	game->levelhash = hashvalue(game->leveldata, game->levelsize);
-	return TRUE;
+	return true;
 
 badlevel:
 	free(game->leveldata);
 	game->levelsize = 0;
 	game->leveldata = NULL;
 	warn("%s: level %d: invalid level data", file->getName(), game->number);
-	return FALSE;
+	return false;
 }
 
 /* Assuming that the series passed in is in fact the original
@@ -278,7 +278,7 @@ badlevel:
  * of levels 99 and 111 are fixed, the layout changes to 121 and 127
  * are undone, and level 145 is removed.
  */
-static int undomschanges(gameseries *series)
+static bool undomschanges(gameseries *series)
 {
 	struct { int num, pos, val; } *fixup, fixups[] = {
 		{   5,  0x011D,  'P' ^ 0x99 },	{  95,  0x035F,  'W' ^ 0x99 },
@@ -303,10 +303,10 @@ static int undomschanges(gameseries *series)
 	};
 
 	if (series->count != 149)
-		return FALSE;
+		return false;
 	for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
 		if (series->games[fixup->num].levelsize <= fixup->pos)
-			return FALSE;
+			return false;
 
 	free(series->games[144].leveldata);
 	memmove(series->games + 144, series->games + 145,
@@ -325,7 +325,7 @@ static int undomschanges(gameseries *series)
 	series->games[95].passwd[2] = 'H';
 	series->games[95].passwd[3] = 'Y';
 
-	return TRUE;
+	return true;
 }
 
 /*
@@ -335,23 +335,23 @@ static int undomschanges(gameseries *series)
 /* Load all levels from the given data file, and all of the user's
  * saved solutions.
  */
-int readseriesfile(gameseries *series)
+bool readseriesfile(gameseries *series)
 {
 	int	n;
 
 	if (series->gsflags & GSF_ALLMAPSREAD)
-		return TRUE;
+		return true;
 	if (series->count <= 0) {
 		warn("%s: cannot read from empty level set", series->name);
-		return FALSE;
+		return false;
 	}
 
 	if (!series->mapfile.isopen()) {
 		if (!series->mapfile.open(series->mapfiledir,
 				series->mapfilename, "rb", "unknown error"))
-			return FALSE;
+			return false;
 		if (!readseriesheader(series))
-			return FALSE;
+			return false;
 	}
 
 	x_type_alloc(gamesetup, series->games, series->count * sizeof *series->games);
@@ -372,7 +372,7 @@ int readseriesfile(gameseries *series)
 	markunsolvablelevels(series);
 	readsolutions(series);
 	readextensions(series);
-	return TRUE;
+	return true;
 }
 
 /* Free all memory allocated for the given gameseries.
@@ -649,22 +649,22 @@ char *generatenewdacname(mapfileinfo const *datfile, int ruleset)
 }
 
 /* Generate a new dac file. Return TRUE if successful. */
-static int createnewdacfile(char const *name, mapfileinfo const *datfile, int ruleset)
+static bool createnewdacfile(char const *name, mapfileinfo const *datfile, int ruleset)
 {
 	fileinfo file;
 	if (!file.open(SERIESDIR, name, "wx", "unknown error"))
-		return FALSE;
+		return false;
 
 	char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
 	errno = 0;
 
 	if(file.writef("file=%s\nruleset=%s\n", datfile->filename, rulesetstr)) {
 		fileerr(&file, "write error");
-		return FALSE;
+		return false;
 	}
 	file.close();
 
-	return TRUE;
+	return true;
 }
 
 /* Try to create a new gameseries for the specified level file and ruleset. Also
@@ -747,7 +747,7 @@ static void createallmissingseries(seriesdata *s)
  * through count. The program will be aborted if a serious error
  * occurs or if no series can be found.
  */
-static int getseriesfiles(gameseries ** list, int *count,
+static bool getseriesfiles(gameseries ** list, int *count,
 	mapfileinfo **mflist, int *mfcount)
 {
 	seriesdata	s;
@@ -776,7 +776,7 @@ static int getseriesfiles(gameseries ** list, int *count,
 	createallmissingseries(&s);
 	if (!s.count) {
 		warn("no series files found");
-		return FALSE;
+		return false;
 	}
 
 	removefilenamesuffixes(&s.mfinfo);
@@ -787,17 +787,16 @@ static int getseriesfiles(gameseries ** list, int *count,
 	*mflist = s.mfinfo.buf;
 	*mfcount = s.mfinfo.count;
 
-	return TRUE;
+	return true;
 }
 
 /* Produce a list of the series that are available for play. An array
  * of gameseries structures is returned through pserieslist, the size
  * of the array is returned through pcount. The list of levelsets is returned
  * through pmflist and the number of levelsets through pmfcount. A table of
- * the gameseries filenames is returned through table. preferredfile, if not
- * NULL, limits the results to just the series with that filename.
+ * the gameseries filenames is returned through table.
  */
-int createserieslist(gameseries **pserieslist, int *pcount,
+bool createserieslist(gameseries **pserieslist, int *pcount,
 	mapfileinfo **pmflist, int *pmfcount)
 {
 	gameseries	       *serieslist;
@@ -806,13 +805,13 @@ int createserieslist(gameseries **pserieslist, int *pcount,
 	int			mapfilelistsize;
 
 	if (!getseriesfiles(&serieslist, &listsize, &mapfilelist, &mapfilelistsize))
-		return FALSE;
+		return false;
 	*pserieslist = serieslist;
 	*pcount = listsize;
 	*pmflist = mapfilelist;
 	*pmfcount = mapfilelistsize;
 
-	return TRUE;
+	return true;
 }
 
 /* Make an independent copy of a single gameseries structure from list.

@@ -14,7 +14,7 @@
  * receive the base score for the level, the time bonus for the level,
  * and the total score for the series.
  */
-extern int getscoresforlevel(gameseries const *series, int level,
+extern bool getscoresforlevel(gameseries const *series, int level,
 				 int *base, int *bonus, long *total);
 
 /* Produce a table showing the player's scores for the given series,
@@ -27,7 +27,7 @@ extern int getscoresforlevel(gameseries const *series, int level,
  * password will either not be included or will show no title. FALSE
  * is returned if an error occurs.
  */
-extern void createscorelist(gameseries const *series, int usepasswds,
+extern void createscorelist(gameseries const *series, bool usepasswds,
 			   int **plevellist, int *pcount, TWTableSpec *table);
 
 

@@ -12,6 +12,6 @@
  * unsuccessful. If complain is FALSE, no error messages will be
  * displayed.
  */
-extern int loadtileset(char const *filename, int complain);
+extern bool loadtileset(char const *filename, bool complain);
 
 #endif

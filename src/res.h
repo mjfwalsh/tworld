@@ -16,6 +16,6 @@ extern void initresources();
 /* Load all resources, using the settings for the given ruleset. FALSE
  * is returned if any critical resources could not be loaded.
  */
-extern int loadgameresources(int ruleset);
+extern bool loadgameresources(int ruleset);
 
 #endif

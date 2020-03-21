@@ -23,7 +23,7 @@ Qt_Surface::Qt_Surface()
  * channel. Otherwise, the surface is created with the same format as
  * the screen.
  */
-Qt_Surface::Qt_Surface(int w, int h, int bTransparent)
+Qt_Surface::Qt_Surface(int w, int h, bool bTransparent)
 {
 	if (bTransparent) {
 		QImage image(w, h, QImage::Format_ARGB32);

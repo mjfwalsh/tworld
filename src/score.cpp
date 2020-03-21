@@ -36,7 +36,7 @@ static std::string cdecimal(long number)
 
 /* Return the user's scores for a given level.
  */
-int getscoresforlevel(gameseries const *series, int level,
+bool getscoresforlevel(gameseries const *series, int level,
 	int *base, int *bonus, long *total)
 {
 	gamesetup   *game;
@@ -64,7 +64,7 @@ int getscoresforlevel(gameseries const *series, int level,
 		totalscore += levelscore + timescore;
 	}
 	*total = totalscore;
-	return TRUE;
+	return true;
 }
 
 /* Produce a table that displays the user's score, broken down by
@@ -74,7 +74,7 @@ int getscoresforlevel(gameseries const *series, int level,
  * which the user doesn't know the password are in the table, but
  * without any information besides the level's number.
  */
-void createscorelist(gameseries const *series, int usepasswds, int **plevellist,
+void createscorelist(gameseries const *series, bool usepasswds, int **plevellist,
 	int *pcount, TWTableSpec *table)
 {
 	gamesetup  *game;

@@ -142,7 +142,7 @@ static int const fileids[] = {
 /* Initialize the gamestate by reading the level data, in MS dat-file
  * format, from the state's setup.
  */
-static int expandmsdatlevel(gamestate *state)
+static bool expandmsdatlevel(gamestate *state)
 {
 	gamesetup		       *setup;
 	unsigned char const	       *data;
@@ -297,11 +297,11 @@ static int expandmsdatlevel(gamestate *state)
 		data += size;
 	}
 
-	return TRUE;
+	return true;
 
 badlevel:
 	warn("level %d: invalid data", setup->number);
-	return FALSE;
+	return false;
 }
 
 /* Exported interface.

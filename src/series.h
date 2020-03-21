@@ -12,7 +12,7 @@
 
 /* Load all levels of the given series.
  */
-extern int readseriesfile(gameseries *series);
+extern bool readseriesfile(gameseries *series);
 
 /* Release all resources associated with a gameseries structure.
  */
@@ -30,7 +30,7 @@ extern void freeseriesdata(gameseries *series);
  * returned. FALSE is returned if no series files are found. An
  * unrecoverable error will cause the function to abort the program.
  */
-extern int createserieslist(gameseries **pserieslist,
+extern bool createserieslist(gameseries **pserieslist,
 					int *pcount, mapfileinfo **pmflist, int *pmfcount);
 
 /* Make an independent copy of a single gameseries structure from

@@ -20,10 +20,6 @@ typedef	struct solutioninfo {
 	signed char		stepping;	/* the timer offset */
 } solutioninfo;
 
-/* No file modification will be done unless this variable is FALSE.
- */
-extern int	readonly;
-
 /* Initialize or reinitialize list as empty.
  */
 extern void initmovelist(actlist *list);
@@ -44,19 +40,19 @@ extern void destroymovelist(actlist *list);
  * the full list of moves. FALSE is returned if the solution is
  * invalid or absent.
  */
-extern int expandsolution(solutioninfo *solution, gamesetup const *game);
+extern bool expandsolution(solutioninfo *solution, gamesetup const *game);
 
 /* Take the given solution and compress it, storing the compressed
  * data as part of the level's setup. FALSE is returned if an error
  * occurs. (It is not an error to compress the null solution.)
  */
-extern int contractsolution(solutioninfo const *solution, gamesetup *game);
+extern bool contractsolution(solutioninfo const *solution, gamesetup *game);
 
 /* Read all the solutions for the given series into memory. FALSE is
  * returned if an error occurs. Note that it is not an error for the
  * solution file to not exist.
  */
-extern int readsolutions(gameseries *series);
+extern bool readsolutions(gameseries *series);
 
 /* Write out all the solutions for the given series. The solution file
  * is created if it does not currently exist. The solution file's
@@ -64,7 +60,7 @@ extern int readsolutions(gameseries *series);
  * is done if the directory's name has been unset, however.) FALSE is
  * returned if an error occurs.
  */
-extern int savesolutions(gameseries *series);
+extern bool savesolutions(gameseries *series);
 
 /* Free all memory allocated for storing the game's solutions, and mark
  * the levels as being unsolved.
@@ -78,7 +74,7 @@ extern void clearsolutions(gameseries *series);
  * filenames is returned through table. FALSE is returned if no table
  * was returned.
  */
-extern int createsolutionfilelist(gameseries const *series,
+extern bool createsolutionfilelist(gameseries const *series,
 	std::vector<std::string> *filelist, int *pcount, TWTableSpec *table);
 
 #endif

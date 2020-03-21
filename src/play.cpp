@@ -32,7 +32,7 @@ static gamelogic       *logic = NULL;
 
 /* TRUE if the program is running without a user interface.
  */
-int			batchmode = FALSE;
+bool			batchmode = false;
 
 /* How much mud to make the timer suck (i.e., the slowdown factor).
  */
@@ -49,54 +49,54 @@ void setpedanticmode(int v)
  * required for the given ruleset. Do nothing if the requested ruleset
  * is already the current ruleset.
  */
-static int setrulesetbehavior(int ruleset)
+static bool setrulesetbehavior(int ruleset)
 {
 	if (logic) {
 		if (ruleset == logic->ruleset)
-			return TRUE;
+			return true;
 		(*logic->shutdown)(logic);
 		logic = NULL;
 	}
 	if (ruleset == Ruleset_None)
-		return TRUE;
+		return true;
 
 	switch (ruleset) {
 		case Ruleset_Lynx:
 			logic = lynxlogicstartup();
 			if (!logic)
-				return FALSE;
+				return false;
 			if (!batchmode)
-				setkeyboardarrowsrepeat(TRUE);
+				setkeyboardarrowsrepeat(true);
 			settimersecond(1000 * mudsucking);
 			break;
 		case Ruleset_MS:
 			logic = mslogicstartup();
 			if (!logic)
-				return FALSE;
+				return false;
 			if (!batchmode)
-				setkeyboardarrowsrepeat(FALSE);
+				setkeyboardarrowsrepeat(false);
 			settimersecond(1100 * mudsucking);
 			break;
 		default:
 			warn("unknown ruleset requested (ruleset=%d)", ruleset);
-			return FALSE;
+			return false;
 	}
 
 	if (!batchmode) {
 		if (!loadgameresources(ruleset) || !creategamedisplay()) {
 			die("unable to proceed due to previous errors.");
-			return FALSE;
+			return false;
 		}
 	}
 
 	logic->state = &state;
-	return TRUE;
+	return true;
 }
 
 /* Initialize the current state to the starting position of the
  * given level.
  */
-int initgamestate(gamesetup *game, int ruleset)
+bool initgamestate(gamesetup *game, int ruleset)
 {
 	if (!setrulesetbehavior(ruleset))
 		die("unable to initialize the system for the requested ruleset");
@@ -118,23 +118,23 @@ int initgamestate(gamesetup *game, int ruleset)
 	resetprng(&state.mainprng);
 
 	if (!expandleveldata(&state))
-		return FALSE;
+		return false;
 
 	return (*logic->initgame)(logic);
 }
 
 /* Change the current state to run from the recorded solution.
  */
-int prepareplayback(void)
+bool prepareplayback(void)
 {
 	solutioninfo	solution;
 
 	if (!state.game->solutionsize)
-		return FALSE;
+		return false;
 	solution.moves.list = NULL;
 	solution.moves.allocated = 0;
 	if (!expandsolution(&solution, state.game) || !solution.moves.count)
-		return FALSE;
+		return false;
 
 	destroymovelist(&state.moves);
 	state.moves = solution.moves;
@@ -142,7 +142,7 @@ int prepareplayback(void)
 	state.initrndslidedir = solution.rndslidedir;
 	state.stepping = solution.stepping;
 	state.replay = 0;
-	return TRUE;
+	return true;
 }
 
 /* Return the amount of time passed in the current game, in seconds.
@@ -158,13 +158,13 @@ void setgameplaymode(int mode)
 {
 	switch (mode) {
 		case NormalPlay:
-			setkeyboardrepeat(FALSE);
+			setkeyboardrepeat(false);
 			settimer(+1);
 			setsoundeffects(+1);
 			state.statusflags &= ~SF_SHUTTERED;
 			break;
 		case EndPlay:
-			setkeyboardrepeat(TRUE);
+			setkeyboardrepeat(true);
 			settimer(-1);
 			setsoundeffects(+1);
 			break;
@@ -176,7 +176,7 @@ void setgameplaymode(int mode)
 			if (state.ruleset == Ruleset_MS)
 				state.statusflags |= SF_SHUTTERED;
 		case SuspendPlay:
-			setkeyboardrepeat(TRUE);
+			setkeyboardrepeat(true);
 			settimer(0);
 			setsoundeffects(0);
 			break;
@@ -257,7 +257,7 @@ int doturn(int cmd)
  * effects, if any). If showframe is FALSE, then nothing is actually
  * displayed.
  */
-int drawscreen(int showframe)
+bool drawscreen(bool showframe)
 {
 	int	currenttime;
 	int timeleft, besttime;
@@ -266,7 +266,7 @@ int drawscreen(int showframe)
 	state.soundeffects &= ~((1 << SND_ONESHOT_COUNT) - 1);
 
 	if (!showframe)
-		return TRUE;
+		return true;
 
 	currenttime = state.currenttime + state.timeoffset;
 
@@ -286,16 +286,15 @@ int drawscreen(int showframe)
 
 /* Stop game play and clean up.
  */
-int quitgamestate(void)
+void quitgamestate(void)
 {
 	state.soundeffects = 0;
 	setsoundeffects(-1);
-	return TRUE;
 }
 
 /* Clean up after game play is over.
  */
-int endgamestate(void)
+bool endgamestate()
 {
 	setsoundeffects(-1);
 	return (*logic->endgame)(logic);
@@ -332,7 +331,7 @@ void setenddisplay(void)
 
 /* Return TRUE if a solution exists for the given level.
  */
-int hassolution(gamesetup const *game)
+bool hassolution(gamesetup const *game)
 {
 	return game->besttime != TIME_NIL;
 }
@@ -342,17 +341,17 @@ int hassolution(gamesetup const *game)
  * or if the current solution has been marked as replaceable, then
  * replace it. TRUE is returned if the solution was replaced.
  */
-int replacesolution(void)
+bool replacesolution(void)
 {
 	solutioninfo	solution;
 	int			currenttime;
 
 	if (state.statusflags & SF_NOSAVING)
-		return FALSE;
+		return false;
 	currenttime = state.currenttime + state.timeoffset;
 	if (hassolution(state.game) && !(state.game->sgflags & SGF_REPLACEABLE)
 		&& currenttime >= state.game->besttime)
-		return FALSE;
+		return false;
 
 	state.game->besttime = currenttime;
 	state.game->sgflags &= ~SGF_REPLACEABLE;
@@ -362,9 +361,9 @@ int replacesolution(void)
 	solution.rndslidedir = state.initrndslidedir;
 	solution.stepping = state.stepping;
 	if (!contractsolution(&solution, state.game))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 /* Double-checks the timing for a solution that has just been played
@@ -372,27 +371,27 @@ int replacesolution(void)
  * reasonably ascertained to be benign, the timing will be corrected
  * and TRUE is returned.
  */
-int checksolution(void)
+bool checksolution(void)
 {
 	int	currenttime;
 
 	if (!hassolution(state.game))
-		return FALSE;
+		return false;
 	currenttime = state.currenttime + state.timeoffset;
 	if (currenttime == state.game->besttime)
-		return FALSE;
+		return false;
 	warn("saved game has solution time of %d ticks, but replay took %d ticks",
 		state.game->besttime, currenttime);
 	if (state.game->besttime == state.currenttime) {
 		warn("difference matches clock offset; fixing.");
 		state.game->besttime = currenttime;
-		return TRUE;
+		return true;
 	} else if (currenttime - state.game->besttime == 1) {
 		warn("difference matches pre-0.10.1 error; fixing.");
 		state.game->besttime = currenttime;
-		return TRUE;
+		return true;
 	}
 	warn("reason for difference unknown.");
 	state.game->besttime = currenttime;
-	return FALSE;
+	return false;
 }

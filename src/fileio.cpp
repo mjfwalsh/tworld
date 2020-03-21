@@ -23,7 +23,7 @@ static char *dirs[NUMBER_OF_DIRS];
 
 /* The function used to display error messages relating to file I/O.
  */
-int fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg)
+bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg)
 {
 	if (msg) {
 		err_cfile_ = cfile;
@@ -35,7 +35,7 @@ int fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg)
 		free(this->name);
 		this->clearfileinfo();
 	}
-	return FALSE;
+	return false;
 }
 
 /*
@@ -92,36 +92,35 @@ void fileinfo::close()
 
 /* rewind().
  */
-int fileinfo::rewind()
+void fileinfo::rewind()
 {
 	::rewind(this->fp);
-	return TRUE;
 }
 
 /* feof().
  */
-int fileinfo::testend()
+bool fileinfo::testend()
 {
 	int	ch;
 
 	if (feof(this->fp))
-		return TRUE;
+		return true;
 	ch = fgetc(this->fp);
 	if (ch == EOF)
-		return TRUE;
+		return true;
 	ungetc(ch, this->fp);
-	return FALSE;
+	return false;
 }
 
 /* read().
  */
-int fileinfo::read(void *data, unsigned long size, char const *msg)
+bool fileinfo::read(void *data, unsigned long size, char const *msg)
 {
 	if (!size)
-		return TRUE;
+		return true;
 	errno = 0;
 	if (fread(data, size, 1, this->fp) == 1)
-		return TRUE;
+		return true;
 	return fileerr(this, msg);
 }
 
@@ -149,11 +148,11 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
 /* Read one full line from fp and store the first len characters,
  * including any trailing newline.
  */
-int fileinfo::getline(char *buf, int *len, char const *msg)
+bool fileinfo::getline(char *buf, int *len, char const *msg)
 {
 	if (!*len) {
 		*buf = '\0';
-		return TRUE;
+		return true;
 	}
 	errno = 0;
 	if (!fgets(buf, *len, this->fp))
@@ -167,24 +166,24 @@ int fileinfo::getline(char *buf, int *len, char const *msg)
 	} else
 		buf[n--] = '\0';
 	*len = n;
-	return TRUE;
+	return true;
 }
 
 /* write().
  */
-int fileinfo::write(void const *data, unsigned long size, char const *msg)
+bool fileinfo::write(void const *data, unsigned long size, char const *msg)
 {
 	if (!size)
-		return TRUE;
+		return true;
 	errno = 0;
 	if (fwrite(data, size, 1, this->fp) == 1)
-		return TRUE;
+		return true;
 	return fileerr(this, msg);
 }
 
 /* Read one byte as an unsigned integer value.
  */
-int fileinfo::readint8(unsigned char *val8, char const *msg)
+bool fileinfo::readint8(unsigned char *val8, char const *msg)
 {
 	int	byte;
 
@@ -192,22 +191,22 @@ int fileinfo::readint8(unsigned char *val8, char const *msg)
 	if ((byte = fgetc(this->fp)) == EOF)
 		return fileerr(this, msg);
 	*val8 = (unsigned char)byte;
-	return TRUE;
+	return true;
 }
 
 /* Write one byte as an unsigned integer value.
  */
-int fileinfo::writeint8(unsigned char val8, char const *msg)
+bool fileinfo::writeint8(unsigned char val8, char const *msg)
 {
 	errno = 0;
 	if (fputc(val8, this->fp) != EOF)
-		return TRUE;
+		return true;
 	return fileerr(this, msg);
 }
 
 /* Read two bytes as an unsigned integer value stored in little-endian.
  */
-int fileinfo::readint16(unsigned short *val16, char const *msg)
+bool fileinfo::readint16(unsigned short *val16, char const *msg)
 {
 	int	byte;
 
@@ -216,7 +215,7 @@ int fileinfo::readint16(unsigned short *val16, char const *msg)
 		*val16 = (unsigned char)byte;
 		if ((byte = fgetc(this->fp)) != EOF) {
 			*val16 |= (unsigned char)byte << 8;
-			return TRUE;
+			return true;
 		}
 	}
 	return fileerr(this, msg);
@@ -224,18 +223,18 @@ int fileinfo::readint16(unsigned short *val16, char const *msg)
 
 /* Write two bytes as an unsigned integer value in little-endian.
  */
-int fileinfo::writeint16(unsigned short val16, char const *msg)
+bool fileinfo::writeint16(unsigned short val16, char const *msg)
 {
 	errno = 0;
 	if (fputc(val16 & 0xFF, this->fp) != EOF
 		&& fputc((val16 >> 8) & 0xFF, this->fp) != EOF)
-		return TRUE;
+		return true;
 	return fileerr(this, msg);
 }
 
 /* Read four bytes as an unsigned integer value stored in little-endian.
  */
-int fileinfo::readint32(unsigned long *val32, char const *msg)
+bool fileinfo::readint32(unsigned long *val32, char const *msg)
 {
 	int	byte;
 
@@ -248,7 +247,7 @@ int fileinfo::readint32(unsigned long *val32, char const *msg)
 				*val32 |= (unsigned int)byte << 16;
 				if ((byte = fgetc(this->fp)) != EOF) {
 					*val32 |= (unsigned int)byte << 24;
-					return TRUE;
+					return true;
 				}
 			}
 		}
@@ -258,14 +257,14 @@ int fileinfo::readint32(unsigned long *val32, char const *msg)
 
 /* Write four bytes as an unsigned integer value in little-endian.
  */
-int fileinfo::writeint32(unsigned long val32, char const *msg)
+bool fileinfo::writeint32(unsigned long val32, char const *msg)
 {
 	errno = 0;
 	if (fputc(val32 & 0xFF, this->fp) != EOF
 			&& fputc((val32 >> 8) & 0xFF, this->fp) != EOF
 			&& fputc((val32 >> 16) & 0xFF, this->fp) != EOF
 			&& fputc((val32 >> 24) & 0xFF, this->fp) != EOF)
-		return TRUE;
+		return true;
 	return fileerr(this, msg);
 }
 
@@ -300,17 +299,17 @@ const char *getdir(int t)
 
 /* Return TRUE if name contains a path but is not a directory itself.
  */
-int haspathname(char const *name)
+bool haspathname(char const *name)
 {
 	struct stat	st;
 
 	if (!strchr(name, '/'))
-		return FALSE;
+		return false;
 	if (!strchr(name, '\\'))
-		return FALSE;
+		return false;
 	if (stat(name, &st) || S_ISDIR(st.st_mode))
-		return FALSE;
-	return TRUE;
+		return false;
+	return true;
 }
 
 /* Return the pathname for a directory and/or filename, using the
@@ -339,7 +338,7 @@ char *getpathforfileindir(int dirInt, char const *filename)
  * does not already have a filename assigned to it, use name (after making an
  * independent copy).
  */
-int fileinfo::open(int dirInt, char const *filename,
+bool fileinfo::open(int dirInt, char const *filename,
 	char const *mode, char const *msg)
 {
 	char *name = getpathforfileindir(dirInt, filename);
@@ -354,13 +353,13 @@ int fileinfo::open(int dirInt, char const *filename,
 	errno = 0;
 	this->fp = FOPEN(name, mode);
 	free(name);
-	if (this->fp) return TRUE;
+	if (this->fp) return true;
 	return fileerr(this, msg);
 }
 
 /* Mimic fileerr for folders.
  */
-int direrr_(char const *cfile, unsigned long lineno, char const *dirname, char const *msg)
+bool direrr_(char const *cfile, unsigned long lineno, char const *dirname, char const *msg)
 {
 	if (msg) {
 		err_cfile_ = cfile;
@@ -368,14 +367,14 @@ int direrr_(char const *cfile, unsigned long lineno, char const *dirname, char c
 		if(errno) warn_("%s: %s", dirname, strerror(errno));
 		else warn_(msg, dirname);
 	}
-	return FALSE;
+	return false;
 }
 #define	direrr(dirname, msg)	(direrr_(__FILE__, __LINE__, (dirname), (msg)))
 
 /* Read the given directory and call filecallback once for each file
  * contained in it.
  */
-int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
+bool findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 {
 	const char *dir;
 	dir = getdir(dirInt);
@@ -402,7 +401,7 @@ int findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 	}
 
 	closedir(dp);
-	return TRUE;
+	return true;
 }
 
 /* Save a dir path.

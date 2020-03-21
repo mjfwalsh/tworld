@@ -234,17 +234,17 @@ static void freerememberedsurfaces(void)
 /* Set the size of one tile. FALSE is returned if the dimensions are
  * invalid.
  */
-static int settilesize(int w, int h)
+static bool settilesize(int w, int h)
 {
 	if (w % 4 || h % 4) {
 		warn("tile dimensions must be divisible by four");
-		return FALSE;
+		return false;
 	}
 	geng.wtile = w;
 	geng.htile = h;
-	opaquetile = new Qt_Surface(w, h, FALSE);
+	opaquetile = new Qt_Surface(w, h, false);
 	remembersurface(opaquetile);
-	return TRUE;
+	return true;
 }
 
 /*
@@ -414,7 +414,7 @@ static void drawclippedtile(TW_Rect const *rect, Qt_Surface * src,
 	}
 }
 
-extern int pedanticmode;
+extern bool pedanticmode;
 
 /* Render the view of the visible area of the map to the display, with
  * the view position centered on the display as much as possible. The
@@ -500,7 +500,7 @@ void displaymapview(gamestate const *state, TW_Rect displayloc)
 static Qt_Surface *extractopaquetile(Qt_Surface * src,
 	int ximg, int yimg, int wimg, int himg)
 {
-	Qt_Surface *dest = new Qt_Surface(wimg, himg, FALSE);
+	Qt_Surface *dest = new Qt_Surface(wimg, himg, false);
 	TW_Rect rect(ximg, yimg, wimg, himg);
 
 	Qt_Surface::BlitSurface(src, &rect, dest, NULL);
@@ -513,7 +513,7 @@ static Qt_Surface *extractopaquetile(Qt_Surface * src,
 static Qt_Surface *extractkeyedtile(Qt_Surface * src,
 	int ximg, int yimg, int wimg, int himg, uint32_t transpclr)
 {
-	Qt_Surface *dest = new Qt_Surface(wimg, himg, TRUE);
+	Qt_Surface *dest = new Qt_Surface(wimg, himg, true);
 	Qt_Surface *temp;
 
 	dest->FillRect(NULL, TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT));
@@ -538,7 +538,7 @@ static Qt_Surface *extractkeyedtile(Qt_Surface * src,
 static Qt_Surface *extractemptytile(Qt_Surface * src,
 	int ximg, int yimg, int wimg, int himg, uint32_t transpclr)
 {
-	Qt_Surface *dest = new Qt_Surface(wimg, himg, FALSE);
+	Qt_Surface *dest = new Qt_Surface(wimg, himg, false);
 	Qt_Surface *temp;
 
 	if (tileptr[Empty].opaque[0])
@@ -569,7 +569,7 @@ static Qt_Surface *extractmaskedtile(Qt_Surface * src,
 	int x, y;
 	TW_Rect rect(ximg, yimg, wimg, himg);
 
-	Qt_Surface *dest = new Qt_Surface(rect.w, rect.h, TRUE);
+	Qt_Surface *dest = new Qt_Surface(rect.w, rect.h, true);
 	Qt_Surface::BlitSurface(src, &rect, dest, NULL);
 
 	black = TW_MapRGB(0, 0, 0);
@@ -604,7 +604,7 @@ static Qt_Surface *extractmaskedtile(Qt_Surface * src,
  * in tiles that are allowed to have transparencies are made
  * transparent.
  */
-static int initsmalltileset(Qt_Surface * tiles)
+static bool initsmalltileset(Qt_Surface * tiles)
 {
 	Qt_Surface *s;
 	uint32_t magenta;
@@ -622,7 +622,7 @@ static int initsmalltileset(Qt_Surface * tiles)
 				tileidmap[n].yopaque * geng.htile,
 				geng.wtile, geng.htile, magenta);
 			if (!s)
-				return FALSE;
+				return false;
 			remembersurface(s);
 			tileptr[id].celcount = 1;
 			tileptr[id].opaque[0] = NULL;
@@ -631,7 +631,7 @@ static int initsmalltileset(Qt_Surface * tiles)
 			s = extractopaquetile(tiles, tileidmap[n].xopaque * geng.wtile,
 				tileidmap[n].yopaque * geng.htile, geng.wtile, geng.htile);
 			if (!s)
-				return FALSE;
+				return false;
 			remembersurface(s);
 			tileptr[id].celcount = 1;
 			tileptr[id].opaque[0] = s;
@@ -639,7 +639,7 @@ static int initsmalltileset(Qt_Surface * tiles)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /*
@@ -651,7 +651,7 @@ static int initsmalltileset(Qt_Surface * tiles)
  * as transparent pixels. Then fill in the values of the tileptr
  * array, using tileidmap to identify the individual tile images.
  */
-static int initmaskedtileset(Qt_Surface * tiles)
+static bool initmaskedtileset(Qt_Surface * tiles)
 {
 	Qt_Surface *s;
 	int id, n;
@@ -666,7 +666,7 @@ static int initmaskedtileset(Qt_Surface * tiles)
 			s = extractopaquetile(tiles, tileidmap[n].xopaque * geng.wtile,
 				tileidmap[n].yopaque * geng.htile, geng.wtile, geng.htile);
 			if (!s)
-				return FALSE;
+				return false;
 			remembersurface(s);
 			tileptr[id].celcount = 1;
 			tileptr[id].opaque[0] = s;
@@ -680,14 +680,14 @@ static int initmaskedtileset(Qt_Surface * tiles)
 				(tileidmap[n].xtransp + 3) * geng.wtile,
 				tileidmap[n].ytransp * geng.htile);
 			if (!s)
-				return FALSE;
+				return false;
 			remembersurface(s);
 			tileptr[id].celcount = 1;
 			tileptr[id].transp[0] = s;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /*
@@ -699,7 +699,7 @@ static int initmaskedtileset(Qt_Surface * tiles)
  * array at ptrs. transpclr indicates the color of the pixels to
  * replace with the corresponding pixels from the Empty tile.
  */
-static int extractopaquetileseq(Qt_Surface * tiles, TW_Rect const *rect,
+static bool extractopaquetileseq(Qt_Surface * tiles, TW_Rect const *rect,
 	int count, Qt_Surface ** ptrs, uint32_t transpclr)
 {
 	int x, n;
@@ -707,10 +707,10 @@ static int extractopaquetileseq(Qt_Surface * tiles, TW_Rect const *rect,
 	for (n = 0, x = rect->x; n < count; ++n, x += rect->w) {
 		ptrs[n] = extractemptytile(tiles, x, rect->y, rect->w, rect->h, transpclr);
 		if (!ptrs[n])
-			return FALSE;
+			return false;
 		remembersurface(ptrs[n]);
 	}
-	return TRUE;
+	return true;
 }
 
 /* Copy a sequence of count tiles from the given surface at the
@@ -718,7 +718,7 @@ static int extractopaquetileseq(Qt_Surface * tiles, TW_Rect const *rect,
  * array at ptrs. transpclr indicates the color of the pixels to make
  * transparent.
  */
-static int extracttransptileseq(Qt_Surface * tiles, TW_Rect const *rect,
+static bool extracttransptileseq(Qt_Surface * tiles, TW_Rect const *rect,
 	int count, Qt_Surface ** ptrs, uint32_t transpclr)
 {
 	int x, n;
@@ -726,10 +726,10 @@ static int extracttransptileseq(Qt_Surface * tiles, TW_Rect const *rect,
 	for (n = count - 1, x = rect->x; n >= 0; --n, x += rect->w) {
 		ptrs[n] = extractkeyedtile(tiles, x, rect->y, rect->w, rect->h, transpclr);
 		if (!ptrs[n])
-			return FALSE;
+			return false;
 		remembersurface(ptrs[n]);
 	}
-	return TRUE;
+	return true;
 }
 
 /* Extract the tile images for a single tile type from the given
@@ -740,7 +740,7 @@ static int extracttransptileseq(Qt_Surface * tiles, TW_Rect const *rect,
  * return, the pointer at pd is updated to point to the first byte in
  * the buffer after the copied tile images.
  */
-static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
+static bool extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 	int id, int shape, uint32_t transpclr)
 {
 	TW_Rect rect;
@@ -755,7 +755,7 @@ static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 	case TILEIMG_SINGLEOPAQUE:
 		if (h != 1 || w != 1) {
 			warn("outsized single tiles not permitted (%02X=%dx%d)", id, w, h);
-			return FALSE;
+			return false;
 		}
 		tileptr[id].transpsize = 0;
 		tileptr[id].celcount = 1;
@@ -765,7 +765,7 @@ static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 	case TILEIMG_OPAQUECELS:
 		if (h != 1) {
 			warn("outsized map tiles not permitted (%02X=%dx%d)", id, w, h);
-			return FALSE;
+			return false;
 		}
 		tileptr[id].transpsize = 0;
 		tileptr[id].celcount = w;
@@ -775,7 +775,7 @@ static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 	case TILEIMG_TRANSPCELS:
 		if (h != 1) {
 			warn("outsized map tiles not permitted (%02X=%dx%d)", id, w, h);
-			return FALSE;
+			return false;
 		}
 		tileptr[id].transpsize = 0;
 		tileptr[id].celcount = w;
@@ -785,7 +785,7 @@ static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 	case TILEIMG_ANIMATION:
 		if (h == 2 || (h == 3 && w % 3 != 0)) {
 			warn("off-center animation not permitted (%02X=%dx%d)", id, w, h);
-			return FALSE;
+			return false;
 		}
 		if (h == 3) {
 			tileptr[id].transpsize = SIZE_EXTALL;
@@ -841,7 +841,7 @@ static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 			} else {
 				warn("invalid packing of creature tiles (%02X=%dx%d)",
 					id, w, h);
-				return FALSE;
+				return false;
 			}
 		} else if (h == 2) {
 			if (w == 1) {
@@ -925,16 +925,16 @@ static int extracttileimage(Qt_Surface * tiles, int x, int y, int w, int h,
 			} else {
 				warn("invalid packing of creature tiles (%02X=%dx%d)",
 					id, w, h);
-				return FALSE;
+				return false;
 			}
 		} else {
 			warn("invalid packing of creature tiles (%02X=%dx%d)", id, w, h);
-			return FALSE;
+			return false;
 		}
 		break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /* Free all memory allocated for the current set of tile images.
@@ -962,7 +962,7 @@ static void freetileset(void)
  * pointers to each tile image is stored in the appropriate field of
  * the tileptr array.
  */
-static int initlargetileset(Qt_Surface * tiles)
+static bool initlargetileset(Qt_Surface * tiles)
 {
 	TW_Rect *tilepos = NULL;
 	uint32_t transpclr;
@@ -977,11 +977,11 @@ static int initlargetileset(Qt_Surface * tiles)
 			break;
 	if (w == tiles->w) {
 		warn("Can't find tile separators");
-		return FALSE;
+		return false;
 	}
 	if (w % 4 != 0) {
 		warn("Tiles must have a width divisible by 4.");
-		return FALSE;
+		return false;
 	}
 	for (h = 1; h < tiles->h; ++h)
 		if (tiles->PixelAt(0, h) != transpclr)
@@ -989,11 +989,11 @@ static int initlargetileset(Qt_Surface * tiles)
 	--h;
 	if (h % 4 != 0) {
 		warn("Tiles must have a height divisible by 4.");
-		return FALSE;
+		return false;
 	}
 
 	if (!settilesize(w, h))
-		return FALSE;
+		return false;
 
 	x_type_alloc(TW_Rect, tilepos, (sizeof tileidmap / sizeof *tileidmap) * sizeof *tilepos);
 
@@ -1070,12 +1070,12 @@ static int initlargetileset(Qt_Surface * tiles)
 	tileptr[BlueWall_Fake] = tileptr[BlueWall_Real];
 
 	free(tilepos);
-	return TRUE;
+	return true;
 
  failure:
 	freetileset();
 	free(tilepos);
-	return FALSE;
+	return false;
 }
 
 /*
@@ -1087,15 +1087,16 @@ static int initlargetileset(Qt_Surface * tiles)
  * TRUE if the tiles were successfully identified and loaded into
  * memory.
  */
-int loadtileset(char const *filename, int complain)
+bool loadtileset(char const *filename, bool complain)
 {
 	Qt_Surface *tiles = new Qt_Surface(filename);
-	int f, w, h;
+	bool f;
+	int w, h;
 
 	if (!tiles) {
 		if (complain)
 			warn("%s: cannot read bitmap: unspecified error", filename);
-		return FALSE;
+		return false;
 	}
 
 	if (tiles->w % 2 != 0) {
@@ -1115,7 +1116,7 @@ int loadtileset(char const *filename, int complain)
 		if (complain)
 			warn("%s: image file has invalid dimensions (%dx%d)", filename,
 				tiles->w, tiles->h);
-		f = FALSE;
+		f = false;
 	}
 
 	delete tiles;
@@ -1124,9 +1125,8 @@ int loadtileset(char const *filename, int complain)
 
 /* Initialization.
  */
-int tileinitialize(void)
+void tileinitialize()
 {
 	geng.mapvieworigin = -1;
 	atexit(freetileset);
-	return TRUE;
 }

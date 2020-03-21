@@ -170,7 +170,7 @@ typedef struct creature {
 	unsigned char	dir;		/* current direction of creature */
 	signed char		moving;		/* positional offset of creature */
 	signed char		frame;		/* explicit animation index */
-	unsigned char	hidden;		/* TRUE if creature is invisible */
+	bool			hidden;		/* TRUE if creature is invisible */
 	unsigned char	state;		/* internal state value */
 	unsigned char	tdir;		/* internal state value */
 } creature;
@@ -182,7 +182,7 @@ struct msstate_ {
 	unsigned char	chipstatus;	/* Chip's status (one of CHIP_*) */
 	unsigned char	controllerdir;	/* current controller direction */
 	unsigned char	lastslipdir;	/* Chip's last involuntary movement */
-	unsigned char	completed;	/* level completed successfully */
+	bool			completed;	/* level completed successfully */
 	short		goalpos;	/* mouse spot to move Chip towards */
 	signed char		xviewoffset;	/* offset of map view center */
 	signed char		yviewoffset;	/*   position from position of Chip */
@@ -201,11 +201,11 @@ struct lxstate_ {
 	signed char		yviewoffset;	/*   position from position of Chip */
 	unsigned char	endgametimer;	/* end-game countdown timer */
 	unsigned char	togglestate;	/* extra state of the toggle walls */
-	unsigned char	completed;	/* level completed successfully */
-	unsigned char	stuck;		/* Chip is stuck */
-	unsigned char	pushing;	/* Chip is pushing against something */
-	unsigned char	couldntmove;	/* can't-move sound has been played */
-	unsigned char	mapbreached;	/* Border of map has been breached */
+	bool			completed;	/* level completed successfully */
+	bool			stuck;		/* Chip is stuck */
+	bool			pushing;	/* Chip is pushing against something */
+	bool			couldntmove;	/* can't-move sound has been played */
+	bool			mapbreached;	/* Border of map has been breached */
 };
 
 /*

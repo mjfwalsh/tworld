@@ -51,7 +51,7 @@ using namespace std;
 #define CONTINUE_PROPRGATION false
 #define STOP_PROPRGATION true
 
-extern int pedanticmode;
+extern bool pedanticmode;
 
 constexpr TileWorldMainWnd::keycmdmap TileWorldMainWnd::keycmds[];
 
@@ -151,7 +151,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	// keyboard stuff
 	mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
 	mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
-	SetKeyboardRepeat(TRUE);
+	SetKeyboardRepeat(true);
 }
 
 
@@ -323,15 +323,14 @@ void TileWorldMainWnd::OnBackButton()
 /* Turn keyboard repeat on or off. If enable is TRUE, the keys other
  * than the direction keys will repeat at the standard rate.
  */
-int setkeyboardrepeat(int enable)
+void setkeyboardrepeat(bool enable)
 {
-	return g_pMainWnd->SetKeyboardRepeat(enable);
+	g_pMainWnd->SetKeyboardRepeat(enable);
 }
 
-bool TileWorldMainWnd::SetKeyboardRepeat(bool bEnable)
+void TileWorldMainWnd::SetKeyboardRepeat(bool bEnable)
 {
 	m_bKbdRepeatEnabled = bEnable;
-	return true;
 }
 
 
@@ -408,7 +407,7 @@ void TileWorldMainWnd::ClearDisplay()
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-int displaygame(gamestate const *state, int timeleft, int besttime)
+bool displaygame(gamestate const *state, int timeleft, int besttime)
 {
 	return g_pMainWnd->DisplayGame(state, timeleft, besttime);
 }
@@ -1253,7 +1252,7 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 
 	if (pAction == action_forceShowTimer) {
 		setintsetting("forceshowtimer", pAction->isChecked() ? 1 : 0);
-		drawscreen(TRUE);
+		drawscreen(true);
 		return;
 	}
 
@@ -1398,12 +1397,12 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 	m_pInfoFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);
 }
 
-void setplaypausebutton(int paused)
+void setplaypausebutton(bool paused)
 {
 	g_pMainWnd->SetPlayPauseButton(paused);
 }
 
-void TileWorldMainWnd::SetPlayPauseButton(int paused)
+void TileWorldMainWnd::SetPlayPauseButton(bool paused)
 {
 	if(paused) {
 		m_pBtnPlay->setIcon(playIcon);
@@ -1440,7 +1439,7 @@ void TileWorldMainWnd::HideVolumeWidget()
  * current behavior settings. Shift-type keys are always either on or
  * off.
  */
-void TileWorldMainWnd::KeyEventCallback(int scancode, int down)
+void TileWorldMainWnd::KeyEventCallback(int scancode, bool down)
 {
 	if (down) {
 		keystates[scancode] = keystates[scancode] == KS_OFF ? KS_PRESSED : KS_REPEATING;
@@ -1456,7 +1455,7 @@ void TileWorldMainWnd::RestartKeystates(void)
 	memset(keystates, KS_OFF, sizeof keystates);
 	for (int n = 0; n < TWK_LAST; ++n)
 	if (m_nKeyState[n])
-		KeyEventCallback(n, TRUE);
+		KeyEventCallback(n, true);
 }
 
 /* Update the key states. This is done at the start of each polling
@@ -1548,15 +1547,15 @@ int TileWorldMainWnd::RetrieveMouseCommand(void)
  * be considered active. If two mergeable keys are selected, the return
  * value will be the bitwise-or of their command values.
  */
-int input(int wait)
+int input(bool wait)
 {
 	return g_pMainWnd->Input(wait);
 }
 
-int TileWorldMainWnd::Input(int wait)
+int TileWorldMainWnd::Input(bool wait)
 {
 	keycmdmap const    *kc;
-	int			lingerflag = FALSE;
+	bool		lingerflag = false;
 	int			cmd1, cmd, n;
 
 	for (;;) {
@@ -1579,7 +1578,7 @@ int TileWorldMainWnd::Input(int wait)
 			} else if (n == KS_STRUCK || n == KS_REPEATING) {
 				cmd = kc->cmd;
 			} else if (n == KS_DOWNBUTOFF1 || n == KS_DOWNBUTOFF2) {
-				lingerflag = TRUE;
+				lingerflag = true;
 			}
 		}
 		if (cmd1)
@@ -1605,14 +1604,14 @@ int TileWorldMainWnd::Input(int wait)
  * special repeating behavior that is kept synchronized with the
  * polling cycle.
  */
-int setkeyboardarrowsrepeat(int enable)
+bool setkeyboardarrowsrepeat(bool enable)
 {
 	return g_pMainWnd->SetKeyboardArrowsRepeat(enable);
 }
 
-int TileWorldMainWnd::SetKeyboardArrowsRepeat(int enable)
+bool TileWorldMainWnd::SetKeyboardArrowsRepeat(bool enable)
 {
 	joystickstyle = enable;
 	RestartKeystates();
-	return TRUE;
+	return true;
 }
