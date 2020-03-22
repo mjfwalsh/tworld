@@ -82,13 +82,13 @@ static void removefilenamesuffixes(mfinfovector *v)
 
 /* Mini-structure for finding/generating the series files.
  */
-typedef	struct seriesdata {
+typedef	struct seriesfiledata {
 	mfinfovector mfinfo;	/* list of levelset files */
 	gameseries *list;		/* the gameseries list */
 	int		curdir;		/* directory we are searching */
 	int		allocated;	/* number of gameseries currently allocated */
 	int		count;		/* number of gameseries filled in */
-} seriesdata;
+} seriesfiledata;
 
 /* Calculate a hash value for the given block of data.
  */
@@ -497,7 +497,7 @@ static char *readconfigfile(fileinfo *file, gameseries *series)
 static int getseriesfile(char const *filename, void *data)
 {
 	fileinfo		file;
-	seriesdata	       *sdata = (seriesdata*)data;
+	seriesfiledata	       *sdata = (seriesfiledata*)data;
 	gameseries	       *series;
 	unsigned long	magic;
 	char	       *datfilename;
@@ -578,7 +578,7 @@ static int getseriesfile(char const *filename, void *data)
 static int getmapfile(char const *filename, void *data)
 {
 	fileinfo		file;
-	seriesdata	       *sdata = (seriesdata*)data;
+	seriesfiledata	       *sdata = (seriesfiledata*)data;
 	gameseries	        s;
 	unsigned long	magic;
 	int			f;
@@ -671,10 +671,10 @@ static bool createnewdacfile(char const *name, mapfileinfo const *datfile, int r
 /* Try to create a new gameseries for the specified level file and ruleset. Also
  * attempt to create the .dac file. Fail if our chosen filename is taken. If
  * the filename wasn't taken but creation still failed for some reason, we
- * still create the gameseries. The gameseries is added to the seriesdata
+ * still create the gameseries. The gameseries is added to the seriesfiledata
  * struct. Returns the new gameseries if successful.
  */
-static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, int ruleset)
+static gameseries* createnewseries(seriesfiledata *s, mapfileinfo const *datfile, int ruleset)
 {
 	char *newdacname = generatenewdacname(datfile, ruleset);
 	int ok = createnewdacfile(newdacname, datfile, ruleset);
@@ -713,7 +713,7 @@ static gameseries* createnewseries(seriesdata *s, mapfileinfo const *datfile, in
 /* For each map file present, ensure at least one gameseries exists for each
  * ruleset. We also populate the structures mapping mapfile/ruleset to
  * gameseries. */
-static void createallmissingseries(seriesdata *s)
+static void createallmissingseries(seriesfiledata *s)
 {
 	qsort(s->mfinfo.buf, s->mfinfo.count,
 		sizeof *s->mfinfo.buf, compare_mapfileinfo);
@@ -751,7 +751,7 @@ static void createallmissingseries(seriesdata *s)
 static bool getseriesfiles(gameseries ** list, int *count,
 	mapfileinfo **mflist, int *mfcount)
 {
-	seriesdata	s;
+	seriesfiledata	s;
 
 	s.mfinfo.buf = NULL;
 	x_type_alloc(mapfileinfo, s.mfinfo.buf, sizeof *s.mfinfo.buf); /* Ensure buf not null */
