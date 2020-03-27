@@ -7,8 +7,6 @@
 #ifndef	HEADER_state_h_
 #define	HEADER_state_h_
 
-#include	"defs.h"
-
 /* The tiles that make up Chip's universe.
  */
 enum

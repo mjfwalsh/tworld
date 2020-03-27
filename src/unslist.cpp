@@ -4,9 +4,10 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<cstdlib>
+#include	<cstring>
+#include	<cctype>
+#include	<cstdio>
 
 #include	"defs.h"
 #include	"fileio.h"

@@ -8,10 +8,11 @@
 #include	<QApplication>
 #include	<QStandardPaths>
 
-#include	<stdio.h>
-#include	<stdlib.h>
-#include	<string.h>
-#include	<errno.h>
+#include	<cstdio>
+#include	<cstdlib>
+#include	<cstring>
+#include	<cerrno>
+
 #include	<dirent.h>
 #include	<sys/stat.h>
 

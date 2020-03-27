@@ -10,12 +10,12 @@
 #include <QLocale>
 
 #include "../obj/ui_TWMainWnd.h"
-#include "TWTableSpec.h"
 #include "CCMetaData.h"
-#include "oshwbind.h"
 #include "defs.h"
-#include "state.h"
 #include "oshw.h"
+
+class TWTableSpec;
+struct gamestate;
 
 class QSortFilterProxyModel;
 

@@ -7,7 +7,7 @@
 #ifndef HEADER_messages_h_
 #define HEADER_messages_h_
 
-#include <QString>
+class QString;
 
 enum
 {

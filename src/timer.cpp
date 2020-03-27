@@ -7,7 +7,7 @@
 #include	<QThread>
 #include	<QElapsedTimer>
 
-#include	<stdlib.h>
+#include	<cstdlib>
 
 #include	"defs.h"
 #include	"timer.h"

@@ -9,8 +9,9 @@
 #ifndef	HEADER_tworld_h_
 #define	HEADER_tworld_h_
 
-#include	"TWTableSpec.h"
 #include	"defs.h"
+
+class TWTableSpec;
 
 enum { Play_None, Play_Normal, Play_Back, Play_Verify };
 

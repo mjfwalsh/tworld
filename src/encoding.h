@@ -7,7 +7,7 @@
 #ifndef	HEADER_encoding_h_
 #define	HEADER_encoding_h_
 
-#include	"state.h"
+struct gamestate;
 
 /* Initialize the gamestate by reading the level data from the setup.
  * FALSE is returned if the level data is invalid.

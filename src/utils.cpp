@@ -5,7 +5,7 @@
  * No warranty. See COPYING for details.
  */
 
-#include <string.h>
+#include <cstring>
 
 #include "utils.h"
 

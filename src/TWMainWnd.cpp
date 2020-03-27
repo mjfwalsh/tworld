@@ -25,8 +25,7 @@
 #include <QFontMetrics>
 #include <QRect>
 
-#include <string.h>
-
+#include <cstring>
 #include <cmath>
 
 #include "TWMainWnd.h"

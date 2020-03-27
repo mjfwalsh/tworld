@@ -5,7 +5,7 @@
 
 #include <QClipboard>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "TWApp.h"
 #include "TWMainWnd.h"

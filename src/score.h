@@ -7,9 +7,6 @@
 #ifndef	HEADER_score_h_
 #define	HEADER_score_h_
 
-#include	"TWTableSpec.h"
-#include	"defs.h"
-
 /* Return the user's scores for a given level. The last three arguments
  * receive the base score for the level, the time bonus for the level,
  * and the total score for the series.

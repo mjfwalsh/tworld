@@ -5,10 +5,10 @@
  * See COPYING for details.
  */
 
-#include	<errno.h>
-#include	<stdlib.h>
-#include	<string.h>
-#include	<ctype.h>
+#include	<cerrno>
+#include	<cstdlib>
+#include	<cstring>
+#include	<cctype>
 
 #include	"defs.h"
 #include	"fileio.h"

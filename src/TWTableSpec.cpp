@@ -3,8 +3,6 @@
  * See COPYING for details.
  */
 
-#include <QAbstractTableModel>
-
 #include <string>
 #include <vector>
 

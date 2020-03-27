@@ -8,8 +8,6 @@
 #ifndef	HEADER_play_h_
 #define	HEADER_play_h_
 
-#include	"defs.h"
-
 /* The different modes of the program with respect to gameplay.
  */
 enum {

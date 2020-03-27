@@ -8,8 +8,6 @@
 #ifndef	HEADER_series_h_
 #define	HEADER_series_h_
 
-#include	"defs.h"
-
 /* Load all levels of the given series.
  */
 extern bool readseriesfile(gameseries *series);

@@ -7,8 +7,6 @@
 #ifndef	HEADER_random_h_
 #define	HEADER_random_h_
 
-#include	"defs.h"
-
 /* Mark an existing PRNG as beginning a new sequence.
  */
 extern void resetprng(prng *gen);

@@ -7,8 +7,6 @@
 #ifndef	HEADER_unslist_h_
 #define	HEADER_unslist_h_
 
-#include	"defs.h"
-
 /* Read the list of unsolvable levels from the given filename. If the
  * filename does not contain a path, then the function looks for the
  * file in the resource directory and the user's save directory.

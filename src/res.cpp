@@ -5,8 +5,8 @@
  * See COPYING for details.
  */
 
-#include	<stdlib.h>
-#include	<string.h>
+#include	<cstdlib>
+#include	<cstring>
 
 #include	"defs.h"
 #include	"messages.h"

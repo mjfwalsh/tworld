@@ -7,8 +7,10 @@
 #ifndef	HEADER_solution_h_
 #define	HEADER_solution_h_
 
-#include	"TWTableSpec.h"
-#include	"defs.h"
+#include	<string>
+#include	<vector>
+
+class TWTableSpec;
 
 /* A structure holding all the data needed to reconstruct a solution.
  */

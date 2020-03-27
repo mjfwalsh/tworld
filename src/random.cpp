@@ -16,8 +16,8 @@
  * different C library's generator. Thus, this module.
  */
 
-#include	<stdlib.h>
-#include	<time.h>
+#include	<cstdlib>
+#include	<ctime>
 
 #include	"defs.h"
 #include	"random.h"

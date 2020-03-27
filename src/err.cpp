@@ -4,9 +4,9 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include	<stdlib.h>
-#include	<stdarg.h>
-#include	<stdio.h>
+#include	<cstdlib>
+#include	<cstdarg>
+#include	<cstdio>
 
 #include	"err.h"
 

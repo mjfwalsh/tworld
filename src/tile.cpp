@@ -4,7 +4,7 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include	<stdlib.h>
+#include	<cstdlib>
 
 #include	"tile.h"
 #include	"oshwbind.h"

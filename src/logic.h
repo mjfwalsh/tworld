@@ -7,8 +7,6 @@
 #ifndef	HEADER_logic_h_
 #define	HEADER_logic_h_
 
-#include	"state.h"
-
 /* Turning macros.
  */
 #define	left(dir)	((((dir) << 1) | ((dir) >> 3)) & 15)

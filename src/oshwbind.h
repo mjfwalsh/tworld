@@ -8,7 +8,6 @@
 #ifndef	HEADER_qt_oshwbind_h_
 #define	HEADER_qt_oshwbind_h_
 
-#include <Qt>
 #include <QPixmap>
 #include <QImage>
 

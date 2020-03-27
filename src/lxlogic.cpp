@@ -4,7 +4,7 @@
  * General Public License. No warranty. See COPYING for details.
  */
 
-#include	<stdlib.h>
+#include	<cstdlib>
 
 #include	"defs.h"
 #include	"state.h"

@@ -7,8 +7,8 @@
 
 #include	<SDL.h>
 
-#include	<stdlib.h>
-#include	<string.h>
+#include	<cstdlib>
+#include	<cstring>
 
 #include	"sdlsfx.h"
 #include	"settings.h"

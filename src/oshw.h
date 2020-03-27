@@ -9,9 +9,7 @@
 #ifndef	HEADER_oshw_h_
 #define	HEADER_oshw_h_
 
-#include	"TWTableSpec.h"
-#include	"defs.h"
-
+class TWTableSpec;
 struct gamestate;
 struct gameseries;
 

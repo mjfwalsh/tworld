@@ -4,7 +4,7 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include	<string.h>
+#include	<cstring>
 
 #include	"defs.h"
 #include	"state.h"

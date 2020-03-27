@@ -5,9 +5,9 @@
  * See COPYING for details.
  */
 
-#include	<stdlib.h>
-#include	<string.h>
+#include	<cstdlib>
 
+#include	<string>
 #include	<sstream>
 #include	<vector>
 

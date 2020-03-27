@@ -6,20 +6,20 @@
  * No warranty. See COPYING for details.
  */
 
-#include	<stdlib.h>
-#include	<string.h>
+#include	<cstdlib>
+#include	<cstring>
 
 #include	"defs.h"
 #include	"state.h"
 #include	"encoding.h"
 #include	"oshw.h"
 #include	"res.h"
-#include	"logic.h"
 #include	"random.h"
 #include	"solution.h"
 #include	"play.h"
 #include	"timer.h"
 #include	"sdlsfx.h"
+#include	"logic.h"
 #include	"err.h"
 
 /* The current state of the current game.
