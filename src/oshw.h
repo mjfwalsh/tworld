@@ -54,7 +54,7 @@ extern int input(bool wait); // in.cpp
  * game (e.g., sized according to the tiles and the font). FALSE is
  * returned on error.
  */
-extern int creategamedisplay(void); // TWMainWnd.cpp
+extern void creategamedisplay(); // TWMainWnd.cpp
 
 /* Fill the display with the background color.
  */
@@ -64,7 +64,7 @@ extern void cleardisplay(void); // TWMainWnd.cpp
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-extern bool displaygame(struct gamestate const *state,
+extern void displaygame(struct gamestate const *state,
 				int timeleft, int besttime); // TWMainWnd.cpp
 
 /* Display a short message appropriate to the end of a level's game
@@ -77,16 +77,6 @@ extern bool displaygame(struct gamestate const *state,
  */
 extern int displayendmessage(int basescore, int timescore,
 				 long totalscore, int completed); // TWMainWnd.cpp
-
-
-/* Types of lists that can be displayed.
- */
-typedef enum {
-	LIST_MAPFILES,
-	LIST_SERIES,
-	LIST_SCORES,
-	LIST_SOLUTIONFILES
-} DisplayListType;
 
 /* Display a scrollable table. title provides a title to display. The
  * table's first row provides a set of column headers which will not
@@ -102,14 +92,14 @@ typedef enum {
  * stored in the integer will become displaylist()'s return value.
  */
 extern int displaylist(TWTableSpec *table, int *index,
-	DisplayListType listtype); // TWMainWnd.cpp
+	bool showRulesetOptions); // TWMainWnd.cpp
 
 /* Input prompts.
  */
 
 /* Display an confirm yes/no dialog
  */
-extern int displayyesnoprompt(const char* prompt); // TWMainWnd.cpp
+extern bool displayyesnoprompt(const char* prompt); // TWMainWnd.cpp
 
 /* Display an text prompt for a password
  */

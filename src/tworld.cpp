@@ -6,7 +6,6 @@
  * No warranty. See COPYING for details.
  */
 
-#include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 
@@ -25,6 +24,7 @@
 #include	"fileio.h"
 #include	"timer.h"
 #include	"sdlsfx.h"
+#include	"utils.h"
 #include	"err.h"
 
 /* History of levelsets in order of last used date/time.
@@ -203,7 +203,7 @@ static bool showsolutionfiles(gamespec *gs)
 
 	pushsubtitle(gs->series.name);
 	for (;;) {
-		int f = displaylist(&table, &n, LIST_SOLUTIONFILES);
+		int f = displaylist(&table, &n, false);
 		if (f == CmdProceed) {
 			break;
 		} else if (f == CmdQuitLevel) {
@@ -248,7 +248,7 @@ static int showscores(gamespec *gs)
 
 	pushsubtitle(gs->series.name);
 	for (;;) {
-		int f = displaylist(&table, &n, LIST_SCORES);
+		int f = displaylist(&table, &n, false);
 		if (f == CmdProceed) {
 			n = levellist[n];
 			break;
@@ -329,9 +329,8 @@ bool loadhistory(void)
 		++historycount;
 		x_type_alloc(history, historylist, historycount * sizeof *historylist);
 		h = historylist + historycount - 1;
-
-		sprintf(h->name, "%.*s", (int)(sizeof h->name - 1), hname);
-		sprintf(h->passwd, "%.*s", (int)(sizeof h->passwd - 1), hpasswd);
+		stringcopy(h->name, hname, (int)(sizeof h->name));
+		stringcopy(h->passwd, hpasswd, (int)(sizeof h->passwd));
 		h->levelnumber = (int)strtol(hnumber, NULL, 0);
 		h->dt.tm_year  = hyear - 1900;
 		h->dt.tm_mon   = hmon - 1;
@@ -371,8 +370,8 @@ static void updatehistory(char const *name, char const *passwd, int number)
 	}
 
 	h = historylist;
-	sprintf(h->name, "%.*s", (int)(sizeof h->name - 1), name);
-	sprintf(h->passwd, "%.*s", (int)(sizeof h->passwd - 1), passwd);
+	stringcopy(h->name, name, (int)(sizeof h->name));
+	stringcopy(h->passwd, passwd, (int)(sizeof h->passwd));
 	h->levelnumber = number;
 	h->dt = *localtime(&t);
 }
@@ -993,7 +992,7 @@ static int chooseseries(seriesdata *series, int *pn, bool founddefault)
 
 	int chosenseries = -1;
 	while (chosenseries < 0) {
-		int f = displaylist(&mftable, &n, LIST_MAPFILES);
+		int f = displaylist(&mftable, &n, true);
 		if (f != CmdProceed) {
 			return f;
 		}
@@ -1013,7 +1012,7 @@ static int chooseseries(seriesdata *series, int *pn, bool founddefault)
 
 			int m = 0;
 			for (;;) {
-				f = displaylist(&gstable, &m, LIST_SERIES);
+				f = displaylist(&gstable, &m, false);
 				if (f == CmdProceed) {
 					chosenseries = chosengsl->list[m];
 					break;

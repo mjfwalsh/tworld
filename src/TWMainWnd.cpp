@@ -354,12 +354,12 @@ void TileWorldMainWnd::ReleaseAllKeys()
  * game (e.g., sized according to the tiles and the font). FALSE is
  * returned on error.
  */
-int creategamedisplay(void)
+void creategamedisplay()
 {
-	return g_pMainWnd->CreateGameDisplay();
+	g_pMainWnd->CreateGameDisplay();
 }
 
-bool TileWorldMainWnd::CreateGameDisplay()
+void TileWorldMainWnd::CreateGameDisplay()
 {
 	delete m_pSurface;
 	delete m_pInvSurface;
@@ -378,8 +378,6 @@ bool TileWorldMainWnd::CreateGameDisplay()
 	SetCurrentPage(PAGE_GAME);
 
 	m_pControlsFrame->setVisible(true);
-
-	return true;
 }
 
 
@@ -407,12 +405,12 @@ void TileWorldMainWnd::ClearDisplay()
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-bool displaygame(gamestate const *state, int timeleft, int besttime)
+void displaygame(gamestate const *state, int timeleft, int besttime)
 {
-	return g_pMainWnd->DisplayGame(state, timeleft, besttime);
+	g_pMainWnd->DisplayGame(state, timeleft, besttime);
 }
 
-bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime)
+void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime)
 {
 	bool const bTimedLevel = (pState->game->time > 0);
 
@@ -585,8 +583,6 @@ bool TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 			SetHint(false);
 		}
 	}
-
-	return true;
 }
 
 void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
@@ -878,13 +874,13 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-int displaylist(TWTableSpec *table, int *index, DisplayListType listtype)
+int displaylist(TWTableSpec *table, int *index, bool showRulesetOptions)
 {
-	return g_pMainWnd->DisplayList(table, index, listtype);
+	return g_pMainWnd->DisplayList(table, index, showRulesetOptions);
 }
 
 int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
-		DisplayListType eListType)
+		bool showRulesetOptions)
 {
 	int nCmd = 0;
 
@@ -931,7 +927,6 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 		SetCurrentPage(PAGE_TABLE);
 		m_pTblList->setFocus();
 
-		bool const showRulesetOptions = (eListType == LIST_MAPFILES);
 		m_pComboRuleset->setVisible(showRulesetOptions);
 		m_pComboLabel->setVisible(showRulesetOptions);
 
@@ -1004,9 +999,9 @@ void TileWorldMainWnd::OnRulesetSwitched(QString checked)
 /* Display an input prompt to the user. prompt supplies the prompt to
  * display.
  */
-int displayyesnoprompt(char const *prompt)
+bool displayyesnoprompt(char const *prompt)
 {
-	return (int)g_pMainWnd->DisplayYesNoPrompt(prompt);
+	return g_pMainWnd->DisplayYesNoPrompt(prompt);
 }
 
 bool TileWorldMainWnd::DisplayYesNoPrompt(const char* prompt)
@@ -1301,7 +1296,7 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 	}
 
 	if (pAction == action_PedanticMode) {
-		setpedanticmode(pAction->isChecked() ? 1 : 0);
+		setpedanticmode(pAction->isChecked());
 		return;
 	}
 
@@ -1518,7 +1513,7 @@ int TileWorldMainWnd::RetrieveMouseCommand(void)
 	switch (mouseinfo.state) {
 		case KS_PRESSED:
 			mouseinfo.state = KS_OFF;
-			if (mouseinfo.button == TW_BUTTON_LEFT) {
+			if (mouseinfo.button == Qt::LeftButton) {
 				int n = WindowMapPos(mouseinfo.x, mouseinfo.y);
 				if (n >= 0) {
 					mouseinfo.state = KS_DOWNBUTOFF1;

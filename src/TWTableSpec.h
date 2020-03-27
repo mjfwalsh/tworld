@@ -6,9 +6,17 @@
 #ifndef	HEADER_TWTableSpec_h_
 #define	HEADER_TWTableSpec_h_
 
+#include <Qt>
 #include <QAbstractTableModel>
+
 #include <string>
 #include <vector>
+
+/* Qt align values.
+ */
+const int LeftAlign = (Qt::AlignLeft | Qt::AlignVCenter);
+const int RightAlign = (Qt::AlignRight | Qt::AlignVCenter);
+const int CenterAlign = (Qt::AlignHCenter | Qt::AlignVCenter);
 
 class TWTableSpec : public QAbstractTableModel
 {

@@ -7,6 +7,8 @@
 #ifndef	HEADER_fileio_h_
 #define	HEADER_fileio_h_
 
+#include <cstdio>
+
 /* enum for different directories
  */
 enum {

@@ -4,7 +4,6 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include	<stdio.h>
 #include	<stdlib.h>
 
 #include	"tile.h"

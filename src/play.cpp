@@ -40,7 +40,7 @@ static int		mudsucking = 1;
 
 /* Turn on the pedantry.
  */
-void setpedanticmode(int v)
+void setpedanticmode(bool v)
 {
 	pedanticmode = v;
 }
@@ -83,10 +83,8 @@ static bool setrulesetbehavior(int ruleset)
 	}
 
 	if (!batchmode) {
-		if (!loadgameresources(ruleset) || !creategamedisplay()) {
-			die("unable to proceed due to previous errors.");
-			return false;
-		}
+		loadgameresources(ruleset);
+		creategamedisplay();
 	}
 
 	logic->state = &state;
@@ -257,7 +255,7 @@ int doturn(int cmd)
  * effects, if any). If showframe is FALSE, then nothing is actually
  * displayed.
  */
-bool drawscreen(bool showframe)
+void drawscreen(bool showframe)
 {
 	int	currenttime;
 	int timeleft, besttime;
@@ -266,7 +264,7 @@ bool drawscreen(bool showframe)
 	state.soundeffects &= ~((1 << SND_ONESHOT_COUNT) - 1);
 
 	if (!showframe)
-		return true;
+		return;
 
 	currenttime = state.currenttime + state.timeoffset;
 
@@ -281,7 +279,7 @@ bool drawscreen(bool showframe)
 		timeleft = 0;
 	}
 
-	return displaygame(&state, timeleft, besttime);
+	displaygame(&state, timeleft, besttime);
 }
 
 /* Stop game play and clean up.

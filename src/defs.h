@@ -9,17 +9,9 @@
 #ifndef	HEADER_defs_h_
 #define	HEADER_defs_h_
 
-#include	<Qt>
-
 #include	<time.h>
 
 class fileinfo;
-
-/* Qt align values.
- */
-const int LeftAlign = (Qt::AlignLeft | Qt::AlignVCenter);
-const int RightAlign = (Qt::AlignRight | Qt::AlignVCenter);
-const int CenterAlign = (Qt::AlignHCenter | Qt::AlignVCenter);
 
 /* The dimensions of a level.
  */
@@ -212,7 +204,7 @@ typedef	struct gamesetup {
 	unsigned long	levelhash;	/* the level data's hash value */
 	char const	       *unsolvable;	/* why level is unsolvable, or NULL */
 	char		name[256];	/* name of the level */
-	char		passwd[256];	/* the level's password */
+	char		passwd[5];	/* the level's password */
 } gamesetup;
 
 /* Flags associated with a saved game.
@@ -225,7 +217,7 @@ typedef	struct gamesetup {
  */
 typedef	struct history {
 	char		name[256];	/* the set filename minus any path */
-	char		passwd[256];	/* password of the last played level */
+	char		passwd[5];	/* password of the last played level */
 	int	   		levelnumber;	/* number of the last played level */
 	struct tm		dt;		/* date/time set was last played */
 } history;

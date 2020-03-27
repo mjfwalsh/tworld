@@ -61,7 +61,7 @@ extern int doturn(int cmd);
 /* Update the display during game play. If showframe is FALSE, then
  * nothing is actually displayed.
  */
-extern bool drawscreen(bool showframe);
+extern void drawscreen(bool showframe);
 
 /* Quit game play early.
  */
@@ -100,7 +100,7 @@ extern bool checksolution(void);
 /* Turn pedantic mode on. The ruleset will be slightly changed to be
  * as faithful as possible to the original source material.
  */
-extern void setpedanticmode(int v);
+extern void setpedanticmode(bool v);
 
 
 #endif

@@ -57,7 +57,7 @@ static int addSound(int i, const char *file)
 	strcat(fp, "/");
 	strcat(fp, file);
 
-	int rv = loadsfxfromfile(i, fp);
+	bool rv = loadsfxfromfile(i, fp);
 	free(fp);
 	return rv;
 }
@@ -114,12 +114,11 @@ static int LoadSounds()
  * to run, and by this point we should already have a valid font and
  * color scheme set.)
  */
-bool loadgameresources(int ruleset)
+void loadgameresources(int ruleset)
 {
 	currentRuleset = ruleset;
 	LoadImages();
 	if (LoadSounds() == 0) setaudiosystem(false);
-	return true;
 }
 
 /* Parse the rc file and load the font and color scheme. FALSE is returned

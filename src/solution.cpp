@@ -4,7 +4,6 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
@@ -481,7 +480,7 @@ static bool readsolution(fileinfo *file, gamesetup *game)
 		return fileerr(file, "invalid data in solution file");
 	game->number = (game->solutiondata[1] << 8) | game->solutiondata[0];
 	memcpy(game->passwd, game->solutiondata + 2, 4);
-	game->passwd[5] = '\0';
+	game->passwd[4] = '\0';
 	game->sgflags |= SGF_HASPASSWD;
 	if (size == 6)
 		return true;

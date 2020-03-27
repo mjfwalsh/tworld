@@ -4,7 +4,6 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
@@ -27,7 +26,7 @@ typedef	struct unslistentry {
 
 /* Whether the module has been initialised
  */
-static int 	initialised = 0;
+static bool 	initialised = false;
 
 
 /* The pool of strings. In here are stored the level set names and the
@@ -259,7 +258,7 @@ void loadunslistfromfile(char const *filename)
 
 	if(!initialised) {
 		atexit(clearunslist);
-		initialised = 1;
+		initialised = true;
 	}
 
 	if (!file.open(RESDIR, filename, "r", NULL)) {

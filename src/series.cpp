@@ -6,7 +6,6 @@
  */
 
 #include	<errno.h>
-#include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<ctype.h>
@@ -17,6 +16,7 @@
 #include	"unslist.h"
 #include	"series.h"
 #include	"oshw.h"
+#include	"utils.h"
 #include	"err.h"
 
 /* The signature bytes of the data files.
@@ -245,7 +245,7 @@ static bool readleveldata(fileinfo *file, gamesetup *game)
 			game->name[size] = '\0';
 			break;
 		case 6:
-			for (n = 0 ; n < size && n < 15 && data[n] ; ++n)
+			for (n = 0 ; n < size && n < 4 && data[n] ; ++n)
 				game->passwd[n] = data[n] ^ 0x99;
 			game->passwd[n] = '\0';
 			break;
@@ -540,7 +540,7 @@ static int getseriesfile(char const *filename, void *data)
 	series->games = NULL;
 
 	// set the file name
-	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1), filename);
+	stringcopy(series->name, filename, (short)(sizeof series->name));
 
 	// read the dac file contents
 	if (!file.open(sdata->curdir, filename, "r", "unknown error"))
@@ -699,7 +699,7 @@ static gameseries* createnewseries(seriesfiledata *s, mapfileinfo const *datfile
 	series->final = 0;
 	series->ruleset = ruleset;
 	series->games = NULL;
-	sprintf(series->name, "%.*s", (int)(sizeof series->name - 1), newdacname);
+	stringcopy(series->name, newdacname, (int)(sizeof series->name));
 
 	x_cmalloc(series->mapfilename, strlen(datfile->filename));
 	strcpy(series->mapfilename, datfile->filename);

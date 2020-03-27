@@ -122,11 +122,11 @@ public:
 	void SetKeyboardRepeat(bool bEnable);
 	int GetReplaySecondsToSkip() const;
 
-	bool CreateGameDisplay();
+	void CreateGameDisplay();
 	void ClearDisplay();
-	bool DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
+	void DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
-	int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, DisplayListType eListType);
+	int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, bool showRulesetOptions);
 	bool DisplayYesNoPrompt(const char* prompt);
 	QString DisplayPasswordPrompt();
 	int GetSelectedRuleset();
