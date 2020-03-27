@@ -12,7 +12,7 @@
 #include	"defs.h"
 #include	"state.h"
 #include	"encoding.h"
-#include	"oshw.h"
+#include	"TWMainWnd.h"
 #include	"res.h"
 #include	"random.h"
 #include	"solution.h"
@@ -66,7 +66,7 @@ static bool setrulesetbehavior(int ruleset)
 			if (!logic)
 				return false;
 			if (!batchmode)
-				setkeyboardarrowsrepeat(true);
+				g_pMainWnd->SetKeyboardArrowsRepeat(true);
 			settimersecond(1000 * mudsucking);
 			break;
 		case Ruleset_MS:
@@ -74,7 +74,7 @@ static bool setrulesetbehavior(int ruleset)
 			if (!logic)
 				return false;
 			if (!batchmode)
-				setkeyboardarrowsrepeat(false);
+				g_pMainWnd->SetKeyboardArrowsRepeat(false);
 			settimersecond(1100 * mudsucking);
 			break;
 		default:
@@ -84,7 +84,7 @@ static bool setrulesetbehavior(int ruleset)
 
 	if (!batchmode) {
 		loadgameresources(ruleset);
-		creategamedisplay();
+		g_pMainWnd->CreateGameDisplay();
 	}
 
 	logic->state = &state;
@@ -156,13 +156,13 @@ void setgameplaymode(int mode)
 {
 	switch (mode) {
 		case NormalPlay:
-			setkeyboardrepeat(false);
+			g_pMainWnd->SetKeyboardRepeat(false);
 			settimer(+1);
 			setsoundeffects(+1);
 			state.statusflags &= ~SF_SHUTTERED;
 			break;
 		case EndPlay:
-			setkeyboardrepeat(true);
+			g_pMainWnd->SetKeyboardRepeat(true);
 			settimer(-1);
 			setsoundeffects(+1);
 			break;
@@ -174,7 +174,7 @@ void setgameplaymode(int mode)
 			if (state.ruleset == Ruleset_MS)
 				state.statusflags |= SF_SHUTTERED;
 		case SuspendPlay:
-			setkeyboardrepeat(true);
+			g_pMainWnd->SetKeyboardRepeat(true);
 			settimer(0);
 			setsoundeffects(0);
 			break;
@@ -279,7 +279,7 @@ void drawscreen(bool showframe)
 		timeleft = 0;
 	}
 
-	displaygame(&state, timeleft, besttime);
+	g_pMainWnd->DisplayGame(&state, timeleft, besttime);
 }
 
 /* Stop game play and clean up.

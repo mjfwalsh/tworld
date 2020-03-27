@@ -37,8 +37,16 @@ typedef	struct seriesdata {
 	TWTableSpec	*table;		/* table for displaying the array */
 } seriesdata;
 
+/* Initialise the c stuff in tworld.c and play the game
+ */
+extern int tworld();
+
 /* Load the levelset history.
  */
 extern bool loadhistory();
+
+/* Save history file
+ */
+extern void savehistory();
 
 #endif

@@ -12,7 +12,6 @@
 #include "../obj/ui_TWMainWnd.h"
 #include "CCMetaData.h"
 #include "defs.h"
-#include "oshw.h"
 
 class TWTableSpec;
 struct gamestate;
@@ -128,7 +127,7 @@ public:
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
 	int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, bool showRulesetOptions);
 	bool DisplayYesNoPrompt(const char* prompt);
-	QString DisplayPasswordPrompt();
+	const char* DisplayPasswordPrompt();
 	int GetSelectedRuleset();
 
 	void ReadExtensions(gameseries* pSeries);
@@ -253,5 +252,6 @@ private:
 	QStringList subtitlestack;
 };
 
+extern TileWorldMainWnd* g_pMainWnd;
 
 #endif

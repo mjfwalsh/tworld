@@ -15,7 +15,7 @@
 #include "sdlsfx.h"
 #include "settings.h"
 #include "defs.h"
-#include "oshw.h"
+#include "TWMainWnd.h"
 #include "res.h"
 #include "fileio.h"
 #include "err.h"
@@ -97,16 +97,26 @@ bool TileWorldApp::Initialize()
 
 
 /*
- * Resource-loading functions.
+ * Copy text to clipboard
  */
 
-void copytoclipboard(char const *text)
+void TileWorldApp::CopyToClipboard(char const *text)
 {
 	QClipboard* pClipboard = QApplication::clipboard();
 	if (pClipboard == 0) return;
 	pClipboard->setText(text);
 }
 
+/* Ring the bell.
+ */
+void TileWorldApp::Bell(void)
+{
+	int v = getintsetting("volume");
+	if(v > 0) QApplication::beep();
+}
+
+/* Exit gracefully. Called when the user closes the window.
+ */
 void TileWorldApp::ExitTWorld()
 {
 	// These functions should only be run when exiting gracefully

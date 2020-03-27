@@ -38,7 +38,7 @@
 #include "score.h"
 #include "state.h"
 #include "play.h"
-#include "oshw.h"
+#include "TWMainWnd.h"
 #include "fileio.h"
 #include "help.h"
 #include "timer.h"
@@ -322,11 +322,6 @@ void TileWorldMainWnd::OnBackButton()
 /* Turn keyboard repeat on or off. If enable is TRUE, the keys other
  * than the direction keys will repeat at the standard rate.
  */
-void setkeyboardrepeat(bool enable)
-{
-	g_pMainWnd->SetKeyboardRepeat(enable);
-}
-
 void TileWorldMainWnd::SetKeyboardRepeat(bool bEnable)
 {
 	m_bKbdRepeatEnabled = bEnable;
@@ -353,11 +348,6 @@ void TileWorldMainWnd::ReleaseAllKeys()
  * game (e.g., sized according to the tiles and the font). FALSE is
  * returned on error.
  */
-void creategamedisplay()
-{
-	g_pMainWnd->CreateGameDisplay();
-}
-
 void TileWorldMainWnd::CreateGameDisplay()
 {
 	delete m_pSurface;
@@ -388,11 +378,6 @@ void TileWorldMainWnd::SetCurrentPage(Page ePage)
 
 /* Fill the display with the background color.
  */
-void cleardisplay(void)
-{
-	g_pMainWnd->ClearDisplay();
-}
-
 void TileWorldMainWnd::ClearDisplay()
 {
 	// TODO?
@@ -404,11 +389,6 @@ void TileWorldMainWnd::ClearDisplay()
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-void displaygame(gamestate const *state, int timeleft, int besttime)
-{
-	g_pMainWnd->DisplayGame(state, timeleft, besttime);
-}
-
 void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime)
 {
 	bool const bTimedLevel = (pState->game->time > 0);
@@ -709,11 +689,6 @@ void TileWorldMainWnd::OnSpeedSliderReleased()
 
 /* Get number of seconds to skip at start of playback.
  */
-int getreplaysecondstoskip(void)
-{
-	return g_pMainWnd->GetReplaySecondsToSkip();
-}
-
 int TileWorldMainWnd::GetReplaySecondsToSkip() const
 {
 	return m_pSldSeek->value();
@@ -732,12 +707,6 @@ void TileWorldMainWnd::OnSeekPosChanged(int nValue)
  * for the level, and the user's total score for the series; these
  * scores will be displayed to the user.
  */
-int displayendmessage(int basescore, int timescore, long totalscore, int completed)
-{
-	return g_pMainWnd->DisplayEndMessage(basescore, timescore, totalscore, completed);
-}
-
-
 int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted)
 {
 	if (nCompleted == 0)
@@ -873,11 +842,6 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-int displaylist(TWTableSpec *table, int *index, bool showRulesetOptions)
-{
-	return g_pMainWnd->DisplayList(table, index, showRulesetOptions);
-}
-
 int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 		bool showRulesetOptions)
 {
@@ -977,7 +941,7 @@ void TileWorldMainWnd::OnFindReturnPressed()
 
 	int n = m_pSortFilterProxyModel->rowCount();
 	if (n == 0) {
-		bell();
+		TileWorldApp::Bell();
 		return;
 	}
 
@@ -998,11 +962,6 @@ void TileWorldMainWnd::OnRulesetSwitched(QString checked)
 /* Display an input prompt to the user. prompt supplies the prompt to
  * display.
  */
-bool displayyesnoprompt(char const *prompt)
-{
-	return g_pMainWnd->DisplayYesNoPrompt(prompt);
-}
-
 bool TileWorldMainWnd::DisplayYesNoPrompt(const char* prompt)
 {
 	QMessageBox::StandardButton eBtn = QMessageBox::question(
@@ -1011,51 +970,24 @@ bool TileWorldMainWnd::DisplayYesNoPrompt(const char* prompt)
 }
 
 
-const char *displaypasswordprompt()
-{
-	QString p = g_pMainWnd->DisplayPasswordPrompt();
-	return p.toUtf8().constData();
-}
-
-QString TileWorldMainWnd::DisplayPasswordPrompt()
+const char *TileWorldMainWnd::DisplayPasswordPrompt()
 {
 	QString password = QInputDialog::getText(this, TileWorldApp::applicationName(), "Enter Password");
 	if (password.isEmpty()) return "";
 	password.truncate(4);
 	password = password.toUpper();
-	return password;
-}
-
-/*
- * Miscellaneous functions.
- */
-
-/* Ring the bell.
- */
-void bell(void)
-{
-	int v = getintsetting("volume");
-	if(v > 0) QApplication::beep();
+	return password.toUtf8().constData();
 }
 
 /*
  * The subtitle stack
  */
-
-void pushsubtitle(char const *subtitle)
-{
-	g_pMainWnd->PushSubtitle(subtitle);
-}
 void TileWorldMainWnd::PushSubtitle(QString subtitle)
 {
 	subtitlestack.append(subtitle);
 	SetSubtitle(subtitle);
 }
 
-void popsubtitle()
-{
-	g_pMainWnd->PopSubtitle();
-}
 void TileWorldMainWnd::PopSubtitle()
 {
 	if(!subtitlestack.isEmpty()) {
@@ -1069,10 +1001,6 @@ void TileWorldMainWnd::PopSubtitle()
 	}
 }
 
-void changesubtitle(char const *subtitle)
-{
-	g_pMainWnd->ChangeSubtitle(subtitle);
-}
 void TileWorldMainWnd::ChangeSubtitle(QString subtitle)
 {
 	if(!subtitlestack.isEmpty()) {
@@ -1094,12 +1022,6 @@ void TileWorldMainWnd::SetSubtitle(QString subtitle)
 	setWindowTitle(sTitle);
 }
 
-
-int getselectedruleset()
-{
-	return g_pMainWnd->GetSelectedRuleset();
-}
-
 int TileWorldMainWnd::GetSelectedRuleset()
 {
 	return m_pComboRuleset->currentText() == "MS" ? Ruleset_MS : Ruleset_Lynx;
@@ -1107,12 +1029,6 @@ int TileWorldMainWnd::GetSelectedRuleset()
 
 /* Read any additional data for the series.
  */
-void readextensions(gameseries *series)
-{
-	if (g_pMainWnd == 0) return;	// happens during batch verify, etc.
-	g_pMainWnd->ReadExtensions(series);
-}
-
 void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 {
 	QDir dataDir;
@@ -1391,11 +1307,6 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 	m_pInfoFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);
 }
 
-void setplaypausebutton(bool paused)
-{
-	g_pMainWnd->SetPlayPauseButton(paused);
-}
-
 void TileWorldMainWnd::SetPlayPauseButton(bool paused)
 {
 	if(paused) {
@@ -1541,11 +1452,6 @@ int TileWorldMainWnd::RetrieveMouseCommand(void)
  * be considered active. If two mergeable keys are selected, the return
  * value will be the bitwise-or of their command values.
  */
-int input(bool wait)
-{
-	return g_pMainWnd->Input(wait);
-}
-
 int TileWorldMainWnd::Input(bool wait)
 {
 	keycmdmap const    *kc;
@@ -1598,11 +1504,6 @@ int TileWorldMainWnd::Input(bool wait)
  * special repeating behavior that is kept synchronized with the
  * polling cycle.
  */
-bool setkeyboardarrowsrepeat(bool enable)
-{
-	return g_pMainWnd->SetKeyboardArrowsRepeat(enable);
-}
-
 bool TileWorldMainWnd::SetKeyboardArrowsRepeat(bool enable)
 {
 	joystickstyle = enable;

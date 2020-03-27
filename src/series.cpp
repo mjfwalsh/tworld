@@ -15,7 +15,8 @@
 #include	"solution.h"
 #include	"unslist.h"
 #include	"series.h"
-#include	"oshw.h"
+#include	"TWApp.h"
+#include	"TWMainWnd.h"
 #include	"utils.h"
 #include	"err.h"
 
@@ -371,7 +372,7 @@ bool readseriesfile(gameseries *series)
 		undomschanges(series);
 	markunsolvablelevels(series);
 	readsolutions(series);
-	readextensions(series);
+	g_pMainWnd->ReadExtensions(series);
 	return true;
 }
 

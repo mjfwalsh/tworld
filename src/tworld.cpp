@@ -12,6 +12,7 @@
 #include	<vector>
 #include	<string>
 
+#include	"TWApp.h"
 #include	"TWTableSpec.h"
 #include	"tworld.h"
 #include	"defs.h"
@@ -20,7 +21,7 @@
 #include	"score.h"
 #include	"settings.h"
 #include	"solution.h"
-#include	"oshw.h"
+#include	"TWMainWnd.h"
 #include	"fileio.h"
 #include	"timer.h"
 #include	"sdlsfx.h"
@@ -180,11 +181,11 @@ static bool showsolutionfiles(gamespec *gs)
 
 	if (haspathname(gs->series.name) || (gs->series.savefilename
 			&& haspathname(gs->series.savefilename))) {
-		bell();
+		TileWorldApp::Bell();
 		return false;
 	} else if (!createsolutionfilelist(&gs->series, &filelist,
 			&count, &table)) {
-		bell();
+		TileWorldApp::Bell();
 		return false;
 	}
 
@@ -201,9 +202,9 @@ static bool showsolutionfiles(gamespec *gs)
 			current = n;
 	}
 
-	pushsubtitle(gs->series.name);
+	g_pMainWnd->PushSubtitle(gs->series.name);
 	for (;;) {
-		int f = displaylist(&table, &n, false);
+		int f = g_pMainWnd->DisplayList(&table, &n, false);
 		if (f == CmdProceed) {
 			break;
 		} else if (f == CmdQuitLevel) {
@@ -211,7 +212,7 @@ static bool showsolutionfiles(gamespec *gs)
 			break;
 		}
 	}
-	popsubtitle();
+	g_pMainWnd->PopSubtitle();
 
 	bool r = n >= 0 && n != current;
 	if (r) {
@@ -220,7 +221,7 @@ static bool showsolutionfiles(gamespec *gs)
 		x_cmalloc(gs->series.savefilename, l);
 		strcpy(gs->series.savefilename, filelist[n].c_str());
 		if (!readsolutions(&gs->series)) {
-			bell();
+			TileWorldApp::Bell();
 		}
 		n = gs->currentgame;
 		gs->currentgame = 0;
@@ -246,9 +247,9 @@ static int showscores(gamespec *gs)
 		if (levellist[n] == gs->currentgame)
 			break;
 
-	pushsubtitle(gs->series.name);
+	g_pMainWnd->PushSubtitle(gs->series.name);
 	for (;;) {
-		int f = displaylist(&table, &n, false);
+		int f = g_pMainWnd->DisplayList(&table, &n, false);
 		if (f == CmdProceed) {
 			n = levellist[n];
 			break;
@@ -257,7 +258,7 @@ static int showscores(gamespec *gs)
 			break;
 		}
 	}
-	popsubtitle();
+	g_pMainWnd->PopSubtitle();
 
 	freescorelist(levellist);
 
@@ -272,13 +273,13 @@ static bool selectlevelbypassword(gamespec *gs)
 {
 	int		n;
 
-	const char *passwd = displaypasswordprompt();
+	const char *passwd = g_pMainWnd->DisplayPasswordPrompt();
 
 	if (strlen(passwd) != 4) return false;
 
 	n = findlevelinseries(&gs->series, 0, passwd);
 	if (n < 0) {
-		bell();
+		TileWorldApp::Bell();
 		return false;
 	}
 	passwordseen(gs, n);
@@ -402,7 +403,7 @@ void savehistory(void)
  * The game-playing functions.
  */
 
-#define	leveldelta(n)	if (!changecurrentgame(gs, (n))) { bell(); continue; }
+#define	leveldelta(n)	if (!changecurrentgame(gs, (n))) { TileWorldApp::Bell(); continue; }
 
 /* Get a key command from the user at the start of the current level.
  */
@@ -417,7 +418,7 @@ static int startinput(gamespec *gs)
 	drawscreen(true);
 	gs->playmode = Play_None;
 	for (;;) {
-		int cmd = input(true);
+		int cmd = g_pMainWnd->Input(true);
 		if (cmd >= CmdMoveFirst && cmd <= CmdMoveLast) {
 			gs->playmode = Play_Normal;
 			return cmd;
@@ -434,10 +435,10 @@ static int startinput(gamespec *gs)
 				gs->playmode = Play_Back;
 				return cmd;
 			}
-			bell();
+			TileWorldApp::Bell();
 			break;
 		case CmdSeek:
-			if (getreplaysecondstoskip() > 0) {
+			if (g_pMainWnd->GetReplaySecondsToSkip() > 0) {
 				gs->playmode = Play_Back;
 				return CmdProceed;
 			}
@@ -447,14 +448,14 @@ static int startinput(gamespec *gs)
 				gs->playmode = Play_Verify;
 				return CmdProceed;
 			}
-			bell();
+			TileWorldApp::Bell();
 			break;
 		case CmdDelSolution:
 			if (issolved(gs, gs->currentgame)) {
 				replaceablesolution(gs, -1);
 				savesolutions(&gs->series);
 			} else {
-				bell();
+				TileWorldApp::Bell();
 			}
 			break;
 		case CmdSeeScores:
@@ -466,7 +467,7 @@ static int startinput(gamespec *gs)
 				return CmdNone;
 			break;
 		case CmdTimesClipboard:
-			copytoclipboard(leveltimes(&gs->series));
+			TileWorldApp::CopyToClipboard(leveltimes(&gs->series));
 			break;
 		case CmdGotoLevel:
 			if (selectlevelbypassword(gs))
@@ -491,7 +492,7 @@ static bool endinput(gamespec *gs)
 		if (melindawatching(gs) && secondsplayed() >= 10) {
 			++gs->melindacount;
 			if (gs->melindacount >= 10) {
-				if (displayyesnoprompt("Skip level?")) {
+				if (g_pMainWnd->DisplayYesNoPrompt("Skip level?")) {
 					passwordseen(gs, gs->currentgame + 1);
 					changecurrentgame(gs, +1);
 				}
@@ -504,11 +505,11 @@ static bool endinput(gamespec *gs)
 			&bscore, &tscore, &gscore);
 	}
 
-	cmd = displayendmessage(bscore, tscore, gscore, gs->status);
+	cmd = g_pMainWnd->DisplayEndMessage(bscore, tscore, gscore, gs->status);
 
 	for (;;) {
 		if (cmd == CmdNone)
-			cmd = input(true);
+			cmd = g_pMainWnd->Input(true);
 		switch (cmd) {
 		case CmdPrevLevel:	changecurrentgame(gs, -1);	return true;
 		case CmdSameLevel:								return true;
@@ -533,7 +534,7 @@ static bool endinput(gamespec *gs)
 				replaceablesolution(gs, -1);
 				savesolutions(&gs->series);
 			} else {
-				bell();
+				TileWorldApp::Bell();
 			}
 			return true;
 		}
@@ -547,7 +548,7 @@ static bool endinput(gamespec *gs)
 static bool finalinput(gamespec *gs)
 {
 	for (;;) {
-		int cmd = input(true);
+		int cmd = g_pMainWnd->Input(true);
 		switch (cmd) {
 		case CmdSameLevel:
 			return true;
@@ -575,7 +576,7 @@ static bool finalinput(gamespec *gs)
 		setgameplaymode(SuspendPlay); \
 		gamepaused = true; \
 	} \
-	setplaypausebutton(gamepaused); \
+	g_pMainWnd->SetPlayPauseButton(gamepaused); \
 } while (0)
 
 /* Play the current level, using firstcmd as the initial key command,
@@ -603,10 +604,10 @@ static bool playgame(gamespec *gs, int firstcmd)
 	render = lastrendered = true;
 
 	bool gamepaused = false;
-	setplaypausebutton(gamepaused);
+	g_pMainWnd->SetPlayPauseButton(gamepaused);
 	for (;;) {
 		if (gamepaused)
-			cmd = input(true);
+			cmd = g_pMainWnd->Input(true);
 		else {
 			n = doturn(cmd);
 			drawscreen(render);
@@ -614,7 +615,7 @@ static bool playgame(gamespec *gs, int firstcmd)
 			if (n)
 				break;
 			render = waitfortick() || noframeskip;
-			cmd = input(false);
+			cmd = g_pMainWnd->Input(false);
 		}
 		if (cmd == CmdQuitLevel) {
 			quitgamestate();
@@ -711,9 +712,9 @@ static bool playbackgame(gamespec *gs)
 	int n = 0, cmd;
 	int secondstoskip;
 	bool gamepaused = false;
-	setplaypausebutton(gamepaused);
+	g_pMainWnd->SetPlayPauseButton(gamepaused);
 
-	secondstoskip = getreplaysecondstoskip();
+	secondstoskip = g_pMainWnd->GetReplaySecondsToSkip();
 	if (secondstoskip > 0) {
 		n = hideandseek(gs, secondstoskip);
 		SETPAUSED(true, false);
@@ -728,7 +729,7 @@ static bool playbackgame(gamespec *gs)
 	while (!n) {
 		if (gamepaused) {
 			setgameplaymode(SuspendPlay);
-			cmd = input(true);
+			cmd = g_pMainWnd->Input(true);
 		} else {
 			n = doturn(CmdNone);
 			drawscreen(render);
@@ -736,14 +737,14 @@ static bool playbackgame(gamespec *gs)
 			if (n)
 				break;
 			render = waitfortick() || noframeskip;
-			cmd = input(false);
+			cmd = g_pMainWnd->Input(false);
 		}
 		switch (cmd) {
 		case CmdSeek:
 		case CmdWest:
 		case CmdEast:
 			if (cmd == CmdSeek) {
-				secondstoskip = getreplaysecondstoskip();
+				secondstoskip = g_pMainWnd->GetReplaySecondsToSkip();
 			} else {
 				secondstoskip = secondsplayed() + ((cmd == CmdEast) ? +3 : -3);
 			}
@@ -801,7 +802,7 @@ static bool verifyplayback(gamespec *gs)
 		if (n)
 			break;
 		advancetick();
-		switch (input(false)) {
+		switch (g_pMainWnd->Input(false)) {
 		case CmdPrevLevel:	changecurrentgame(gs, -1);	goto quitloop;
 		case CmdNextLevel:	changecurrentgame(gs, +1);	goto quitloop;
 		case CmdSameLevel:					goto quitloop;
@@ -843,7 +844,7 @@ static int runcurrentlevel(gamespec *gs)
 	bool f;
 	char const *name;
 
-	setplaypausebutton(true);
+	g_pMainWnd->SetPlayPauseButton(true);
 
 	name = gs->series.name;
 
@@ -853,17 +854,17 @@ static int runcurrentlevel(gamespec *gs)
 
 	if (gs->enddisplay) {
 		gs->enddisplay = false;
-		changesubtitle(NULL);
+		g_pMainWnd->ChangeSubtitle(NULL);
 		setenddisplay();
 		drawscreen(true);
-		displayendmessage(0, 0, 0, 0);
+		g_pMainWnd->DisplayEndMessage(0, 0, 0, 0);
 		endgamestate();
 		return finalinput(gs);
 	}
 
 	valid = initgamestate(gs->series.games + gs->currentgame,
 		gs->series.ruleset);
-	changesubtitle(gs->series.games[gs->currentgame].name);
+	g_pMainWnd->ChangeSubtitle(gs->series.games[gs->currentgame].name);
 	passwordseen(gs, gs->currentgame);
 	if (!islastinseries(gs, gs->currentgame))
 		if (!valid || gs->series.games[gs->currentgame].unsolvable)
@@ -885,7 +886,7 @@ static int runcurrentlevel(gamespec *gs)
 				if (f)
 					ret = endinput(gs);
 			} else
-				bell();
+				TileWorldApp::Bell();
 		}
 	}
 
@@ -992,11 +993,11 @@ static int chooseseries(seriesdata *series, int *pn, bool founddefault)
 
 	int chosenseries = -1;
 	while (chosenseries < 0) {
-		int f = displaylist(&mftable, &n, true);
+		int f = g_pMainWnd->DisplayList(&mftable, &n, true);
 		if (f != CmdProceed) {
 			return f;
 		}
-		int ruleset = getselectedruleset();
+		int ruleset = g_pMainWnd->GetSelectedRuleset();
 		intlist *chosengsl = &series->mflist[n].sfilelst[ruleset];
 
 		if (chosengsl->count < 1) /* Can happen if .dac name was taken */
@@ -1012,7 +1013,7 @@ static int chooseseries(seriesdata *series, int *pn, bool founddefault)
 
 			int m = 0;
 			for (;;) {
-				f = displaylist(&gstable, &m, false);
+				f = g_pMainWnd->DisplayList(&gstable, &m, false);
 				if (f == CmdProceed) {
 					chosenseries = chosengsl->list[m];
 					break;
@@ -1071,7 +1072,7 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
 						n = preLevelSet;
 						break;
 					} else {
-						bell();
+						TileWorldApp::Bell();
 					}
 				}
 			}
@@ -1160,7 +1161,7 @@ static int choosegameatstartup(gamespec *gs, char const *lastseries)
 
 	/* extensions cannot be read until the system is initialized */
 	if (series.count == 1)
-		readextensions(series.list);
+		g_pMainWnd->ReadExtensions(series.list);
 
 	return selectseriesandlevel(gs, &series, true, lastseries);
 }
@@ -1193,11 +1194,11 @@ int tworld()
 
 	// plays the selected level
 	while (f > 0) {
-		pushsubtitle(NULL);
+		g_pMainWnd->PushSubtitle(NULL);
 		while (runcurrentlevel(&spec)) { }
 		savehistory();
-		popsubtitle();
-		cleardisplay();
+		g_pMainWnd->PopSubtitle();
+		g_pMainWnd->ClearDisplay();
 		strcpy(lastseries, spec.series.name);
 		freeseriesdata(&spec.series);
 		f = choosegame(&spec, lastseries);

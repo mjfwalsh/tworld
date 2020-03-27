@@ -18,6 +18,12 @@ public:
 
 	void ExitTWorld();
 	bool Initialize();
+
+	// Copy text to clipboard.
+	static void CopyToClipboard(char const *text);
+
+	// Beep
+	static void Bell();
 };
 
 
