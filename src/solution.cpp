@@ -4,12 +4,7 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include	<cstdlib>
-#include	<cstring>
-#include	<cctype>
-
-#include	<vector>
-#include	<string>
+#include	<QStringList>
 
 #include	"TWTableSpec.h"
 #include	"defs.h"
@@ -681,7 +676,7 @@ void clearsolutions(gameseries *series)
 /* Mini-structure for passing data in and out of findfiles().
  */
 typedef	struct solutiondata {
-	std::vector<std::string> filelist;
+	QStringList filelist;
 	char const *prefix;		/* the filename prefix to seek */
 	int		prefixlen;	/* length of the filename prefix */
 } solutiondata;
@@ -708,7 +703,7 @@ static int getsolutionfile(char const *filename, void *data)
  * was returned.
  */
 bool createsolutionfilelist(gameseries const *series,
-	std::vector<std::string> *filelist, int *pcount, TWTableSpec *table)
+	QStringList *filelist, int *pcount, TWTableSpec *table)
 {
 	solutiondata	s;
 	int			n;
@@ -728,7 +723,7 @@ bool createsolutionfilelist(gameseries const *series,
 	}
 
 	table->addCell("Select a solution file");
-	for (unsigned int i = 0; i < s.filelist.size(); i++) {
+	for (int i = 0; i < s.filelist.size(); i++) {
 		table->addCell(s.filelist[i]);
 	}
 

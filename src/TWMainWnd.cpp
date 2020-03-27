@@ -768,8 +768,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
 		msgBox.setWindowTitle(m_bReplay ? "Replay Completed" : "Level Completed");
 
-		m_sTextToCopy = timestring(m_nLevelNum, m_sLevelName.toUtf8().constData(), m_nTimeLeft,
-			m_bTimedLevel, false);
+		m_sTextToCopy = timestring(m_nLevelNum, m_sLevelName, m_nTimeLeft, m_bTimedLevel, false);
 
 		msgBox.addButton("&Onward!", QMessageBox::AcceptRole);
 		QPushButton* pBtnRestart = msgBox.addButton("&Restart", QMessageBox::AcceptRole);

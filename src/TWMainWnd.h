@@ -52,6 +52,60 @@ public:
 		   KS_count
 	};
 
+	/* The possible keys / commands
+	 */
+	enum
+	{
+		TWK_LEFT = 1, // TWMainWnd.cpp
+		TWK_UP,
+		TWK_RIGHT,
+		TWK_DOWN,
+	#ifndef NDEBUG
+		// NB: position important
+		TWK_LEFT_CHEAT,
+		TWK_UP_CHEAT,
+		TWK_RIGHT_CHEAT,
+		TWK_DOWN_CHEAT,
+	#endif
+		TWK_RETURN,// TWMainWnd.cpp
+		TWK_ESCAPE,
+
+	#ifndef NDEBUG
+		TWK_DEBUG1,
+		TWK_DEBUG2,
+		TWK_CHIP,
+		TWK_RED,
+		TWK_BLUE,
+		TWK_YELLOW,
+		TWK_GREEN,
+		TWK_ICE,
+		TWK_SLIDE,
+		TWK_FIRE,
+		TWK_WATER,
+	#endif
+
+		TWK_dummy,
+
+		TWC_SEESCORES,
+		TWC_SEESOLUTIONFILES,
+		TWC_TIMESCLIPBOARD,
+		TWC_QUITLEVEL,
+		TWC_QUIT,
+
+		TWC_PAUSEGAME,
+		TWC_SAMELEVEL,
+		TWC_NEXTLEVEL,
+		TWC_PREVLEVEL,
+		TWC_GOTOLEVEL,
+
+		TWC_PLAYBACK,
+		TWC_CHECKSOLUTION,
+		TWC_DELSOLUTION,
+		TWC_SEEK,
+
+		TWK_LAST
+	};
+
 	/* Structure describing a mapping of a key event to a game command.
 	 */
 	typedef	struct keycmdmap {

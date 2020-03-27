@@ -100,7 +100,7 @@ bool TileWorldApp::Initialize()
  * Copy text to clipboard
  */
 
-void TileWorldApp::CopyToClipboard(char const *text)
+void TileWorldApp::CopyToClipboard(QString text)
 {
 	QClipboard* pClipboard = QApplication::clipboard();
 	if (pClipboard == 0) return;

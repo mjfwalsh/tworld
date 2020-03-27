@@ -33,12 +33,12 @@ extern void createscorelist(gameseries const *series, bool usepasswds,
 extern void freescorelist(int *plevellist);
 
 /* Create a string representing the level time achieved for a level. */
-char const *timestring(int lvlnum, char const *lvltitle, int besttime,
+QString timestring(int lvlnum,  QString lvltitle, int besttime,
 	int timed, int bad);
 
 /* Create a list of timestrings for all levels with solutions in the
  * gameseries. */
-char const* leveltimes(gameseries const *series);
+QString leveltimes(gameseries const *series);
 
 
 #endif

@@ -4,94 +4,100 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include <cstdlib>
-#include <fstream>
-#include <map>
-#include <sstream>
+#include <QMap>
+#include <QFile>
+#include <QTextStream>
+#include <QMapIterator>
 
 #include "settings.h"
 #include "fileio.h"
-#include "defs.h"
 #include "err.h"
 
-using namespace std;
+QMap<QString, QByteArray> settings_string;
+QMap<QString, int> settings_int;
 
-map<string, string> settings;
 char const *sfname = "settings";
 
 void loadsettings()
 {
-	if(!settings.empty()) {
+	if(!settings_string.empty() || !settings_int.empty()) {
 		warn("Settings already loaded");
 		return;
 	}
 
-	char *fpath = getpathforfileindir(SETTINGSDIR, sfname);
-	ifstream in(fpath);
-	free(fpath);
+	char *fname = getpathforfileindir(SETTINGSDIR, sfname);
+	QFile infile(fname);
 
-	if (!in)
+	if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		warn("Failed to load settings file: %s", fname);
+		free(fname);
 		return;
-
-	string line;
-	while (getline(in, line)) {
-		size_t pos(line.find('='));
-		if (pos != string::npos)
-		settings.insert({line.substr(0, pos), line.substr(pos+1)});
 	}
+	free(fname);
 
-	if (!in.eof())
-		warn("Error reading settings file");
+	while (!infile.atEnd()) {
+		QByteArray line = infile.readLine().trimmed();
+
+		int pos = line.indexOf('=');
+
+		if (pos == -1) continue;
+
+		QString k = line.left(pos);
+		QByteArray sv = line.mid(pos+1);
+
+		bool isInt;
+		int iv = sv.toInt(&isInt);
+
+		if(isInt)
+			settings_int.insert(k, iv);
+		else
+			settings_string.insert(k, sv);
+	}
 }
 
 void savesettings()
 {
-	char *fpath = getpathforfileindir(SETTINGSDIR, sfname);
-	ofstream out(fpath);
-	free(fpath);
+	char *fname = getpathforfileindir(SETTINGSDIR, sfname);
+	QFile outfile(fname);
 
-	if (!out) {
-		warn("Could not open settings file");
+	if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		warn("Failed to save settings file: %s", fname);
+		free(fname);
 		return;
 	}
-	for (map<string,string>::const_iterator i(settings.begin());
-			i != settings.end(); ++i) {
-		out << i->first << '=' << i->second << '\n';
+	free(fname);
+
+	QTextStream s(&outfile);
+
+	QMapIterator<QString, QByteArray> i(settings_string);
+	while (i.hasNext()) {
+		i.next();
+		s << i.key() << "=" << i.value() << "\n";
 	}
 
-	if (!out) {
-		warn("Could not write settings");
+	QMapIterator<QString, int> j(settings_int);
+	while (j.hasNext()) {
+		j.next();
+		s << j.key() << "=" << j.value() << "\n";
 	}
 }
 
-int getintsetting(char const * name)
+int getintsetting(char const *name)
 {
-	map<string, string>::const_iterator loc(settings.find(name));
-	if (loc == settings.end())
-		return -1;
-	istringstream in(loc->second);
-	int i;
-	if (!(in >> i))
-		return -1;
-	return i;
+	return settings_int.value(name, -1);
 }
 
-void setintsetting(char const * name, int val)
+void setintsetting(char const *name, int val)
 {
-	ostringstream out;
-	out << val;
-	settings[name] = out.str();
+	settings_int.insert(name, val);
 }
 
-char const * getstringsetting(char const * name)
+char const *getstringsetting(char const *name)
 {
-	map<string, string>::const_iterator loc(settings.find(name));
-	if (loc == settings.end())
-		return nullptr;
-	return loc->second.c_str();
+	return settings_string.value(name, "").data();
 }
 
-void setstringsetting(char const * name, char const * val)
+void setstringsetting(char const *name, char const *val)
 {
-	settings[name] = val;
+	settings_string.insert(name, QByteArray(val));
 }

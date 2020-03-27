@@ -3,19 +3,16 @@
  * See COPYING for details.
  */
 
-#include <string>
-#include <vector>
+#include <QVector>
+#include <QString>
 
 #include "TWTableSpec.h"
-#include "defs.h"
 
 TWTableSpec::TWTableSpec(int c)
 	:
 	QAbstractTableModel(0),
 	m_nRows(0), m_nCols(c)
 {
-	//m_nRows = 0;
-	//m_nCols = c;
 }
 
 int TWTableSpec::rowCount(const QModelIndex& parent) const
@@ -63,9 +60,9 @@ void TWTableSpec::addCell(const char *text)
 	m_vecItems.push_back({LeftAlign, QString(text)});
 }
 
-void TWTableSpec::addCell(std::string text)
+void TWTableSpec::addCell(QString text)
 {
-	m_vecItems.push_back({LeftAlign, QString::fromStdString(text)});
+	m_vecItems.push_back({LeftAlign, text});
 }
 
 
@@ -74,9 +71,9 @@ void TWTableSpec::addCell(int align, const char *text)
 	m_vecItems.push_back({align, QString(text)});
 }
 
-void TWTableSpec::addCell(int align, std::string text)
+void TWTableSpec::addCell(int align, QString text)
 {
-	m_vecItems.push_back({align, QString::fromStdString(text)});
+	m_vecItems.push_back({align, text});
 }
 
 void TWTableSpec::addCell(int colspan, int align, const char *text)
@@ -88,9 +85,9 @@ void TWTableSpec::addCell(int colspan, int align, const char *text)
 	}
 }
 
-void TWTableSpec::addCell(int colspan, int align, std::string text)
+void TWTableSpec::addCell(int colspan, int align, QString text)
 {
-	m_vecItems.push_back({align, QString::fromStdString(text)});
+	m_vecItems.push_back({align, text});
 
 	if(colspan > 1) {
 		m_vecItems.resize(m_vecItems.size() + colspan - 1);

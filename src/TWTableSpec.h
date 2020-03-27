@@ -8,9 +8,8 @@
 
 #include <Qt>
 #include <QAbstractTableModel>
-
-#include <string>
-#include <vector>
+#include <QString>
+#include <QVector>
 
 /* Qt align values.
  */
@@ -28,14 +27,14 @@ public:
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-	void addCell(std::string text);
+	void addCell(QString text);
 	void addCell(const char *text);
 
 	void addCell(int align, const char *text);
-	void addCell(int align, std::string text);
+	void addCell(int align, QString text);
 
 	void addCell(int colspan, int align, const char *text);
-	void addCell(int colspan, int align, std::string text);
+	void addCell(int colspan, int align, QString text);
 
 	void fixRows();
 
@@ -51,7 +50,7 @@ protected:
 	};
 
 	int m_nRows, m_nCols;
-	std::vector<ItemInfo> m_vecItems;
+	QVector<ItemInfo> m_vecItems;
 
 	QVariant GetData(int row, int col, int role) const;
 };

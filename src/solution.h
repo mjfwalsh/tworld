@@ -7,10 +7,8 @@
 #ifndef	HEADER_solution_h_
 #define	HEADER_solution_h_
 
-#include	<string>
-#include	<vector>
-
 class TWTableSpec;
+class QStringList;
 
 /* A structure holding all the data needed to reconstruct a solution.
  */
@@ -77,6 +75,6 @@ extern void clearsolutions(gameseries *series);
  * was returned.
  */
 extern bool createsolutionfilelist(gameseries const *series,
-	std::vector<std::string> *filelist, int *pcount, TWTableSpec *table);
+	QStringList *filelist, int *pcount, TWTableSpec *table);
 
 #endif

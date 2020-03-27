@@ -13,71 +13,6 @@
 
 struct gamestate;
 
-/* Constants
- */
-#define TW_ALPHA_TRANSPARENT 0
-
-
-/* The dimensions of the visible area of the map (in tiles).
- */
-#define	NXTILES		9
-#define	NYTILES		9
-
-/* The width/height of a tile in pixels at 100% zoom
- */
-#define DEFAULTTILE		48
-
-enum
-{
-	TWK_LEFT = 1,
-	TWK_UP,
-	TWK_RIGHT,
-	TWK_DOWN,
-#ifndef NDEBUG
-	// NB: position important
-	TWK_LEFT_CHEAT,
-	TWK_UP_CHEAT,
-	TWK_RIGHT_CHEAT,
-	TWK_DOWN_CHEAT,
-#endif
-	TWK_RETURN,
-	TWK_ESCAPE,
-
-#ifndef NDEBUG
-	TWK_DEBUG1,
-	TWK_DEBUG2,
-	TWK_CHIP,
-	TWK_RED,
-	TWK_BLUE,
-	TWK_YELLOW,
-	TWK_GREEN,
-	TWK_ICE,
-	TWK_SLIDE,
-	TWK_FIRE,
-	TWK_WATER,
-#endif
-
-	TWK_dummy,
-
-	TWC_SEESCORES,
-	TWC_SEESOLUTIONFILES,
-	TWC_TIMESCLIPBOARD,
-	TWC_QUITLEVEL,
-	TWC_QUIT,
-
-	TWC_PAUSEGAME,
-	TWC_SAMELEVEL,
-	TWC_NEXTLEVEL,
-	TWC_PREVLEVEL,
-	TWC_GOTOLEVEL,
-
-	TWC_PLAYBACK,
-	TWC_CHECKSOLUTION,
-	TWC_DELSOLUTION,
-	TWC_SEEK,
-
-	TWK_LAST
-};
 
 /* Types
  */
@@ -173,33 +108,14 @@ typedef	struct genericglobals
  */
 extern genericglobals geng;
 
-
-
 /* Functions
  */
 
 extern uint32_t TW_MapRGB(uint8_t r, uint8_t g, uint8_t b);
 extern uint32_t TW_MapRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
-/* Process all pending events. If wait is TRUE and no events are
- * currently pending, the function blocks until an event arrives.
- */
-extern void eventupdate(bool wait);
-
-/* Render the view of the visible area of the map to the display, with
- * the view position centered on the display as much as possible. The
- * gamestate's map and the list of creatures are consulted to
- * determine what to render.
- */
-extern void displaymapview(struct gamestate const *state, TW_Rect disploc);
-
-/* Draw a tile of the given id at the position (xpos, ypos).
- */
-extern void drawfulltileid(Qt_Surface *dest, int xpos, int ypos, int id);
-
 /* Initialisation function
  */
 extern void tileinitialize();
-
 
 #endif

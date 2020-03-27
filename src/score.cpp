@@ -5,11 +5,9 @@
  * See COPYING for details.
  */
 
-#include	<cstdlib>
-
-#include	<string>
-#include	<sstream>
-#include	<vector>
+#include	<QString>
+#include	<QLocale>
+#include	<QTextStream>
 
 #include	"TWTableSpec.h"
 #include	"defs.h"
@@ -17,22 +15,7 @@
 #include	"score.h"
 #include	"err.h"
 
-using std::ostringstream;
-using std::string;
-
-/* Translate a number into a string, complete with commas.
- */
-static std::string cdecimal(long number)
-{
-	string numWithCommas = std::to_string(number);
-	int insertPosition = numWithCommas.length() - 3;
-	while (insertPosition > 0) {
-		numWithCommas.insert(insertPosition, ",");
-		insertPosition-=3;
-	}
-
-	return numWithCommas;
-}
+QLocale locale;
 
 /* Return the user's scores for a given level.
  */
@@ -80,7 +63,7 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 	gamesetup  *game;
 	int	       *levellist = NULL;
 	int		levelscore, timescore;
-	long	totalscore;
+	qlonglong	totalscore;
 	int		count;
 
 	levellist = (int*)malloc((series->count + 2) * sizeof *levellist);
@@ -102,7 +85,7 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 		if (j >= series->allocated)
 			break;
 
-		table->addCell(RightAlign, std::to_string(game->number));
+		table->addCell(RightAlign, locale.toString(game->number));
 
 		if (hassolution(game)) {
 			table->addCell(LeftAlign, game->name);
@@ -111,16 +94,16 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 				table->addCell(3, CenterAlign, " (Deleted) ");
 			} else {
 				levelscore = 500 * game->number;
-				table->addCell(RightAlign, cdecimal(levelscore));
+				table->addCell(RightAlign, locale.toString(levelscore));
 
 				if (game->time) {
 					timescore = 10 * (game->time - game->besttime / TICKS_PER_SECOND);
-					table->addCell(RightAlign, cdecimal(timescore));
+					table->addCell(RightAlign, locale.toString(timescore));
 				} else {
 					timescore = 0;
 					table->addCell(RightAlign, "---");
 				}
-				table->addCell(RightAlign, cdecimal(levelscore + timescore));
+				table->addCell(RightAlign, locale.toString(levelscore + timescore));
 				totalscore += levelscore + timescore;
 			}
 			levellist[count] = j;
@@ -147,7 +130,7 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 
 	// add trailing row
 	table->addCell(2, LeftAlign, "Total Score");
-	table->addCell(3, RightAlign, cdecimal(totalscore));
+	table->addCell(3, RightAlign, locale.toString(totalscore));
 
 	levellist[count] = -1;
 	++count;
@@ -163,12 +146,14 @@ void freescorelist(int *levellist)
 	free(levellist);
 }
 
-char const* timestring(int lvlnum, char const *lvltitle, int besttime,
+QString timestring(int lvlnum, QString lvltitle, int besttime,
 	int timed, int bad)
 {
-	static string result;
+	QString result;
 
-	ostringstream oss;
+	QTextStream oss(&result);
+	oss.setLocale(locale);
+
 	oss << '#' << lvlnum << " (" << lvltitle << "): ";
 	if (!timed) oss << '[';
 	oss << besttime;
@@ -176,14 +161,15 @@ char const* timestring(int lvlnum, char const *lvltitle, int besttime,
 	if (bad) oss << " *bad*";
 	oss << '\n';
 
-	result = oss.str();
-	return result.c_str();
+	return result;
 }
 
-char const* leveltimes(gameseries const *series)
+QString leveltimes(gameseries const *series)
 {
-	static string result;
-	result.clear();
+	QString result;
+
+	QTextStream oss(&result);
+	oss.setLocale(locale);
 
 	for (int i = 0; i < series->count; ++i) {
 		gamesetup const & game = series->games[i];
@@ -192,9 +178,9 @@ char const* leveltimes(gameseries const *series)
 			int const besttime = starttime - game.besttime / TICKS_PER_SECOND;
 			bool const timed = (game.time > 0);
 			bool const bad = (game.sgflags & SGF_REPLACEABLE);
-			result += timestring(game.number, game.name, besttime, timed, bad);
+			oss << timestring(game.number, game.name, besttime, timed, bad);
 		}
 	}
 
-	return result.c_str();
+	return result;
 }

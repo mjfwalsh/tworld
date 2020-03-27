@@ -15,7 +15,6 @@
 #include	"solution.h"
 #include	"unslist.h"
 #include	"series.h"
-#include	"TWApp.h"
 #include	"TWMainWnd.h"
 #include	"utils.h"
 #include	"err.h"

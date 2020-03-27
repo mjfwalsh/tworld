@@ -9,10 +9,8 @@
 #include <Qt>
 #include <QString>
 #include <QColor>
-
 #include <QDomElement>
-
-#include <vector>
+#include <QVector>
 
 
 namespace CCX
@@ -70,7 +68,7 @@ struct Page
 
 struct Text
 {
-	std::vector<Page> vecPages;
+	QVector<Page> vecPages;
 
 	bool bSeen;
 
@@ -98,7 +96,7 @@ struct Levelset
 	PageProperties pageProps;
 	QString sStyleSheet;
 
-	std::vector<Level> vecLevels;
+	QVector<Level> vecLevels;
 
 	void ReadXML(QDomElement elm);
 	bool ReadFile(QString sFilePath, int nLevels);

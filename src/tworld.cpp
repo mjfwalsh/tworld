@@ -6,11 +6,7 @@
  * No warranty. See COPYING for details.
  */
 
-#include	<cstdlib>
-#include	<cstring>
-
-#include	<vector>
-#include	<string>
+#include	<QString>
 
 #include	"TWApp.h"
 #include	"TWTableSpec.h"
@@ -176,7 +172,7 @@ static bool melindawatching(gamespec const *gs)
 static bool showsolutionfiles(gamespec *gs)
 {
 	TWTableSpec		table(1);
-	std::vector<std::string>	      filelist;
+	QStringList	      filelist;
 	int			count, current, n;
 
 	if (haspathname(gs->series.name) || (gs->series.savefilename
@@ -192,7 +188,7 @@ static bool showsolutionfiles(gamespec *gs)
 	current = -1;
 	n = 0;
 	if (gs->series.savefilename) {
-		std::string savefilename = gs->series.savefilename;
+		QString savefilename = gs->series.savefilename;
 		for (n = 0 ; n < count ; ++n)
 			if (filelist[n] == savefilename)
 				break;
@@ -219,7 +215,7 @@ static bool showsolutionfiles(gamespec *gs)
 		clearsolutions(&gs->series);
 		int l = (sizeof(char*) * filelist[n].length()) + 1;
 		x_cmalloc(gs->series.savefilename, l);
-		strcpy(gs->series.savefilename, filelist[n].c_str());
+		strcpy(gs->series.savefilename, filelist[n].toUtf8().constData());
 		if (!readsolutions(&gs->series)) {
 			TileWorldApp::Bell();
 		}

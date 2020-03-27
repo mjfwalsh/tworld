@@ -9,7 +9,7 @@
 #ifndef	HEADER_defs_h_
 #define	HEADER_defs_h_
 
-#include	<time.h>
+#include	<ctime>
 
 class fileinfo;
 

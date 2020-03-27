@@ -20,15 +20,19 @@ public:
 	bool Initialize();
 
 	// Copy text to clipboard.
-	static void CopyToClipboard(char const *text);
+	static void CopyToClipboard(QString text);
 
 	// Beep
 	static void Bell();
 };
 
-
 extern TileWorldApp* g_pApp;
 extern TileWorldMainWnd* g_pMainWnd;
+
+/* Process all pending events. If wait is TRUE and no events are
+ * currently pending, the function blocks until an event arrives.
+ */
+extern void eventupdate(bool wait);
 
 
 #endif
