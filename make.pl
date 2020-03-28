@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright (C) 2019 by Michael J. Walsh. Licenced under the GNU GPL, v 3. See COPYING.
+# Copyright (C) 2020 by Michael J. Walsh. Licenced under the GNU GPL, v 3. See COPYING.
 
 # pragmas and modules
 use v5.10;
@@ -19,6 +19,7 @@ BEGIN {
 # what we're doing
 my $cmd;
 my $need_updated_time_stamp = 1;
+my %filtered_file_cache;
 
 # windows vars
 my $executable_name = $^O eq 'MSWin32' ? 'tworld.exe' : 'tworld';
@@ -91,22 +92,12 @@ sub compile_file {
 		# filter source code to find dependancies and sdl/qt requirements
 		my $r = filter_file($input_file);
 
-		# add dependancy for the generated ui file
-		if(defined $r->{'obj/ui_TWMainWnd.h'}) {
-			$r->{'src/TWMainWnd.ui'} = 1;
-		}
+		push @check_files, @{ $r->{included_files} };
 
-		# and remove dependancy for comptime.h
-		if(defined $r->{'comptime.h'}) {
-			delete $r->{'comptime.h'};
-		}
-
-		push @check_files, @{ $r->{'files'} };
-
-		if($r->{'need_sdl'}) {
+		if($r->{need_sdl}) {
 			push @args, @sdl_opts;
 		}
-		if($r->{'need_qt'}) {
+		if($r->{need_qt}) {
 			push @args, @qt_opts;
 		}
 
@@ -323,61 +314,81 @@ sub install {
 }
 
 sub filter_file {
-	my $input_file = shift;
-	my %files_done;
+	my $file = shift;
+	my %included_files;
+
+	if(exists $filtered_file_cache{$file}) {
+		return $filtered_file_cache{$file};
+	}
 
 	my $result = {
 	'need_qt' => 0,
-	'need_sdl' => 0
+	'need_sdl' => 0,
+	'included_files' => [],
 	};
 
-	my $need_qt = 0;
-	my @files = ($input_file);
+	goto quit if $file =~ m/comptime.h/;
 
-	foreach my $file (@files) {
-		next if $file =~ m/comptime.h/;
+	# Get a kind-of-absolute path with source dir
+	# and ignore files outside it.
+	goto quit unless $file = process_path($file);
 
-		# Get a kind-of-absolute path with source dir
-		# and ignore files outside it.
-		next unless $file = process_path($file);
+	my $cwd = $file;
+	$cwd =~ s|/[^/]*$||;
 
-		my $cwd = $file;
-		$cwd =~ s|/[^/]*$||;
+	goto quit if $file !~ /\.(c|cpp|h)$/;
 
-		next if defined $files_done{$file};
-
-		if($file =~ /\.(c|cpp|h)$/) {
-			my $fh;
-			if(!open ($fh, '<', $file)) {
-				say "Failed on include: $file";
-				next;
-			}
-			while(my $l = <$fh>) {
-				if($l =~ m/^[\t ]*#include[\t ]+"([^"]+)"/) {
-					push @files, "$cwd/$1";
-				}
-				if($l =~ /^[\t ]*#include[\t ]+<SDL/) {
-					$result->{'need_sdl'} = 1;
-				}
-				if($l =~ /^[\t ]*#include[\t ]+<Q/) {
-					$result->{'need_qt'} = 1;
-				}
-			}
-			close $fh;
-		} else {
-			next unless -f $file;
-		}
-		$files_done{$file} = 1;
+	my $fh;
+	if(!open ($fh, '<', $file)) {
+		say "Failed on include: $file";
+		goto quit;
 	}
+	while(my $l = <$fh>) {
+		if($l =~ m/^[\t ]*#include[\t ]+"([^"]+)"/) {
+			my $f = process_path("$cwd/$1");
 
-	# avoid adding twice
-	delete $files_done{$input_file};
+			next if $f eq '' || exists $included_files{$f} || $f eq $file;
 
-	my @fd = keys %files_done;
+			$included_files{$f} = undef;
 
-	$result->{'files'} = \@fd;
+			if($f =~ /ui_TWMainWnd.h/) {
+				my $x = $file;
+				if($x =~ s/ui_TWMainWnd.h$/TWMainWnd.ui/) {
+					$included_files{$x} = undef;
+				}
+			}
 
-	return $result;
+			my $r = filter_file($f);
+
+			if($r->{need_sdl}) {
+				$result->{need_sdl} = 1;
+			}
+
+			if($r->{need_qt}) {
+				$result->{need_qt} = 1;
+			}
+
+			my $q = $r->{included_files};
+
+			@included_files{@$q} = ();
+		}
+		if($l =~ /^[\t ]*#include[\t ]+<SDL/) {
+			$result->{need_sdl} = 1;
+		}
+		if($l =~ /^[\t ]*#include[\t ]+<Q/) {
+			$result->{need_qt} = 1;
+		}
+	}
+	close $fh;
+
+	my @fd = keys %included_files;
+
+	$result->{included_files} = \@fd;
+
+	quit: {
+		$filtered_file_cache{$file} = $result;
+		return $result;
+	}
 }
 
 sub run_time_check {
