@@ -8,6 +8,8 @@
 #ifndef	HEADER_series_h_
 #define	HEADER_series_h_
 
+struct seriesdata;
+
 /* Load all levels of the given series.
  */
 extern bool readseriesfile(gameseries *series);
@@ -28,8 +30,7 @@ extern void freeseriesdata(gameseries *series);
  * returned. FALSE is returned if no series files are found. An
  * unrecoverable error will cause the function to abort the program.
  */
-extern bool createserieslist(gameseries **pserieslist,
-					int *pcount, mapfileinfo **pmflist, int *pmfcount);
+extern bool createserieslist(seriesdata *series);
 
 /* Make an independent copy of a single gameseries structure from
  * a list obtained from createserieslist().

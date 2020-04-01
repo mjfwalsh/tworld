@@ -10,6 +10,7 @@
 #include	<cstring>
 #include	<cctype>
 
+#include	"tworld.h"
 #include	"defs.h"
 #include	"fileio.h"
 #include	"solution.h"
@@ -33,7 +34,6 @@
 typedef struct {
 	mapfileinfo *buf;
 	int count;
-	int datdircount; /* Number of mapfiles in datdir */
 } mfinfovector;
 
 static void addgameseries(intlist *g, int gameseriesindex, int ruleset)
@@ -581,7 +581,6 @@ static int getmapfile(char const *filename, void *data)
 	seriesfiledata	       *sdata = (seriesfiledata*)data;
 	gameseries	        s;
 	unsigned long	magic;
-	int			f;
 
 	if (!file.open(sdata->curdir, filename, "rb", "unknown error"))
 		return 0;
@@ -597,25 +596,14 @@ static int getmapfile(char const *filename, void *data)
 
 	s.mapfile = &file;
 	s.ruleset = Ruleset_None;
-	f = readseriesheader(&s);
-	file.close();
-
-	if (f) {
-		mfinfovector *v = &sdata->mfinfo;
-		mapfileinfo key;
-		key.filename = (char*)filename;
-		mapfileinfo *existingmf = (mapfileinfo *)bsearch(&key, v->buf, v->datdircount, sizeof key, compare_mapfileinfo);
-		if (existingmf) {
-			existingmf->path = sdata->curdir;
-			existingmf->levelcount = s.count;
-		} else {
-			char *dup_filename = strdup(filename);
-			if (dup_filename == NULL) memerrexit();
-			int dup_path = sdata->curdir;
-			if (dup_path == 0) memerrexit();
-			addlevelfile(v, dup_filename, s.count, dup_path);
-		}
+	if (readseriesheader(&s)) {
+		char *dup_filename = strdup(filename);
+		if (dup_filename == NULL) memerrexit();
+		int dup_path = sdata->curdir;
+		if (dup_path == 0) memerrexit();
+		addlevelfile(&sdata->mfinfo, dup_filename, s.count, dup_path);
 	}
+	file.close();
 	return 0;
 }
 
@@ -659,7 +647,7 @@ static bool createnewdacfile(char const *name, mapfileinfo const *datfile, int r
 	char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
 	errno = 0;
 
-	if(file.writef("file=%s\nruleset=%s\n", datfile->filename, rulesetstr)) {
+	if(!file.writef("file=%s\nruleset=%s\n", datfile->filename, rulesetstr)) {
 		fileerr(&file, "write error");
 		return false;
 	}
@@ -677,8 +665,7 @@ static bool createnewdacfile(char const *name, mapfileinfo const *datfile, int r
 static gameseries* createnewseries(seriesfiledata *s, mapfileinfo const *datfile, int ruleset)
 {
 	char *newdacname = generatenewdacname(datfile, ruleset);
-	int ok = createnewdacfile(newdacname, datfile, ruleset);
-	if (!ok) {
+	if (!createnewdacfile(newdacname, datfile, ruleset)) {
 		warn("%s: Attempt to create %s ruleset .dac for %s failed", newdacname,
 			ruleset == Ruleset_MS ? "MS" : "Lynx", datfile->filename);
 	}
@@ -724,8 +711,8 @@ static void createallmissingseries(seriesfiledata *s)
 	for (int n = 0; n < s->mfinfo.count; ++n) {
 		memset(seriesrulesetcount, 0, sizeof seriesrulesetcount);
 		mapfileinfo const *currentlevelfile = &s->mfinfo.buf[n];
-		char *currentmapname = currentlevelfile->filename;
-		while (m < nseries && !strcasecmp(currentmapname, s->list[m].mapfilename)) {
+
+		while (m < nseries && !strcasecmp(currentlevelfile->filename, s->list[m].mapfilename)) {
 			int ruleset = s->list[m].ruleset;
 			addgameseries(s->mfinfo.buf[n].sfilelst, m, ruleset);
 			++seriesrulesetcount[ruleset];
@@ -742,14 +729,14 @@ static void createallmissingseries(seriesfiledata *s)
 	}
 }
 
-/* Search the series directory and generate an array of gameseries
+/* Produce a list of the series that are available for play.
+ * Search the series directory and generate an array of gameseries
  * structures corresponding to the data files found there. The array
  * is returned through list, and the size of the array is returned
  * through count. The program will be aborted if a serious error
  * occurs or if no series can be found.
  */
-static bool getseriesfiles(gameseries ** list, int *count,
-	mapfileinfo **mflist, int *mfcount)
+bool createserieslist(seriesdata *series)
 {
 	seriesfiledata	s;
 
@@ -766,7 +753,6 @@ static bool getseriesfiles(gameseries ** list, int *count,
 	/* Sort because we want to look files up during next phase */
 	qsort(s.mfinfo.buf, s.mfinfo.count,
 		sizeof *s.mfinfo.buf, compare_mapfileinfo);
-	s.mfinfo.datdircount = s.mfinfo.count;
 
 	s.curdir = GLOBAL_SERIESDATDIR;
 	findfiles(s.curdir, &s, getmapfile);
@@ -783,34 +769,10 @@ static bool getseriesfiles(gameseries ** list, int *count,
 	removefilenamesuffixes(&s.mfinfo);
 	qsort(s.mfinfo.buf, s.mfinfo.count, sizeof *s.mfinfo.buf, compare_mapfileinfo);
 
-	*list = s.list;
-	*count = s.count;
-	*mflist = s.mfinfo.buf;
-	*mfcount = s.mfinfo.count;
-
-	return true;
-}
-
-/* Produce a list of the series that are available for play. An array
- * of gameseries structures is returned through pserieslist, the size
- * of the array is returned through pcount. The list of levelsets is returned
- * through pmflist and the number of levelsets through pmfcount. A table of
- * the gameseries filenames is returned through table.
- */
-bool createserieslist(gameseries **pserieslist, int *pcount,
-	mapfileinfo **pmflist, int *pmfcount)
-{
-	gameseries	       *serieslist;
-	int			listsize;
-	mapfileinfo	       *mapfilelist;
-	int			mapfilelistsize;
-
-	if (!getseriesfiles(&serieslist, &listsize, &mapfilelist, &mapfilelistsize))
-		return false;
-	*pserieslist = serieslist;
-	*pcount = listsize;
-	*pmflist = mapfilelist;
-	*pmfcount = mapfilelistsize;
+	series->list = s.list;
+	series->count = s.count;
+	series->mflist = s.mfinfo.buf;
+	series->mfcount = s.mfinfo.count;
 
 	return true;
 }

@@ -1121,45 +1121,17 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
  * The return value is zero if nothing was selected, negative if an
  * error occurred, or positive otherwise.
  */
-static int choosegame(gamespec *gs, char const *lastseries)
-{
-	seriesdata	s;
-
-	if (!createserieslist(&s.list, &s.count, &s.mflist, &s.mfcount))
-		return -1;
-	return selectseriesandlevel(gs, &s, false, lastseries);
-}
-
-/* Determine what to play. A list of available series is drawn up; if
- * only one is found, it is selected automatically. Otherwise, if the
- * listseries option is TRUE, the available series are displayed on
- * stdout and the program exits. Otherwise, if listscores or listtimes
- * is TRUE, the scores or times for a single series is display on
- * stdout and the program exits. (These options need to be checked for
- * before initializing the graphics subsystem.) Otherwise, the
- * selectseriesandlevel() function handles the rest of the work. Note
- * that this function is only called during the initial startup; if
- * the user returns to the series list later on, the choosegame()
- * function is called instead.
- */
-static int choosegameatstartup(gamespec *gs, char const *lastseries)
+static int choosegame(gamespec *gs, char const *lastseries, bool startup)
 {
 	seriesdata	series;
 
-	if (!createserieslist(&series.list, &series.count,
-			&series.mflist, &series.mfcount))
-		return -1;
+	if (!createserieslist(&series))
+		die("Failed to create serieslist");
 
-	if (series.count <= 0) {
-		warn("no level sets found");
-		return -1;
-	}
+	if (series.count <= 0)
+		die("no level sets found");
 
-	/* extensions cannot be read until the system is initialized */
-	if (series.count == 1)
-		g_pMainWnd->ReadExtensions(series.list);
-
-	return selectseriesandlevel(gs, &series, true, lastseries);
+	return selectseriesandlevel(gs, &series, startup, lastseries);
 }
 
 /*
@@ -1182,7 +1154,7 @@ int tworld()
 		lastseries[0] = '\0';
 
 	// Pick the level to play. Defaults to last played if available.
-	f = choosegameatstartup(&spec, lastseries);
+	f = choosegame(&spec, lastseries, true);
 	if (f < 0)
 		return EXIT_FAILURE;
 	else if (f == 0)
@@ -1197,7 +1169,7 @@ int tworld()
 		g_pMainWnd->ClearDisplay();
 		strcpy(lastseries, spec.series.name);
 		freeseriesdata(&spec.series);
-		f = choosegame(&spec, lastseries);
+		f = choosegame(&spec, lastseries, false);
 	};
 
 	return (f == 0 ? EXIT_SUCCESS : EXIT_FAILURE);

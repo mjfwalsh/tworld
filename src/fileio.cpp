@@ -29,7 +29,7 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
 	if (msg) {
 		err_cfile_ = cfile;
 		err_lineno_ = lineno;
-		warn_(this->name ? this->name : "file error",
+		warn_("%s: %s", this->name ? this->name : "file error",
 			errno ? strerror(errno) : msg);
 	}
 	if (this->alloc) {
@@ -284,7 +284,7 @@ bool fileinfo::writef(const char *format, ...)
     va_start(argp, format);
 	int wchars = vfprintf(this->fp, format, argp);
 	va_end(argp);
-	return wchars > -1;
+	return wchars > 0;
 }
 
 /*
