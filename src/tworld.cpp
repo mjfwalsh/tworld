@@ -7,6 +7,7 @@
  */
 
 #include	<QString>
+#include	<vector>
 
 #include	"TWApp.h"
 #include	"TWTableSpec.h"
@@ -46,7 +47,7 @@ static bool	noframeskip = false;
 static int islastinseries(gamespec const *gs, int index)
 {
 	return index == gs->series.count - 1
-		|| gs->series.games[index].number == gs->series.final;
+		|| gs->series.games[index].number == gs->series.lastlevel;
 }
 
 /* Return TRUE if the current level has a solution.
@@ -890,47 +891,6 @@ static int runcurrentlevel(gamespec *gs)
 	return ret;
 }
 
-// POSSIBLE TODO rewrite with GUI
-/*static int batchverify(gameseries *series, int display)
-{
-gamesetup  *game;
-int		valid = 0, invalid = 0;
-int		i, f;
-
-batchmode = true;
-
-for (i = 0, game = series->games ; i < series->count ; ++i, ++game) {
-	if (!hassolution(game))
-	continue;
-	if (initgamestate(game, series->ruleset) && prepareplayback()) {
-	setgameplaymode(NonrenderPlay);
-	while (!(f = doturn(CmdNone)))
-		advancetick();
-	setgameplaymode(EndPlay);
-	if (f > 0) {
-		++valid;
-		checksolution();
-	} else {
-		++invalid;
-		game->sgflags |= SGF_REPLACEABLE;
-		if (display)
-		printf("Solution for level %d is invalid\n", game->number);
-	}
-	}
-	endgamestate();
-}
-
-if (display) {
-	if (valid + invalid == 0) {
-	printf("No solutions were found.\n");
-	} else {
-	printf("  Valid solutions:%4d\n", valid);
-	printf("Invalid solutions:%4d\n", invalid);
-	}
-}
-return invalid;
-}*/
-
 /*
  * Game selection functions
  */
@@ -957,68 +917,64 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
 	}
 }
 
-
-/* Determine the index in series->mflist where the gameseries with index idx
- * is found. Returns 0 if there is no such index. */
-static int findseries(seriesdata *series, int idx)
+// Find the defaultseries in seriesdata
+static bool findseries(std::vector<gameseries> &serieslist, char const *defaultseries, uint *game, uint *ruleset, uint* dac)
 {
-	for (int n = 0; n < series->mfcount; ++n) {
-		mapfileinfo *mfi = &series->mflist[n];
-		for (int i = Ruleset_First; i < Ruleset_Count; ++i) {
-			intlist *gsl = &mfi->sfilelst[i];
-			for (int j = 0; j < gsl->count; ++j) {
-				if (gsl->list[j] == idx)
-					return n;
+	for(*game = 0; *game < serieslist.size(); (*game)++) {
+		for (*ruleset = Ruleset_First; *ruleset < Ruleset_Count; (*ruleset)++) {
+			for (*dac = 0; *dac < serieslist[*game].dacfiles[*ruleset].size(); (*dac)++) {
+				if (!strcmp(serieslist[*game].dacfiles[*ruleset][*dac].filename, defaultseries)) {
+					return true;
+				}
 			}
 		}
 	}
-	return 0;
+
+	// reset if none found
+	*game = *dac = 0;
+	*ruleset = Ruleset_First;
+	return false;
 }
 
 /* Helper function for selectseriesandlevel */
-static int chooseseries(seriesdata *series, int *pn, bool founddefault)
+static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *ruleset, uint *dac)
 {
+	int orig_dac = *dac; // save for later
+	int f;
+	uint r;
+
 	TWTableSpec mftable(1);
 	mftable.addCell("Levelset");
-	for (int y = 0 ; y < series->mfcount; y++) {
-		mftable.addCell(series->mflist[y].filename);
+	for (uint y = 0 ; y < serieslist.size(); y++) {
+		mftable.addCell(serieslist[y].name);
 	}
 
-	/* Choose mapfile to be selected by default */
-	int n = (founddefault ? findseries(series, *pn) : 0);
+	restart:
+	g_pMainWnd->SetSelectedRuleset(*ruleset);
 
-	int chosenseries = -1;
-	while (chosenseries < 0) {
-		int f = g_pMainWnd->DisplayList(&mftable, &n, true);
-		if (f != CmdProceed) {
-			return f;
+	f = g_pMainWnd->DisplayList(&mftable, (int *)game, true);
+	if (f != CmdProceed)
+		return f;
+
+	r = (uint)g_pMainWnd->GetSelectedRuleset();
+
+	if (serieslist[*game].dacfiles[r].size() == 1) {
+		*dac = 0;
+	} else {
+		// if the chosen ruleset is difference from lastseries
+		*dac = r == *ruleset ? orig_dac : 0;
+
+		TWTableSpec gstable(1);
+		gstable.addCell("Profile");
+		for (uint y = 0; y < serieslist[*game].dacfiles[r].size(); y++) {
+			gstable.addCell(serieslist[*game].dacfiles[r][y].filename);
 		}
-		int ruleset = g_pMainWnd->GetSelectedRuleset();
-		intlist *chosengsl = &series->mflist[n].sfilelst[ruleset];
 
-		if (chosengsl->count < 1) /* Can happen if .dac name was taken */
-			continue;
-		if (chosengsl->count == 1)
-			chosenseries = chosengsl->list[0];
-		else {
-			TWTableSpec gstable(1);
-			gstable.addCell("Profile");
-			for (int y = 0; y < chosengsl->count; y++) {
-				gstable.addCell(series->list[chosengsl->list[y]].name);
-			}
-
-			int m = 0;
-			for (;;) {
-				f = g_pMainWnd->DisplayList(&gstable, &m, false);
-				if (f == CmdProceed) {
-					chosenseries = chosengsl->list[m];
-					break;
-				} else if (f == CmdQuitLevel)
-					break;
-			}
-		}
+		f = g_pMainWnd->DisplayList(&gstable, (int *)dac, false);
+		if (f != CmdProceed)
+			goto restart;
 	}
-	*pn = chosenseries;
+
 	return CmdProceed;
 }
 
@@ -1035,37 +991,34 @@ static int chooseseries(seriesdata *series, int *pn, bool founddefault)
  * level. The return value is zero if nothing was selected, negative
  * if an error occurred, or positive otherwise.
  */
-static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
+static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslist, bool autoplay,
 	char const *defaultseries)
 {
-	int n = 0;
+	uint game = 0;
+	uint ruleset = Ruleset_First;
+	uint dac = 0;
 
-	if (series->count < 1) {
+	if (serieslist.size() < 1) {
 		warn("no level sets found");
 		return -1;
 	}
 
-	if (!autoplay || series->count > 1) {
+	if (!autoplay || serieslist.size() > 1) {
 		bool founddefault = false;
 		if (defaultseries) {
-			n = series->count;
-			while (n)
-				if (!strcmp(series->list[--n].name, defaultseries)) {
-					founddefault = true;
-					break;
-				}
+			founddefault = findseries(serieslist, defaultseries, &game, &ruleset, &dac);
 		}
 
 		if(!founddefault || !autoplay) {
-			int preLevelSet = n;
+			int preLevelSet = game;
 
 			for (;;) {
-				int f = chooseseries(series, &n, founddefault);
+				int f = chooseseries(serieslist, &game, &ruleset, &dac);
 				if (f == CmdProceed) {
 					break;
 				} else if (f == CmdQuitLevel) {
 					if(founddefault) {
-						n = preLevelSet;
+						game = preLevelSet;
 						break;
 					} else {
 						TileWorldApp::Bell();
@@ -1075,11 +1028,20 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
 		}
 	}
 
-	// assign the selected series to the gamespec
-	gs->series = series->list[n];
+	// move the selected series to the gamespec
+	gs->series = std::move(serieslist[game]);
+
+	// copy some dac info over to gameseries
+	stringcopy(gs->series.name, gs->series.dacfiles[ruleset][dac].filename, (int)(sizeof gs->series.name));
+	gs->series.lastlevel = gs->series.dacfiles[ruleset][dac].lastlevel;
+	gs->series.ruleset = gs->series.dacfiles[ruleset][dac].ruleset;
+	gs->series.gsflags = gs->series.dacfiles[ruleset][dac].gsflags;
 
 	// free all the other series
-	freeserieslist(series->list, series->count, series->mflist, series->mfcount, n);
+	freeserieslist(serieslist, game);
+
+	// ... and gamespec's dacfilelist
+	freedacfilelist(gs->series.dacfiles);
 
 	// change the selected series setting
 	setstringsetting("selectedseries", gs->series.name);
@@ -1105,9 +1067,9 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
 
 	if (gs->currentgame < 0) {
 		gs->currentgame = 0;
-		for (n = 0 ; n < gs->series.count ; ++n) {
-			if (!issolved(gs, n)) {
-				gs->currentgame = n;
+		for (int i = 0 ; i < gs->series.count ; ++i) {
+			if (!issolved(gs, i)) {
+				gs->currentgame = i;
 				break;
 			}
 		}
@@ -1123,15 +1085,12 @@ static int selectseriesandlevel(gamespec *gs, seriesdata *series, bool autoplay,
  */
 static int choosegame(gamespec *gs, char const *lastseries, bool startup)
 {
-	seriesdata	series;
+	std::vector<gameseries> serieslist;
 
-	if (!createserieslist(&series))
+	if (!createserieslist(serieslist))
 		die("Failed to create serieslist");
 
-	if (series.count <= 0)
-		die("no level sets found");
-
-	return selectseriesandlevel(gs, &series, startup, lastseries);
+	return selectseriesandlevel(gs, serieslist, startup, lastseries);
 }
 
 /*
@@ -1155,10 +1114,6 @@ int tworld()
 
 	// Pick the level to play. Defaults to last played if available.
 	f = choosegame(&spec, lastseries, true);
-	if (f < 0)
-		return EXIT_FAILURE;
-	else if (f == 0)
-		return EXIT_SUCCESS;
 
 	// plays the selected level
 	while (f > 0) {

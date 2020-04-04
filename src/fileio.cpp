@@ -375,14 +375,14 @@ bool direrr_(char const *cfile, unsigned long lineno, char const *dirname, char 
 /* Read the given directory and call filecallback once for each file
  * contained in it.
  */
-bool findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
+bool findfiles(int dirInt, void *data, bool (*filecallback)(char const*, int, void*))
 {
 	const char *dir;
 	dir = getdir(dirInt);
 
 	DIR		       *dp;
 	struct dirent      *dent;
-	int			r;
+	bool			r;
 
 	if (!(dp = opendir(dir))) {
 		return direrr(dir, "couldn't access directory");
@@ -391,14 +391,8 @@ bool findfiles(int dirInt, void *data, int (*filecallback)(char const*, void*))
 	while ((dent = readdir(dp))) {
 		if (dent->d_name[0] == '.')
 			continue;
-
-		char *filename;
-		x_cmalloc(filename, strlen(dent->d_name) + 1);
-		strcpy(filename, dent->d_name);
-
-		r = (*filecallback)(filename, data);
-		free(filename);
-		if (r < 0) break;
+		r = (*filecallback)(dent->d_name, dirInt, data);
+		if (!r) break;
 	}
 
 	closedir(dp);

@@ -51,7 +51,7 @@ extern char *getpathforfileindir(int dirInt, char const *filename);
  * examined.
  */
 extern bool findfiles(int dirInt, void *data,
-			 int (*filecallback)(char const*, void*));
+			 bool (*filecallback)(char const*, int, void*));
 
 class fileinfo
 {

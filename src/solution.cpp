@@ -118,6 +118,11 @@
  */
 #define	CSSIG		0x999B3335UL
 
+/* The signature bytes for each ruleset.
+ */
+#define SIG_SOLFILE_LYNX 1
+#define SIG_SOLFILE_MS 2
+
 /* Translate move directions between three-bit and four-bit
  * representations.
  *
@@ -206,6 +211,13 @@ static bool readsolutionheader(fileinfo *file, int ruleset, int *flags,
 		return fileerr(file, "not a valid solution file");
 	if (!file->readint8(&n, "not a valid solution file"))
 		return false;
+
+	switch (n) {
+		case SIG_SOLFILE_MS:	n = Ruleset_MS;		break;
+		case SIG_SOLFILE_LYNX:	n = Ruleset_Lynx;	break;
+		default: fileerr(file, "solution file is for an unrecognised ruleset");
+	}
+
 	if (n != ruleset)
 		return fileerr(file, "solution file is for a different ruleset"
 			" than the level set file");
@@ -225,9 +237,15 @@ static bool readsolutionheader(fileinfo *file, int ruleset, int *flags,
 
 /* Write the header bytes to the given solution file.
  */
-static int writesolutionheader(fileinfo *file, int ruleset, int flags,
+static bool writesolutionheader(fileinfo *file, int ruleset, int flags,
 	int extrasize, unsigned char const *extra)
 {
+	switch (ruleset) {
+		case Ruleset_MS:	ruleset = SIG_SOLFILE_MS;		break;
+		case Ruleset_Lynx:	ruleset = SIG_SOLFILE_LYNX;		break;
+		default: return false;
+	}
+
 	return file->writeint32(CSSIG)
 		&& file->writeint8(ruleset)
 		&& file->writeint16(flags)
@@ -685,14 +703,14 @@ typedef	struct solutiondata {
  * structure, then add it to the list of filenames. This function is
  * a callback for findfiles().
  */
-static int getsolutionfile(char const *filename, void *data)
+static bool getsolutionfile(char const *filename, int curdir, void *data)
 {
 	solutiondata       *sdata = (solutiondata *)data;
 
 	if (!memcmp(filename, sdata->prefix, sdata->prefixlen)) {
 		sdata->filelist.push_back(filename);
 	}
-	return 0;
+	return true;
 }
 
 /* Produce a list of available solution files associated with the

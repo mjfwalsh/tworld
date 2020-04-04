@@ -183,6 +183,7 @@ public:
 	bool DisplayYesNoPrompt(const char* prompt);
 	const char* DisplayPasswordPrompt();
 	int GetSelectedRuleset();
+	void SetSelectedRuleset(int r);
 
 	void ReadExtensions(gameseries* pSeries);
 	void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
@@ -203,7 +204,6 @@ private slots:
 	void OnListItemActivated(const QModelIndex& index);
 	void OnFindTextChanged(const QString& sText);
 	void OnFindReturnPressed();
-	void OnRulesetSwitched(QString checked);
 	void OnPlayback();
 	void OnSpeedValueChanged(int nValue);
 	void OnSpeedSliderReleased();

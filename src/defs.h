@@ -10,6 +10,7 @@
 #define	HEADER_defs_h_
 
 #include	<ctime>
+#include	<vector>
 
 class fileinfo;
 
@@ -53,9 +54,9 @@ class fileinfo;
 /* The various rulesets the program can emulate.
  */
 enum {
-	Ruleset_None = 0,
-	Ruleset_Lynx = 1,
-	Ruleset_MS = 2,
+	Ruleset_None = -1,
+	Ruleset_Lynx = 0,
+	Ruleset_MS = 1,
 	Ruleset_Count,
 	Ruleset_First = Ruleset_Lynx
 };
@@ -222,12 +223,22 @@ typedef	struct history {
 	struct tm		dt;		/* date/time set was last played */
 } history;
 
+/* The collection of data maintained for each dacfile.
+ */
+typedef	struct dacfile {
+	int			lastlevel;		/* number of the ending level */
+	int			ruleset;		/* the ruleset for the game file */
+	int			gsflags;		/* series flags (see below) */
+	char*		filename;		/* the filename minus any path */
+	char*		datfilename;	/* the filename minus any path */
+} dacfile;
+
 /* The collection of data maintained for each series.
  */
 typedef	struct gameseries {
 	int			count;		/* number of levels in the series */
 	int			allocated;	/* number of elements allocated */
-	int			final;		/* number of the ending level */
+	int			lastlevel;	/* number of the ending level */
 	int			ruleset;	/* the ruleset for the game file */
 	int			gsflags;	/* series flags (see below) */
 	gamesetup	*games;		/* the array of levels */
@@ -240,23 +251,9 @@ typedef	struct gameseries {
 	int			solheadersize;	/* size of extra solution header */
 	char		name[256];	/* the filename minus any path */
 	unsigned char	solheader[256];	/* extra solution header bytes */
+	std::vector<dacfile> dacfiles[Ruleset_Count]; /* list of dacfiles*/
 } gameseries;
 
-/* Just a list of ints */
-typedef struct intlist {
-	int 	*list;		/* intlist */
-	int		 count;		/* size of list */
-} intlist;
-
-/* Information associated with a levelset. Contains the information about
- * all gameseries that use the levelset.
- */
-typedef struct mapfileinfo {
-	char *filename;
-	int path;
-	intlist sfilelst[Ruleset_Count]; /* indices for series files per ruleset */
-	int levelcount;
-} mapfileinfo;
 
 /* Flags associated with a series.
  */

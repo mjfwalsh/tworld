@@ -8,8 +8,6 @@
 #ifndef	HEADER_series_h_
 #define	HEADER_series_h_
 
-struct seriesdata;
-
 /* Load all levels of the given series.
  */
 extern bool readseriesfile(gameseries *series);
@@ -17,6 +15,7 @@ extern bool readseriesfile(gameseries *series);
 /* Release all resources associated with a gameseries structure.
  */
 extern void freeseriesdata(gameseries *series);
+extern void freedacfilelist(std::vector<dacfile> (&dacfiles)[Ruleset_Count]);
 
 /* Produce a list all available data files. pserieslist receives the
  * location of an array of gameseries structures, one per data file
@@ -30,7 +29,7 @@ extern void freeseriesdata(gameseries *series);
  * returned. FALSE is returned if no series files are found. An
  * unrecoverable error will cause the function to abort the program.
  */
-extern bool createserieslist(seriesdata *series);
+extern bool createserieslist(std::vector<gameseries> &series);
 
 /* Make an independent copy of a single gameseries structure from
  * a list obtained from createserieslist().
@@ -41,8 +40,7 @@ extern void getseriesfromlist(gameseries *dest,
 /* Free the memory used by the table created in createserieslist().
  * The pointers can be NULL.
  */
-extern void freeserieslist(gameseries *list, int count,
-			mapfileinfo *mflist, int mfcount, int except);
+extern void freeserieslist(std::vector<gameseries> &s, unsigned int except);
 
 /* A function for looking up a specific level in a series by number
  * and/or password. If number is -1, only the password will be

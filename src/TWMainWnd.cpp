@@ -102,7 +102,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	g_pApp->installEventFilter(this);
 
 	connect( m_pTblList, SIGNAL(activated(const QModelIndex&)), this, SLOT(OnListItemActivated(const QModelIndex&)) );
-	connect( m_pComboRuleset, SIGNAL(currentIndexChanged(QString)), this, SLOT(OnRulesetSwitched(QString)) );
 	connect( m_pTxtFind, SIGNAL(textChanged(const QString&)), this, SLOT(OnFindTextChanged(const QString&)) );
 	connect( m_pTxtFind, SIGNAL(returnPressed()), this, SLOT(OnFindReturnPressed()) );
 	connect( m_pBtnPlay, SIGNAL(clicked()), this, SLOT(OnPlayback()) );
@@ -118,10 +117,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
 	// change menu to reflect settings
 	action_displayCCX->setChecked(getintsetting("displayccx"));
 	action_forceShowTimer->setChecked(getintsetting("forceshowtimer") > 0);
-	if (getintsetting("selectedruleset") == Ruleset_Lynx)
-		m_pComboRuleset->setCurrentText("Lynx");
-	else
-		m_pComboRuleset->setCurrentText("MS");
 
 	// set a zoom menu item as checked
 	foreach (QAction *a, actiongroup_Zoom->actions()) {
@@ -158,6 +153,7 @@ TileWorldMainWnd::~TileWorldMainWnd()
 {
 	g_pApp->removeEventFilter(this);
 
+	delete volTimer;
 	delete m_pInvSurface;
 	delete m_pSurface;
 }
@@ -953,11 +949,6 @@ void TileWorldMainWnd::OnFindReturnPressed()
 		g_pApp->exit(CmdProceed);
 }
 
-void TileWorldMainWnd::OnRulesetSwitched(QString checked)
-{
-	setintsetting("selectedruleset", checked == "MS" ? Ruleset_MS : Ruleset_Lynx);
-}
-
 /* Display an input prompt to the user. prompt supplies the prompt to
  * display.
  */
@@ -1024,6 +1015,13 @@ void TileWorldMainWnd::SetSubtitle(QString subtitle)
 int TileWorldMainWnd::GetSelectedRuleset()
 {
 	return m_pComboRuleset->currentText() == "MS" ? Ruleset_MS : Ruleset_Lynx;
+}
+void TileWorldMainWnd::SetSelectedRuleset(int r)
+{
+	if(r == Ruleset_MS)
+		m_pComboRuleset->setCurrentText("MS");
+	else if(r == Ruleset_Lynx)
+		m_pComboRuleset->setCurrentText("Lynx");
 }
 
 /* Read any additional data for the series.
@@ -1117,6 +1115,7 @@ void TileWorldMainWnd::ShowAbout()
 	msgBox->setStandardButtons(QMessageBox::Ok);
 	msgBox->setAttribute(Qt::WA_DeleteOnClose);
 	msgBox->exec();
+	delete msgBox;
 }
 
 void TileWorldMainWnd::OnTextNext()
@@ -1193,7 +1192,7 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 		stepDialog.setWindowTitle("Step");
 		stepDialog.setLabelText("Set level step value");
 
-		if (getintsetting("selectedruleset") == Ruleset_Lynx) {
+		if (GetSelectedRuleset() == Ruleset_Lynx) {
 			stepDialog.setComboBoxItems(stepDialogOptions);
 		} else {
 			stepDialog.setComboBoxItems({stepDialogOptions[0], stepDialogOptions[4]});

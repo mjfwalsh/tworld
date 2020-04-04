@@ -27,16 +27,6 @@ typedef	struct gamespec {
 	int		melindacount;	/* count for Melinda's free pass */
 } gamespec;
 
-/* Structure used to hold the complete list of available series.
- */
-typedef	struct seriesdata {
-	gameseries *list;		/* the array of available series */
-	int		count;		/* size of array */
-	mapfileinfo *mflist;	/* List of all levelset files */
-	int		mfcount;	/* Number of levelset files */
-	TWTableSpec	*table;		/* table for displaying the array */
-} seriesdata;
-
 /* Initialise the c stuff in tworld.c and play the game
  */
 extern int tworld();
