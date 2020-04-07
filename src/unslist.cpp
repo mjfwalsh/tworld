@@ -188,7 +188,7 @@ static bool readunslist(fileinfo *file)
 				continue;
 			}
 		}
-		warn("%s:%d: syntax error", file->getName(), lineno);
+		warn("%s:%d: syntax error", file->name(), lineno);
 	}
 	return true;
 }
@@ -255,18 +255,15 @@ static void clearunslist(void)
  */
 void loadunslistfromfile(char const *filename)
 {
-	fileinfo	file;
-
 	if(!initialised) {
 		atexit(clearunslist);
 		initialised = true;
 	}
 
-	if (!file.open(RESDIR, filename, "r", NULL)) {
-		if (!file.open(SETTINGSDIR, filename, "r", NULL)) {
-			warn("%s: Failed to load list of unsolvable levels", filename);
-			return;
-		}
+	fileinfo file(RESDIR, filename);
+	if (!file.open("r", NULL)) {
+		warn("%s: Failed to load list of unsolvable levels", filename);
+		return;
 	}
 
 	readunslist(&file);

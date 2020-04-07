@@ -12,8 +12,6 @@
 #include	<ctime>
 #include	<vector>
 
-class fileinfo;
-
 /* The dimensions of a level.
  */
 #define	CXGRID	32
@@ -242,12 +240,9 @@ typedef	struct gameseries {
 	int			ruleset;	/* the ruleset for the game file */
 	int			gsflags;	/* series flags (see below) */
 	gamesetup	*games;		/* the array of levels */
-	fileinfo	*mapfile;	/* the file containing the levels */
-	char		*mapfilename;	/* the name of said file */
-	int			mapfiledir;	/* the dir the said file is in */
-	fileinfo	*savefile;	/* the file holding the solutions */
-	char		*savefilename;	/* non-default name for said file */
-	int			solheaderflags;	/* solution flags (none defined yet) */
+	char		*mapfilename;	/* the name of map file */
+	int			mapfiledir;	/* the dir the map file is in */
+	char		*savefilename;	/* name for solution file */
 	int			solheadersize;	/* size of extra solution header */
 	char		name[256];	/* the filename minus any path */
 	unsigned char	solheader[256];	/* extra solution header bytes */

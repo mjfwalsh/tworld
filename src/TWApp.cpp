@@ -18,6 +18,8 @@
 #include "TWMainWnd.h"
 #include "res.h"
 #include "fileio.h"
+#include "messages.h"
+#include "unslist.h"
 #include "err.h"
 
 TileWorldApp* g_pApp = 0;
@@ -90,7 +92,8 @@ bool TileWorldApp::Initialize()
 	}
 
 	// initial setup of resource system
-	initresources();
+	loadmessagesfromfile("messages.txt");
+	loadunslistfromfile("unslist.txt");
 
 	return true;
 }

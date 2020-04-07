@@ -9,60 +9,45 @@
 #include	<cstring>
 
 #include	"defs.h"
-#include	"messages.h"
-#include	"unslist.h"
 #include	"res.h"
 #include	"tile.h"
 #include	"fileio.h"
 #include	"sdlsfx.h"
 #include	"err.h"
 
-// the length of the longest res filename
-#define FILENAME_LEN 12
+// the length of the longest res filename + a bit extra
+#define FILENAME_LEN 14
 
 // res dir
-static const char *resPath;
 static int resPathLen = 0;
 
-// The active ruleset.
-static int currentRuleset;
+//fpstring
+static char *fpstring;
 
 /* Attempt to load the tile images.
  */
-static void LoadImages()
+static void LoadImages(int ruleset)
 {
-	char *fp;
-	x_cmalloc(fp, resPathLen);
-	strcpy(fp, resPath);
-
-	if(currentRuleset == Ruleset_Lynx) {
-		strcat(fp, "/atiles.bmp");
+	if(ruleset == Ruleset_Lynx) {
+		strcpy(fpstring + resPathLen, "atiles.bmp");
 	} else {
-		strcat(fp, "/tiles.bmp");
+		strcpy(fpstring + resPathLen, "tiles.bmp");
 	}
 
-	if(!loadtileset(fp, true)) {
-		die(fp, "no valid tilesets found");
+	if(!loadtileset(fpstring, true)) {
+		die("no valid tilesets found: %s", fpstring);
 	}
-	free(fp);
 }
 
 /* Load all of the sound resources.
  */
 static int addSound(int i, const char *file)
 {
-	char *fp;
-	x_cmalloc(fp, resPathLen);
-	strcpy(fp, resPath);
-	strcat(fp, "/");
-	strcat(fp, file);
-
-	bool rv = loadsfxfromfile(i, fp);
-	free(fp);
-	return rv;
+	strcpy(fpstring + resPathLen, file);
+	return loadsfxfromfile(i, fpstring);
 }
 
-static int LoadSounds()
+static void LoadSounds(int ruleset)
 {
 	int count = 0;
 
@@ -77,7 +62,7 @@ static int LoadSounds()
 	count += addSound(SND_WATER_SPLASH,    "splash.wav");
 
 	// ms only
-	if(currentRuleset == Ruleset_MS) {
+	if(ruleset == Ruleset_MS) {
 		count += addSound(SND_TIME_OUT,        "ding.wav");
 		count += addSound(SND_TIME_LOW,        "tick.wav");
 		count += addSound(SND_CHIP_LOSES,      "death.wav");
@@ -87,7 +72,7 @@ static int LoadSounds()
 	}
 
 	// lynx only
-	if(currentRuleset == Ruleset_Lynx) {
+	else {
 		count += addSound(SND_CHIP_LOSES,      "derezz.wav");
 		count += addSound(SND_CANT_MOVE,       "bump.wav");
 		count += addSound(SND_IC_COLLECTED,    "ting.wav");
@@ -105,34 +90,26 @@ static int LoadSounds()
 		count += addSound(SND_FIREWALKING,     "crackle.wav");
 	}
 
-	return count;
+	if (count == 0) setaudiosystem(false);
 }
 
 
-/* Load all resources that are available. FALSE is returned if the
- * tile images could not be loaded. (Sounds are not required in order
- * to run, and by this point we should already have a valid font and
- * color scheme set.)
+/* Load all resources that are available. The app dies if it can't load any tiles
+ * but ignores a failure to find sounds.
  */
 void loadgameresources(int ruleset)
 {
-	currentRuleset = ruleset;
-	LoadImages();
-	if (LoadSounds() == 0) setaudiosystem(false);
+	const char *resPath = getdir(RESDIR);
+	resPathLen = strlen(resPath);
+
+	x_cmalloc(fpstring, resPathLen + FILENAME_LEN);
+	memcpy(fpstring, resPath, resPathLen);
+
+	fpstring[resPathLen] = '/';
+	resPathLen++;
+
+	LoadImages(ruleset);
+	LoadSounds(ruleset);
+
+	free(fpstring);
 }
-
-/* Parse the rc file and load the font and color scheme. FALSE is returned
- * if an error occurs.
- */
-void initresources()
-{
-	resPath = getdir(RESDIR);
-	resPathLen = strlen(resPath) + FILENAME_LEN;
-	resPathLen *= sizeof(char *);
-	resPathLen += 2;
-
-	loadmessagesfromfile("messages.txt");
-
-	loadunslistfromfile("unslist.txt");
-}
-

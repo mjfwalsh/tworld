@@ -8,6 +8,7 @@
 #define	HEADER_fileio_h_
 
 #include <cstdio>
+#include <string>
 
 /* enum for different directories
  */
@@ -56,6 +57,9 @@ extern bool findfiles(int dirInt, void *data,
 class fileinfo
 {
 public:
+	fileinfo(int dirInt, char const *filename);
+	~fileinfo();
+
 	/* The following functions correspond directly to C's standard I/O
 	 * functions. If msg is NULL, no error will be displayed if
 	 * the operation fails. If msg points to a string, an error will
@@ -94,12 +98,14 @@ public:
 	 */
 	bool getline(char *buf, int *len, char const *msg);
 
-	/* Open a file, using dir as the directory if filename is not already
-	 * a complete pathname. FALSE is returned if the directory could not
-	 * be created.
+	/* Open a file using the given mode. FALSE is returned if the directory
+	 * could not be created.
 	 */
-	bool open(int dirInt, char const *filename,
-				 char const *mode, char const *msg);
+	bool open(char const *mode, char const *msg);
+
+	/* Jump to a specific number of bytes from beginning of file
+	 */
+	bool seek(long int bytes);
 
 	/* Test if the filehandle is open
 	 */
@@ -118,18 +124,14 @@ public:
 
 	/* Access the name var
 	 */
-	inline char *getName() const
-		{return name;}
+	inline const char *name() const
+		{return filename.c_str();}
 
 private:
-	/* Reset a fileinfo structure to indicate no file.
-	 */
-	void clearfileinfo();
 
-	char	*name = NULL;		/* the name of the file */
-    int		dir = -1;			/* the directory the file is in */
-	FILE	*fp  = NULL;		/* the real file handle */
-	bool	alloc = false;		/* true if name was allocated internally */
+	std::string		filename;		/* the name of the file */
+	int				dir;	/* the path of the file */
+	FILE			*fp  = NULL;		/* the real file handle */
 };
 
 #define	fileerr(file, msg)	((file)->fileerr_(__FILE__, __LINE__, (msg)))

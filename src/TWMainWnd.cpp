@@ -1029,26 +1029,16 @@ void TileWorldMainWnd::SetSelectedRuleset(int r)
 void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 {
 	QDir dataDir;
-	QFile sFile;
-	QString sFilePath;
+	dataDir.setPath(getdir(pSeries->mapfiledir));
 
 	QString sSetName = QFileInfo(pSeries->mapfilename).completeBaseName();
+	m_sLevelPackName = sSetName; // save for use on display
 
-	// save for use on display
-	m_sLevelPackName = sSetName;
-
-	dataDir.setPath(getdir(GLOBAL_SERIESDATDIR));
-	sFilePath = dataDir.filePath(sSetName + ".ccx");
-	sFile.setFileName(sFilePath);
-
-	if(!sFile.exists()) {
-		dataDir.setPath(getdir(USER_SERIESDATDIR));
-		sFilePath = dataDir.filePath(sSetName + ".ccx");
-	}
+	QString sFilePath = dataDir.filePath(sSetName + ".ccx");
 
 	m_ccxLevelset.Clear();
 	if (!m_ccxLevelset.ReadFile(sFilePath, pSeries->count))
-		warn("%s: failed to read file", sFilePath.toLatin1().constData());
+		warn("%s: failed to read file", sFilePath.toUtf8().constData());
 
 	for (int i = 1; i <= pSeries->count; ++i) {
 		CCX::Level& rCCXLevel = m_ccxLevelset.vecLevels[i];

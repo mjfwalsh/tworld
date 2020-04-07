@@ -14,7 +14,6 @@
 #include	<cerrno>
 
 #include	<dirent.h>
-#include	<sys/stat.h>
 
 #include	"defs.h"
 #include	"fileio.h"
@@ -29,12 +28,8 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
 	if (msg) {
 		err_cfile_ = cfile;
 		err_lineno_ = lineno;
-		warn_("%s: %s", this->name ? this->name : "file error",
+		warn_("%s: %s", this->filename.c_str(),
 			errno ? strerror(errno) : msg);
-	}
-	if (this->alloc) {
-		free(this->name);
-		this->clearfileinfo();
 	}
 	return false;
 }
@@ -45,12 +40,9 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
 
 /* Clear the fields of the fileinfo struct.
  */
-void fileinfo::clearfileinfo()
+fileinfo::~fileinfo()
 {
-	this->name = NULL;
-	this->fp = NULL;
-	this->alloc = false;
-	this->dir = -1;
+	if(this->fp) close();
 }
 
 /* Hack to get around MinGW (really msvcrt.dll) not supporting 'x' modifier
@@ -58,14 +50,14 @@ void fileinfo::clearfileinfo()
  */
 #if defined __MINGW32__
 #include <fcntl.h>
-static FILE *FOPEN(char const *name, char const *mode)
+static FILE *FOPEN(char const *n, char const *mode)
 {
 	FILE * file = NULL;
 	if (!strcmp(mode, "wx")) {
-		int fd = open(name, O_WRONLY | O_CREAT | O_EXCL);
+		int fd = open(n, O_WRONLY | O_CREAT | O_EXCL);
 		if (fd != -1) file = fdopen(fd, "w");
 	} else {
-		file = fopen(name, mode);
+		file = fopen(n, mode);
 	}
 
 	return file;
@@ -84,10 +76,6 @@ void fileinfo::close()
 		if (fclose(this->fp) == EOF)
 			fileerr(this, NULL);
 		this->fp = NULL;
-	}
-	if (this->alloc) {
-		free(this->name);
-		this->clearfileinfo();
 	}
 }
 
@@ -300,15 +288,9 @@ const char *getdir(int t)
 
 /* Return TRUE if name contains a path but is not a directory itself.
  */
-bool haspathname(char const *name)
+bool haspathname(char const *n)
 {
-	struct stat	st;
-
-	if (!strchr(name, '/'))
-		return false;
-	if (!strchr(name, '\\'))
-		return false;
-	if (stat(name, &st) || S_ISDIR(st.st_mode))
+	if (!strchr(n, '/') || !strchr(n, '\\'))
 		return false;
 	return true;
 }
@@ -333,30 +315,33 @@ char *getpathforfileindir(int dirInt, char const *filename)
 	return path;
 }
 
+fileinfo::fileinfo(int d, char const *fn) : filename(fn), dir(d)
+{
+	//dir = dirInt;
+	//filename = fn;
+}
 
 /* Open a file from of the directories RESDIR, SERIESDIR, USER_SERIESDATDIR,
  * GLOBAL_SERIESDATDIR, SOLUTIONDIR, or SETTINGSDIR. If the fileinfo structure
  * does not already have a filename assigned to it, use name (after making an
  * independent copy).
  */
-bool fileinfo::open(int dirInt, char const *filename,
-	char const *mode, char const *msg)
+bool fileinfo::open(char const *mode, char const *msg)
 {
-	char *name = getpathforfileindir(dirInt, filename);
-
-	if (!this->alloc) {
-		this->alloc = true;
-		x_cmalloc(this->name, strlen(filename) + 1);
-		strcpy(this->name, filename);
-		this->dir = dirInt;
-	}
-
 	errno = 0;
-	this->fp = FOPEN(name, mode);
-	free(name);
+
+	char *fullpath = getpathforfileindir(dir, filename.c_str().);
+	this->fp = FOPEN(fullpath, mode);
+	free(fullpath);
 	if (this->fp) return true;
 	return fileerr(this, msg);
 }
+
+bool fileinfo::seek(long int bytes)
+{
+	return fseek(this->fp, bytes, SEEK_SET);
+}
+
 
 /* Mimic fileerr for folders.
  */

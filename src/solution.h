@@ -75,6 +75,6 @@ extern void clearsolutions(gameseries *series);
  * was returned.
  */
 extern bool createsolutionfilelist(gameseries const *series,
-	QStringList *filelist, int *pcount, TWTableSpec *table);
+	QStringList *filelist, TWTableSpec *table);
 
 #endif

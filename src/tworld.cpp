@@ -174,30 +174,14 @@ static bool showsolutionfiles(gamespec *gs)
 {
 	TWTableSpec		table(1);
 	QStringList	      filelist;
-	int			count, current, n;
 
-	if (haspathname(gs->series.name) || (gs->series.savefilename
-			&& haspathname(gs->series.savefilename))) {
-		TileWorldApp::Bell();
-		return false;
-	} else if (!createsolutionfilelist(&gs->series, &filelist,
-			&count, &table)) {
+	if (!createsolutionfilelist(&gs->series, &filelist, &table)) {
 		TileWorldApp::Bell();
 		return false;
 	}
 
-	current = -1;
-	n = 0;
-	if (gs->series.savefilename) {
-		QString savefilename = gs->series.savefilename;
-		for (n = 0 ; n < count ; ++n)
-			if (filelist[n] == savefilename)
-				break;
-		if (n == count)
-			n = 0;
-		else
-			current = n;
-	}
+	int current = filelist.indexOf(gs->series.savefilename);
+	int n = current == -1 ? 0 : current;
 
 	g_pMainWnd->PushSubtitle(gs->series.name);
 	for (;;) {
@@ -211,8 +195,7 @@ static bool showsolutionfiles(gamespec *gs)
 	}
 	g_pMainWnd->PopSubtitle();
 
-	bool r = n >= 0 && n != current;
-	if (r) {
+	if (n >= 0 && n != current) {
 		clearsolutions(&gs->series);
 		int l = (sizeof(char*) * filelist[n].length()) + 1;
 		x_cmalloc(gs->series.savefilename, l);
@@ -224,9 +207,11 @@ static bool showsolutionfiles(gamespec *gs)
 		gs->currentgame = 0;
 		passwordseen(gs, 0);
 		changecurrentgame(gs, n);
+
+		return true;
 	}
 
-	return r;
+	return false;
 }
 
 /* Display the scrolling list of the user's current scores, and allow
@@ -291,7 +276,6 @@ static bool selectlevelbypassword(gamespec *gs)
  */
 bool loadhistory(void)
 {
-	fileinfo	file;
 	char	buf[256];
 	int		n;
 	char       *hdate, *htime, *hpasswd, *hnumber, *hname;
@@ -301,7 +285,9 @@ bool loadhistory(void)
 	historycount = 0;
 	free(historylist);
 
-	if (!file.open(SETTINGSDIR, "history", "r", NULL))
+	fileinfo	file(SETTINGSDIR, "history");
+
+	if (!file.open("r", NULL))
 		return false;
 
 	for (;;) {
@@ -378,11 +364,11 @@ static void updatehistory(char const *name, char const *passwd, int number)
  */
 void savehistory(void)
 {
-	fileinfo	file;
+	fileinfo	file(SETTINGSDIR, "history");
 	history    *h;
 	int		i;
 
-	if (!file.open(SETTINGSDIR, "history", "w", NULL))
+	if (!file.open("w", NULL))
 		return;
 
 	h = historylist;
