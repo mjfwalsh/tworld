@@ -11,8 +11,6 @@
 
 #include	"defs.h"
 
-class TWTableSpec;
-
 enum { Play_None, Play_Normal, Play_Back, Play_Verify };
 
 /* The data needed to identify what level is being played.

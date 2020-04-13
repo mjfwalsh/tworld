@@ -44,7 +44,7 @@ static bool	noframeskip = false;
 
 /* Return TRUE if the given level is a final level.
  */
-static int islastinseries(gamespec const *gs, int index)
+static bool islastinseries(gamespec const *gs, int index)
 {
 	return index == gs->series.count - 1
 		|| gs->series.games[index].number == gs->series.lastlevel;

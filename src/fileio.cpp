@@ -13,8 +13,6 @@
 #include	<cstring>
 #include	<cerrno>
 
-#include	<dirent.h>
-
 #include	"defs.h"
 #include	"fileio.h"
 #include	"err.h"
@@ -28,7 +26,7 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
 	if (msg) {
 		err_cfile_ = cfile;
 		err_lineno_ = lineno;
-		warn_("%s: %s", this->filename.c_str(),
+		warn_("%s: %s", this->filename,
 			errno ? strerror(errno) : msg);
 	}
 	return false;
@@ -43,6 +41,7 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
 fileinfo::~fileinfo()
 {
 	if(this->fp) close();
+	free(filename);
 }
 
 /* Hack to get around MinGW (really msvcrt.dll) not supporting 'x' modifier
@@ -315,10 +314,12 @@ char *getpathforfileindir(int dirInt, char const *filename)
 	return path;
 }
 
-fileinfo::fileinfo(int d, char const *fn) : filename(fn), dir(d)
+fileinfo::fileinfo(int d, char const *fn)
 {
-	//dir = dirInt;
-	//filename = fn;
+	x_cmalloc(filename, strlen(fn) + 1);
+	strcpy(filename, fn);
+
+	dir = d;
 }
 
 /* Open a file from of the directories RESDIR, SERIESDIR, USER_SERIESDATDIR,
@@ -330,7 +331,7 @@ bool fileinfo::open(char const *mode, char const *msg)
 {
 	errno = 0;
 
-	char *fullpath = getpathforfileindir(dir, filename.c_str().);
+	char *fullpath = getpathforfileindir(dir, filename);
 	this->fp = FOPEN(fullpath, mode);
 	free(fullpath);
 	if (this->fp) return true;
@@ -342,54 +343,32 @@ bool fileinfo::seek(long int bytes)
 	return fseek(this->fp, bytes, SEEK_SET);
 }
 
-
-/* Mimic fileerr for folders.
- */
-bool direrr_(char const *cfile, unsigned long lineno, char const *dirname, char const *msg)
-{
-	if (msg) {
-		err_cfile_ = cfile;
-		err_lineno_ = lineno;
-		if(errno) warn_("%s: %s", dirname, strerror(errno));
-		else warn_(msg, dirname);
-	}
-	return false;
-}
-#define	direrr(dirname, msg)	(direrr_(__FILE__, __LINE__, (dirname), (msg)))
-
 /* Read the given directory and call filecallback once for each file
  * contained in it.
  */
-bool findfiles(int dirInt, void *data, bool (*filecallback)(char const*, int, void*))
+bool findfiles(int dir, void *data, bool (*filecallback)(char const*, int, void*))
 {
-	const char *dir;
-	dir = getdir(dirInt);
+	QStringList files = QDir(getdir(dir)).entryList();
 
-	DIR		       *dp;
-	struct dirent      *dent;
-	bool			r;
+	for(int i = 0; i < files.size(); i++) {
+		QByteArray ba = files[i].toUtf8();
+		const char *n = ba.constData();
 
-	if (!(dp = opendir(dir))) {
-		return direrr(dir, "couldn't access directory");
+		if (n[0] == '.') continue; // hidden files and dirs
+
+		bool r = (*filecallback)(n, dir, data);
+		if (!r) return false;
 	}
 
-	while ((dent = readdir(dp))) {
-		if (dent->d_name[0] == '.')
-			continue;
-		r = (*filecallback)(dent->d_name, dirInt, data);
-		if (!r) break;
-	}
-
-	closedir(dp);
 	return true;
 }
 
 /* Save a dir path.
  */
-static void savedir(int dirInt, const char *dirPath, int dirPathLength)
+static void savedir(int dir, QString path)
 {
-	x_cmalloc(dirs[dirInt], dirPathLength);
-	strcpy(dirs[dirInt], dirPath);
+	x_cmalloc(dirs[dir], path.length() + 1);
+	strcpy(dirs[dir], path.toUtf8().constData());
 }
 
 /* free stuff
@@ -431,29 +410,29 @@ void initdirs()
 	QDir::setCurrent(appRootDir);
 
 	// these folders should already exist
-	QString appResDirQ =  QString(appRootDir + "/res");
-	QString appDataDirQ =  QString(appRootDir + "/data");
+	QString appResDir =  QString(appRootDir + "/res");
+	QString appDataDir =  QString(appRootDir + "/data");
 
 	// set user directory
-	QString userDirQ = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-	checkDir(userDirQ);
+	QString userDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	checkDir(userDir);
 
 	// ~/Library/Application Support/Tile World/sets
-	QString userSetsDirQ = QString(userDirQ + "/sets");
-	checkDir(userSetsDirQ);
+	QString userSetsDir = QString(userDir + "/sets");
+	checkDir(userSetsDir);
 
 	// ~/Library/Application Support/Tile World/data
-	QString userDataDirQ = QString(userDirQ + "/data");
-	checkDir(userDataDirQ);
+	QString userDataDir = QString(userDir + "/data");
+	checkDir(userDataDir);
 
 	// ~/Library/Application Support/Tile World/solutions
-	QString userSolDirQ = QString(userDirQ + "/solutions");
-	checkDir(userSolDirQ);
+	QString userSolDir = QString(userDir + "/solutions");
+	checkDir(userSolDir);
 
-	savedir(RESDIR, appResDirQ.toUtf8().constData(), appResDirQ.length() + 1);
-	savedir(SERIESDIR, userSetsDirQ.toUtf8().constData(), userSetsDirQ.length() + 1);
-	savedir(USER_SERIESDATDIR, userDataDirQ.toUtf8().constData(), userDataDirQ.length() + 1);
-	savedir(GLOBAL_SERIESDATDIR, appDataDirQ.toUtf8().constData(), appDataDirQ.length() + 1);
-	savedir(SOLUTIONDIR, userSolDirQ.toUtf8().constData(), userSolDirQ.length() + 1);
-	savedir(SETTINGSDIR, userDirQ.toUtf8().constData(), userDirQ.length() + 1);
+	savedir(RESDIR, appResDir);
+	savedir(SERIESDIR, userSetsDir);
+	savedir(USER_SERIESDATDIR, userDataDir);
+	savedir(GLOBAL_SERIESDATDIR, appDataDir);
+	savedir(SOLUTIONDIR, userSolDir);
+	savedir(SETTINGSDIR, userDir);
 }

@@ -8,15 +8,12 @@
 #include <cstdlib>
 
 #include "TWApp.h"
-#include "TWMainWnd.h"
 #include "tworld.h"
 #include "oshwbind.h"
 #include "timer.h"
 #include "sdlsfx.h"
 #include "settings.h"
-#include "defs.h"
 #include "TWMainWnd.h"
-#include "res.h"
 #include "fileio.h"
 #include "messages.h"
 #include "unslist.h"

@@ -8,7 +8,6 @@
 #define	HEADER_fileio_h_
 
 #include <cstdio>
-#include <string>
 
 /* enum for different directories
  */
@@ -125,13 +124,13 @@ public:
 	/* Access the name var
 	 */
 	inline const char *name() const
-		{return filename.c_str();}
+		{return filename;}
 
 private:
 
-	std::string		filename;		/* the name of the file */
-	int				dir;	/* the path of the file */
-	FILE			*fp  = NULL;		/* the real file handle */
+	char		*filename;		/* the name of the file */
+	int			dir;	/* the path of the file */
+	FILE		*fp  = NULL;		/* the real file handle */
 };
 
 #define	fileerr(file, msg)	((file)->fileerr_(__FILE__, __LINE__, (msg)))

@@ -630,21 +630,25 @@ static bool createnewseries(std::vector<dacfile> &dacsub, char const *datfilenam
  * gameseries. */
 static void createallmissingseries(std::vector<dacfile> &dacfile_list, std::vector<gameseries> &game_list)
 {
-	int seriesrulesetcount[Ruleset_Count];
 	int nseries = dacfile_list.size();
 	int m = 0;
+
 	for (unsigned int n = 0; n < game_list.size(); ++n) {
-		memset(seriesrulesetcount, 0, sizeof seriesrulesetcount);
+		if(n < game_list.size() - 1 && !strcasecmp(game_list[n].mapfilename, game_list[n+1].mapfilename)) {
+			game_list.erase(game_list.begin()+n);
+			n--;
+			continue;
+		}
+
 		const char *datfilename = game_list[n].mapfilename;
 
 		while (m < nseries && !strcasecmp(datfilename, dacfile_list[m].datfilename)) {
 			int ruleset = dacfile_list[m].ruleset;
 			game_list[n].dacfiles[ruleset].push_back(dacfile_list[m]);
-			++seriesrulesetcount[ruleset];
 			++m;
 		}
 		for (int k = Ruleset_First; k < Ruleset_Count; ++k)
-			if (seriesrulesetcount[k] == 0)
+			if (game_list[n].dacfiles[k].empty())
 				createnewseries(game_list[n].dacfiles[k], datfilename, k);
 	}
 }
@@ -665,8 +669,8 @@ bool createserieslist(std::vector<gameseries> &serieslist)
 	findfiles(GLOBAL_SERIESDATDIR, &serieslist, getmapfile);
 	findfiles(USER_SERIESDATDIR, &serieslist, getmapfile);
 
-	sort(serieslist.begin(), serieslist.end(), compare_gameseries);
-	sort(dacfile_list.begin(), dacfile_list.end(), compare_dacfile);
+	std::sort(serieslist.begin(), serieslist.end(), compare_gameseries);
+	std::sort(dacfile_list.begin(), dacfile_list.end(), compare_dacfile);
 
 	createallmissingseries(dacfile_list, serieslist);
 	if (serieslist.empty()) {
