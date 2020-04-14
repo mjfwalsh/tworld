@@ -46,8 +46,7 @@ static bool	noframeskip = false;
  */
 static bool islastinseries(gamespec const *gs, int index)
 {
-	return index == gs->series.count - 1
-		|| gs->series.games[index].number == gs->series.lastlevel;
+	return index == gs->series.count - 1;
 }
 
 /* Return TRUE if the current level has a solution.
@@ -106,15 +105,18 @@ static bool setcurrentgame(gamespec *gs, int n)
  */
 static bool changecurrentgame(gamespec *gs, int offset)
 {
-	if (offset == 0)
-		return false;
-
 	int m = gs->currentgame;
 	int n = m + offset;
-	if (n < 0)
+	if (n < 0) {
 		n = 0;
-	else if (n >= gs->series.count)
+		offset = n - m;
+	} else if (n >= gs->series.count) {
 		n = gs->series.count - 1;
+		offset = n - m;
+	}
+
+	if (offset == 0)
+		return false;
 
 	if (gs->usepasswds && n > 0) {
 		int sign = offset < 0 ? -1 : +1;

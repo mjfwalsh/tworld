@@ -282,6 +282,9 @@ static bool undomschanges(gameseries *series)
 		4 * sizeof *series->games);
 	--series->count;
 
+	for(int n = 144; n < 148; n++)
+		series->games[n].number = n+1;
+
 	for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
 		series->games[fixup->num].leveldata[fixup->pos] = fixup->val;
 
@@ -320,6 +323,9 @@ bool readseriesfile(gameseries *series)
 		return false;
 	if (!readseriesheader(series, file))
 		return false;
+
+	if(series->lastlevel > 0 && series->lastlevel < series->count)
+		series->count = series->lastlevel;
 
 	x_type_alloc(gamesetup, series->games, series->count * sizeof *series->games);
 	memset(series->games + series->allocated, 0,

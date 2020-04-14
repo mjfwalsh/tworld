@@ -566,7 +566,6 @@ static bool opensolutionfile(gameseries *series, fileinfo &file, bool writable)
 bool readsolutions(gameseries *series)
 {
 	gamesetup	gametmp = {0};
-	int		n;
 
 	if (series->gsflags & GSF_NODEFAULTSAVE) {
 		series->solheadersize = 0;
@@ -581,14 +580,10 @@ bool readsolutions(gameseries *series)
 		return true;
 	}
 
-	if (!readsolutionheader(file, series->ruleset,
-			&series->solheadersize, series->solheader))
+	if (!readsolutionheader(file, series->ruleset, &series->solheadersize, series->solheader))
 		return false;
 
-	for (;;) {
-		if (!readsolution(file, &gametmp))
-			break;
-
+	while (readsolution(file, &gametmp)) {
 		if (gametmp.sgflags & SGF_SETNAME) {
 			if (strcmp(gametmp.name, series->name)) {
 				warn("%s: ignoring solution file %s as it was"
@@ -600,7 +595,7 @@ bool readsolutions(gameseries *series)
 			continue;
 		}
 
-		n = findlevelinseries(series, gametmp.number, gametmp.passwd);
+		int n = findlevelinseries(series, gametmp.number, gametmp.passwd);
 		if (n < 0) {
 			n = findlevelinseries(series, 0, gametmp.passwd);
 			if (n < 0) {
