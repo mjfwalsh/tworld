@@ -1457,7 +1457,7 @@ static bool endmovement(creature *cr, bool stationary)
 		case Dirt:
 		case BlueWall_Fake:
 		case Socket:
-			//_assert(stationary);
+			if (stationary) break;
 			floorat(cr->pos) = Empty; /* No sound effect */
 			break;
 	}
