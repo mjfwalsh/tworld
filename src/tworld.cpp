@@ -949,7 +949,7 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 	if (serieslist[*game].dacfiles[r].size() == 1) {
 		*dac = 0;
 	} else {
-		// if the chosen ruleset is difference from lastseries
+		// if the chosen ruleset is different from lastseries
 		*dac = r == *ruleset ? orig_dac : 0;
 
 		TWTableSpec gstable(1);
@@ -962,6 +962,8 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 		if (f != CmdProceed)
 			goto restart;
 	}
+
+	*ruleset = r;
 
 	return CmdProceed;
 }
