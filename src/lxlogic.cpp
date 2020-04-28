@@ -1419,9 +1419,11 @@ static bool endmovement(creature *cr, bool stationary)
 	if (!survived)
 		return false;
 
+	if (stationary)
+		return survived;
+
 	switch (floor) {
 		case Bomb:
-			if (stationary) break;
 			floorat(cr->pos) = Empty;
 			if (cr->id == Chip) {
 				removechip(CHIP_BOMBED, NULL);
@@ -1432,32 +1434,26 @@ static bool endmovement(creature *cr, bool stationary)
 			survived = false;
 			break;
 		case Beartrap:
-			if (stationary) break;
 			addsoundeffect(SND_TRAP_ENTERED);
 			break;
 		case Button_Blue:
-			if (stationary) break;
 			turntanks();
 			addsoundeffect(SND_BUTTON_PUSHED);
 			break;
 		case Button_Green:
-			if (stationary) break;
 			togglestate() ^= SwitchWall_Open ^ SwitchWall_Closed;
 			addsoundeffect(SND_BUTTON_PUSHED);
 			break;
 		case Button_Red:
-			if (stationary) break;
 			if (activatecloner(clonerfrombutton(cr->pos)))
 				addsoundeffect(SND_BUTTON_PUSHED);
 			break;
 		case Button_Brown:
-			if (stationary) break;
 			addsoundeffect(SND_BUTTON_PUSHED);
 			break;
 		case Dirt:
 		case BlueWall_Fake:
 		case Socket:
-			if (stationary) break;
 			floorat(cr->pos) = Empty; /* No sound effect */
 			break;
 	}
