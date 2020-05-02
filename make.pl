@@ -24,6 +24,11 @@ my %filtered_file_cache;
 # windows vars
 my $executable_name = $^O eq 'MSWin32' ? 'tworld.exe' : 'tworld';
 
+# on mac add unlinked qt Homebrew keg to path
+if($^O eq 'darwin') {
+	$ENV{PATH} .= ':/usr/local/opt/qt/bin';
+}
+
 # compiler options
 my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
 my @params = qw|c++ -std=gnu++11 -Wall -pedantic -DNDEBUG -O2 -I. -Werror|;
@@ -34,8 +39,9 @@ my @sdl_opts;
 
 # some command line tools
 my $sdl_config;
-my $qmake;
-my $uic;
+my $qmake = 'qmake';
+my $uic = 'uic';
+my $moc = 'moc';
 
 # there's no sdl2-config in windows
 my $sdl_include_path;
@@ -105,7 +111,7 @@ sub compile_file {
 
 	} elsif($output_file =~ s|([^/]*)\.h$|moc_$1.cpp|) {
 		$action = "MOC-ing $input_file...";
-		push @args, 'moc', '-o';
+		push @args, $moc, '-o';
 	} elsif($output_file =~ s|([^/]*)\.ui$|ui_$1.h|) {
 		$action = "Compiling UI $input_file...";
 		push @args, 'uic', '-o';
@@ -545,22 +551,10 @@ sub check_path {
 		die "Found neither sdl2-config nor sdl-config.\n";
 	}
 
-	if(which('qmake')) {
-		$qmake = 'qmake';
-	} elsif(-e '/usr/local/opt/qt/bin/qmake') {
-		# this is where homebrew normally puts it
-		$qmake = '/usr/local/opt/qt/bin/qmake';
-	} else {
-		die "Can't find qmake\n";
-	}
-
-	if(which('uic')) {
-		$uic = 'uic';
-	} elsif(-e '/usr/local/opt/qt/bin/uic') {
-		# this is where homebrew normally puts it
-		$uic = '/usr/local/opt/qt/bin/uic';
-	} else {
-		die "Can't find uic\n";
+	foreach my $command ($qmake, $uic, $moc) {
+		if(!which($command)) {
+			die "Can't find $command\n";
+		}
 	}
 }
 
