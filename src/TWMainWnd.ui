@@ -921,7 +921,7 @@
   </action>
   <action name="action_GoTo">
    <property name="text">
-    <string>Enter Pass&amp;word...</string>
+    <string>Go To...</string>
    </property>
   </action>
   <action name="action_Playback">
