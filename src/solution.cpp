@@ -727,6 +727,7 @@ bool createsolutionfilelist(gameseries const *series,
 		return false;
 	}
 
+	table->setCols(1);
 	table->addCell("Select a solution file");
 	for (int i = 0; i < s.filelist.size(); i++) {
 		table->addCell(s.filelist[i]);

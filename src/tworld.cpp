@@ -174,7 +174,7 @@ static bool melindawatching(gamespec const *gs)
  */
 static bool showsolutionfiles(gamespec *gs)
 {
-	TWTableSpec		table(1);
+	TWTableSpec		table;
 	QStringList	      filelist;
 
 	if (!createsolutionfilelist(&gs->series, &filelist, &table)) {
@@ -221,7 +221,7 @@ static bool showsolutionfiles(gamespec *gs)
  */
 static int showscores(gamespec *gs)
 {
-	TWTableSpec	table(5);
+	TWTableSpec	table;
 	int	       *levellist;
 	int		count, n;
 
@@ -931,7 +931,8 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 	int f;
 	uint r;
 
-	TWTableSpec mftable(1);
+	TWTableSpec mftable;
+	mftable.setCols(1);
 	mftable.addCell("Levelset");
 	for (uint y = 0 ; y < serieslist.size(); y++) {
 		mftable.addCell(serieslist[y].name);
@@ -952,7 +953,8 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 		// if the chosen ruleset is different from lastseries
 		*dac = r == *ruleset ? orig_dac : 0;
 
-		TWTableSpec gstable(1);
+		TWTableSpec gstable;
+		gstable.setCols(1);
 		gstable.addCell("Profile");
 		for (uint y = 0; y < serieslist[*game].dacfiles[r].size(); y++) {
 			gstable.addCell(serieslist[*game].dacfiles[r][y].filename);

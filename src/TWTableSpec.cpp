@@ -8,10 +8,10 @@
 
 #include "TWTableSpec.h"
 
-TWTableSpec::TWTableSpec(int c)
+TWTableSpec::TWTableSpec()
 	:
 	QAbstractTableModel(0),
-	m_nRows(0), m_nCols(c)
+	m_nRows(0), m_nCols(0)
 {
 }
 
@@ -54,44 +54,21 @@ QVariant TWTableSpec::headerData(int section, Qt::Orientation orientation, int r
 		return QVariant();
 }
 
-
-void TWTableSpec::addCell(const char *text)
+void TWTableSpec::addCell(QString text, int align, int colspan)
 {
-	m_vecItems.push_back({LeftAlign, QString(text)});
-}
+	int p = m_vecItems.size();
+	m_vecItems.resize(p + colspan);
 
-void TWTableSpec::addCell(QString text)
-{
-	m_vecItems.push_back({LeftAlign, text});
-}
-
-
-void TWTableSpec::addCell(int align, const char *text)
-{
-	m_vecItems.push_back({align, QString(text)});
-}
-
-void TWTableSpec::addCell(int align, QString text)
-{
-	m_vecItems.push_back({align, text});
-}
-
-void TWTableSpec::addCell(int colspan, int align, const char *text)
-{
-	m_vecItems.push_back({align, QString(text)});
-
-	if(colspan > 1) {
-		m_vecItems.resize(m_vecItems.size() + colspan - 1);
+	if(align == RightAlign) {
+		m_vecItems[p + colspan - 1] = {align, text};
+	} else {
+		m_vecItems[p] = {align, text};
 	}
 }
 
-void TWTableSpec::addCell(int colspan, int align, QString text)
+void TWTableSpec::setCols(int c)
 {
-	m_vecItems.push_back({align, text});
-
-	if(colspan > 1) {
-		m_vecItems.resize(m_vecItems.size() + colspan - 1);
-	}
+	m_nCols = c;
 }
 
 void TWTableSpec::fixRows()
@@ -99,7 +76,7 @@ void TWTableSpec::fixRows()
 	m_nRows = m_vecItems.size() / m_nCols;
 }
 
-void TWTableSpec::trimCells(int num)
+void TWTableSpec::trimRows(int num)
 {
-	m_vecItems.erase(m_vecItems.end() - num, m_vecItems.end());
+	m_vecItems.erase(m_vecItems.end() - (num * m_nCols), m_vecItems.end());
 }

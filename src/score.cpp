@@ -72,11 +72,13 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 
 	totalscore = 0;
 
-	table->addCell(RightAlign, "Level");
-	table->addCell(LeftAlign,  "Name");
-	table->addCell(RightAlign, "Base");
-	table->addCell(RightAlign, "Bonus");
-	table->addCell(RightAlign, "Score");
+	table->setCols(5);
+
+	table->addCell("Level", RightAlign);
+	table->addCell("Name",  LeftAlign);
+	table->addCell("Base",  RightAlign);
+	table->addCell("Bonus", RightAlign);
+	table->addCell("Score", RightAlign);
 
 	int j;
 	int blankLines = 0;
@@ -85,25 +87,25 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 		if (j >= series->allocated)
 			break;
 
-		table->addCell(RightAlign, locale.toString(game->number));
+		table->addCell(locale.toString(game->number), RightAlign);
 
 		if (hassolution(game)) {
-			table->addCell(LeftAlign, game->name);
+			table->addCell(game->name);
 
 			if (game->sgflags & SGF_REPLACEABLE) {
-				table->addCell(3, CenterAlign, " (Deleted) ");
+				table->addCell(" (Deleted) ", CenterAlign, 3);
 			} else {
 				levelscore = 500 * game->number;
-				table->addCell(RightAlign, locale.toString(levelscore));
+				table->addCell(locale.toString(levelscore), RightAlign);
 
 				if (game->time) {
 					timescore = 10 * (game->time - game->besttime / TICKS_PER_SECOND);
-					table->addCell(RightAlign, locale.toString(timescore));
+					table->addCell(locale.toString(timescore), RightAlign);
 				} else {
 					timescore = 0;
-					table->addCell(RightAlign, "---");
+					table->addCell("---", RightAlign);
 				}
-				table->addCell(RightAlign, locale.toString(levelscore + timescore));
+				table->addCell(locale.toString(levelscore + timescore), RightAlign);
 				totalscore += levelscore + timescore;
 			}
 			levellist[count] = j;
@@ -111,12 +113,12 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 			++count;
 		} else {
 			if (!usepasswds || (game->sgflags & SGF_HASPASSWD)) {
-				table->addCell(4, LeftAlign, game->name);
+				table->addCell(game->name, LeftAlign, 4);
 
 				levellist[count] = j;
 				blankLines = 0;
 			} else {
-				table->addCell(4, LeftAlign, ""); // blank line
+				table->addCell("", LeftAlign, 4); // blank line
 				blankLines++;
 				levellist[count] = -1;
 			}
@@ -125,12 +127,12 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 	}
 
 	// trim empty rows
-	table->trimCells(blankLines * 5);
+	table->trimRows(blankLines);
 	count -= blankLines;
 
 	// add trailing row
-	table->addCell(2, LeftAlign, "Total Score");
-	table->addCell(3, RightAlign, locale.toString(totalscore));
+	table->addCell("Total Score", LeftAlign, 2);
+	table->addCell(locale.toString(totalscore), RightAlign, 3);
 
 	levellist[count] = -1;
 	++count;

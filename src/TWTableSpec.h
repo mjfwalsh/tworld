@@ -20,25 +20,19 @@ const int CenterAlign = (Qt::AlignHCenter | Qt::AlignVCenter);
 class TWTableSpec : public QAbstractTableModel
 {
 public:
-	explicit TWTableSpec(int c);
+	explicit TWTableSpec();
 
 	virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-	void addCell(QString text);
-	void addCell(const char *text);
+	void addCell(QString text, int align = LeftAlign, int colspan = 1);
 
-	void addCell(int align, const char *text);
-	void addCell(int align, QString text);
-
-	void addCell(int colspan, int align, const char *text);
-	void addCell(int colspan, int align, QString text);
-
+	void setCols(int c);
 	void fixRows();
 
-	void trimCells(int num);
+	void trimRows(int num);
 
 	inline int cols() const
 		{return m_nCols;}
