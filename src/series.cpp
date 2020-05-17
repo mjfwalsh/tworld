@@ -640,22 +640,32 @@ static void createallmissingseries(std::vector<dacfile> &dacfile_list, std::vect
 	int m = 0;
 
 	for (unsigned int n = 0; n < game_list.size(); ++n) {
+		// if game_list contains duplicates, remove them
 		if(n < game_list.size() - 1 && !strcasecmp(game_list[n].mapfilename, game_list[n+1].mapfilename)) {
 			game_list.erase(game_list.begin()+n);
 			n--;
 			continue;
 		}
 
-		const char *datfilename = game_list[n].mapfilename;
+		// search for the dac files that match each dat file
+		// check for dac files with missing dat files
+		while (m < nseries) {
+			int cmp = strcasecmp(game_list[n].mapfilename, dacfile_list[m].datfilename);
 
-		while (m < nseries && !strcasecmp(datfilename, dacfile_list[m].datfilename)) {
-			int ruleset = dacfile_list[m].ruleset;
-			game_list[n].dacfiles[ruleset].push_back(dacfile_list[m]);
+			if (cmp == 0) {
+				game_list[n].dacfiles[dacfile_list[m].ruleset].push_back(std::move(dacfile_list[m]));
+			} else if(cmp > 0) {
+				warn("Cannot find dat file %s mentioned in %s", dacfile_list[m].datfilename, dacfile_list[m].filename);
+			} else {
+				break;
+			}
 			++m;
 		}
+
+		// create new dac files if necessary
 		for (int k = Ruleset_First; k < Ruleset_Count; ++k)
 			if (game_list[n].dacfiles[k].empty())
-				createnewseries(game_list[n].dacfiles[k], datfilename, k);
+				createnewseries(game_list[n].dacfiles[k], game_list[n].mapfilename, k);
 	}
 }
 
