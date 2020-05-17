@@ -62,7 +62,6 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 {
 	gamesetup  *game;
 	int	       *levellist = NULL;
-	int		levelscore, timescore;
 	qlonglong	totalscore;
 	int		count;
 
@@ -72,12 +71,13 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 
 	totalscore = 0;
 
-	table->setCols(5);
+	table->setCols(6);
 
 	table->addCell("Level", RightAlign);
 	table->addCell("Name",  LeftAlign);
 	table->addCell("Base",  RightAlign);
-	table->addCell("Bonus", RightAlign);
+	table->addCell("Best Time", RightAlign);
+	table->addCell("Time Bonus", RightAlign);
 	table->addCell("Score", RightAlign);
 
 	int j;
@@ -93,17 +93,21 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 			table->addCell(game->name);
 
 			if (game->sgflags & SGF_REPLACEABLE) {
-				table->addCell(" (Deleted) ", CenterAlign, 3);
+				table->addCell("", LeftAlign, 4);
 			} else {
-				levelscore = 500 * game->number;
+				int levelscore = 500 * game->number;
+				int timescore = 0;
+
 				table->addCell(locale.toString(levelscore), RightAlign);
 
 				if (game->time) {
-					timescore = 10 * (game->time - game->besttime / TICKS_PER_SECOND);
+					int bestime = game->time - game->besttime / TICKS_PER_SECOND;
+					table->addCell(locale.toString(bestime), RightAlign);
+
+					timescore = 10 * bestime;
 					table->addCell(locale.toString(timescore), RightAlign);
 				} else {
-					timescore = 0;
-					table->addCell("---", RightAlign);
+					table->addCell("", RightAlign, 2);
 				}
 				table->addCell(locale.toString(levelscore + timescore), RightAlign);
 				totalscore += levelscore + timescore;
@@ -113,12 +117,12 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 			++count;
 		} else {
 			if (!usepasswds || (game->sgflags & SGF_HASPASSWD)) {
-				table->addCell(game->name, LeftAlign, 4);
+				table->addCell(game->name, LeftAlign, 5);
 
 				levellist[count] = j;
 				blankLines = 0;
 			} else {
-				table->addCell("", LeftAlign, 4); // blank line
+				table->addCell("", LeftAlign, 5); // blank line
 				blankLines++;
 				levellist[count] = -1;
 			}
@@ -131,8 +135,8 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
 	count -= blankLines;
 
 	// add trailing row
-	table->addCell("Total Score", LeftAlign, 2);
-	table->addCell(locale.toString(totalscore), RightAlign, 3);
+	table->addCell("Total Score", RightAlign, 2);
+	table->addCell(locale.toString(totalscore), RightAlign, 4);
 
 	levellist[count] = -1;
 	++count;
