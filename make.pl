@@ -346,11 +346,11 @@ sub filter_file {
 
 	my $fh;
 	if(!open ($fh, '<', $file)) {
-		say "Failed on include: $file";
-		goto quit;
+		say "Failed on index: $file";
+		return $result;
 	}
 	while(my $l = <$fh>) {
-		if($l =~ m/^[\t ]*#include[\t ]+"([^"]+)"/) {
+		if($l =~ m/^[\t ]*#include[\t ]+"([^\/][^"]+)"/) {
 			my $f = process_path("$cwd/$1");
 
 			next if $f eq '' || exists $included_files{$f} || $f eq $file;

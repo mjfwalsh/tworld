@@ -5,6 +5,7 @@
  */
 
 #include	<cstdlib>
+#include	<cstdio>
 
 #include	"defs.h"
 #include	"state.h"

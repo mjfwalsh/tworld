@@ -166,7 +166,7 @@ public:
 		{	0,	0,	0	}
 	};
 
-	TileWorldMainWnd(QWidget* pParent = 0, Qt::WindowFlags flags = 0);
+	TileWorldMainWnd(QWidget* pParent = 0);
 	~TileWorldMainWnd();
 
 	virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;

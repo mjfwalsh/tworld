@@ -6,6 +6,7 @@
 
 #include	<cstdlib>
 #include	<cstring>
+#include	<cstdio>
 
 #include	"defs.h"
 #include	"state.h"

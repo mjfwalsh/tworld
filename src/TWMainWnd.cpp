@@ -54,9 +54,9 @@ extern bool pedanticmode;
 
 constexpr TileWorldMainWnd::keycmdmap TileWorldMainWnd::keycmds[];
 
-TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent, Qt::WindowFlags flags)
+TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
 	:
-	QMainWindow(pParent, flags/*|Qt::FramelessWindowHint*/),
+	QMainWindow(pParent),
 	m_bWindowClosed(false),
 	m_pSurface(0),
 	m_pInvSurface(0),
