@@ -248,7 +248,9 @@ private:
 	// multiple commands.
 	int mergeable[CmdKeyMoveLast + 1];
 
-	void SetHint(bool newmode, QString hint = "");
+	void ResizeHintFont();
+	void SetHintText(QString hint);
+	void SetHintVisibility(bool newmode);
 	void SetScale(int s, bool checkPrevScale = true);
 
 	bool m_bWindowClosed;
