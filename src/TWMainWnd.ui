@@ -658,6 +658,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QToolButton" name="m_pImportButton">
+            <property name="text">
+             <string>Import</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

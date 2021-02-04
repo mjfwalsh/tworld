@@ -1008,6 +1008,9 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
 				int f = chooseseries(serieslist, &game, &ruleset, &dac);
 				if (f == CmdProceed) {
 					break;
+				} else if (f == CmdReloadLevelsets) {
+					freeserieslist(serieslist);
+					createserieslist(serieslist);
 				} else if (f == CmdQuitLevel) {
 					if(founddefault) {
 						game = preLevelSet;

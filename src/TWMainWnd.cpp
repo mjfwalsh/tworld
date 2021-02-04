@@ -13,6 +13,7 @@
 #include <QPushButton>
 #include <QTextDocument>
 #include <QSortFilterProxyModel>
+#include <QFileDialog>
 #if defined(Q_OS_WIN)
 #include <QStyle>
 #endif
@@ -113,6 +114,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
 	connect( m_pBtnTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
 	connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
 	connect( m_pBackButton, SIGNAL(clicked()), this, SLOT(OnBackButton()) );
+	connect( m_pImportButton, SIGNAL(clicked()), this, SLOT(OnImportButton()) );
 
 	// change menu to reflect settings
 	action_displayCCX->setChecked(getintsetting("displayccx"));
@@ -309,6 +311,57 @@ void TileWorldMainWnd::OnPlayback()
 void TileWorldMainWnd::OnBackButton()
 {
 	g_pApp->exit(CmdQuitLevel);
+}
+
+void TileWorldMainWnd::OnImportButton()
+{
+	QFileDialog dialog(this);
+	dialog.setDirectory(QDir::homePath());
+	dialog.setFileMode(QFileDialog::ExistingFiles);
+	dialog.setNameFilter("Levelset Files (*.dat *.ccx)");
+	dialog.setLabelText(QFileDialog::Accept, "Import Levelset Files");
+
+	if (!dialog.exec())
+		return;
+
+	QStringList fileNames = dialog.selectedFiles();
+	if (fileNames.length() == 0)
+		return;
+
+	QDir dataDir;
+	dataDir.setPath(getdir(USER_SERIESDATDIR));
+
+	QStringList errors;
+	foreach (const QString &src, fileNames) {
+		// Check file exists
+		if(!QFile::exists(src)) {
+			errors.append(src + ": file not found");
+			continue;
+		}
+
+		// Avoid overwriting existing files
+		QString fn = QFileInfo(src).fileName();
+		if(dataDir.exists(fn)) {
+			errors.append(fn + ": a levelpack file with this name already exists");
+			continue;
+		}
+
+		QString dest = dataDir.filePath(fn);
+		if(!QFile::copy(src, dest))
+			errors.append(fn + ": failed to copy, read/write error");
+	}
+
+	int success = fileNames.length() - errors.length();
+	if(errors.length() > 0) {
+		if(errors.length() > 1)
+			errors.prepend(QString("Copied %1 of %2 files").arg(success).arg(fileNames.length()));
+
+		QMessageBox::warning(this, "Import Failure", errors.join("\n"));
+	}
+
+	if (success > 0) {
+		g_pApp->exit(CmdReloadLevelsets);
+	}
 }
 
 /*
@@ -889,6 +942,7 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 
 		m_pComboRuleset->setVisible(showRulesetOptions);
 		m_pComboLabel->setVisible(showRulesetOptions);
+		m_pImportButton->setVisible(showRulesetOptions);
 
 		nCmd = g_pApp->exec();
 

@@ -214,6 +214,7 @@ private slots:
 	void OnCopyText();
 	void OnMenuActionTriggered(QAction* pAction);
 	void OnBackButton();
+	void OnImportButton();
 	void SetSubtitle(QString subtitle);
 
 private:

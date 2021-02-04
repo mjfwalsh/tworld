@@ -41,6 +41,7 @@ extern void getseriesfromlist(gameseries *dest,
  * The pointers can be NULL.
  */
 extern void freeserieslist(std::vector<gameseries> &s, unsigned int except);
+extern void freeserieslist(std::vector<gameseries> &s);
 
 /* A function for looking up a specific level in a series by number
  * and/or password. If number is -1, only the password will be

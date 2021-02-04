@@ -114,6 +114,7 @@ enum {
 	CmdNextLevel,
 	CmdSameLevel,
 	CmdQuitLevel,
+	CmdReloadLevelsets,
 	CmdGotoLevel,
 	CmdPauseGame,
 	CmdPlayback,

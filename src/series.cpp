@@ -519,6 +519,7 @@ static bool getmapfile(char const *filename, int curdir, void *data)
 	std::vector<gameseries> *mapfile_list = (std::vector<gameseries> *)data;
 	unsigned long	magic;
 
+	// return false on io errors but true otherwise
 	fileinfo file(curdir, filename);
 	if (!file.open("rb", "unknown error")) {
 		return false;
@@ -723,6 +724,15 @@ void freeserieslist(std::vector<gameseries> &l, unsigned int except)
 
 		freedacfilelist(l[n].dacfiles);
 	}
+}
+
+void freeserieslist(std::vector<gameseries> &l)
+{
+	for (unsigned int n = 0; n < l.size(); ++n) {
+		free(l[n].mapfilename);
+		freedacfilelist(l[n].dacfiles);
+	}
+	l.clear();
 }
 
 /*
