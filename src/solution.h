@@ -7,8 +7,9 @@
 #ifndef	HEADER_solution_h_
 #define	HEADER_solution_h_
 
+#include <QStringList>
+
 class TWTableSpec;
-class QStringList;
 
 /* A structure holding all the data needed to reconstruct a solution.
  */

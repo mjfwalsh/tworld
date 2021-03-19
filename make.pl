@@ -26,12 +26,12 @@ my $executable_name = $^O eq 'MSWin32' ? 'tworld.exe' : 'tworld';
 
 # on mac add unlinked qt Homebrew keg to path
 if($^O eq 'darwin') {
-	$ENV{PATH} .= ':/usr/local/opt/qt/bin';
+	$ENV{PATH} .= ':/usr/local/opt/qt@5/bin';
 }
 
 # compiler options
 my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
-my @params = qw|c++ -std=gnu++11 -Wall -pedantic -DNDEBUG -O2 -I. -Werror|;
+my @params = qw|c++ -std=gnu++17 -Wall -pedantic -DNDEBUG -O2 -I. -Werror|;
 
 # set these later if we need them
 my @qt_opts;
@@ -224,8 +224,11 @@ sub linker {
 		push @link_command, '-F' . $qt_install_prefix . '/Frameworks';
 		push @link_command, map { ('-framework' , $_)  } @qt_modules;
 	} else {
+        my $qt_major_version = get_command("$qmake -query QT_VERSION");
+        $qt_major_version =~ s/\..*$//;
+
 		my @largs = @qt_modules;
-		foreach (@largs) {s/Qt/-lQt5/;}
+		foreach (@largs) {s/Qt/-lQt$qt_major_version/;}
 
 		push @link_command, @largs;
 	}

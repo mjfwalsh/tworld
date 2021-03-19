@@ -94,7 +94,11 @@ void setintsetting(char const *name, int val)
 
 char const *getstringsetting(char const *name)
 {
-	return settings_string.value(name, "").data();
+	if(settings_string.contains(name)) {
+	    return settings_string[name].data();
+	} else {
+	    return NULL;
+	}
 }
 
 void setstringsetting(char const *name, char const *val)

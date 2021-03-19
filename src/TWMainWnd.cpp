@@ -286,8 +286,13 @@ bool TileWorldMainWnd::HandleMouseEvent(QObject* pObject, QEvent* pEvent)
 		QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
 
 		mouseinfo.state = KS_PRESSED;
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+		mouseinfo.x = pMouseEvent->position().x();
+		mouseinfo.y = pMouseEvent->position().y();
+#else
 		mouseinfo.x = pMouseEvent->x();
 		mouseinfo.y = pMouseEvent->y();
+#endif
 		mouseinfo.button = pMouseEvent->button();
 	}
 

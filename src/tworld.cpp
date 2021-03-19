@@ -1102,7 +1102,7 @@ int tworld()
 
 	// determine the current selected series
 	char const *selectedseries = getstringsetting("selectedseries");
-	if (selectedseries && strlen(selectedseries) < sizeof lastseries)
+	if (selectedseries)
 		strcpy(lastseries, selectedseries);
 	else
 		lastseries[0] = '\0';
