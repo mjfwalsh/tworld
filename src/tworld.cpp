@@ -478,6 +478,7 @@ static bool endinput(gamespec *gs)
 			++gs->melindacount;
 			if (gs->melindacount >= 10) {
 				if (g_pMainWnd->DisplayYesNoPrompt("Skip level?")) {
+					g_pMainWnd->ReleaseAllKeys();
 					passwordseen(gs, gs->currentgame + 1);
 					changecurrentgame(gs, +1);
 				}

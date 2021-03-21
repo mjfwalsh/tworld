@@ -192,6 +192,7 @@ public:
 	void SetPlayPauseButton(bool p);
 	int Input(bool wait);
 	bool SetKeyboardArrowsRepeat(bool enable);
+	void ReleaseAllKeys();
 
 	void ChangeSubtitle(QString subtitle);
 	void PopSubtitle();
@@ -225,7 +226,6 @@ private:
 	void DisplayMapView(const gamestate* pState);
 	void DisplayShutter();
 	void SetSpeed(int nValue);
-	void ReleaseAllKeys();
 	void PulseKey(int nTWKey);
 	int GetTWKeyForAction(QAction* pAction) const;
 	void ChangeVolume(int volume);
