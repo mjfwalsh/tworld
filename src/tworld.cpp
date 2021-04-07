@@ -615,6 +615,8 @@ static bool playgame(gamespec *gs, int firstcmd)
 			case CmdNextLevel:		n = +1;		goto quitloop;
 			case CmdSameLevel:		n = 0;		goto quitloop;
 			case CmdQuit:					exit(0);
+			case CmdLostFocus:
+				if(gamepaused) break;
 			case CmdPauseGame:
 				SETPAUSED(!gamepaused, true);
 				if (!gamepaused)
@@ -743,6 +745,8 @@ static bool playbackgame(gamespec *gs)
 		case CmdPlayback:
 		case CmdQuitLevel:	goto quitloop;
 		case CmdQuit:			exit(0);
+		case CmdLostFocus:
+			if(gamepaused) break;
 		case CmdPauseGame:
 			SETPAUSED(!gamepaused, false);
 			break;

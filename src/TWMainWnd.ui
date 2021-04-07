@@ -835,6 +835,7 @@
     <addaction name="action_forceShowTimer"/>
     <addaction name="action_Step"/>
     <addaction name="action_PedanticMode"/>
+    <addaction name="action_BlurPause"/>
    </widget>
    <widget class="QMenu" name="menu_Zoom">
     <property name="title">
@@ -1080,6 +1081,17 @@
    </property>
    <property name="checkable">
     <bool>true</bool>
+   </property>
+  </action>
+  <action name="action_BlurPause">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Pause When Inactive</string>
    </property>
   </action>
  </widget>

@@ -118,6 +118,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
 
 	// change menu to reflect settings
 	action_displayCCX->setChecked(getintsetting("displayccx"));
+	action_BlurPause->setChecked(getintsetting("blurpause"));
 	action_forceShowTimer->setChecked(getintsetting("forceshowtimer") > 0);
 
 	// set a zoom menu item as checked
@@ -182,6 +183,10 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
 			case QEvent::MouseButtonPress:
 			case QEvent::MouseButtonRelease:
 				return HandleMouseEvent(pObject, pEvent);
+			case QEvent::FocusOut:
+				if(action_BlurPause->isChecked())
+					PulseKey(TWC_LOSEFOCUS);
+				break;
 			default: break;
 		}
 	}
@@ -1206,6 +1211,11 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 
 	if (pAction == action_displayCCX) {
 		setintsetting("displayccx", pAction->isChecked() ? 1 : 0);
+		return;
+	}
+
+	if (pAction == action_BlurPause) {
+		setintsetting("blurpause", pAction->isChecked() ? 1 : 0);
 		return;
 	}
 

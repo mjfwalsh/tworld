@@ -93,6 +93,8 @@ public:
 		TWC_QUIT,
 
 		TWC_PAUSEGAME,
+		TWC_LOSEFOCUS,
+
 		TWC_SAMELEVEL,
 		TWC_NEXTLEVEL,
 		TWC_PREVLEVEL,
@@ -133,6 +135,8 @@ public:
 		{	TWC_QUIT,				CmdQuit,				false	},
 
 		{	TWC_PAUSEGAME,			CmdPauseGame,			false	},
+		{	TWC_LOSEFOCUS,			CmdLostFocus,			false	},
+
 		{	TWC_SAMELEVEL,			CmdSameLevel,			false	},
 		{	TWC_NEXTLEVEL,			CmdNextLevel,			false	},
 		{	TWC_PREVLEVEL,			CmdPrevLevel,			false	},

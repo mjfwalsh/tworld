@@ -117,6 +117,7 @@ enum {
 	CmdReloadLevelsets,
 	CmdGotoLevel,
 	CmdPauseGame,
+	CmdLostFocus,
 	CmdPlayback,
 	CmdCheckSolution,
 	CmdDelSolution,
