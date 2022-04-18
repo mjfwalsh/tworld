@@ -121,17 +121,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
 	action_BlurPause->setChecked(getintsetting("blurpause"));
 	action_forceShowTimer->setChecked(getintsetting("forceshowtimer") > 0);
 
-	// set a zoom menu item as checked
-	foreach (QAction *a, actiongroup_Zoom->actions()) {
-		if(a->data() == percentZoom) {
-			a->setChecked(true);
-			break;
-		}
-	}
-	if(actiongroup_Zoom->checkedAction() == nullptr) {
-		action_Zoom100->setChecked(true);
-	}
-
 	int const tickMS = 1000 / TICKS_PER_SECOND;
 	startTimer(tickMS / 2);
 
@@ -1231,7 +1220,17 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 	}
 
 	if (pAction->actionGroup()  == actiongroup_Zoom) {
-		int s = pAction->data().toInt();
+		int s = getintsetting("zoom");
+		if(s == -1) s = 100;
+
+		if(pAction == action_Zoom100) {
+		    s = 100;
+		} else if(pAction == action_ZoomMinus) {
+		    s -= 20;
+		} else { // action_ZoomPlus
+		    s += 20;
+		}
+
 		setintsetting("zoom", s);
 		this->SetScale(s);
 		return;
