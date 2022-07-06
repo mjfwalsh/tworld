@@ -183,11 +183,9 @@ public:
 	void ClearDisplay();
 	void DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
-	int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, bool showRulesetOptions);
+	int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, bool showRulesetOptions, uint *ruleset = NULL);
 	bool DisplayYesNoPrompt(const char* prompt);
 	const char* DisplayPasswordPrompt();
-	int GetSelectedRuleset();
-	void SetSelectedRuleset(int r);
 
 	void ReadExtensions(gameseries* pSeries);
 	void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);

@@ -892,32 +892,23 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * stored in the integer will become displaylist()'s return value.
  */
 int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
-		bool showRulesetOptions)
+		bool showRulesetOptions, uint *ruleset /* = NULL */)
 {
 	int nCmd = 0;
+	QAction *actions[] = { action_Scores, action_SolutionFiles, action_TimesClipboard, 
+	                       action_Levelsets};
+	bool action_status[4];
+	for(int i = 0; i < 4; i++) {
+	    action_status[i] = actions[i]->isEnabled();
+	    actions[i]->setEnabled(false);
+	}
 
-	// disable menus
-	bool menuStatus[] = {
-		action_Scores->isEnabled(),
-		action_SolutionFiles->isEnabled(),
-		action_TimesClipboard->isEnabled(),
-		action_Levelsets->isEnabled(),
-		menu_Level->isEnabled(),
-		menu_Solution->isEnabled(),
-		menu_Options->isEnabled(),
-		menu_Zoom->isEnabled(),
-		menu_Solution->isEnabled()
-	};
-
-	action_Scores->setEnabled(false);
-	action_SolutionFiles->setEnabled(false);
-	action_TimesClipboard->setEnabled(false);
-	action_Levelsets->setEnabled(false);
-	menu_Level->setEnabled(false);
-	menu_Solution->setEnabled(false);
-	menu_Options->setEnabled(false);
-	menu_Zoom->setEnabled(false);
-	menu_Solution->setEnabled(false);
+	QMenu *menus[] = { menu_Level, menu_Solution, menu_Options, menu_Zoom, menu_Solution};
+	bool menu_status[5];
+	for(int i = 0; i < 5; i++) {
+	    menu_status[i] = menus[i]->isEnabled();
+	    menus[i]->setEnabled(false);
+	}
 
 	// dummy scope to force table spec destructors before ExitTWorld
 	{
@@ -943,6 +934,10 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 		m_pComboLabel->setVisible(showRulesetOptions);
 		m_pImportButton->setVisible(showRulesetOptions);
 
+		if(ruleset != NULL) {
+			m_pComboRuleset->setCurrentText(*ruleset == Ruleset_MS ? "MS" : "Lynx");
+		}
+
 		nCmd = g_pApp->exec();
 
 		*pnIndex = proxyModel.mapToSource(m_pTblList->currentIndex()).row();
@@ -950,20 +945,21 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 		SetCurrentPage(PAGE_GAME);
 		m_pTblList->setModel(0);
 		m_pSortFilterProxyModel = 0;
+
+		if(ruleset != NULL) {
+			*ruleset = m_pComboRuleset->currentText() == "MS" ? Ruleset_MS : Ruleset_Lynx;
+		}
 	}
 
 	if (m_bWindowClosed) g_pApp->ExitTWorld();
 
-	// reenable menus
-	action_Scores->setEnabled(menuStatus[0]);
-	action_SolutionFiles->setEnabled(menuStatus[1]);
-	action_TimesClipboard->setEnabled(menuStatus[2]);
-	action_Levelsets->setEnabled(menuStatus[3]);
-	menu_Level->setEnabled(menuStatus[4]);
-	menu_Solution->setEnabled(menuStatus[5]);
-	menu_Options->setEnabled(menuStatus[6]);
-	menu_Zoom->setEnabled(menuStatus[7]);
-	menu_Solution->setEnabled(menuStatus[8]);
+	// restore menus and menu items to previous value
+	for(int i = 0; i < 4; i++) {
+	    actions[i]->setEnabled(action_status[i]);
+	}
+	for(int i = 0; i < 5; i++) {
+	    menus[i]->setEnabled(menu_status[i]);
+	}
 
 	return nCmd;
 }
@@ -1065,18 +1061,6 @@ void TileWorldMainWnd::SetSubtitle(QString subtitle)
 	if (!subtitle.isEmpty())
 		sTitle += " - " + subtitle;
 	setWindowTitle(sTitle);
-}
-
-int TileWorldMainWnd::GetSelectedRuleset()
-{
-	return m_pComboRuleset->currentText() == "MS" ? Ruleset_MS : Ruleset_Lynx;
-}
-void TileWorldMainWnd::SetSelectedRuleset(int r)
-{
-	if(r == Ruleset_MS)
-		m_pComboRuleset->setCurrentText("MS");
-	else if(r == Ruleset_Lynx)
-		m_pComboRuleset->setCurrentText("Lynx");
 }
 
 /* Read any additional data for the series.
@@ -1252,7 +1236,7 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 		stepDialog.setWindowTitle("Step");
 		stepDialog.setLabelText("Set level step value");
 
-		if (GetSelectedRuleset() == Ruleset_Lynx) {
+		if (m_nRuleset == Ruleset_Lynx) {
 			stepDialog.setComboBoxItems(stepDialogOptions);
 		} else {
 			stepDialog.setComboBoxItems({stepDialogOptions[0], stepDialogOptions[4]});

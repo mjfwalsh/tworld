@@ -26,7 +26,7 @@ my $executable_name = $^O eq 'MSWin32' ? 'tworld.exe' : 'tworld';
 
 # on mac add unlinked qt Homebrew keg to path
 if($^O eq 'darwin') {
-	$ENV{PATH} .= ':/usr/local/opt/qt@5/bin';
+	$ENV{PATH} = '/usr/local/opt/qt@5/bin:' . $ENV{PATH};
 }
 
 # compiler options

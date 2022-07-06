@@ -934,7 +934,6 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 {
 	int orig_dac = *dac; // save for later
 	int f;
-	uint r;
 
 	TWTableSpec mftable;
 	mftable.setCols(1);
@@ -944,33 +943,28 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 	}
 
 	restart:
-	g_pMainWnd->SetSelectedRuleset(*ruleset);
-
-	f = g_pMainWnd->DisplayList(&mftable, (int *)game, true);
+	int old_ruleset = *ruleset;
+	f = g_pMainWnd->DisplayList(&mftable, (int *)game, true, ruleset);
 	if (f != CmdProceed)
 		return f;
 
-	r = (uint)g_pMainWnd->GetSelectedRuleset();
-
-	if (serieslist[*game].dacfiles[r].size() == 1) {
+	if (serieslist[*game].dacfiles[*ruleset].size() == 1) {
 		*dac = 0;
 	} else {
 		// if the chosen ruleset is different from lastseries
-		*dac = r == *ruleset ? orig_dac : 0;
+		*dac = old_ruleset == *ruleset ? orig_dac : 0;
 
 		TWTableSpec gstable;
 		gstable.setCols(1);
 		gstable.addCell("Profile");
-		for (uint y = 0; y < serieslist[*game].dacfiles[r].size(); y++) {
-			gstable.addCell(serieslist[*game].dacfiles[r][y].filename);
+		for (uint y = 0; y < serieslist[*game].dacfiles[*ruleset].size(); y++) {
+			gstable.addCell(serieslist[*game].dacfiles[*ruleset][y].filename);
 		}
 
 		f = g_pMainWnd->DisplayList(&gstable, (int *)dac, false);
 		if (f != CmdProceed)
 			goto restart;
 	}
-
-	*ruleset = r;
 
 	return CmdProceed;
 }
