@@ -16,8 +16,13 @@ char const *aboutText =
 
 "<p align='center'><b>Tile World</b></p>"
 
-"<p align='justify'>Copyright &copy; 2001-2020 by Brian Raiter, Madhav Shanbhag,"
+"<p align='justify'>Copyright &copy; 2001-2022 by Brian Raiter, Madhav Shanbhag,"
 " Eric Schmidt and Michael Walsh"
+
+"<p align='justify'>The sound effects were created by Brian Raiter, using "
+"<a href='https://sox.sourceforge.net/'>SoX</a>, and tile images were created by Anders Kaseorg, "
+"using <a href='https://www.povray.org/'>POV-Ray</a>. Both the sound effects and the images have "
+"been released into the public domain.</p>"
 
 "<p align='justify'>This program is free software; you can redistribute it and/or"
 " modify it under the terms of the <a href='file:licences/gpl2.html'>GNU General Public Licence "

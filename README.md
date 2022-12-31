@@ -38,10 +38,10 @@ This version is from: https://github.com/mjfwalsh/tworld
 
 Original source from: https://tw2.bitbusters.club/
 
-Copyright &copy; 2001-2019 by Brian Raiter, Madhav Shanbhag, Eric Schmidt and Michael J Walsh
+Copyright &copy; 2001-2022 by Brian Raiter, Madhav Shanbhag, Eric Schmidt and Michael J Walsh
 
 Released under GNU General Public License version 2 and above.
 
-The sound effects were created by Brian Raiter, using [SoX](http://sox.sourceforge.net/). They have been released into the public domain.
+The sound effects were created by Brian Raiter, using [SoX](https://sox.sourceforge.net/). They have been released into the public domain.
 
-The tile images were created by Anders Kaseorg, using [POV-Ray](http://www.povray.org/). They have also been released into the public domain.
+The tile images were created by Anders Kaseorg, using [POV-Ray](https://www.povray.org/). They have also been released into the public domain.
