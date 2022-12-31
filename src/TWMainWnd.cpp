@@ -1144,7 +1144,6 @@ void TileWorldMainWnd::ShowAbout()
 	msgBox->setStandardButtons(QMessageBox::Ok);
 	msgBox->setAttribute(Qt::WA_DeleteOnClose);
 	msgBox->exec();
-	delete msgBox;
 }
 
 void TileWorldMainWnd::OnTextNext()
