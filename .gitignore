@@ -1,6 +1,7 @@
 .DS_Store
 Thumbs.db
 obj
+deps
 tworld
 tworld.exe
 Tile World.app

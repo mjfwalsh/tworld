@@ -19,7 +19,6 @@ BEGIN {
 # what we're doing
 my $cmd;
 my $need_updated_time_stamp = 1;
-my %filtered_file_cache;
 
 # windows vars
 my $executable_name = $^O eq 'MSWin32' ? 'tworld.exe' : 'tworld';
@@ -55,6 +54,7 @@ if($#ARGV == -1) {
 } else {
 	usage();
 }
+
 if($cmd eq "install") {
 	install();
 } elsif($cmd eq "compile") {
@@ -76,47 +76,70 @@ sub run {
 	return $?;
 }
 
+sub run_capture {
+   say join ' ', @_;
+   open my $fh, '-|', @_;
+   my $out = join '', <$fh>;
+   close $fh;
+   return $out;
+}
+
+
 
 sub compile_file {
 	my $input_file = shift;
 	my $force = shift;
 
 	my @args;
-	my $action;
+	my @check_files;
 
 	my $output_file = $input_file;
 	$output_file =~ s|^src/|obj/| || $output_file =~ s|^([^/]*)$|obj/$1|;
 
-	my @check_files = ($input_file);
-
 	if($output_file =~ s/\.cpp$/.o/) {
-		$action = "Compiling $output_file...";
+        my $dep_file = $output_file;
+        $dep_file =~ s|^obj/|deps/| || die $output_file;
+        $dep_file =~ s|\.o$|.d|;
 
 		# basic compiler params
-		push @args, @params;
+		push @args, @params, @sdl_opts, @qt_opts;
 
-		# filter source code to find dependancies and sdl/qt requirements
-		my $r = filter_file($input_file);
+        my @check_files;
+        if(-e $dep_file) {
+            open(my $fh, '<', $dep_file);
+            for(my $line = <$fh>) {
+                chomp $line;
+                push @check_files, $line;
+            }
+            close $fh;
+        } else {
+            my @filter_args = (@args, qw|-MM -MG -MF - -MT|, $input_file, $input_file);
+            my $out = run_capture(@filter_args);
 
-		push @check_files, @{ $r->{included_files} };
+            $out =~ s/\015//gs;
+            $out =~ s/\\\n/ /gs;
+            $out =~ s/^.*?://gs;
+            $out =~ s/^[ \n\t]+//gs;
+            $out =~ s/[ \n\t]+$//gs;
+            $out =~ s/[ \n\t]+/ /gs;
 
-		if($r->{need_sdl}) {
-			push @args, @sdl_opts;
-		}
-		if($r->{need_qt}) {
-			push @args, @qt_opts;
-		}
+            push @check_files, grep { $_ ne '' } map { process_path($_) } split(/ +/, $out);
+
+            open(my $fh, '>', $dep_file);
+            print $fh join("\n", @check_files);
+            print $fh "\n";
+            close $fh;
+        }
 
 		push @args, '-c', '-o';
-
 	} elsif($output_file =~ s|([^/]*)\.h$|moc_$1.cpp|) {
-		$action = "MOC-ing $input_file...";
+		push @check_files, $input_file;
 		push @args, $moc, '-o';
 	} elsif($output_file =~ s|([^/]*)\.ui$|ui_$1.h|) {
-		$action = "Compiling UI $input_file...";
-		push @args, 'uic', '-o';
+		push @check_files, $input_file;
+		push @args, 'uic';
 	} elsif($output_file =~ s|([^/]*)\.ico$|icon_$1.o|) {
-		$action = "Running windres on $input_file...";
+		push @check_files, $input_file;
 		push @args, 'windres', '-o';
 	} else {
 		die "Failed to understand input file $input_file";
@@ -150,11 +173,9 @@ sub compile_file {
 	}
 
 	# run compiler
-	say $action;
 	my $res;
 	if($args[0] eq 'uic') {
-		shift @args;
-		$res = run_uic(@args, $output_file, $input_file);
+		$res = run_uic($input_file, $output_file);
 	} elsif($args[0] eq 'windres') {
 		say qq|echo 1 ICON "$input_file" \| windres -o $output_file|;
 		open (my $pipe, '|-', 'windres', '-o', $output_file);
@@ -173,8 +194,8 @@ sub compile_file {
 sub compile {
 	# qt opts
 	my $qt_install_headers = get_command("$qmake -query QT_INSTALL_HEADERS");
-	@qt_opts = ('-I' . $qt_install_headers);
-	push @qt_opts, map { "-I$qt_install_headers/$_" } @qt_modules;
+	@qt_opts = ('-isystem' . $qt_install_headers);
+	push @qt_opts, map { "-isystem$qt_install_headers/$_" } @qt_modules;
 	push @qt_opts, '-fPIC';
 
 	# sdl opts
@@ -322,84 +343,6 @@ sub install {
 	}
 }
 
-sub filter_file {
-	my $file = shift;
-	my %included_files;
-
-	if(exists $filtered_file_cache{$file}) {
-		return $filtered_file_cache{$file};
-	}
-
-	my $result = {
-	'need_qt' => 0,
-	'need_sdl' => 0,
-	'included_files' => [],
-	};
-
-	goto quit if $file =~ m/comptime.h/;
-
-	# Get a kind-of-absolute path with source dir
-	# and ignore files outside it.
-	goto quit unless $file = process_path($file);
-
-	my $cwd = $file;
-	$cwd =~ s|/[^/]*$||;
-
-	goto quit if $file !~ /\.(c|cpp|h)$/;
-
-	my $fh;
-	if(!open ($fh, '<', $file)) {
-		say "Failed on index: $file";
-		return $result;
-	}
-	while(my $l = <$fh>) {
-		if($l =~ m/^[\t ]*#include[\t ]+"([^\/][^"]+)"/) {
-			my $f = process_path("$cwd/$1");
-
-			next if $f eq '' || exists $included_files{$f} || $f eq $file;
-
-			$included_files{$f} = undef;
-
-			if($f =~ /ui_TWMainWnd.h/) {
-				my $x = $file;
-				if($x =~ s/ui_TWMainWnd.h$/TWMainWnd.ui/) {
-					$included_files{$x} = undef;
-				}
-			}
-
-			my $r = filter_file($f);
-
-			if($r->{need_sdl}) {
-				$result->{need_sdl} = 1;
-			}
-
-			if($r->{need_qt}) {
-				$result->{need_qt} = 1;
-			}
-
-			my $q = $r->{included_files};
-
-			@included_files{@$q} = ();
-		}
-		if($l =~ /^[\t ]*#include[\t ]+<SDL/) {
-			$result->{need_sdl} = 1;
-		}
-		if($l =~ /^[\t ]*#include[\t ]+<Q/) {
-			$result->{need_qt} = 1;
-		}
-	}
-	close $fh;
-
-	my @fd = keys %included_files;
-
-	$result->{included_files} = \@fd;
-
-	quit: {
-		$filtered_file_cache{$file} = $result;
-		return $result;
-	}
-}
-
 sub run_time_check {
 	my $output_file = shift;
 	my @check_files = @_;
@@ -421,7 +364,7 @@ sub run_time_check {
 sub process_path {
 	my $path = shift;
 
-	return '' if $path =~ m|^/|;
+    return '' if $path =~ m|^/|;
 
 	my @f_parts = split m|/+|, $path;
 	my @n_parts;
@@ -441,23 +384,11 @@ sub process_path {
 }
 
 sub run_uic {
-	my $output_file = '';
+    my $input_file = shift;
+	my $output_file = shift;
 	my $res = 0;
-	my @args;
 
-	while($#_ > 0) { # ignore last element
-		my $arg = shift @_;
-
-		if($arg eq '-o') {
-			$output_file = shift @_;
-			last;
-		} else {
-			push @args, $arg;
-		}
-	}
-	push @args, @_;
-
-	open(my $PIPE, '-|', $uic, @args) || return 1;
+	open(my $PIPE, '-|', $uic, $input_file) || return 1;
 	my $code = join '', <$PIPE>;
 	close $PIPE;
 
@@ -484,15 +415,10 @@ sub run_uic {
 	# fix macro include
 	$code =~ s| TWMAINWND_H| UI_TWMAINWND_H|g;
 
-	if(length $output_file == 0) {
-		print $code;
-	} elsif($res == 10) {
+	if($res == 10) {
 		open(my $OUT, '>', $output_file) || return 1;
 		print $OUT $code;
 		close $OUT;
-	}
-
-	if($res == 10) {
 		return 0;
 	} else {
 		say "Failed: script make $res replacements instead of 10";
@@ -594,9 +520,13 @@ sub usage {
 
 sub sdl_cflags {
 	if($^O eq 'MSWin32' && !defined $sdl_config) {
-		return ('-I' . $sdl_include_path, '-Dmain=SDL_main');
+		return ('-isystem' . $sdl_include_path, '-Dmain=SDL_main');
 	} else {
-		return get_command("$sdl_config --cflags");
+		my @flags = get_command("$sdl_config --cflags");
+		foreach my $flag (@flags) {
+		    $flag =~ s/-I/-isystem/g;
+		}
+		return @flags;
 	}
 }
 
