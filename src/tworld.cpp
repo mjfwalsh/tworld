@@ -943,7 +943,7 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 	}
 
 	restart:
-	int old_ruleset = *ruleset;
+	unsigned int old_ruleset = *ruleset;
 	f = g_pMainWnd->DisplayList(&mftable, (int *)game, true, ruleset);
 	if (f != CmdProceed)
 		return f;

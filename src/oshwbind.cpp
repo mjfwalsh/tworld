@@ -58,14 +58,12 @@ Qt_Surface::Qt_Surface(const char* szFilename)
 #else
 	int bytes = image.byteCount();
 #endif
-	void* pixels = image.bits();
-	int i = 0;
-	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
+	const void* image_pixels = image.bits();
+	for (const QRgb* pixel = reinterpret_cast<const QRgb*>(image_pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
 		if (qAlpha(*pixel) != UCHAR_MAX) {
 			this->hasAlphaChannel = 1;
 			break;
 		}
-		i++;
 	}
 }
 

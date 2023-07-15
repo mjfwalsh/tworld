@@ -327,11 +327,9 @@ static creature *prependtosliplist(creature *cr, int dir)
 
 /* Return the sliding direction of a creature on the slip list.
  */
-static int getslipdir(creature *cr)
+static int getslipdir(const creature *cr)
 {
-	int	n;
-
-	for (n = 0 ; n < slipcount ; ++n)
+	for (int n = 0 ; n < slipcount ; ++n)
 		if (slips[n].cr == cr)
 			return slips[n].dir;
 	return NIL;

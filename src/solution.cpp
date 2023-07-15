@@ -256,10 +256,8 @@ static bool writesolutionheader(fileinfo &file, int ruleset,
  */
 static int writesolutionsetname(fileinfo &file, char const *setname)
 {
-	char	zeroes[16] = "";
-	int		n;
-
-	n = strlen(setname) + 1;
+	const char zeroes[16] = "";
+	const int n = strlen(setname) + 1;
 	return file.writeint32(n + 16)
 		&& file.write(zeroes, 16)
 		&& file.write(setname, n);
@@ -459,7 +457,11 @@ bool contractsolution(solutioninfo const *solution, gamesetup *game)
 	game->solutionsize = size;
 	game->solutiondata = (unsigned char *)realloc(data, size);
 	if (!game->solutiondata)
-		game->solutiondata = data;
+	{
+		warn("failed to record level %d solution:"
+			" out of memory", game->number);
+		return false;
+	}
 	return true;
 }
 

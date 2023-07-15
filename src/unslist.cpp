@@ -169,7 +169,7 @@ static bool readunslist(fileinfo *file)
 		for (p = buf ; isspace(*p) ; ++p) ;
 		if (!*p || *p == '#')
 			continue;
-		if (sscanf(p, "[%999[^]]]", token) == 1) {
+		if (sscanf(p, "[%255[^]]]", token) == 1) {
 			setid = lookupsetname(token, true);
 			continue;
 		}

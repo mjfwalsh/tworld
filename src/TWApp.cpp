@@ -4,7 +4,7 @@
  */
 
 #include <QClipboard>
-
+#include <SDL.h>
 #include <cstdlib>
 
 #include "TWApp.h"
