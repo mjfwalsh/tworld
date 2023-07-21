@@ -28,13 +28,13 @@ If you wish to migrate from an existing Tile World 2 installation, copy your fil
 
 To compile and run it you need [qt](https://www.qt.io/) and [SDL](https://www.libsdl.org/) (version 1 or 2) which can be installed via [Homebrew](https://brew.sh/).
 
-To compile just run `make` from the command line.
+To compile just run `./configure.pl` and `make`.
 
 * `make install` will install the app on Linux.
-* `make mkapp` will create an application bundle on Mac.
+* `make app` will create an application bundle on Mac.
 * `make dist` will create a distribution folder on Windows.
 
-Compiling on Windows requires a Unix-like environment. I currently use [msys2](https://www.msys2.org/).
+Compiling on Windows requires a Unix-like environment. I use [msys2](https://www.msys2.org/).
 
 ## Copyright
 

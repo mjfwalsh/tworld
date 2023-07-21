@@ -3,15 +3,9 @@
 use v5.20;
 use autodie;
 
-if(@ARGV != 2) {
-	error("Usage: $0 <input file> <output file>");
-}
+local $/; # enable slurp mode
 
-my ($input_file, $output_file) = @ARGV;
-
-open(my $PIPE, '-|', 'uic', $input_file) || error("Uic failed to run");
-my $code = join '', <$PIPE>;
-close $PIPE;
+my $code = <STDIN>;
 
 # Pass the scale attribute directly to the game and objects
 # widgets so the initial size corresponds to the users zoom preference.
@@ -48,18 +42,9 @@ if($code !~ s| TWMAINWND_H| UI_TWMAINWND_H|g) {
 	error("Uic replace error 7");
 }
 
-# create output dir if necessary
-my $output_dir = $output_file;
-$output_dir =~ s|/?[^/]+$|| || die;
-if(!-d $output_dir) {
-	mkdir $output_dir;
-}
-
 # add the tile header for macros
-open(my $OUT, '>', $output_file) || error("Uic failed to open output file");
-print $OUT qq|#include "../src/tile.h"\n|;
-print $OUT $code;
-close $OUT;
+print qq|#include "../src/tile.h"\n|;
+print $code;
 
 exit 0;
 
