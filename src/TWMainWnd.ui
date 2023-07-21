@@ -4,7 +4,7 @@
  <widget class="QMainWindow" name="TWMainWnd">
   <property name="font">
    <font>
-    <family>MS Reference Sans Serif</family>
+    <family>Arial</family>
    </font>
   </property>
   <property name="windowTitle">
@@ -681,7 +681,6 @@
          <widget class="QTextBrowser" name="m_pTextBrowser">
           <property name="font">
            <font>
-            <family>Verdana</family>
             <pointsize>18</pointsize>
             <weight>50</weight>
             <bold>false</bold>
