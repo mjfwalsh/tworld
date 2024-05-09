@@ -65,7 +65,7 @@ bool TileWorldApp::Initialize()
 	loadsettings();
 
 	// set the window icon
-	#if not defined Q_OS_OSX
+	#if not defined __APPLE__
 	setWindowIcon(QIcon("tworld.png"));
 	#endif
 

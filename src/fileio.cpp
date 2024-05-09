@@ -396,7 +396,7 @@ void initdirs()
 
 	// Get the app resources
 	QString appRootDir = QApplication::applicationDirPath();
-	#if defined Q_OS_OSX
+	#if defined __APPLE__
 	QDir appShareDir(appRootDir + "/../Resources");
 	#elif defined Q_OS_UNIX
 	QDir appShareDir(appRootDir + "/../share/tworld");
