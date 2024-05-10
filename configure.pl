@@ -3,17 +3,49 @@
 use v5.20;
 use strict;
 use warnings;
+use Getopt::Long;
 
 my %vars;
+my %opt = (
+qmake => 'qmake6',
+sdl => 'sdl2-config',
+windres => 'windres',
+moc => 'moc',
+uic => 'uic',
+cxx => 'c++',
+);
+
+# override default options which command line variables
+for my $k (keys %opt) {
+	if(defined $ENV{uc $k}) {
+		$opt{$k} = $ENV{uc $k};
+	}
+}
+
+GetOptions(
+\%opt,
+"help!",
+"qmake=s",
+"sdl=s",
+"windres=s",
+"moc=s",
+"uic=s",
+"cxx=s",
+) || usage(1);
+
+if($opt{help}) {
+	usage(0);
+}
+
 
 # qmake
-my $qmake = which('qmake6', 'QMAKE');
+my $qmake = get_cmd_path('qmake');
 
 # sdl2-config
-my $sdl2_config = which('sdl2-config');
+my $sdl2_config = get_cmd_path('sdl');
 
 # get useful qt vars
-my %qt_vars = map { split /:/, $_, 2 } get_command($qmake, '-query');
+my %qt_vars = map { split /:/, $_, 2 } get_command_safe($qmake, '-query');
 
 # major version
 my $major_qt_version;
@@ -22,7 +54,8 @@ if($qt_vars{QT_VERSION} =~ /^5/) {
 } elsif($qt_vars{QT_VERSION} =~ /^6/) {
 	$major_qt_version = '6';
 } else {
-	die "QT version check failed: $qmake";
+	say STDERR "QT version check failed: $qmake";
+	exit 1;
 }
 
 # windows
@@ -36,20 +69,20 @@ if(defined $ENV{OS} && $ENV{OS} eq 'Windows_NT') {
 	}
 
 	# windres
-	$vars{WINDRES} = which('windres', 'WINDRES');
+	$vars{WINDRES} = get_cmd_path('windres');
 }
 
 # add qt to path
 $ENV{PATH} = join ':', $qt_vars{QT_INSTALL_BINS}, $qt_vars{QT_INSTALL_LIBEXECS}, $ENV{PATH};
 
 # get moc
-$vars{MOC} = which('moc', 'MOC');
+$vars{MOC} = get_cmd_path('moc');
 
 # get moc
-$vars{UIC} = which('uic', 'UIC');
+$vars{UIC} = get_cmd_path('uic');
 
 # compiler
-$vars{CXX} = which('c++', 'CXX');
+$vars{CXX} = get_cmd_path('cxx');
 
 # requires qt modules
 my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
@@ -64,15 +97,14 @@ foreach my $module (@qt_modules) {
 }
 
 # sdl compiler flags
-my $sdl2_config_cflags = get_command($sdl2_config, '--cflags');
+my $sdl2_config_cflags = get_command_safe($sdl2_config, '--cflags');
 $sdl2_config_cflags =~ s|-I|-isystem |g;
 $vars{CFLAGS} .= " $sdl2_config_cflags";
 
 # linker flags
-my $sdl2_config_libs = get_command($sdl2_config, '--libs');
+my $sdl2_config_libs = get_command_safe($sdl2_config, '--libs');
 $sdl2_config_libs =~ s|-L|-L |g;
 $vars{LDFLAGS} = $sdl2_config_libs;
-
 
 # frameworks on Mac, libraries on other systems
 if($^O eq 'darwin') {
@@ -97,10 +129,10 @@ map { s|^src/(.*?)\.[a-z]+$|obj/$1.o| } @object_files;
 
 # use .exe filename extension on windows and add icon target
 if(defined $ENV{OS} && $ENV{OS} eq 'Windows_NT') {
-    $vars{TWORLD} = 'tworld.exe';
-    push @object_files, 'obj/icon_tworld.o';
+		$vars{TWORLD} = 'tworld.exe';
+		push @object_files, 'obj/icon_tworld.o';
 } else {
-    $vars{TWORLD} = 'tworld';
+		$vars{TWORLD} = 'tworld';
 }
 
 $vars{OBJ_FILES} = join ' ', @object_files;
@@ -198,7 +230,7 @@ foreach my $src (@source_files) {
 	$obj =~ s|^src/(.*?)\.cpp$|obj/$1.o| || next;
 
 	say join ' ', @dep_command, $obj, '-c', $src, '-o', '-';
-	open(my $PIPE, '-|',  @dep_command, $obj, '-c', $src, '-o', '-') || error("c++ failed to run");
+	open(my $PIPE, '-|', @dep_command, $obj, '-c', $src, '-o', '-') || error("c++ failed to run");
 	my $deps = join '', <$PIPE>;
 	close $PIPE;
 
@@ -220,36 +252,66 @@ sub get_command {
 	open(my $fh, '-|', @_) || return '';
 
 	my @out;
-	if(wantarray) {
-		while(my $line = <$fh>) {
-			$line =~ s/[\012\015]+$//;
-			push @out, $line;
-		}
-	} else {
-		$out[0] = <$fh>;
-		$out[0] =~ s/[\012\015]+$//;
+	while(my $line = <$fh>) {
+		$line =~ s/[\012\015]+$//;
+		push @out, $line;
 	}
 
-	if(!close $fh || $? != 0) {
-		say "Cmd failed :", join ' ', @_;
-		exit 1;
-	}
+	return undef if @out == 0 || !close $fh || $? != 0;
 
 	return wantarray ? @out : $out[0];
 }
 
-sub which {
+sub get_command_safe {
+	my @r = get_command(@_);
+
+	if(!@r) {
+		say "Cmd failed: ", join ' ', @_;
+		exit 1;
+	}
+
+	return wantarray ? @r : $r[0];
+}
+
+sub get_cmd_path {
 	my $cmd = shift;
-	my $env = shift;
 
-	if($env && defined $ENV{$env}) {
-		$cmd = $ENV{$env}
+	die $cmd unless defined $opt{$cmd};
+	$cmd = $opt{$cmd};
+
+	my $path;
+	if($cmd =~ m|^/|) {
+		$path = $cmd;
+	} else {
+		$path = get_command('which', $cmd);
 	}
 
-	my $full_path = get_command('which', $cmd);
-	if(!-f $full_path) {
-		die "Failed to find $cmd";
+	if(!$path || !-f $path) {
+		say STDERR "Failed to find $cmd";
+		exit 1;
 	}
-	return $full_path;
+	return $path;
+}
+
+
+sub usage {
+	my $return_value = shift;
+	print <<"END_OF_USAGE";
+Usage: ./configure.pl
+
+Options:
+	--qmake    name of or path to qmake executable
+	--sdl      name of or path to sdl config executable
+	--moc      name of or path to moc executable
+	--uic      name of or path to uic executable
+	--cxx      name of or path to c++ executable
+	--windres  name of or path to windres executable
+
+These options can also be set using uppercase environmental
+variables eg QMAKE=/path/to/qmake ./configure.pl
+
+END_OF_USAGE
+
+	exit $return_value;
 }
 
