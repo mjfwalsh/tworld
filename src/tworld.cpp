@@ -255,19 +255,22 @@ static int showscores(gamespec *gs)
  */
 static bool selectlevelbypassword(gamespec *gs)
 {
-	int		n;
+	char passwd[5];
+	int n;
 
-	const char *passwd = g_pMainWnd->DisplayPasswordPrompt();
+	g_pMainWnd->DisplayPasswordPrompt(passwd);
 
-	if (strlen(passwd) != 4) return false;
+	if (strlen(passwd) != 4) goto fail;
 
 	n = findlevelinseries(&gs->series, 0, passwd);
-	if (n < 0) {
-		TileWorldApp::Bell();
-		return false;
-	}
+	if (n < 0) goto fail;
+
 	passwordseen(gs, n);
 	return setcurrentgame(gs, n);
+
+fail:
+	TileWorldApp::Bell();
+	return false;
 }
 
 /*

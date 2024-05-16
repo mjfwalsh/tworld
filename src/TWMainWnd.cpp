@@ -1011,13 +1011,13 @@ bool TileWorldMainWnd::DisplayYesNoPrompt(const char* prompt)
 }
 
 
-const char *TileWorldMainWnd::DisplayPasswordPrompt()
+void TileWorldMainWnd::DisplayPasswordPrompt(char *passwd)
 {
 	QString password = QInputDialog::getText(this, TileWorldApp::applicationName(), "Enter Password");
-	if (password.isEmpty()) return "";
 	password.truncate(4);
 	password = password.toUpper();
-	return password.toUtf8().constData();
+	strncpy(passwd, password.toUtf8().constData(), 4);
+	passwd[4] = '\0';
 }
 
 /*

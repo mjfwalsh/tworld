@@ -185,7 +185,7 @@ public:
 	int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
 	int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, bool showRulesetOptions, uint *ruleset = NULL);
 	bool DisplayYesNoPrompt(const char* prompt);
-	const char* DisplayPasswordPrompt();
+	void DisplayPasswordPrompt(char *passwd);
 
 	void ReadExtensions(gameseries* pSeries);
 	void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
