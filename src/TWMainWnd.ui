@@ -160,7 +160,7 @@
               </property>
               <property name="font">
                <font>
-                <pointsize>16</pointsize>
+                <pointsize>18</pointsize>
                </font>
               </property>
               <property name="autoFillBackground">
@@ -208,7 +208,7 @@
               </property>
               <property name="font">
                <font>
-                <pointsize>16</pointsize>
+                <pointsize>18</pointsize>
                </font>
               </property>
               <property name="autoFillBackground">
@@ -576,19 +576,54 @@
        </layout>
       </widget>
       <widget class="QWidget" name="m_pTablePage">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <property name="horizontalSpacing">
-         <number>0</number>
-        </property>
-        <item row="0" column="0">
-         <widget class="QTableView" name="m_pTblList">
-          <property name="font">
-           <font>
-            <pointsize>16</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
+       <layout class="QVBoxLayout" name="boxLayout_1">
+        <item>
+         <layout class="QHBoxLayout" name="HLayout_25">
+          <property name="spacing">
+           <number>10</number>
           </property>
+          <item>
+           <widget class="QRadioButton" name="m_pRadioMS">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Microsoft Windows Emulation</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="m_pRadioLynx">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Atari Lynx Emulation</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableView" name="m_pTblList">
           <property name="tabKeyNavigation">
            <bool>false</bool>
           </property>
@@ -606,41 +641,8 @@
           </attribute>
          </widget>
         </item>
-        <item row="1" column="0">
-         <layout class="QHBoxLayout" name="HLayout_25">
-          <item>
-           <widget class="QLabel" name="m_pComboLabel">
-            <property name="text">
-             <string>Ruleset:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="m_pComboRuleset">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
-            </property>
-            <item>
-             <property name="text">
-              <string>Lynx</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>MS</string>
-             </property>
-            </item>
-           </widget>
-          </item>
+        <item>
+         <layout class="QHBoxLayout" name="HLayout_26">
           <item>
            <widget class="QLabel" name="m_pLblFind">
             <property name="text">
@@ -649,7 +651,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="m_pTxtFind"/>
+           <widget class="QLineEdit" name="m_pTxtFind">
+            <property name="minimumHeight">
+             <number>32</number>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QToolButton" name="m_pBackButton">
@@ -659,9 +665,9 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="m_pImportButton">
+           <widget class="QToolButton" name="m_pGoButton">
             <property name="text">
-             <string>Import</string>
+             <string>Go</string>
             </property>
            </widget>
           </item>
@@ -801,7 +807,9 @@
     <addaction name="action_SolutionFiles"/>
     <addaction name="action_TimesClipboard"/>
     <addaction name="separator"/>
+    <addaction name="action_Import"/>
     <addaction name="action_Levelsets"/>
+    <addaction name="separator"/>
     <addaction name="action_Exit"/>
    </widget>
    <widget class="QMenu" name="menu_Level">
@@ -884,6 +892,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="action_Import">
+   <property name="text">
+    <string>Import Levelsets...</string>
    </property>
   </action>
   <action name="action_Exit">
@@ -1055,7 +1068,8 @@
  </customwidgets>
  <tabstops>
   <tabstop>m_pTblList</tabstop>
-  <tabstop>m_pComboRuleset</tabstop>
+  <tabstop>m_pRadioMS</tabstop>
+  <tabstop>m_pRadioLynx</tabstop>
   <tabstop>m_pTxtFind</tabstop>
   <tabstop>m_pTextBrowser</tabstop>
   <tabstop>m_pBtnTextReturn</tabstop>

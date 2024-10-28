@@ -8,7 +8,6 @@
 #m_pGameFrame, #m_pInfoFrame, #m_pObjectsFrame, #m_pMessagesFrame {
 	border-top: 5px outset rgb(70,70,70);
 	border-left: 5px outset rgb(70,70,70);
-
 	border-right: 5px outset rgb(55,55,55);
 	border-bottom: 5px outset rgb(55,55,55);
 }
@@ -22,10 +21,17 @@ QLCDNumber {
 	color: white;
 }
 
-#m_pLblFind, #m_pComboLabel {
-	color: white;
+QTableView, QHeaderView, #m_pLblFind, #m_pBackButton, #m_pGoButton {
+	font-size: 18px;
+}
+
+QTableView, QHeaderView {
 	font-weight: bold;
-	font-size: 16px;
+}
+
+#m_pLblFind {
+	font-weight: bold;
+	color: white;
 }
 
 #m_pControlsFrame {
@@ -74,4 +80,44 @@ QLCDNumber {
 	margin-left: 20px;
 	margin-right: 20px;
 	color: black;
+}
+
+QRadioButton {
+	font-size: 24px;
+	border: 4px dotted black;
+	border-radius: 12px;
+	padding: 8px;
+}
+
+QRadioButton::checked {
+    color: black;
+    background: white;
+}
+
+QRadioButton::unchecked {
+    color: white;
+}
+
+QRadioButton::indicator {
+    width: 8px;
+    height: 8px;
+    border-style: solid;
+    border-radius: 12px;
+	border-width: 8px;
+	margin-right: 16px;
+}
+
+QRadioButton::indicator::unchecked {
+    background: #eaeaea;
+    color: #eaeaea;
+}
+
+QRadioButton::indicator::unchecked::hover {
+    background: #cccccc;
+    color: #cccccc;
+}
+
+QRadioButton::indicator::checked {
+    background: white;
+    color: #1E81F0;
 }

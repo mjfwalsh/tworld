@@ -204,7 +204,7 @@ public slots:
 	void HideVolumeWidget();
 
 private slots:
-	void OnListItemActivated(const QModelIndex& index);
+	void OnListItemActivated();
 	void OnFindTextChanged(const QString& sText);
 	void OnFindReturnPressed();
 	void OnPlayback();

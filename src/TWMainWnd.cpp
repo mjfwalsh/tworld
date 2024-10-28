@@ -102,7 +102,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
 	mouseinfo.state = 0;
 	g_pApp->installEventFilter(this);
 
-	connect( m_pTblList, SIGNAL(activated(const QModelIndex&)), this, SLOT(OnListItemActivated(const QModelIndex&)) );
+	connect( m_pTblList, SIGNAL(activated(const QModelIndex&)), this, SLOT(OnListItemActivated()) );
 	connect( m_pTxtFind, SIGNAL(textChanged(const QString&)), this, SLOT(OnFindTextChanged(const QString&)) );
 	connect( m_pTxtFind, SIGNAL(returnPressed()), this, SLOT(OnFindReturnPressed()) );
 	connect( m_pBtnPlay, SIGNAL(clicked()), this, SLOT(OnPlayback()) );
@@ -114,7 +114,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
 	connect( m_pBtnTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
 	connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
 	connect( m_pBackButton, SIGNAL(clicked()), this, SLOT(OnBackButton()) );
-	connect( m_pImportButton, SIGNAL(clicked()), this, SLOT(OnImportButton()) );
+	connect( m_pGoButton, SIGNAL(clicked()), this, SLOT(OnListItemActivated()) );
 
 	// change menu to reflect settings
 	action_displayCCX->setChecked(getintsetting("displayccx"));
@@ -478,6 +478,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		action_Scores->setEnabled(true);
 		action_SolutionFiles->setEnabled(true);
 		action_TimesClipboard->setEnabled(true);
+		action_Import->setEnabled(true);
 		action_Levelsets->setEnabled(true);
 		action_About->setEnabled(true);
 		action_GoTo->setEnabled(true);
@@ -559,6 +560,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 		action_Scores->setEnabled(false);
 		action_SolutionFiles->setEnabled(false);
 		action_TimesClipboard->setEnabled(false);
+		action_Import->setEnabled(false);
 		action_Levelsets->setEnabled(false);
 		action_Playback->setEnabled(false);
 		action_Verify->setEnabled(false);
@@ -896,9 +898,9 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 {
 	int nCmd = 0;
 	QAction *actions[] = { action_Scores, action_SolutionFiles, action_TimesClipboard, 
-	                       action_Levelsets};
-	bool action_status[4];
-	for(int i = 0; i < 4; i++) {
+                           action_Import, action_Levelsets};
+	bool action_status[5];
+	for(int i = 0; i < 5; i++) {
 	    action_status[i] = actions[i]->isEnabled();
 	    actions[i]->setEnabled(false);
 	}
@@ -930,12 +932,15 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 		SetCurrentPage(PAGE_TABLE);
 		m_pTblList->setFocus();
 
-		m_pComboRuleset->setVisible(showRulesetOptions);
-		m_pComboLabel->setVisible(showRulesetOptions);
-		m_pImportButton->setVisible(showRulesetOptions);
+		m_pRadioMS->setVisible(showRulesetOptions);
+		m_pRadioLynx->setVisible(showRulesetOptions);
+		m_pGoButton->setVisible(showRulesetOptions);
 
 		if(ruleset != NULL) {
-			m_pComboRuleset->setCurrentText(*ruleset == Ruleset_MS ? "MS" : "Lynx");
+			if(*ruleset == Ruleset_MS)
+				m_pRadioMS->setChecked(true);
+			else
+				m_pRadioLynx->setChecked(true);
 		}
 
 		nCmd = g_pApp->exec();
@@ -947,14 +952,14 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 		m_pSortFilterProxyModel = 0;
 
 		if(ruleset != NULL) {
-			*ruleset = m_pComboRuleset->currentText() == "MS" ? Ruleset_MS : Ruleset_Lynx;
+			*ruleset = m_pRadioMS->isChecked() ? Ruleset_MS : Ruleset_Lynx;
 		}
 	}
 
 	if (m_bWindowClosed) g_pApp->ExitTWorld();
 
 	// restore menus and menu items to previous value
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 5; i++) {
 	    actions[i]->setEnabled(action_status[i]);
 	}
 	for(int i = 0; i < 5; i++) {
@@ -964,7 +969,7 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 	return nCmd;
 }
 
-void TileWorldMainWnd::OnListItemActivated(const QModelIndex& index)
+void TileWorldMainWnd::OnListItemActivated()
 {
 	g_pApp->exit(CmdProceed);
 }
@@ -1183,6 +1188,11 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 
 	if (pAction == action_Epilogue) {
 		Narrate(&CCX::Level::txtEpilogue, true);
+		return;
+	}
+
+	if (pAction == action_Import) {
+		OnImportButton();
 		return;
 	}
 
