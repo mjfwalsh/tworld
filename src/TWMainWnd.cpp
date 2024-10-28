@@ -1171,6 +1171,11 @@ void TileWorldMainWnd::OnCopyText()
 
 void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 {
+	if (pAction == action_Exit) {
+		g_pApp->ExitTWorld();
+		return;
+	}
+
 	if (pAction == action_Prologue) {
 		Narrate(&CCX::Level::txtPrologue, true);
 		return;
