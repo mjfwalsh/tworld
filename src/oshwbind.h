@@ -11,8 +11,6 @@
 #include <QPixmap>
 #include <QImage>
 
-struct gamestate;
-
 
 /* Types
  */

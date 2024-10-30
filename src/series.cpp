@@ -12,7 +12,6 @@
 #include	<cstring>
 #include	<cctype>
 
-#include	"tworld.h"
 #include	"defs.h"
 #include	"fileio.h"
 #include	"solution.h"

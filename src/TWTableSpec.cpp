@@ -3,7 +3,6 @@
  * See COPYING for details.
  */
 
-#include <QVector>
 #include <QString>
 
 #include "TWTableSpec.h"

@@ -13,7 +13,6 @@
 #include	<cstring>
 #include	<cerrno>
 
-#include	"defs.h"
 #include	"fileio.h"
 #include	"err.h"
 
