@@ -188,13 +188,13 @@ void Qt_Surface::BlitSurface(Qt_Surface* pSrc, const TW_Rect* pSrcRect,
 
 void Qt_Surface::SetColorKey(uint32_t nColorKey)
 {
-    m_nColorKey = nColorKey;
-    m_bColorKeySet = true;
+    m_colorKey = nColorKey;
+    m_colorKeySet = true;
 }
 
 void Qt_Surface::ResetColorKey()
 {
-    m_bColorKeySet = false;
+    m_colorKeySet = false;
 }
 
 

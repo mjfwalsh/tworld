@@ -58,33 +58,33 @@ constexpr TileWorldMainWnd::keycmdmap TileWorldMainWnd::keycmds[];
 TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     :
     QMainWindow(pParent),
-    m_bWindowClosed(false),
-    m_pSurface(0),
-    m_pInvSurface(0),
-    m_bKbdRepeatEnabled(true),
-    m_nRuleset(Ruleset_None),
-    m_nLevelNum(0),
-    m_sLevelName(""),
-    m_sLevelPackName(""),
-    m_sTimeFormat("%v"),
-    m_bProblematic(false),
-    m_bOFNT(false),
-    m_nBestTime(TIME_NIL),
+    m_windowClosed(false),
+    m_surface(0),
+    m_invSurface(0),
+    m_kbdRepeatEnabled(true),
+    m_ruleset(Ruleset_None),
+    m_levelNum(0),
+    m_levelName(""),
+    m_levelPackName(""),
+    m_timeFormat("%v"),
+    m_problematic(false),
+    m_oFNT(false),
+    m_bestTime(TIME_NIL),
     m_hintVisible(false),
-    m_nTimeLeft(TIME_NIL),
-    m_bTimedLevel(false),
-    m_bReplay(false),
-    m_pSortFilterProxyModel(0)
+    m_timeLeft(TIME_NIL),
+    m_timedLevel(false),
+    m_replay(false),
+    m_sortFilterProxyModel(0)
 {
-    memset(m_nKeyState, 0, TWK_LAST*sizeof(uint8_t));
+    memset(m_keyState, 0, TWK_LAST*sizeof(uint8_t));
 
     // load scale early so it's there for setupUi
     int percentZoom = getintsetting("zoom");
     if(percentZoom == -1) percentZoom = 100;
-    scale = sqrt((double)percentZoom / 100);
+    m_scale = sqrt((double)percentZoom / 100);
 
     // load ui
-    setupUi(this, scale);
+    setupUi(this, m_scale);
 
     // disable manual window resizing
     layout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -99,22 +99,22 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     this->setStyleSheet(StyleSheet);
 
     // initalise blank mouseinfo status before applying event filter
-    mouseinfo.state = 0;
-    g_pApp->installEventFilter(this);
+    m_mouseinfo.state = 0;
+    g_app->installEventFilter(this);
 
-    connect( m_pTblList, SIGNAL(activated(const QModelIndex&)), this, SLOT(OnListItemActivated()) );
-    connect( m_pTxtFind, SIGNAL(textChanged(const QString&)), this, SLOT(OnFindTextChanged(const QString&)) );
-    connect( m_pTxtFind, SIGNAL(returnPressed()), this, SLOT(OnFindReturnPressed()) );
-    connect( m_pBtnPlay, SIGNAL(clicked()), this, SLOT(OnPlayback()) );
-    connect( m_pSldSpeed, SIGNAL(valueChanged(int)), this, SLOT(OnSpeedValueChanged(int)) );
-    connect( m_pSldSpeed, SIGNAL(sliderReleased()), this, SLOT(OnSpeedSliderReleased()) );
-    connect( m_pSldSeek, SIGNAL(valueChanged(int)), this, SLOT(OnSeekPosChanged(int)) );
-    connect( m_pBtnTextNext, SIGNAL(clicked()), this, SLOT(OnTextNext()) );
-    connect( m_pBtnTextPrev, SIGNAL(clicked()), this, SLOT(OnTextPrev()) );
-    connect( m_pBtnTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
-    connect( m_pMenuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
-    connect( m_pBackButton, SIGNAL(clicked()), this, SLOT(OnBackButton()) );
-    connect( m_pGoButton, SIGNAL(clicked()), this, SLOT(OnListItemActivated()) );
+    connect( m_tableList, SIGNAL(activated(const QModelIndex&)), this, SLOT(OnListItemActivated()) );
+    connect( m_textFind, SIGNAL(textChanged(const QString&)), this, SLOT(OnFindTextChanged(const QString&)) );
+    connect( m_textFind, SIGNAL(returnPressed()), this, SLOT(OnFindReturnPressed()) );
+    connect( m_buttonPlay, SIGNAL(clicked()), this, SLOT(OnPlayback()) );
+    connect( m_slideSpeed, SIGNAL(valueChanged(int)), this, SLOT(OnSpeedValueChanged(int)) );
+    connect( m_slideSpeed, SIGNAL(sliderReleased()), this, SLOT(OnSpeedSliderReleased()) );
+    connect( m_slideSeek, SIGNAL(valueChanged(int)), this, SLOT(OnSeekPosChanged(int)) );
+    connect( m_buttonTextNext, SIGNAL(clicked()), this, SLOT(OnTextNext()) );
+    connect( m_buttonTextPrev, SIGNAL(clicked()), this, SLOT(OnTextPrev()) );
+    connect( m_buttonTextReturn, SIGNAL(clicked()), this, SLOT(OnTextReturn()) );
+    connect( m_menuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
+    connect( m_backButton, SIGNAL(clicked()), this, SLOT(OnBackButton()) );
+    connect( m_goButton, SIGNAL(clicked()), this, SLOT(OnListItemActivated()) );
 
     // change menu to reflect settings
     action_displayCCX->setChecked(getintsetting("displayccx"));
@@ -125,41 +125,41 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     startTimer(tickMS / 2);
 
     // play pause icon for replay controls
-    playIcon = QIcon(appResDir + "/play.svg");
-    pauseIcon = QIcon(appResDir + "/pause.svg");
+    m_playIcon = QIcon(appResDir + "/play.svg");
+    m_pauseIcon = QIcon(appResDir + "/pause.svg");
 
     // show window
     show();
 
     // timer for display of volume widegt
-    volTimer = new QTimer(this);
+    m_volTimer = new QTimer(this);
 
     // keyboard stuff
-    mergeable[CmdNorth] = mergeable[CmdSouth] = CmdWest | CmdEast;
-    mergeable[CmdWest] = mergeable[CmdEast] = CmdNorth | CmdSouth;
+    m_mergeable[CmdNorth] = m_mergeable[CmdSouth] = CmdWest | CmdEast;
+    m_mergeable[CmdWest] = m_mergeable[CmdEast] = CmdNorth | CmdSouth;
     SetKeyboardRepeat(true);
 }
 
 
 TileWorldMainWnd::~TileWorldMainWnd()
 {
-    g_pApp->removeEventFilter(this);
+    g_app->removeEventFilter(this);
 
-    delete volTimer;
-    delete m_pInvSurface;
-    delete m_pSurface;
+    delete m_volTimer;
+    delete m_invSurface;
+    delete m_surface;
 }
 
 
 void TileWorldMainWnd::closeEvent(QCloseEvent* pCloseEvent)
 {
     QMainWindow::closeEvent(pCloseEvent);
-    m_bWindowClosed = true;
+    m_windowClosed = true;
 
-    if (m_pMainWidget->currentIndex() == PAGE_GAME)
-        g_pApp->ExitTWorld();
+    if (m_mainWidget->currentIndex() == PAGE_GAME)
+        g_app->ExitTWorld();
     else
-        g_pApp->quit();
+        g_app->quit();
 }
 
 bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
@@ -238,14 +238,14 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
     bool bPress = (eType == QEvent::KeyPress);
 
     // List view
-    QObjectList const & tableWidgets = m_pTablePage->children();
+    QObjectList const & tableWidgets = m_tablePage->children();
     if (bPress && tableWidgets.contains(pObject)) {
-        int currentrow = m_pTblList->selectionModel()->currentIndex().row();
+        int currentrow = m_tableList->selectionModel()->currentIndex().row();
         if ((nTWKey == TWK_RETURN) && currentrow >= 0) {
-            g_pApp->exit(CmdProceed);
+            g_app->exit(CmdProceed);
             return STOP_PROPRGATION;
         } else if(nTWKey == TWK_ESCAPE) {
-            g_pApp->exit(CmdQuitLevel);
+            g_app->exit(CmdQuitLevel);
             return STOP_PROPRGATION;
         } else {
             return CONTINUE_PROPRGATION;
@@ -253,18 +253,18 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
     }
 
     // Text view
-    if(m_pMainWidget->currentIndex() == PAGE_TEXT) {
-        if (nTWKey == TWK_RETURN) g_pApp->exit(+1);
-        else if(nTWKey == TWK_ESCAPE) g_pApp->exit(CmdQuitLevel);
+    if(m_mainWidget->currentIndex() == PAGE_TEXT) {
+        if (nTWKey == TWK_RETURN) g_app->exit(+1);
+        else if(nTWKey == TWK_ESCAPE) g_app->exit(CmdQuitLevel);
         return STOP_PROPRGATION;
     }
 
-    if (m_bKbdRepeatEnabled || !pKeyEvent->isAutoRepeat()) {
+    if (m_kbdRepeatEnabled || !pKeyEvent->isAutoRepeat()) {
         KeyEventCallback(nTWKey, bPress);
     }
 
     // Stop propagating events when the PAGE_GAME is active
-    return (m_pMainWidget->currentIndex() == PAGE_GAME);
+    return (m_mainWidget->currentIndex() == PAGE_GAME);
 }
 
 
@@ -274,20 +274,20 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
  */
 bool TileWorldMainWnd::HandleMouseEvent(QObject* pObject, QEvent* pEvent)
 {
-    if(pObject != m_pGameWidget) return CONTINUE_PROPRGATION;
+    if(pObject != m_gameWidget) return CONTINUE_PROPRGATION;
 
     if(pEvent->type() == QEvent::MouseButtonPress) {
         QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
 
-        mouseinfo.state = KS_PRESSED;
+        m_mouseinfo.state = KS_PRESSED;
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-        mouseinfo.x = pMouseEvent->position().x();
-        mouseinfo.y = pMouseEvent->position().y();
+        m_mouseinfo.x = pMouseEvent->position().x();
+        m_mouseinfo.y = pMouseEvent->position().y();
 #else
-        mouseinfo.x = pMouseEvent->x();
-        mouseinfo.y = pMouseEvent->y();
+        m_mouseinfo.x = pMouseEvent->x();
+        m_mouseinfo.y = pMouseEvent->y();
 #endif
-        mouseinfo.button = pMouseEvent->button();
+        m_mouseinfo.button = pMouseEvent->button();
     }
 
     return STOP_PROPRGATION;
@@ -303,13 +303,13 @@ void TileWorldMainWnd::PulseKey(int nTWKey)
 
 void TileWorldMainWnd::OnPlayback()
 {
-    int nTWKey = m_bReplay ? TWC_PAUSEGAME : TWC_PLAYBACK;
+    int nTWKey = m_replay ? TWC_PAUSEGAME : TWC_PLAYBACK;
     PulseKey(nTWKey);
 }
 
 void TileWorldMainWnd::OnBackButton()
 {
-    g_pApp->exit(CmdQuitLevel);
+    g_app->exit(CmdQuitLevel);
 }
 
 void TileWorldMainWnd::OnImportButton()
@@ -359,7 +359,7 @@ void TileWorldMainWnd::OnImportButton()
     }
 
     if (success > 0) {
-        g_pApp->exit(CmdReloadLevelsets);
+        g_app->exit(CmdReloadLevelsets);
     }
 }
 
@@ -372,7 +372,7 @@ void TileWorldMainWnd::OnImportButton()
  */
 void TileWorldMainWnd::SetKeyboardRepeat(bool bEnable)
 {
-    m_bKbdRepeatEnabled = bEnable;
+    m_kbdRepeatEnabled = bEnable;
 }
 
 
@@ -382,8 +382,8 @@ void TileWorldMainWnd::SetKeyboardRepeat(bool bEnable)
 void TileWorldMainWnd::ReleaseAllKeys()
 {
     for (int k = 0; k < TWK_LAST; ++k) {
-        m_nKeyState[k] = false;
-        keystates[k] = KS_OFF;
+        m_keyState[k] = false;
+        m_keystates[k] = KS_OFF;
     }
 }
 
@@ -398,29 +398,29 @@ void TileWorldMainWnd::ReleaseAllKeys()
  */
 void TileWorldMainWnd::CreateGameDisplay()
 {
-    delete m_pSurface;
-    delete m_pInvSurface;
+    delete m_surface;
+    delete m_invSurface;
 
     int w = NXTILES*geng.wtile, h = NYTILES*geng.htile;
-    m_pSurface = new Qt_Surface(w, h, false);
-    m_pInvSurface = new Qt_Surface(4*geng.wtile, 2*geng.htile, false);
+    m_surface = new Qt_Surface(w, h, false);
+    m_invSurface = new Qt_Surface(4*geng.wtile, 2*geng.htile, false);
 
     // this sets the game and objects box
-    m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
-    m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
+    m_gameWidget->setPixmap(m_surface->GetPixmap());
+    m_objectsWidget->setPixmap(m_invSurface->GetPixmap());
 
-    geng.screen = m_pSurface;
+    geng.screen = m_surface;
     m_disploc = TW_Rect(0, 0, w, h);
 
     SetCurrentPage(PAGE_GAME);
 
-    m_pControlsFrame->setVisible(true);
+    m_controlsFrame->setVisible(true);
 }
 
 
 void TileWorldMainWnd::SetCurrentPage(Page ePage)
 {
-    m_pMainWidget->setCurrentIndex(ePage);
+    m_mainWidget->setCurrentIndex(ePage);
 }
 
 
@@ -441,7 +441,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 {
     bool const bTimedLevel = (pState->game->time > 0);
 
-    m_nTimeLeft = nTimeLeft;
+    m_timeLeft = nTimeLeft;
 
     bool const bForceShowTimer = action_forceShowTimer->isChecked();
 
@@ -449,30 +449,30 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
     if (pState->currenttime == -1) {
         // set properties
-        m_nRuleset = pState->ruleset;
-        m_nLevelNum = pState->game->number;
-        m_sLevelName = pState->game->name;
-        m_bTimedLevel = bTimedLevel;
-        m_bProblematic = false;
-        m_nBestTime = nBestTime;
-        m_bReplay = false;  // IMPORTANT for OnSpeedValueChanged
+        m_ruleset = pState->ruleset;
+        m_levelNum = pState->game->number;
+        m_levelName = pState->game->name;
+        m_timedLevel = bTimedLevel;
+        m_problematic = false;
+        m_bestTime = nBestTime;
+        m_replay = false;  // IMPORTANT for OnSpeedValueChanged
         SetSpeed(0);    // IMPORTANT
 
         // gui stuff
-        m_pGameWidget->setCursor(m_nRuleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
+        m_gameWidget->setCursor(m_ruleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
         m_pLCDNumber->display(pState->game->number);
-        m_pLblTitle->setText(m_sLevelPackName + " - " + m_sLevelName);
-        m_pLblPassword->setText(pState->game->passwd);
-        m_pSldSeek->setValue(0);
+        m_labelTitle->setText(m_levelPackName + " - " + m_levelName);
+        m_labelPassword->setText(pState->game->passwd);
+        m_slideSeek->setValue(0);
         action_Pause->setText("Start");
 
         // easter egg
-        m_bOFNT = (m_sLevelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
+        m_oFNT = (m_levelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 
         // show/hide controls pane
         bool bHasSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) == 0));
         bool bHasDeletedSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) != 0));
-        m_pControlsFrame->setVisible(bHasSolution);
+        m_controlsFrame->setVisible(bHasSolution);
 
         // disable/enable menus
         action_Scores->setEnabled(true);
@@ -487,73 +487,73 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
         action_Delete->setEnabled(hassolution(pState->game));
 
         // pedantic mode
-        action_PedanticMode->setVisible(m_nRuleset == Ruleset_Lynx);
-        action_PedanticMode->setEnabled(m_nRuleset == Ruleset_Lynx);
+        action_PedanticMode->setVisible(m_ruleset == Ruleset_Lynx);
+        action_PedanticMode->setEnabled(m_ruleset == Ruleset_Lynx);
 
         // Change delete menu option as appropriate
         if(bHasDeletedSolution) action_Delete->setText("Undelete");
         else action_Delete->setText("Delete");
 
         // pro- and epilogue
-        CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_nLevelNum]);
+        CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_levelNum]);
         bool hasPrologue(!currLevel.txtPrologue.vecPages.empty());
         bool hasEpilogue(!currLevel.txtEpilogue.vecPages.empty());
         action_Prologue->setEnabled(hasPrologue);
         action_Epilogue->setEnabled(hasEpilogue && bHasSolution);
 
         // time
-        m_pPrgTime->setPar(nBestTime == TIME_NIL ? -1 : nBestTime);
-        m_pPrgTime->setParBad(bParBad);
+        m_progressTime->setPar(nBestTime == TIME_NIL ? -1 : nBestTime);
+        m_progressTime->setParBad(bParBad);
 
         // set time formatting
         if (bTimedLevel) {
             if (bParBad || nBestTime == TIME_NIL) {
-                m_pPrgTime->setFormat("%v");
-                m_sTimeFormat  = "%v";
+                m_progressTime->setFormat("%v");
+                m_timeFormat  = "%v";
             } else {
-                m_pPrgTime->setFormat("%b / %v");
-                m_sTimeFormat  = "%v (%d)";
+                m_progressTime->setFormat("%b / %v");
+                m_timeFormat  = "%v (%d)";
             }
-            m_pPrgTime->setFullBar(false);
+            m_progressTime->setFullBar(false);
         } else if(bForceShowTimer) {
             if (bParBad || nBestTime == TIME_NIL) {
-                m_pPrgTime->setFormat("[%v]");
-                m_sTimeFormat  = "[%v]";
+                m_progressTime->setFormat("[%v]");
+                m_timeFormat  = "[%v]";
             } else {
-                m_pPrgTime->setFormat("[%b] / [%v]");
-                m_sTimeFormat  = "[%v] (%d)";
+                m_progressTime->setFormat("[%b] / [%v]");
+                m_timeFormat  = "[%v] (%d)";
             }
-            m_pPrgTime->setFullBar(false);
+            m_progressTime->setFullBar(false);
         } else {
-            m_pPrgTime->setFormat("---");
-            m_sTimeFormat  = "---";
-            m_pPrgTime->setFullBar(true);
+            m_progressTime->setFormat("---");
+            m_timeFormat  = "---";
+            m_progressTime->setFullBar(true);
         }
 
         // set time limits
         int timeLimit = bTimedLevel ? pState->game->time : 999;
         if (nBestTime != TIME_NIL) {
-            m_pSldSeek->setMaximum(timeLimit - nBestTime);
+            m_slideSeek->setMaximum(timeLimit - nBestTime);
         }
-        m_pPrgTime->setMaximum(timeLimit);
-        m_pPrgTime->setValue(timeLimit);
+        m_progressTime->setMaximum(timeLimit);
+        m_progressTime->setValue(timeLimit);
 
         // Hide hint and set text
         SetHintVisibility(false);
         SetHintText(pState->hinttext);
 
-        // This sets m_bProblematic as true if there are any problems
+        // This sets m_problematic as true if there are any problems
         CheckForProblems(pState);
 
         Narrate(&CCX::Level::txtPrologue);
     }
     // do these on play start - they only need to be done once
     else if(action_Levelsets->isEnabled()) {
-        m_bReplay = (pState->replay >= 0);
-        m_pControlsFrame->setVisible(m_bReplay);
-        if (m_bProblematic) {
+        m_replay = (pState->replay >= 0);
+        m_controlsFrame->setVisible(m_replay);
+        if (m_problematic) {
             SetHintVisibility(false);
-            m_bProblematic = false;
+            m_problematic = false;
         }
 
         // disable menus
@@ -571,7 +571,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
         action_Epilogue->setEnabled(false);
         action_PedanticMode->setEnabled(false);
 
-        m_pPrgTime->setFormat(m_sTimeFormat);
+        m_progressTime->setFormat(m_timeFormat);
     }
 
     // display blank pause screen in ms mode
@@ -583,28 +583,28 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
     // draw objects widget
     for (int i = 0; i < 4; ++i) {
-        drawfulltileid(m_pInvSurface, i*geng.wtile, 0,
+        drawfulltileid(m_invSurface, i*geng.wtile, 0,
             (pState->keys[i] ? Key_Red+i : Empty));
-        drawfulltileid(m_pInvSurface, i*geng.wtile, geng.htile,
+        drawfulltileid(m_invSurface, i*geng.wtile, geng.htile,
             (pState->boots[i] ? Boots_Ice+i : Empty));
     }
-    m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
+    m_objectsWidget->setPixmap(m_invSurface->GetPixmap());
 
     // chips left
     m_pLCDChipsLeft->display(pState->chipsneeded);
 
     // time left
-    m_pPrgTime->setValue(nTimeLeft);
+    m_progressTime->setValue(nTimeLeft);
 
     // move progress slider in replay mode
-    if (m_bReplay && !m_pSldSeek->isSliderDown()) {
-        m_pSldSeek->blockSignals(true);
-        m_pSldSeek->setValue(pState->currenttime / TICKS_PER_SECOND);
-        m_pSldSeek->blockSignals(false);
+    if (m_replay && !m_slideSeek->isSliderDown()) {
+        m_slideSeek->blockSignals(true);
+        m_slideSeek->setValue(pState->currenttime / TICKS_PER_SECOND);
+        m_slideSeek->blockSignals(false);
     }
 
     // set the hint when on a relevant tile
-    if (!m_bProblematic) {
+    if (!m_problematic) {
         // Call setText / clear only when really required
         // See comments about QLabel in TWDisplayWidget.h
         if ((pState->statusflags & SF_SHOWHINT) != 0) {
@@ -627,14 +627,14 @@ void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
             s += ": " + QString(pState->game->unsolvable);
         s += ".";
     } else {
-        CCX::RulesetCompatibility ruleCompat = m_ccxLevelset.vecLevels[m_nLevelNum].ruleCompat;
+        CCX::RulesetCompatibility ruleCompat = m_ccxLevelset.vecLevels[m_levelNum].ruleCompat;
         CCX::Compatibility compat = CCX::COMPAT_UNKNOWN;
-        if (m_nRuleset == Ruleset_Lynx) {
+        if (m_ruleset == Ruleset_Lynx) {
             if (pedanticmode)
                 compat = ruleCompat.ePedantic;
             else
                 compat = ruleCompat.eLynx;
-        } else if (m_nRuleset == Ruleset_MS) {
+        } else if (m_ruleset == Ruleset_MS) {
             compat = ruleCompat.eMS;
         }
 
@@ -643,8 +643,8 @@ void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
         }
     }
 
-    m_bProblematic = !s.isEmpty();
-    if (m_bProblematic) {
+    m_problematic = !s.isEmpty();
+    if (m_problematic) {
         SetHintText(s);
         SetHintVisibility(true);
     }
@@ -654,11 +654,11 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
 {
     short xviewpos = pState->xviewpos;
     short yviewpos = pState->yviewpos;
-    bool bFrogShow = (m_bOFNT  &&  m_bReplay  &&
+    bool bFrogShow = (m_oFNT  &&  m_replay  &&
                     xviewpos/8 == 14  &&  yviewpos/8 == 9);
     if (bFrogShow) {
         int x = xviewpos, y = yviewpos;
-        if (m_nRuleset == Ruleset_MS) {
+        if (m_ruleset == Ruleset_MS) {
             for (int pos = 0; pos < CXGRID*CYGRID; ++pos) {
                 int id = pState->map[pos].top.id;
                 if ( ! (id >= Teeth && id < Teeth+4) )
@@ -689,7 +689,7 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
     }
 
     displaymapview(pState, m_disploc);
-    m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
+    m_gameWidget->setPixmap(m_surface->GetPixmap());
 
     if (bFrogShow) {
         const_cast<gamestate*>(pState)->xviewpos = xviewpos;
@@ -710,14 +710,14 @@ void TileWorldMainWnd::DisplayShutter()
     painter.drawText(pixmap.rect(), Qt::AlignCenter, "Paused");
     painter.end();
 
-    m_pGameWidget->setPixmap(pixmap);
+    m_gameWidget->setPixmap(pixmap);
 }
 
 
 void TileWorldMainWnd::OnSpeedValueChanged(int nValue)
 {
     // IMPORTANT!
-    if (!m_bReplay) return;
+    if (!m_replay) return;
     // Even though the replay controls are hidden when play begins,
     //  the slider could be manipulated before making the first move
 
@@ -726,7 +726,7 @@ void TileWorldMainWnd::OnSpeedValueChanged(int nValue)
 
 void TileWorldMainWnd::SetSpeed(int nValue)
 {
-    int nMS = (m_nRuleset == Ruleset_MS) ? 1100 : 1000;
+    int nMS = (m_ruleset == Ruleset_MS) ? 1100 : 1000;
     if (nValue >= 0)
         settimersecond(nMS >> nValue);
     else
@@ -735,7 +735,7 @@ void TileWorldMainWnd::SetSpeed(int nValue)
 
 void TileWorldMainWnd::OnSpeedSliderReleased()
 {
-    m_pSldSpeed->setValue(0);
+    m_slideSpeed->setValue(0);
 }
 
 
@@ -743,7 +743,7 @@ void TileWorldMainWnd::OnSpeedSliderReleased()
  */
 int TileWorldMainWnd::GetReplaySecondsToSkip() const
 {
-    return m_pSldSeek->value();
+    return m_slideSeek->value();
 }
 
 
@@ -773,32 +773,32 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
         QString sText;
         QTextStream strm(&sText);
         strm.setLocale(m_locale);
-        strm << "<big><b>" << m_sLevelName << "</b></big><br>";
+        strm << "<big><b>" << m_levelName << "</b></big><br>";
 
-        QString sAuthor = m_ccxLevelset.vecLevels[m_nLevelNum].sAuthor;
+        QString sAuthor = m_ccxLevelset.vecLevels[m_levelNum].sAuthor;
         if (!sAuthor.isEmpty())
             strm << "by " << sAuthor;
 
         strm << "<hr><br><big><b>";
-        if (m_bReplay) {
+        if (m_replay) {
             strm << "Alright!";
         } else {
             strm << getmessage(MessageWin, "You won!");
         }
         strm << "</b></big><br>";
 
-        if (!m_bReplay) {
-            if (m_bTimedLevel && m_nBestTime != TIME_NIL) {
-                int diff = m_nTimeLeft - m_nBestTime;
+        if (!m_replay) {
+            if (m_timedLevel && m_bestTime != TIME_NIL) {
+                int diff = m_timeLeft - m_bestTime;
 
                 if (diff == 0)
-                    strm << "You scored " << m_nBestTime << " yet again.";
+                    strm << "You scored " << m_bestTime << " yet again.";
                 else if (diff == 1)
                     strm << "You made it 1 second faster this time!";
                 else if (diff > 0)
                     strm << "You made it " << diff << " seconds faster this time!";
                 else
-                    strm << "But not as quick as your previous score of " << m_nBestTime << "...";
+                    strm << "But not as quick as your previous score of " << m_bestTime << "...";
             }
 
             strm << "<br><table width='100%'>"
@@ -818,9 +818,9 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
         msgBox.setIconPixmap(pSurface->GetPixmap());
         delete pSurface;
 
-        msgBox.setWindowTitle(m_bReplay ? "Replay Completed" : "Level Completed");
+        msgBox.setWindowTitle(m_replay ? "Replay Completed" : "Level Completed");
 
-        m_sTextToCopy = timestring(m_nLevelNum, m_sLevelName, m_nTimeLeft, m_bTimedLevel, false);
+        m_textToCopy = timestring(m_levelNum, m_levelName, m_timeLeft, m_timedLevel, false);
 
         msgBox.addButton("&Onward!", QMessageBox::AcceptRole);
         QPushButton* pBtnRestart = msgBox.addButton("&Restart", QMessageBox::AcceptRole);
@@ -834,8 +834,8 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
 
         Narrate(&CCX::Level::txtEpilogue);
     } else {    // Failure
-        bool bTimeout = (m_bTimedLevel  &&  m_nTimeLeft <= 0);
-        if (m_bReplay) {
+        bool bTimeout = (m_timedLevel  &&  m_timeLeft <= 0);
+        if (m_replay) {
             QString sMsg = "Whoa! Chip ";
             if (bTimeout)
                 sMsg += "ran out of time";
@@ -860,7 +860,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
             // system sound to play. Using setIconPixmap avoids this. But avoid doing this
             // on Linux as it can produce a style warning.
             #if defined(Q_OS_WIN)
-                QStyle* pStyle = g_pApp->style();
+                QStyle* pStyle = g_app->style();
                 if (pStyle != 0) {
                     QIcon icon = pStyle->standardIcon(QStyle::SP_MessageBoxWarning);
                     msgBox.setIconPixmap(icon.pixmap(48));
@@ -916,47 +916,47 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
     {
         table->fixRows();
         QSortFilterProxyModel proxyModel;
-        m_pSortFilterProxyModel = &proxyModel;
+        m_sortFilterProxyModel = &proxyModel;
         proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
         proxyModel.setFilterKeyColumn(-1);
         proxyModel.setSourceModel(table);
-        m_pTblList->setModel(&proxyModel);
+        m_tableList->setModel(&proxyModel);
 
-        m_pTblList->horizontalHeader()->setStretchLastSection(table->cols() == 1);
+        m_tableList->horizontalHeader()->setStretchLastSection(table->cols() == 1);
 
         QModelIndex index = proxyModel.mapFromSource(table->index(*pnIndex, 0));
-        m_pTblList->setCurrentIndex(index);
-        m_pTblList->resizeColumnsToContents();
-        m_pTblList->resizeRowsToContents();
-        m_pTxtFind->clear();
+        m_tableList->setCurrentIndex(index);
+        m_tableList->resizeColumnsToContents();
+        m_tableList->resizeRowsToContents();
+        m_textFind->clear();
         SetCurrentPage(PAGE_TABLE);
-        m_pTblList->setFocus();
+        m_tableList->setFocus();
 
-        m_pRadioMS->setVisible(showRulesetOptions);
-        m_pRadioLynx->setVisible(showRulesetOptions);
-        m_pGoButton->setVisible(showRulesetOptions);
+        m_radioMS->setVisible(showRulesetOptions);
+        m_radioLynx->setVisible(showRulesetOptions);
+        m_goButton->setVisible(showRulesetOptions);
 
         if(ruleset != NULL) {
             if(*ruleset == Ruleset_MS)
-                m_pRadioMS->setChecked(true);
+                m_radioMS->setChecked(true);
             else
-                m_pRadioLynx->setChecked(true);
+                m_radioLynx->setChecked(true);
         }
 
-        nCmd = g_pApp->exec();
+        nCmd = g_app->exec();
 
-        *pnIndex = proxyModel.mapToSource(m_pTblList->currentIndex()).row();
+        *pnIndex = proxyModel.mapToSource(m_tableList->currentIndex()).row();
 
         SetCurrentPage(PAGE_GAME);
-        m_pTblList->setModel(0);
-        m_pSortFilterProxyModel = 0;
+        m_tableList->setModel(0);
+        m_sortFilterProxyModel = 0;
 
         if(ruleset != NULL) {
-            *ruleset = m_pRadioMS->isChecked() ? Ruleset_MS : Ruleset_Lynx;
+            *ruleset = m_radioMS->isChecked() ? Ruleset_MS : Ruleset_Lynx;
         }
     }
 
-    if (m_bWindowClosed) g_pApp->ExitTWorld();
+    if (m_windowClosed) g_app->ExitTWorld();
 
     // restore menus and menu items to previous value
     for(int i = 0; i < 5; i++) {
@@ -971,38 +971,38 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 
 void TileWorldMainWnd::OnListItemActivated()
 {
-    g_pApp->exit(CmdProceed);
+    g_app->exit(CmdProceed);
 }
 
 void TileWorldMainWnd::OnFindTextChanged(const QString& sText)
 {
-    if (!m_pSortFilterProxyModel) return;
+    if (!m_sortFilterProxyModel) return;
 
     QString sWildcard;
     if (sText.isEmpty())
         sWildcard = "*";
     else
         sWildcard = '*' + sText + '*';
-    m_pSortFilterProxyModel->setFilterWildcard(sWildcard);
+    m_sortFilterProxyModel->setFilterWildcard(sWildcard);
 }
 
 void TileWorldMainWnd::OnFindReturnPressed()
 {
-    if (!m_pSortFilterProxyModel) return;
+    if (!m_sortFilterProxyModel) return;
 
-    int n = m_pSortFilterProxyModel->rowCount();
+    int n = m_sortFilterProxyModel->rowCount();
     if (n == 0) {
         TileWorldApp::Bell();
         return;
     }
 
-    m_pTblList->setFocus();
+    m_tableList->setFocus();
 
-    if (!m_pTblList->currentIndex().isValid())
-        m_pTblList->selectRow(0);
+    if (!m_tableList->currentIndex().isValid())
+        m_tableList->selectRow(0);
 
     if (n == 1)
-        g_pApp->exit(CmdProceed);
+        g_app->exit(CmdProceed);
 }
 
 /* Display an input prompt to the user. prompt supplies the prompt to
@@ -1030,18 +1030,18 @@ void TileWorldMainWnd::DisplayPasswordPrompt(char *passwd)
  */
 void TileWorldMainWnd::PushSubtitle(QString subtitle)
 {
-    subtitlestack.append(subtitle);
+    m_subtitlestack.append(subtitle);
     SetSubtitle(subtitle);
 }
 
 void TileWorldMainWnd::PopSubtitle()
 {
-    if(!subtitlestack.isEmpty()) {
-        subtitlestack.removeLast();
+    if(!m_subtitlestack.isEmpty()) {
+        m_subtitlestack.removeLast();
     }
 
-    if(!subtitlestack.isEmpty()) {
-        SetSubtitle(subtitlestack.last());
+    if(!m_subtitlestack.isEmpty()) {
+        SetSubtitle(m_subtitlestack.last());
     } else {
         SetSubtitle("");
     }
@@ -1049,8 +1049,8 @@ void TileWorldMainWnd::PopSubtitle()
 
 void TileWorldMainWnd::ChangeSubtitle(QString subtitle)
 {
-    if(!subtitlestack.isEmpty()) {
-        subtitlestack.last() = subtitle;
+    if(!m_subtitlestack.isEmpty()) {
+        m_subtitlestack.last() = subtitle;
     }
     SetSubtitle(subtitle);
 }
@@ -1076,7 +1076,7 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
     dataDir.setPath(getdir(pSeries->mapfiledir));
 
     QString sSetName = QFileInfo(pSeries->mapfilename).completeBaseName();
-    m_sLevelPackName = sSetName; // save for use on display
+    m_levelPackName = sSetName; // save for use on display
 
     QString sFilePath = dataDir.filePath(sSetName + ".ccx");
 
@@ -1094,7 +1094,7 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
 
 void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 {
-    CCX::Text& rText = m_ccxLevelset.vecLevels[m_nLevelNum].*pmTxt;
+    CCX::Text& rText = m_ccxLevelset.vecLevels[m_levelNum].*pmTxt;
     if ((rText.bSeen || !action_displayCCX->isChecked()) && !bForce)
         return;
     rText.bSeen = true;
@@ -1106,15 +1106,15 @@ void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
     QString sWindowTitle = this->windowTitle();
     SetSubtitle("");    // TODO: set name
     SetCurrentPage(PAGE_TEXT);
-    m_pBtnTextNext->setFocus();
+    m_buttonTextNext->setFocus();
 
     int d = +1;
     for (int nPage = 0; nPage < n; nPage += d) {
-        m_pBtnTextPrev->setVisible(nPage > 0);
+        m_buttonTextPrev->setVisible(nPage > 0);
 
         CCX::Page& rPage = rText.vecPages[nPage];
 
-        QTextDocument* pDoc = m_pTextBrowser->document();
+        QTextDocument* pDoc = m_textBrowser->document();
         if (pDoc != 0) {
             if (!m_ccxLevelset.sStyleSheet.isEmpty())
                 pDoc->setDefaultStyleSheet(m_ccxLevelset.sStyleSheet);
@@ -1123,13 +1123,13 @@ void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
 
         QString sText = rPage.sText;
         if (rPage.pageProps.eFormat == CCX::TEXT_PLAIN) {
-            m_pTextBrowser->setPlainText(sText);
+            m_textBrowser->setPlainText(sText);
         } else {
-            m_pTextBrowser->setHtml(sText);
+            m_textBrowser->setHtml(sText);
         }
 
-        d = g_pApp->exec();
-        if (m_bWindowClosed) g_pApp->ExitTWorld();
+        d = g_app->exec();
+        if (m_windowClosed) g_app->ExitTWorld();
         if (d == 0) // Return
             break;
         if (nPage+d < 0)
@@ -1153,17 +1153,17 @@ void TileWorldMainWnd::ShowAbout()
 
 void TileWorldMainWnd::OnTextNext()
 {
-    g_pApp->exit(+1);
+    g_app->exit(+1);
 }
 
 void TileWorldMainWnd::OnTextPrev()
 {
-    g_pApp->exit(-1);
+    g_app->exit(-1);
 }
 
 void TileWorldMainWnd::OnTextReturn()
 {
-    g_pApp->exit(0);
+    g_app->exit(0);
 }
 
 
@@ -1171,13 +1171,13 @@ void TileWorldMainWnd::OnCopyText()
 {
     QClipboard* pClipboard = QApplication::clipboard();
     if (pClipboard == 0) return;
-    pClipboard->setText(m_sTextToCopy);
+    pClipboard->setText(m_textToCopy);
 }
 
 void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 {
     if (pAction == action_Exit) {
-        g_pApp->ExitTWorld();
+        g_app->ExitTWorld();
         return;
     }
 
@@ -1250,18 +1250,18 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
         stepDialog.setWindowTitle("Step");
         stepDialog.setLabelText("Set level step value");
 
-        if (m_nRuleset == Ruleset_Lynx) {
-            stepDialog.setComboBoxItems(stepDialogOptions);
+        if (m_ruleset == Ruleset_Lynx) {
+            stepDialog.setComboBoxItems(m_stepDialogOptions);
         } else {
-            stepDialog.setComboBoxItems({stepDialogOptions[0], stepDialogOptions[4]});
+            stepDialog.setComboBoxItems({m_stepDialogOptions[0], m_stepDialogOptions[4]});
         }
 
         int step = getstepping();
-        stepDialog.setTextValue(stepDialogOptions[step]);
+        stepDialog.setTextValue(m_stepDialogOptions[step]);
 
         stepDialog.exec();
 
-        int stepIndex = stepDialogOptions.indexOf(stepDialog.textValue());
+        int stepIndex = m_stepDialogOptions.indexOf(stepDialog.textValue());
         setstepping(stepIndex);
         return;
     }
@@ -1299,20 +1299,20 @@ int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
 
 void TileWorldMainWnd::ResizeHintFont()
 {
-    SetHintText(m_pLblHint->text());
+    SetHintText(m_labelHint->text());
 }
 
 void TileWorldMainWnd::SetHintText(QString hint)
 {
     // Calculate available dimensions for hint
-    int availableHeight = m_pLblTitle->geometry().bottom() - m_pObjectsContainer->geometry().y();
-    int availableWidth = m_pInfoFrame->width();
-    int margins = (m_pLblHint->margin() + m_pMessagesFrame->frameWidth()) * 2;
+    int availableHeight = m_labelTitle->geometry().bottom() - m_objectsContainer->geometry().y();
+    int availableWidth = m_infoFrame->width();
+    int margins = (m_labelHint->margin() + m_messagesFrame->frameWidth()) * 2;
     availableHeight -= margins;
     availableWidth -= margins;
 
     // decrease font size
-    QFont thisFont = m_pLblHint->font();
+    QFont thisFont = m_labelHint->font();
     for(int fs=25; fs > 12; fs--) {
         thisFont.setPixelSize(fs);
         QFontMetrics fm(thisFont);
@@ -1321,8 +1321,8 @@ void TileWorldMainWnd::SetHintText(QString hint)
         if(r.height() <= availableHeight) break;
     }
 
-    m_pLblHint->setFont(thisFont);
-    m_pLblHint->setText(hint);
+    m_labelHint->setFont(thisFont);
+    m_labelHint->setText(hint);
 }
 
 void TileWorldMainWnd::SetHintVisibility(bool newmode)
@@ -1333,22 +1333,22 @@ void TileWorldMainWnd::SetHintVisibility(bool newmode)
     if(!changed) {
         return;
     } else if(m_hintVisible) {
-        m_pInfoPane->setCurrentIndex(1);
+        m_infoPane->setCurrentIndex(1);
     } else {
-        m_pInfoPane->setCurrentIndex(0);
+        m_infoPane->setCurrentIndex(0);
     }
 }
 
 void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 {
     double newScale = (double)s / 100;
-    if(checkPrevScale && newScale == scale) return;
+    if(checkPrevScale && newScale == m_scale) return;
 
     // set the property
-    scale = sqrt(newScale);
+    m_scale = sqrt(newScale);
 
-    if(m_pSurface == 0 || m_pInvSurface == 0 || geng.wtile < 1) {
-        warn("Attempt to set pixmap and scale without setting pixmap first");
+    if(m_surface == 0 || m_invSurface == 0 || geng.wtile < 1) {
+        warn("Attempt to set pixmap and m_scale without setting pixmap first");
         return;
     }
 
@@ -1357,18 +1357,18 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
         SetHintVisibility(false);
     }
 
-    // align widget size to specified scale
-    m_pGameWidget->setFixedSize(scale * DEFAULTTILE * NXTILES, scale * DEFAULTTILE * NYTILES);
-    m_pObjectsWidget->setFixedSize(scale * DEFAULTTILE * 4, scale * DEFAULTTILE * 2);
+    // align widget size to specified m_scale
+    m_gameWidget->setFixedSize(m_scale * DEFAULTTILE * NXTILES, m_scale * DEFAULTTILE * NYTILES);
+    m_objectsWidget->setFixedSize(m_scale * DEFAULTTILE * 4, m_scale * DEFAULTTILE * 2);
 
     // this sets the game and objects box
-    m_pGameWidget->setPixmap(m_pSurface->GetPixmap());
-    m_pObjectsWidget->setPixmap(m_pInvSurface->GetPixmap());
+    m_gameWidget->setPixmap(m_surface->GetPixmap());
+    m_objectsWidget->setPixmap(m_invSurface->GetPixmap());
 
     // this aligns the width of the objects box with the other elements
     // in the right column
-    m_pMessagesFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);
-    m_pInfoFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);
+    m_messagesFrame->setFixedWidth((4 * DEFAULTTILE * m_scale) + 10);
+    m_infoFrame->setFixedWidth((4 * DEFAULTTILE * m_scale) + 10);
 
     // we need to determine hint font size again
     ResizeHintFont();
@@ -1377,35 +1377,35 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
 void TileWorldMainWnd::SetPlayPauseButton(bool paused)
 {
     if(paused) {
-        m_pBtnPlay->setIcon(playIcon);
+        m_buttonPlay->setIcon(m_playIcon);
         action_Pause->setText("Resume");
     } else {
-        m_pBtnPlay->setIcon(pauseIcon);
+        m_buttonPlay->setIcon(m_pauseIcon);
         action_Pause->setText("Pause");
     }
 }
 
 void TileWorldMainWnd::ChangeVolume(int volume)
 {
-    if(volTimer->isActive()) volTimer->stop();
+    if(m_volTimer->isActive()) m_volTimer->stop();
 
-    m_pPrgVolFrame->setVisible(true);
-    m_pPrgVolume->setValue(changevolume(volume));
+    m_progressVolFrame->setVisible(true);
+    m_progressVolume->setValue(changevolume(volume));
 
-    connect(volTimer, SIGNAL(timeout()), this, SLOT(HideVolumeWidget()));
+    connect(m_volTimer, SIGNAL(timeout()), this, SLOT(HideVolumeWidget()));
 
-    volTimer->setSingleShot(true);
-    volTimer->start(2000);
+    m_volTimer->setSingleShot(true);
+    m_volTimer->start(2000);
 }
 
 void TileWorldMainWnd::HideVolumeWidget()
 {
-    m_pPrgVolFrame->setVisible(false);
+    m_progressVolFrame->setVisible(false);
 }
 
 
 /* This callback is called whenever the state of any keyboard key
- * changes. It records this change in the keystates array. The key can
+ * changes. It records this change in the m_keystates array. The key can
  * be recorded as being struck, pressed, repeating, held down, or down
  * but ignored, as appropriate to when they were first pressed and the
  * current behavior settings. Shift-type keys are always either on or
@@ -1414,9 +1414,9 @@ void TileWorldMainWnd::HideVolumeWidget()
 void TileWorldMainWnd::KeyEventCallback(int scancode, bool down)
 {
     if (down) {
-        keystates[scancode] = keystates[scancode] == KS_OFF ? KS_PRESSED : KS_REPEATING;
+        m_keystates[scancode] = m_keystates[scancode] == KS_OFF ? KS_PRESSED : KS_REPEATING;
     } else {
-        keystates[scancode] = keystates[scancode] == KS_PRESSED ? KS_STRUCK : KS_OFF;
+        m_keystates[scancode] = m_keystates[scancode] == KS_PRESSED ? KS_STRUCK : KS_OFF;
     }
 }
 
@@ -1424,9 +1424,9 @@ void TileWorldMainWnd::KeyEventCallback(int scancode, bool down)
  */
 void TileWorldMainWnd::RestartKeystates(void)
 {
-    memset(keystates, KS_OFF, sizeof keystates);
+    memset(m_keystates, KS_OFF, sizeof m_keystates);
     for (int n = 0; n < TWK_LAST; ++n)
-    if (m_nKeyState[n])
+    if (m_keyState[n])
         KeyEventCallback(n, true);
 }
 
@@ -1437,16 +1437,16 @@ void TileWorldMainWnd::RestartKeystates(void)
 void TileWorldMainWnd::ResetKeyStates(void)
 {
     for (int n = 0 ; n < TWK_LAST ; ++n) {
-        int x = (int)keystates[n];
+        int x = (int)m_keystates[n];
 
         if(x == KS_STRUCK) {
-            keystates[n] = KS_OFF;
+            m_keystates[n] = KS_OFF;
         } else if(x == KS_DOWNBUTOFF2 || x == KS_DOWNBUTOFF3 || x == KS_REPEATING) {
-            keystates[n] = KS_DOWN;
+            m_keystates[n] = KS_DOWN;
         } else if(x == KS_PRESSED) {
-            keystates[n] = joystickstyle ? KS_DOWN : KS_DOWNBUTOFF1;
+            m_keystates[n] = m_joystickstyle ? KS_DOWN : KS_DOWNBUTOFF1;
         } else if(x == KS_DOWNBUTOFF1) {
-            keystates[n] = joystickstyle ? KS_DOWN : KS_DOWNBUTOFF2;
+            m_keystates[n] = m_joystickstyle ? KS_DOWN : KS_DOWNBUTOFF2;
         }
     }
 }
@@ -1465,7 +1465,7 @@ int TileWorldMainWnd::WindowMapPos(int x, int y)
     if (x < 0 || y < 0)
         return -1;
 
-    double t = DEFAULTTILE * scale;
+    double t = DEFAULTTILE * m_scale;
     x *= 4 / t;
     y *= 4 / t;
 
@@ -1487,25 +1487,25 @@ int TileWorldMainWnd::WindowMapPos(int x, int y)
  */
 int TileWorldMainWnd::RetrieveMouseCommand(void)
 {
-    switch (mouseinfo.state) {
+    switch (m_mouseinfo.state) {
         case KS_PRESSED:
-            mouseinfo.state = KS_OFF;
-            if (mouseinfo.button == Qt::LeftButton) {
-                int n = WindowMapPos(mouseinfo.x, mouseinfo.y);
+            m_mouseinfo.state = KS_OFF;
+            if (m_mouseinfo.button == Qt::LeftButton) {
+                int n = WindowMapPos(m_mouseinfo.x, m_mouseinfo.y);
                 if (n >= 0) {
-                    mouseinfo.state = KS_DOWNBUTOFF1;
+                    m_mouseinfo.state = KS_DOWNBUTOFF1;
                     return CmdAbsMouseMoveFirst + n;
                 }
             }
             break;
         case KS_DOWNBUTOFF1:
-            mouseinfo.state = KS_DOWNBUTOFF2;
+            m_mouseinfo.state = KS_DOWNBUTOFF2;
             return CmdPreserve;
         case KS_DOWNBUTOFF2:
-            mouseinfo.state = KS_DOWNBUTOFF3;
+            m_mouseinfo.state = KS_DOWNBUTOFF3;
             return CmdPreserve;
         case KS_DOWNBUTOFF3:
-            mouseinfo.state = KS_OFF;
+            m_mouseinfo.state = KS_OFF;
             return CmdPreserve;
     }
     return 0;
@@ -1516,7 +1516,7 @@ int TileWorldMainWnd::RetrieveMouseCommand(void)
  * until a key with an associated command is selected. In keyboard behavior
  * mode, the function can return CmdPreserve, indicating that if the key
  * command from the previous poll has not been processed, it should still
- * be considered active. If two mergeable keys are selected, the return
+ * be considered active. If two m_mergeable keys are selected, the return
  * value will be the bitwise-or of their command values.
  */
 int TileWorldMainWnd::Input(bool wait)
@@ -1531,15 +1531,15 @@ int TileWorldMainWnd::Input(bool wait)
 
         cmd1 = cmd = 0;
         for (kc = keycmds ; kc->scancode ; ++kc) {
-            n = keystates[kc->scancode];
+            n = m_keystates[kc->scancode];
             if (!n) continue;
             if (n == KS_PRESSED || (kc->hold && n == KS_DOWN)) {
                 if (!cmd1) {
                     cmd1 = kc->cmd;
-                    if (!joystickstyle || cmd1 > CmdKeyMoveLast || !mergeable[cmd1])
+                    if (!m_joystickstyle || cmd1 > CmdKeyMoveLast || !m_mergeable[cmd1])
                         return cmd1;
                 } else {
-                    if (cmd1 <= CmdKeyMoveLast && (mergeable[cmd1] & kc->cmd) == kc->cmd)
+                    if (cmd1 <= CmdKeyMoveLast && (m_mergeable[cmd1] & kc->cmd) == kc->cmd)
                         return cmd1 | kc->cmd;
                 }
             } else if (n == KS_STRUCK || n == KS_REPEATING) {
@@ -1573,7 +1573,7 @@ int TileWorldMainWnd::Input(bool wait)
  */
 bool TileWorldMainWnd::SetKeyboardArrowsRepeat(bool enable)
 {
-    joystickstyle = enable;
+    m_joystickstyle = enable;
     RestartKeystates();
     return true;
 }

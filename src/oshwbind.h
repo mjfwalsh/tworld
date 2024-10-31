@@ -55,9 +55,9 @@ public:
     void ResetColorKey();
 
     inline bool IsColorKeySet() const
-        {return m_bColorKeySet;}
+        {return m_colorKeySet;}
     inline uint32_t GetColorKey() const
-        {return m_nColorKey;}
+        {return m_colorKey;}
 
     Qt_Surface* DisplayFormat();
 
@@ -73,8 +73,8 @@ private:
 
     int bytesPerPixel = 0;
     int hasAlphaChannel = -1;
-    bool m_bColorKeySet = false;
-    uint32_t m_nColorKey = 0;
+    bool m_colorKeySet = false;
+    uint32_t m_colorKey = 0;
 
     void Init(const QPaintDevice& dev);
     void InitImage();

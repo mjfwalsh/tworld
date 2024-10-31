@@ -239,64 +239,64 @@ private:
     void KeyEventCallback(int scancode, bool down);
 
     // The complete array of key states.
-    char keystates[TWK_LAST];
+    char m_keystates[TWK_LAST];
 
     // The last mouse action.
-    mouseaction mouseinfo;
+    mouseaction m_mouseinfo;
 
     // TRUE if direction keys are to be treated as always repeating.
-    bool joystickstyle = false;
+    bool m_joystickstyle = false;
 
     // A map of keys that can be held down simultaneously to produce
     // multiple commands.
-    int mergeable[CmdKeyMoveLast + 1];
+    int m_mergeable[CmdKeyMoveLast + 1];
 
     void ResizeHintFont();
     void SetHintText(QString hint);
     void SetHintVisibility(bool newmode);
     void SetScale(int s, bool checkPrevScale = true);
 
-    bool m_bWindowClosed;
+    bool m_windowClosed;
 
-    Qt_Surface* m_pSurface;
-    Qt_Surface* m_pInvSurface;
+    Qt_Surface* m_surface;
+    Qt_Surface* m_invSurface;
     TW_Rect m_disploc;
 
-    double scale = 1;
+    double m_scale = 1;
 
-    bool m_nKeyState[TWK_LAST];
+    bool m_keyState[TWK_LAST];
 
     struct MessageData{ QString sMsg; uint32_t nMsgUntil, nMsgBoldUntil; };
     QVector<MessageData> m_shortMessages;
 
-    bool m_bKbdRepeatEnabled;
+    bool m_kbdRepeatEnabled;
 
-    int m_nRuleset;
-    int m_nLevelNum;
-    QString m_sLevelName;
-    QString m_sLevelPackName;
-    QString m_sTimeFormat;
-    bool m_bProblematic;
-    bool m_bOFNT;
-    int m_nBestTime;
+    int m_ruleset;
+    int m_levelNum;
+    QString m_levelName;
+    QString m_levelPackName;
+    QString m_timeFormat;
+    bool m_problematic;
+    bool m_oFNT;
+    int m_bestTime;
     bool m_hintVisible;
-    int m_nTimeLeft;
-    bool m_bTimedLevel;
-    bool m_bReplay;
+    int m_timeLeft;
+    bool m_timedLevel;
+    bool m_replay;
 
-    QSortFilterProxyModel* m_pSortFilterProxyModel;
+    QSortFilterProxyModel* m_sortFilterProxyModel;
     QLocale m_locale;
 
     CCX::Levelset m_ccxLevelset;
 
-    QString m_sTextToCopy;
+    QString m_textToCopy;
 
-    QIcon playIcon;
-    QIcon pauseIcon;
+    QIcon m_playIcon;
+    QIcon m_pauseIcon;
 
-    QTimer *volTimer;
+    QTimer *m_volTimer;
 
-    QStringList stepDialogOptions = {
+    QStringList m_stepDialogOptions = {
     "Even Step",
     "Even Step +1",
     "Even Step +2",
@@ -308,9 +308,9 @@ private:
 
     /* The top of the stack of subtitles.
      */
-    QStringList subtitlestack;
+    QStringList m_subtitlestack;
 };
 
-extern TileWorldMainWnd* g_pMainWnd;
+extern TileWorldMainWnd* g_mainWindow;
 
 #endif

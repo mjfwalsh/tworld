@@ -343,7 +343,7 @@ bool readseriesfile(gameseries *series)
         undomschanges(series);
     markunsolvablelevels(series);
     readsolutions(series);
-    g_pMainWnd->ReadExtensions(series);
+    g_mainWindow->ReadExtensions(series);
     return true;
 }
 

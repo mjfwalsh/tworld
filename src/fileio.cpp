@@ -25,7 +25,7 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
     if (msg) {
         err_cfile_ = cfile;
         err_lineno_ = lineno;
-        warn_("%s: %s", this->filename,
+        warn_("%s: %s", m_filename,
             errno ? strerror(errno) : msg);
     }
     return false;
@@ -39,8 +39,8 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
  */
 fileinfo::~fileinfo()
 {
-    if(this->fp) close();
-    free(filename);
+    if(m_fp) close();
+    free(m_filename);
 }
 
 /* Hack to get around MinGW (really msvcrt.dll) not supporting 'x' modifier
@@ -70,10 +70,10 @@ static FILE *FOPEN(char const *n, char const *mode)
 void fileinfo::close()
 {
     errno = 0;
-    if (this->fp) {
-        if (fclose(this->fp) == EOF)
+    if (this->m_fp) {
+        if (fclose(this->m_fp) == EOF)
             fileerr(this, NULL);
-        this->fp = NULL;
+        this->m_fp = NULL;
     }
 }
 
@@ -81,7 +81,7 @@ void fileinfo::close()
  */
 void fileinfo::rewind()
 {
-    ::rewind(this->fp);
+    ::rewind(this->m_fp);
 }
 
 /* feof().
@@ -90,12 +90,12 @@ bool fileinfo::testend()
 {
     int ch;
 
-    if (feof(this->fp))
+    if (feof(this->m_fp))
         return true;
-    ch = fgetc(this->fp);
+    ch = fgetc(this->m_fp);
     if (ch == EOF)
         return true;
-    ungetc(ch, this->fp);
+    ungetc(ch, this->m_fp);
     return false;
 }
 
@@ -106,7 +106,7 @@ bool fileinfo::read(void *data, unsigned long size, char const *msg)
     if (!size)
         return true;
     errno = 0;
-    if (fread(data, size, 1, this->fp) == 1)
+    if (fread(data, size, 1, this->m_fp) == 1)
         return true;
     return fileerr(this, msg);
 }
@@ -124,7 +124,7 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
     if (!size)
         return buf;
     errno = 0;
-    if (fread(buf, size, 1, this->fp) != 1) {
+    if (fread(buf, size, 1, this->m_fp) != 1) {
         fileerr(this, msg);
         free(buf);
         return NULL;
@@ -132,7 +132,7 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
     return buf;
 }
 
-/* Read one full line from fp and store the first len characters,
+/* Read one full line from m_fp and store the first len characters,
  * including any trailing newline.
  */
 bool fileinfo::getline(char *buf, int *len, char const *msg)
@@ -142,13 +142,13 @@ bool fileinfo::getline(char *buf, int *len, char const *msg)
         return true;
     }
     errno = 0;
-    if (!fgets(buf, *len, this->fp))
+    if (!fgets(buf, *len, this->m_fp))
         return fileerr(this, msg);
     int n = strlen(buf);
     if (n == *len - 1 && buf[n] != '\n') {
         int ch;
         do
-            ch = fgetc(this->fp);
+            ch = fgetc(this->m_fp);
         while (ch != EOF && ch != '\n');
     } else
         buf[n--] = '\0';
@@ -163,7 +163,7 @@ bool fileinfo::write(void const *data, unsigned long size, char const *msg)
     if (!size)
         return true;
     errno = 0;
-    if (fwrite(data, size, 1, this->fp) == 1)
+    if (fwrite(data, size, 1, this->m_fp) == 1)
         return true;
     return fileerr(this, msg);
 }
@@ -175,7 +175,7 @@ bool fileinfo::readint8(unsigned char *val8, char const *msg)
     int byte;
 
     errno = 0;
-    if ((byte = fgetc(this->fp)) == EOF)
+    if ((byte = fgetc(this->m_fp)) == EOF)
         return fileerr(this, msg);
     *val8 = (unsigned char)byte;
     return true;
@@ -186,7 +186,7 @@ bool fileinfo::readint8(unsigned char *val8, char const *msg)
 bool fileinfo::writeint8(unsigned char val8, char const *msg)
 {
     errno = 0;
-    if (fputc(val8, this->fp) != EOF)
+    if (fputc(val8, this->m_fp) != EOF)
         return true;
     return fileerr(this, msg);
 }
@@ -198,9 +198,9 @@ bool fileinfo::readint16(unsigned short *val16, char const *msg)
     int byte;
 
     errno = 0;
-    if ((byte = fgetc(this->fp)) != EOF) {
+    if ((byte = fgetc(this->m_fp)) != EOF) {
         *val16 = (unsigned char)byte;
-        if ((byte = fgetc(this->fp)) != EOF) {
+        if ((byte = fgetc(this->m_fp)) != EOF) {
             *val16 |= (unsigned char)byte << 8;
             return true;
         }
@@ -213,8 +213,8 @@ bool fileinfo::readint16(unsigned short *val16, char const *msg)
 bool fileinfo::writeint16(unsigned short val16, char const *msg)
 {
     errno = 0;
-    if (fputc(val16 & 0xFF, this->fp) != EOF
-        && fputc((val16 >> 8) & 0xFF, this->fp) != EOF)
+    if (fputc(val16 & 0xFF, this->m_fp) != EOF
+        && fputc((val16 >> 8) & 0xFF, this->m_fp) != EOF)
         return true;
     return fileerr(this, msg);
 }
@@ -226,13 +226,13 @@ bool fileinfo::readint32(unsigned long *val32, char const *msg)
     int byte;
 
     errno = 0;
-    if ((byte = fgetc(this->fp)) != EOF) {
+    if ((byte = fgetc(this->m_fp)) != EOF) {
         *val32 = (unsigned int)byte;
-        if ((byte = fgetc(this->fp)) != EOF) {
+        if ((byte = fgetc(this->m_fp)) != EOF) {
             *val32 |= (unsigned int)byte << 8;
-            if ((byte = fgetc(this->fp)) != EOF) {
+            if ((byte = fgetc(this->m_fp)) != EOF) {
                 *val32 |= (unsigned int)byte << 16;
-                if ((byte = fgetc(this->fp)) != EOF) {
+                if ((byte = fgetc(this->m_fp)) != EOF) {
                     *val32 |= (unsigned int)byte << 24;
                     return true;
                 }
@@ -247,10 +247,10 @@ bool fileinfo::readint32(unsigned long *val32, char const *msg)
 bool fileinfo::writeint32(unsigned long val32, char const *msg)
 {
     errno = 0;
-    if (fputc(val32 & 0xFF, this->fp) != EOF
-            && fputc((val32 >> 8) & 0xFF, this->fp) != EOF
-            && fputc((val32 >> 16) & 0xFF, this->fp) != EOF
-            && fputc((val32 >> 24) & 0xFF, this->fp) != EOF)
+    if (fputc(val32 & 0xFF, this->m_fp) != EOF
+            && fputc((val32 >> 8) & 0xFF, this->m_fp) != EOF
+            && fputc((val32 >> 16) & 0xFF, this->m_fp) != EOF
+            && fputc((val32 >> 24) & 0xFF, this->m_fp) != EOF)
         return true;
     return fileerr(this, msg);
 }
@@ -259,7 +259,7 @@ bool fileinfo::writeint32(unsigned long val32, char const *msg)
  */
 bool fileinfo::isopen()
 {
-    return (bool)this->fp;
+    return (bool)this->m_fp;
 }
 
 /* Write a formatted line
@@ -268,7 +268,7 @@ bool fileinfo::writef(const char *format, ...)
 {
     va_list argp;
     va_start(argp, format);
-    int wchars = vfprintf(this->fp, format, argp);
+    int wchars = vfprintf(this->m_fp, format, argp);
     va_end(argp);
     return wchars > 0;
 }
@@ -315,10 +315,10 @@ char *getpathforfileindir(int dirInt, char const *filename)
 
 fileinfo::fileinfo(int d, char const *fn)
 {
-    x_cmalloc(filename, strlen(fn) + 1);
-    strcpy(filename, fn);
+    x_cmalloc(m_filename, strlen(fn) + 1);
+    strcpy(m_filename, fn);
 
-    dir = d;
+    m_dir = d;
 }
 
 /* Open a file from of the directories RESDIR, SERIESDIR, USER_SERIESDATDIR,
@@ -330,16 +330,16 @@ bool fileinfo::open(char const *mode, char const *msg)
 {
     errno = 0;
 
-    char *fullpath = getpathforfileindir(dir, filename);
-    this->fp = FOPEN(fullpath, mode);
+    char *fullpath = getpathforfileindir(m_dir, m_filename);
+    this->m_fp = FOPEN(fullpath, mode);
     free(fullpath);
-    if (this->fp) return true;
+    if (this->m_fp) return true;
     return fileerr(this, msg);
 }
 
 bool fileinfo::seek(long int bytes)
 {
-    return fseek(this->fp, bytes, SEEK_SET);
+    return fseek(this->m_fp, bytes, SEEK_SET);
 }
 
 /* Read the given directory and call filecallback once for each file

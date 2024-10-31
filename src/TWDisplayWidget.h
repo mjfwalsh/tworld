@@ -22,7 +22,9 @@ public:
 
     void setPixmap(const QPixmap& pixmap);
     const QPixmap* pixmap() const
-        {return &m_pixmap;}
+    {
+        return &m_pixmap;
+    }
 
     virtual QSize sizeHint() const;
 

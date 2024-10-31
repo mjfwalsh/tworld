@@ -22,19 +22,19 @@ public:
     // These aren't virtual, but we can still get by...
     void setValue(int nValue);
     int value() const
-        {return m_nValue;}
+        {return m_value;}
 
     void setPar(int nPar);
     int par() const
-        {return m_nPar;}
+        {return m_par;}
 
     void setParBad(bool bParBad);
     int isParBad() const
-        {return m_bParBad;}
+        {return m_parBad;}
 
     void setFullBar(bool bFullBar);
     int isFullBar() const
-        {return m_bFullBar;}
+        {return m_fullBar;}
 
     virtual QString text() const;
 
@@ -42,10 +42,10 @@ protected:
     void paintBox(QPainter *p, int width, QColor bgcl, QColor fgcl, QString t);
     virtual void paintEvent(QPaintEvent* pPaintEvent);
 
-    int m_nValue, m_nPar;
-    bool m_bParBad;
-    bool m_bFullBar;
-    int m_nLeftLine = 0;
+    int m_value, m_par;
+    bool m_parBad;
+    bool m_fullBar;
+    int m_leftLine = 0;
 };
 
 

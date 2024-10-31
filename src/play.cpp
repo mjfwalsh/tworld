@@ -66,7 +66,7 @@ static bool setrulesetbehavior(int ruleset)
             if (!logic)
                 return false;
             if (!batchmode)
-                g_pMainWnd->SetKeyboardArrowsRepeat(true);
+                g_mainWindow->SetKeyboardArrowsRepeat(true);
             settimersecond(1000 * mudsucking);
             break;
         case Ruleset_MS:
@@ -74,7 +74,7 @@ static bool setrulesetbehavior(int ruleset)
             if (!logic)
                 return false;
             if (!batchmode)
-                g_pMainWnd->SetKeyboardArrowsRepeat(false);
+                g_mainWindow->SetKeyboardArrowsRepeat(false);
             settimersecond(1100 * mudsucking);
             break;
         default:
@@ -84,7 +84,7 @@ static bool setrulesetbehavior(int ruleset)
 
     if (!batchmode) {
         loadgameresources(ruleset);
-        g_pMainWnd->CreateGameDisplay();
+        g_mainWindow->CreateGameDisplay();
     }
 
     logic->state = &state;
@@ -156,13 +156,13 @@ void setgameplaymode(int mode)
 {
     switch (mode) {
         case NormalPlay:
-            g_pMainWnd->SetKeyboardRepeat(false);
+            g_mainWindow->SetKeyboardRepeat(false);
             settimer(+1);
             setsoundeffects(+1);
             state.statusflags &= ~SF_SHUTTERED;
             break;
         case EndPlay:
-            g_pMainWnd->SetKeyboardRepeat(true);
+            g_mainWindow->SetKeyboardRepeat(true);
             settimer(-1);
             setsoundeffects(+1);
             break;
@@ -174,7 +174,7 @@ void setgameplaymode(int mode)
             if (state.ruleset == Ruleset_MS)
                 state.statusflags |= SF_SHUTTERED;
         case SuspendPlay:
-            g_pMainWnd->SetKeyboardRepeat(true);
+            g_mainWindow->SetKeyboardRepeat(true);
             settimer(0);
             setsoundeffects(0);
             break;
@@ -279,7 +279,7 @@ void drawscreen(bool showframe)
         timeleft = 0;
     }
 
-    g_pMainWnd->DisplayGame(&state, timeleft, besttime);
+    g_mainWindow->DisplayGame(&state, timeleft, besttime);
 }
 
 /* Stop game play and clean up.

@@ -124,13 +124,13 @@ public:
     /* Access the name var
      */
     inline const char *name() const
-        {return filename;}
+        {return m_filename;}
 
 private:
 
-    char        *filename;      /* the name of the file */
-    int         dir;    /* the path of the file */
-    FILE        *fp  = NULL;        /* the real file handle */
+    char        *m_filename;      /* the name of the file */
+    int          m_dir;    /* the path of the file */
+    FILE        *m_fp  = NULL;        /* the real file handle */
 };
 
 #define fileerr(file, msg)  ((file)->fileerr_(__FILE__, __LINE__, (msg)))

@@ -1,18 +1,18 @@
 /* Copyright (C) 2019 by Michael J. Walsh. Licenced under the GNU GPL, v 3. */
 
-#m_pMainWidget {
+#m_mainWidget {
     background-image:url("res/motherboard.svg"); background-position: center;
     background-color: rgb(100,100,100);
 }
 
-#m_pGameFrame, #m_pInfoFrame, #m_pObjectsFrame, #m_pMessagesFrame {
+#m_gameFrame, #m_infoFrame, #m_objectsFrame, #m_messagesFrame {
     border-top: 5px outset rgb(70,70,70);
     border-left: 5px outset rgb(70,70,70);
     border-right: 5px outset rgb(55,55,55);
     border-bottom: 5px outset rgb(55,55,55);
 }
 
-#m_pInfoFrame {
+#m_infoFrame {
     background-color: rgb(236,236,236);
 }
 
@@ -21,7 +21,7 @@ QLCDNumber {
     color: white;
 }
 
-QTableView, QHeaderView, #m_pLblFind, #m_pBackButton, #m_pGoButton {
+QTableView, QHeaderView, #m_labelFind, #m_backButton, #m_goButton {
     font-size: 18px;
 }
 
@@ -29,12 +29,12 @@ QTableView, QHeaderView {
     font-weight: bold;
 }
 
-#m_pLblFind {
+#m_labelFind {
     font-weight: bold;
     color: white;
 }
 
-#m_pControlsFrame {
+#m_controlsFrame {
     border-radius: 8px;
     background-color: rgba(255,255,255,0.5);
     color: black;
@@ -44,37 +44,37 @@ QTableView, QHeaderView {
 
 }
 
-#m_pBtnPlay {
+#m_buttonPlay {
     background-color: rgba(0,0,0,0);
     border: 0;
     margin: 0;
     padding: 0
 }
 
-#m_pSldSpeed::handle {
+#m_slideSpeed::handle {
     image: url("res/ffrw.svg");
     width: 34px;
     margin: -10px 0px -10px 0px;
 }
 
-#m_pSldSpeed::groove {
+#m_slideSpeed::groove {
     background: rgb(184,184,184);
     height: 0px;
 }
 
-#m_pSldSeek::add-page::groove {
+#m_slideSeek::add-page::groove {
     background: red;
 }
 
-#m_pSldSeek::sub-page::groove {
+#m_slideSeek::sub-page::groove {
     background: green;
 }
 
-#m_pTextBrowser {
+#m_textBrowser {
     color: black;
 }
 
-#m_pPrgVolFrame {
+#m_progressVolFrame {
     border-radius: 8px;
     background-color: rgba(255,255,255,0.5);
     margin-left: 20px;

@@ -10,23 +10,23 @@
 TWTableSpec::TWTableSpec()
     :
     QAbstractTableModel(0),
-    m_nRows(0), m_nCols(0)
+    m_rows(0), m_cols(0)
 {
 }
 
 int TWTableSpec::rowCount(const QModelIndex& parent) const
 {
-    return m_nRows-1;
+    return m_rows-1;
 }
 
 int TWTableSpec::columnCount(const QModelIndex& parent) const
 {
-    return m_nCols;
+    return m_cols;
 }
 
 QVariant TWTableSpec::GetData(int row, int col, int role) const
 {
-    int i = row * m_nCols + col;
+    int i = row * m_cols + col;
 
     switch (role) {
         case Qt::DisplayRole:
@@ -67,15 +67,15 @@ void TWTableSpec::addCell(QString text, int align, int colspan)
 
 void TWTableSpec::setCols(int c)
 {
-    m_nCols = c;
+    m_cols = c;
 }
 
 void TWTableSpec::fixRows()
 {
-    m_nRows = m_vecItems.size() / m_nCols;
+    m_rows = m_vecItems.size() / m_cols;
 }
 
 void TWTableSpec::trimRows(int num)
 {
-    m_vecItems.erase(m_vecItems.end() - (num * m_nCols), m_vecItems.end());
+    m_vecItems.erase(m_vecItems.end() - (num * m_cols), m_vecItems.end());
 }

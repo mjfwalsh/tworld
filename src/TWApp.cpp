@@ -19,23 +19,23 @@
 #include "unslist.h"
 #include "err.h"
 
-TileWorldApp* g_pApp = 0;
-TileWorldMainWnd* g_pMainWnd = 0;
+TileWorldApp* g_app = 0;
+TileWorldMainWnd* g_mainWindow = 0;
 
 TileWorldApp::TileWorldApp(int& argc, char** argv)
     :
     QApplication(argc, argv)
 {
-    g_pApp = this;
+    g_app = this;
 }
 
 
 TileWorldApp::~TileWorldApp()
 {
-    delete g_pMainWnd;
-    g_pMainWnd = 0;
+    delete g_mainWindow;
+    g_mainWindow = 0;
 
-    g_pApp = 0;
+    g_app = 0;
 }
 
 
@@ -70,9 +70,9 @@ bool TileWorldApp::Initialize()
     #endif
 
     // start the main window
-    g_pMainWnd = new TileWorldMainWnd;
-    g_pMainWnd->setWindowTitle(applicationName());
-    g_pMainWnd->SetKeyboardRepeat(true);
+    g_mainWindow = new TileWorldMainWnd;
+    g_mainWindow->setWindowTitle(applicationName());
+    g_mainWindow->SetKeyboardRepeat(true);
 
     // initialise timer
     if (!timerinitialize()) {

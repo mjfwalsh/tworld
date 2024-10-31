@@ -35,7 +35,7 @@ public:
     void trimRows(int num);
 
     inline int cols() const
-        {return m_nCols;}
+        {return m_cols;}
 
 protected:
     struct ItemInfo {
@@ -43,7 +43,7 @@ protected:
         QString sText;
     };
 
-    int m_nRows, m_nCols;
+    int m_rows, m_cols;
     QVector<ItemInfo> m_vecItems;
 
     QVariant GetData(int row, int col, int role) const;

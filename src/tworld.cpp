@@ -185,9 +185,9 @@ static bool showsolutionfiles(gamespec *gs)
     int current = filelist.indexOf(gs->series.savefilename);
     int n = current == -1 ? 0 : current;
 
-    g_pMainWnd->PushSubtitle(gs->series.name);
+    g_mainWindow->PushSubtitle(gs->series.name);
     for (;;) {
-        int f = g_pMainWnd->DisplayList(&table, &n, false);
+        int f = g_mainWindow->DisplayList(&table, &n, false);
         if (f == CmdProceed) {
             break;
         } else if (f == CmdQuitLevel) {
@@ -195,7 +195,7 @@ static bool showsolutionfiles(gamespec *gs)
             break;
         }
     }
-    g_pMainWnd->PopSubtitle();
+    g_mainWindow->PopSubtitle();
 
     if (n >= 0 && n != current) {
         clearsolutions(&gs->series);
@@ -231,9 +231,9 @@ static int showscores(gamespec *gs)
         if (levellist[n] == gs->currentgame)
             break;
 
-    g_pMainWnd->PushSubtitle(gs->series.name);
+    g_mainWindow->PushSubtitle(gs->series.name);
     for (;;) {
-        int f = g_pMainWnd->DisplayList(&table, &n, false);
+        int f = g_mainWindow->DisplayList(&table, &n, false);
         if (f == CmdProceed) {
             n = levellist[n];
             break;
@@ -242,7 +242,7 @@ static int showscores(gamespec *gs)
             break;
         }
     }
-    g_pMainWnd->PopSubtitle();
+    g_mainWindow->PopSubtitle();
 
     freescorelist(levellist);
 
@@ -258,7 +258,7 @@ static bool selectlevelbypassword(gamespec *gs)
     char passwd[5];
     int n;
 
-    g_pMainWnd->DisplayPasswordPrompt(passwd);
+    g_mainWindow->DisplayPasswordPrompt(passwd);
 
     if (strlen(passwd) != 4) goto fail;
 
@@ -406,7 +406,7 @@ static int startinput(gamespec *gs)
     drawscreen(true);
     gs->playmode = Play_None;
     for (;;) {
-        int cmd = g_pMainWnd->Input(true);
+        int cmd = g_mainWindow->Input(true);
         if (cmd >= CmdMoveFirst && cmd <= CmdMoveLast) {
             gs->playmode = Play_Normal;
             return cmd;
@@ -426,7 +426,7 @@ static int startinput(gamespec *gs)
             TileWorldApp::Bell();
             break;
         case CmdSeek:
-            if (g_pMainWnd->GetReplaySecondsToSkip() > 0) {
+            if (g_mainWindow->GetReplaySecondsToSkip() > 0) {
                 gs->playmode = Play_Back;
                 return CmdProceed;
             }
@@ -480,8 +480,8 @@ static bool endinput(gamespec *gs)
         if (melindawatching(gs) && secondsplayed() >= 10) {
             ++gs->melindacount;
             if (gs->melindacount >= 10) {
-                if (g_pMainWnd->DisplayYesNoPrompt("Skip level?")) {
-                    g_pMainWnd->ReleaseAllKeys();
+                if (g_mainWindow->DisplayYesNoPrompt("Skip level?")) {
+                    g_mainWindow->ReleaseAllKeys();
                     passwordseen(gs, gs->currentgame + 1);
                     changecurrentgame(gs, +1);
                 }
@@ -494,11 +494,11 @@ static bool endinput(gamespec *gs)
             &bscore, &tscore, &gscore);
     }
 
-    cmd = g_pMainWnd->DisplayEndMessage(bscore, tscore, gscore, gs->status);
+    cmd = g_mainWindow->DisplayEndMessage(bscore, tscore, gscore, gs->status);
 
     for (;;) {
         if (cmd == CmdNone)
-            cmd = g_pMainWnd->Input(true);
+            cmd = g_mainWindow->Input(true);
         switch (cmd) {
         case CmdPrevLevel:  changecurrentgame(gs, -1);  return true;
         case CmdSameLevel:                              return true;
@@ -537,7 +537,7 @@ static bool endinput(gamespec *gs)
 static bool finalinput(gamespec *gs)
 {
     for (;;) {
-        int cmd = g_pMainWnd->Input(true);
+        int cmd = g_mainWindow->Input(true);
         switch (cmd) {
         case CmdSameLevel:
             return true;
@@ -565,7 +565,7 @@ static bool finalinput(gamespec *gs)
         setgameplaymode(SuspendPlay); \
         gamepaused = true; \
     } \
-    g_pMainWnd->SetPlayPauseButton(gamepaused); \
+    g_mainWindow->SetPlayPauseButton(gamepaused); \
 } while (0)
 
 /* Play the current level, using firstcmd as the initial key command,
@@ -593,10 +593,10 @@ static bool playgame(gamespec *gs, int firstcmd)
     render = lastrendered = true;
 
     bool gamepaused = false;
-    g_pMainWnd->SetPlayPauseButton(gamepaused);
+    g_mainWindow->SetPlayPauseButton(gamepaused);
     for (;;) {
         if (gamepaused)
-            cmd = g_pMainWnd->Input(true);
+            cmd = g_mainWindow->Input(true);
         else {
             n = doturn(cmd);
             drawscreen(render);
@@ -604,7 +604,7 @@ static bool playgame(gamespec *gs, int firstcmd)
             if (n)
                 break;
             render = waitfortick() || noframeskip;
-            cmd = g_pMainWnd->Input(false);
+            cmd = g_mainWindow->Input(false);
         }
         if (cmd == CmdQuitLevel) {
             quitgamestate();
@@ -703,9 +703,9 @@ static bool playbackgame(gamespec *gs)
     int n = 0, cmd;
     int secondstoskip;
     bool gamepaused = false;
-    g_pMainWnd->SetPlayPauseButton(gamepaused);
+    g_mainWindow->SetPlayPauseButton(gamepaused);
 
-    secondstoskip = g_pMainWnd->GetReplaySecondsToSkip();
+    secondstoskip = g_mainWindow->GetReplaySecondsToSkip();
     if (secondstoskip > 0) {
         n = hideandseek(gs, secondstoskip);
         SETPAUSED(true, false);
@@ -720,7 +720,7 @@ static bool playbackgame(gamespec *gs)
     while (!n) {
         if (gamepaused) {
             setgameplaymode(SuspendPlay);
-            cmd = g_pMainWnd->Input(true);
+            cmd = g_mainWindow->Input(true);
         } else {
             n = doturn(CmdNone);
             drawscreen(render);
@@ -728,14 +728,14 @@ static bool playbackgame(gamespec *gs)
             if (n)
                 break;
             render = waitfortick() || noframeskip;
-            cmd = g_pMainWnd->Input(false);
+            cmd = g_mainWindow->Input(false);
         }
         switch (cmd) {
         case CmdSeek:
         case CmdWest:
         case CmdEast:
             if (cmd == CmdSeek) {
-                secondstoskip = g_pMainWnd->GetReplaySecondsToSkip();
+                secondstoskip = g_mainWindow->GetReplaySecondsToSkip();
             } else {
                 secondstoskip = secondsplayed() + ((cmd == CmdEast) ? +3 : -3);
             }
@@ -795,7 +795,7 @@ static bool verifyplayback(gamespec *gs)
         if (n)
             break;
         advancetick();
-        switch (g_pMainWnd->Input(false)) {
+        switch (g_mainWindow->Input(false)) {
         case CmdPrevLevel:  changecurrentgame(gs, -1);  goto quitloop;
         case CmdNextLevel:  changecurrentgame(gs, +1);  goto quitloop;
         case CmdSameLevel:                  goto quitloop;
@@ -837,7 +837,7 @@ static int runcurrentlevel(gamespec *gs)
     bool f;
     char const *name;
 
-    g_pMainWnd->SetPlayPauseButton(true);
+    g_mainWindow->SetPlayPauseButton(true);
 
     name = gs->series.name;
 
@@ -847,17 +847,17 @@ static int runcurrentlevel(gamespec *gs)
 
     if (gs->enddisplay) {
         gs->enddisplay = false;
-        g_pMainWnd->ChangeSubtitle(NULL);
+        g_mainWindow->ChangeSubtitle(NULL);
         setenddisplay();
         drawscreen(true);
-        g_pMainWnd->DisplayEndMessage(0, 0, 0, 0);
+        g_mainWindow->DisplayEndMessage(0, 0, 0, 0);
         endgamestate();
         return finalinput(gs);
     }
 
     valid = initgamestate(gs->series.games + gs->currentgame,
         gs->series.ruleset);
-    g_pMainWnd->ChangeSubtitle(gs->series.games[gs->currentgame].name);
+    g_mainWindow->ChangeSubtitle(gs->series.games[gs->currentgame].name);
     passwordseen(gs, gs->currentgame);
     if (!islastinseries(gs, gs->currentgame))
         if (!valid || gs->series.games[gs->currentgame].unsolvable)
@@ -947,7 +947,7 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
 
     restart:
     unsigned int old_ruleset = *ruleset;
-    f = g_pMainWnd->DisplayList(&mftable, (int *)game, true, ruleset);
+    f = g_mainWindow->DisplayList(&mftable, (int *)game, true, ruleset);
     if (f != CmdProceed)
         return f;
 
@@ -964,7 +964,7 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
             gstable.addCell(serieslist[*game].dacfiles[*ruleset][y].filename);
         }
 
-        f = g_pMainWnd->DisplayList(&gstable, (int *)dac, false);
+        f = g_mainWindow->DisplayList(&gstable, (int *)dac, false);
         if (f != CmdProceed)
             goto restart;
     }
@@ -1114,11 +1114,11 @@ int tworld()
 
     // plays the selected level
     while (f > 0) {
-        g_pMainWnd->PushSubtitle(NULL);
+        g_mainWindow->PushSubtitle(NULL);
         while (runcurrentlevel(&spec)) { }
         savehistory();
-        g_pMainWnd->PopSubtitle();
-        g_pMainWnd->ClearDisplay();
+        g_mainWindow->PopSubtitle();
+        g_mainWindow->ClearDisplay();
         strcpy(lastseries, spec.series.name);
         freeseriesdata(&spec.series);
         f = choosegame(&spec, lastseries, false);

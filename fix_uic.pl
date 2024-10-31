@@ -13,19 +13,19 @@ if($code !~ s|(void setupUi\(.*?)\)|$1, double scale)|) {
     error("Uic replace error 1");
 }
 
-if($code !~ s|m_pGameWidget->setMinimumSize\(.*?\);|m_pGameWidget->setFixedSize(scale * DEFAULTTILE * NXTILES, scale * DEFAULTTILE * NYTILES);|) {
+if($code !~ s|m_gameWidget->setMinimumSize\(.*?\);|m_gameWidget->setFixedSize(scale * DEFAULTTILE * NXTILES, scale * DEFAULTTILE * NYTILES);|) {
     error("Uic replace error 2");
 }
 
-if($code !~ s|m_pObjectsWidget->setMinimumSize\(.*?\);|m_pObjectsWidget->setFixedSize(scale * DEFAULTTILE * 4, scale * DEFAULTTILE * 2);|) {
+if($code !~ s|m_objectsWidget->setMinimumSize\(.*?\);|m_objectsWidget->setFixedSize(scale * DEFAULTTILE * 4, scale * DEFAULTTILE * 2);|) {
     error("Uic replace error 3");
 }
 
-if($code !~ s|m_pMessagesFrame->setMinimumWidth\(.*?\);|m_pMessagesFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);|) {
+if($code !~ s|m_messagesFrame->setMinimumWidth\(.*?\);|m_messagesFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);|) {
     error("Uic replace error 4");
 }
 
-if($code !~ s|m_pInfoFrame->setMinimumWidth\(.*?\);|m_pInfoFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);|) {
+if($code !~ s|m_infoFrame->setMinimumWidth\(.*?\);|m_infoFrame->setFixedWidth((4 * DEFAULTTILE * scale) + 10);|) {
     error("Uic replace error 5");
 }
 

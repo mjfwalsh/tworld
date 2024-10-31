@@ -26,8 +26,8 @@ public:
     static void Bell();
 };
 
-extern TileWorldApp* g_pApp;
-extern TileWorldMainWnd* g_pMainWnd;
+extern TileWorldApp* g_app;
+extern TileWorldMainWnd* g_mainWindow;
 
 /* Process all pending events. If wait is TRUE and no events are
  * currently pending, the function blocks until an event arrives.

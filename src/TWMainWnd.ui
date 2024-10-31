@@ -16,14 +16,14 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="QStackedWidget" name="m_pMainWidget">
+     <widget class="QStackedWidget" name="m_mainWidget">
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="m_pGamePage">
+      <widget class="QWidget" name="m_gamePage">
        <layout class="QHBoxLayout" name="horLayout_4001">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_5001">
@@ -31,7 +31,7 @@
            <set>Qt::AlignTop</set>
           </property>
           <item>
-           <widget class="QFrame" name="m_pGameFrame">
+           <widget class="QFrame" name="m_gameFrame">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -52,7 +52,7 @@
               <number>0</number>
              </property>
              <item row="1" column="1">
-              <widget class="TWDisplayWidget" name="m_pGameWidget" native="true">
+              <widget class="TWDisplayWidget" name="m_gameWidget" native="true">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -68,7 +68,7 @@
               </widget>
              </item>
              <item row="1" column="1" alignment="Qt::AlignBottom">
-              <widget class="QFrame" name="m_pControlsFrame">
+              <widget class="QFrame" name="m_controlsFrame">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -83,7 +83,7 @@
                  <number>4</number>
                 </property>
                 <item>
-                 <widget class="QToolButton" name="m_pBtnPlay">
+                 <widget class="QToolButton" name="m_buttonPlay">
                   <property name="minimumSize">
                    <size>
                     <width>40</width>
@@ -96,7 +96,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="m_pSldSpeed">
+                 <widget class="QSlider" name="m_slideSpeed">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                     <horstretch>1</horstretch>
@@ -118,7 +118,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="m_pSldSeek">
+                 <widget class="QSlider" name="m_slideSeek">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                     <horstretch>5</horstretch>
@@ -148,7 +148,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_867">
             <item>
-             <widget class="QLabel" name="m_pLblTitle">
+             <widget class="QLabel" name="m_labelTitle">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
                 <horstretch>1</horstretch>
@@ -193,7 +193,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="m_pLblPassword">
+             <widget class="QLabel" name="m_labelPassword">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -244,7 +244,7 @@
            <set>Qt::AlignTop</set>
           </property>
           <item>
-           <widget class="QFrame" name="m_pInfoFrame">
+           <widget class="QFrame" name="m_infoFrame">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -271,7 +271,7 @@
               <set>Qt::AlignTop</set>
              </property>
              <item>
-              <widget class="QLabel" name="m_pTextNumber">
+              <widget class="QLabel" name="m_textNumber">
                <property name="font">
                 <font>
                  <pointsize>20</pointsize>
@@ -323,7 +323,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="m_pLblChipsLeft">
+              <widget class="QLabel" name="m_labelChipsLeft">
                <property name="font">
                 <font>
                  <pointsize>20</pointsize>
@@ -375,7 +375,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="m_pLblTime">
+              <widget class="QLabel" name="m_labelTime">
                <property name="font">
                 <font>
                  <pointsize>20</pointsize>
@@ -393,7 +393,7 @@
               </widget>
              </item>
              <item>
-              <widget class="TWProgressBar" name="m_pPrgTime">
+              <widget class="TWProgressBar" name="m_progressTime">
                <property name="font">
                 <font>
                  <pointsize>20</pointsize>
@@ -423,7 +423,7 @@
            </widget>
           </item>
           <item>
-           <layout class="QStackedLayout" name="m_pInfoPane">
+           <layout class="QStackedLayout" name="m_infoPane">
             <property name="alignment">
              <set>Qt::AlignTop</set>
             </property>
@@ -431,13 +431,13 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QWidget" name="m_pObjectsContainer">
+             <widget class="QWidget" name="m_objectsContainer">
               <layout class="QVBoxLayout" name="verticalLayout_5030">
                <property name="alignment">
                 <set>Qt::AlignTop</set>
                </property>
                <item>
-                <widget class="QFrame" name="m_pObjectsFrame">
+                <widget class="QFrame" name="m_objectsFrame">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -458,7 +458,7 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="TWDisplayWidget" name="m_pObjectsWidget" native="true">
+                   <widget class="TWDisplayWidget" name="m_objectsWidget" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -493,13 +493,13 @@
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="m_pMessagesContainer">
+             <widget class="QWidget" name="m_messagesContainer">
               <layout class="QVBoxLayout" name="verticalLayout_5036">
                <property name="alignment">
                 <set>Qt::AlignTop</set>
                </property>
                <item>
-                <widget class="QFrame" name="m_pMessagesFrame">
+                <widget class="QFrame" name="m_messagesFrame">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                    <horstretch>0</horstretch>
@@ -526,7 +526,7 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QLabel" name="m_pLblHint">
+                   <widget class="QLabel" name="m_labelHint">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -575,7 +575,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="m_pTablePage">
+      <widget class="QWidget" name="m_tablePage">
        <layout class="QVBoxLayout" name="boxLayout_1">
         <item>
          <layout class="QHBoxLayout" name="HLayout_25">
@@ -583,7 +583,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QRadioButton" name="m_pRadioMS">
+           <widget class="QRadioButton" name="m_radioMS">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -602,7 +602,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="m_pRadioLynx">
+           <widget class="QRadioButton" name="m_radioLynx">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -623,7 +623,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QTableView" name="m_pTblList">
+         <widget class="QTableView" name="m_tableList">
           <property name="tabKeyNavigation">
            <bool>false</bool>
           </property>
@@ -644,28 +644,28 @@
         <item>
          <layout class="QHBoxLayout" name="HLayout_26">
           <item>
-           <widget class="QLabel" name="m_pLblFind">
+           <widget class="QLabel" name="m_labelFind">
             <property name="text">
              <string>Find:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="m_pTxtFind">
+           <widget class="QLineEdit" name="m_textFind">
             <property name="minimumHeight">
              <number>32</number>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="m_pBackButton">
+           <widget class="QToolButton" name="m_backButton">
             <property name="text">
              <string>Back</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="m_pGoButton">
+           <widget class="QToolButton" name="m_goButton">
             <property name="text">
              <string>Go</string>
             </property>
@@ -675,7 +675,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="m_pTextPage">
+      <widget class="QWidget" name="m_textPage">
        <layout class="QGridLayout" name="gridLayout_4">
         <property name="margin">
          <number>24</number>
@@ -684,7 +684,7 @@
          <number>16</number>
         </property>
         <item row="0" column="0" colspan="2">
-         <widget class="QTextBrowser" name="m_pTextBrowser">
+         <widget class="QTextBrowser" name="m_textBrowser">
           <property name="font">
            <font>
             <pointsize>18</pointsize>
@@ -701,7 +701,7 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QToolButton" name="m_pBtnTextReturn">
+         <widget class="QToolButton" name="m_buttonTextReturn">
           <property name="text">
            <string>Return</string>
           </property>
@@ -716,7 +716,7 @@
         <item row="1" column="1" alignment="Qt::AlignRight">
          <layout class="QHBoxLayout" name="prev_next_buttons">
           <item>
-           <widget class="QToolButton" name="m_pBtnTextPrev">
+           <widget class="QToolButton" name="m_buttonTextPrev">
             <property name="text">
              <string>Previous</string>
             </property>
@@ -729,7 +729,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="m_pBtnTextNext">
+           <widget class="QToolButton" name="m_buttonTextNext">
             <property name="text">
              <string>Next</string>
             </property>
@@ -748,7 +748,7 @@
      </widget>
     </item>
     <item row="0" column="0" alignment="Qt::AlignCenter">
-     <widget class="QFrame" name="m_pPrgVolFrame">
+     <widget class="QFrame" name="m_progressVolFrame">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>1</horstretch>
@@ -769,7 +769,7 @@
         <number>4</number>
        </property>
        <item>
-        <widget class="QProgressBar" name="m_pPrgVolume">
+        <widget class="QProgressBar" name="m_progressVolume">
          <property name="TextVisible">
           <bool>false</bool>
          </property>
@@ -798,7 +798,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="m_pMenuBar">
+  <widget class="QMenuBar" name="m_menuBar">
    <widget class="QMenu" name="menu_Game">
     <property name="title">
      <string>Game</string>
@@ -1067,14 +1067,14 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>m_pTblList</tabstop>
-  <tabstop>m_pRadioMS</tabstop>
-  <tabstop>m_pRadioLynx</tabstop>
-  <tabstop>m_pTxtFind</tabstop>
-  <tabstop>m_pTextBrowser</tabstop>
-  <tabstop>m_pBtnTextReturn</tabstop>
-  <tabstop>m_pBtnTextPrev</tabstop>
-  <tabstop>m_pBtnTextNext</tabstop>
+  <tabstop>m_tableList</tabstop>
+  <tabstop>m_radioMS</tabstop>
+  <tabstop>m_radioLynx</tabstop>
+  <tabstop>m_textFind</tabstop>
+  <tabstop>m_textBrowser</tabstop>
+  <tabstop>m_buttonTextReturn</tabstop>
+  <tabstop>m_buttonTextPrev</tabstop>
+  <tabstop>m_buttonTextNext</tabstop>
  </tabstops>
  <resources/>
  <connections/>
