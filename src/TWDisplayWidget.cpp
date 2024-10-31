@@ -8,26 +8,26 @@
 #include "TWDisplayWidget.h"
 
 TWDisplayWidget::TWDisplayWidget(QWidget* pParent)
-	:
-	QWidget(pParent)
+    :
+    QWidget(pParent)
 {
 }
 
 
 void TWDisplayWidget::setPixmap(const QPixmap& pixmap)
 {
-	m_pixmap = pixmap.scaled(size(), Qt::KeepAspectRatio);
-	repaint();
+    m_pixmap = pixmap.scaled(size(), Qt::KeepAspectRatio);
+    repaint();
 }
 
 QSize TWDisplayWidget::sizeHint() const
 {
-	return m_pixmap.size();
+    return m_pixmap.size();
 }
 
 
 void TWDisplayWidget::paintEvent(QPaintEvent* pPaintEvent)
 {
-	QPainter painter(this);
-	painter.drawPixmap(0, 0, m_pixmap);
+    QPainter painter(this);
+    painter.drawPixmap(0, 0, m_pixmap);
 }

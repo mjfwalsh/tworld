@@ -6,23 +6,23 @@
  * No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_tworld_h_
-#define	HEADER_tworld_h_
+#ifndef HEADER_tworld_h_
+#define HEADER_tworld_h_
 
-#include	"defs.h"
+#include    "defs.h"
 
 enum { Play_None, Play_Normal, Play_Back, Play_Verify };
 
 /* The data needed to identify what level is being played.
  */
-typedef	struct gamespec {
-	gameseries	series;		/* the complete set of levels */
-	int		currentgame;	/* which level is currently selected */
-	int		playmode;	/* which mode to play */
-	bool	usepasswds;	/* FALSE if passwords are to be ignored */
-	int		status;		/* final status of last game played */
-	bool	enddisplay;	/* TRUE if the final level was completed */
-	int		melindacount;	/* count for Melinda's free pass */
+typedef struct gamespec {
+    gameseries  series;     /* the complete set of levels */
+    int     currentgame;    /* which level is currently selected */
+    int     playmode;   /* which mode to play */
+    bool    usepasswds; /* FALSE if passwords are to be ignored */
+    int     status;     /* final status of last game played */
+    bool    enddisplay; /* TRUE if the final level was completed */
+    int     melindacount;   /* count for Melinda's free pass */
 } gamespec;
 
 /* Initialise the c stuff in tworld.c and play the game

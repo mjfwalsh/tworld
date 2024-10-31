@@ -4,7 +4,7 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_res_h_
+#ifndef HEADER_res_h_
 #define HEADER_res_h_
 
 

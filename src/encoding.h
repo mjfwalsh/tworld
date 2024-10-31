@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_encoding_h_
-#define	HEADER_encoding_h_
+#ifndef HEADER_encoding_h_
+#define HEADER_encoding_h_
 
 struct gamestate;
 

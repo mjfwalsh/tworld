@@ -13,17 +13,17 @@ class TileWorldMainWnd;
 class TileWorldApp : public QApplication
 {
 public:
-	TileWorldApp(int& argc, char** argv);
-	~TileWorldApp();
+    TileWorldApp(int& argc, char** argv);
+    ~TileWorldApp();
 
-	void ExitTWorld();
-	bool Initialize();
+    void ExitTWorld();
+    bool Initialize();
 
-	// Copy text to clipboard.
-	static void CopyToClipboard(QString text);
+    // Copy text to clipboard.
+    static void CopyToClipboard(QString text);
 
-	// Beep
-	static void Bell();
+    // Beep
+    static void Bell();
 };
 
 extern TileWorldApp* g_pApp;

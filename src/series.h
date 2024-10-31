@@ -5,8 +5,8 @@
  * No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_series_h_
-#define	HEADER_series_h_
+#ifndef HEADER_series_h_
+#define HEADER_series_h_
 
 /* Load all levels of the given series.
  */
@@ -35,7 +35,7 @@ extern bool createserieslist(std::vector<gameseries> &series);
  * a list obtained from createserieslist().
  */
 extern void getseriesfromlist(gameseries *dest,
-				  gameseries const *list, int index);
+                  gameseries const *list, int index);
 
 /* Free the memory used by the table created in createserieslist().
  * The pointers can be NULL.
@@ -51,6 +51,6 @@ extern void freeserieslist(std::vector<gameseries> &s);
  * (ugh).
  */
 extern int findlevelinseries(gameseries const *series,
-				 int number, char const *passwd);
+                 int number, char const *passwd);
 
 #endif

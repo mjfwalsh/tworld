@@ -17,35 +17,35 @@
 class TWProgressBar : public QProgressBar
 {
 public:
-	TWProgressBar(QWidget* pParent = 0);
+    TWProgressBar(QWidget* pParent = 0);
 
-	// These aren't virtual, but we can still get by...
-	void setValue(int nValue);
-	int value() const
-		{return m_nValue;}
+    // These aren't virtual, but we can still get by...
+    void setValue(int nValue);
+    int value() const
+        {return m_nValue;}
 
-	void setPar(int nPar);
-	int par() const
-		{return m_nPar;}
+    void setPar(int nPar);
+    int par() const
+        {return m_nPar;}
 
-	void setParBad(bool bParBad);
-	int isParBad() const
-		{return m_bParBad;}
+    void setParBad(bool bParBad);
+    int isParBad() const
+        {return m_bParBad;}
 
-	void setFullBar(bool bFullBar);
-	int isFullBar() const
-		{return m_bFullBar;}
+    void setFullBar(bool bFullBar);
+    int isFullBar() const
+        {return m_bFullBar;}
 
-	virtual QString text() const;
+    virtual QString text() const;
 
 protected:
-	void paintBox(QPainter *p, int width, QColor bgcl, QColor fgcl, QString t);
-	virtual void paintEvent(QPaintEvent* pPaintEvent);
+    void paintBox(QPainter *p, int width, QColor bgcl, QColor fgcl, QString t);
+    virtual void paintEvent(QPaintEvent* pPaintEvent);
 
-	int m_nValue, m_nPar;
-	bool m_bParBad;
-	bool m_bFullBar;
-	int m_nLeftLine = 0;
+    int m_nValue, m_nPar;
+    bool m_bParBad;
+    bool m_bFullBar;
+    int m_nLeftLine = 0;
 };
 
 

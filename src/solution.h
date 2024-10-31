@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_solution_h_
-#define	HEADER_solution_h_
+#ifndef HEADER_solution_h_
+#define HEADER_solution_h_
 
 #include <QStringList>
 
@@ -13,12 +13,12 @@ class TWTableSpec;
 
 /* A structure holding all the data needed to reconstruct a solution.
  */
-typedef	struct solutioninfo {
-	actlist		moves;		/* the actual moves of the solution */
-	unsigned long	rndseed;	/* the PRNG's initial seed */
-	unsigned long	flags;		/* other flags (currently unused) */
-	unsigned char	rndslidedir;	/* random slide's initial direction */
-	signed char		stepping;	/* the timer offset */
+typedef struct solutioninfo {
+    actlist     moves;      /* the actual moves of the solution */
+    unsigned long   rndseed;    /* the PRNG's initial seed */
+    unsigned long   flags;      /* other flags (currently unused) */
+    unsigned char   rndslidedir;    /* random slide's initial direction */
+    signed char     stepping;   /* the timer offset */
 } solutioninfo;
 
 /* Initialize or reinitialize list as empty.
@@ -76,6 +76,6 @@ extern void clearsolutions(gameseries *series);
  * was returned.
  */
 extern bool createsolutionfilelist(gameseries const *series,
-	QStringList *filelist, TWTableSpec *table);
+    QStringList *filelist, TWTableSpec *table);
 
 #endif

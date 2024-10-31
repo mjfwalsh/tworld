@@ -20,88 +20,88 @@ char const *sfname = "settings";
 
 void loadsettings()
 {
-	if(!settings_string.empty() || !settings_int.empty()) {
-		warn("Settings already loaded");
-		return;
-	}
+    if(!settings_string.empty() || !settings_int.empty()) {
+        warn("Settings already loaded");
+        return;
+    }
 
-	char *fname = getpathforfileindir(SETTINGSDIR, sfname);
-	QFile infile(fname);
+    char *fname = getpathforfileindir(SETTINGSDIR, sfname);
+    QFile infile(fname);
 
-	if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		warn("Failed to load settings file: %s", fname);
-		free(fname);
-		return;
-	}
-	free(fname);
+    if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        warn("Failed to load settings file: %s", fname);
+        free(fname);
+        return;
+    }
+    free(fname);
 
-	while (!infile.atEnd()) {
-		QByteArray line = infile.readLine().trimmed();
+    while (!infile.atEnd()) {
+        QByteArray line = infile.readLine().trimmed();
 
-		int pos = line.indexOf('=');
+        int pos = line.indexOf('=');
 
-		if (pos == -1) continue;
+        if (pos == -1) continue;
 
-		QString k = line.left(pos);
-		QByteArray sv = line.mid(pos+1);
+        QString k = line.left(pos);
+        QByteArray sv = line.mid(pos+1);
 
-		bool isInt;
-		int iv = sv.toInt(&isInt);
+        bool isInt;
+        int iv = sv.toInt(&isInt);
 
-		if(isInt)
-			settings_int.insert(k, iv);
-		else
-			settings_string.insert(k, sv);
-	}
+        if(isInt)
+            settings_int.insert(k, iv);
+        else
+            settings_string.insert(k, sv);
+    }
 }
 
 void savesettings()
 {
-	char *fname = getpathforfileindir(SETTINGSDIR, sfname);
-	QFile outfile(fname);
+    char *fname = getpathforfileindir(SETTINGSDIR, sfname);
+    QFile outfile(fname);
 
-	if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-		warn("Failed to save settings file: %s", fname);
-		free(fname);
-		return;
-	}
-	free(fname);
+    if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        warn("Failed to save settings file: %s", fname);
+        free(fname);
+        return;
+    }
+    free(fname);
 
-	QTextStream s(&outfile);
+    QTextStream s(&outfile);
 
-	QMapIterator<QString, QByteArray> i(settings_string);
-	while (i.hasNext()) {
-		i.next();
-		s << i.key() << "=" << i.value() << "\n";
-	}
+    QMapIterator<QString, QByteArray> i(settings_string);
+    while (i.hasNext()) {
+        i.next();
+        s << i.key() << "=" << i.value() << "\n";
+    }
 
-	QMapIterator<QString, int> j(settings_int);
-	while (j.hasNext()) {
-		j.next();
-		s << j.key() << "=" << j.value() << "\n";
-	}
+    QMapIterator<QString, int> j(settings_int);
+    while (j.hasNext()) {
+        j.next();
+        s << j.key() << "=" << j.value() << "\n";
+    }
 }
 
 int getintsetting(char const *name)
 {
-	return settings_int.value(name, -1);
+    return settings_int.value(name, -1);
 }
 
 void setintsetting(char const *name, int val)
 {
-	settings_int.insert(name, val);
+    settings_int.insert(name, val);
 }
 
 char const *getstringsetting(char const *name)
 {
-	if(settings_string.contains(name)) {
-	    return settings_string[name].data();
-	} else {
-	    return NULL;
-	}
+    if(settings_string.contains(name)) {
+        return settings_string[name].data();
+    } else {
+        return NULL;
+    }
 }
 
 void setstringsetting(char const *name, char const *val)
 {
-	settings_string.insert(name, QByteArray(val));
+    settings_string.insert(name, QByteArray(val));
 }

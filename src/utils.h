@@ -5,8 +5,8 @@
  * No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_utils_h_
-#define	HEADER_utils_h_
+#ifndef HEADER_utils_h_
+#define HEADER_utils_h_
 
 void stringcopy(char *dest, const char *source, short s);
 

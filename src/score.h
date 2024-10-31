@@ -4,15 +4,15 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_score_h_
-#define	HEADER_score_h_
+#ifndef HEADER_score_h_
+#define HEADER_score_h_
 
 /* Return the user's scores for a given level. The last three arguments
  * receive the base score for the level, the time bonus for the level,
  * and the total score for the series.
  */
 extern bool getscoresforlevel(gameseries const *series, int level,
-				 int *base, int *bonus, long *total);
+                 int *base, int *bonus, long *total);
 
 /* Produce a table showing the player's scores for the given series,
  * formatted in columns. Each level in the series is listed in a
@@ -25,7 +25,7 @@ extern bool getscoresforlevel(gameseries const *series, int level,
  * is returned if an error occurs.
  */
 extern void createscorelist(gameseries const *series, bool usepasswds,
-			   int **plevellist, int *pcount, TWTableSpec *table);
+               int **plevellist, int *pcount, TWTableSpec *table);
 
 
 /* Free all memory allocated by the above functions.
@@ -34,7 +34,7 @@ extern void freescorelist(int *plevellist);
 
 /* Create a string representing the level time achieved for a level. */
 QString timestring(int lvlnum,  QString lvltitle, int besttime,
-	int timed, int bad);
+    int timed, int bad);
 
 /* Create a list of timestrings for all levels with solutions in the
  * gameseries. */

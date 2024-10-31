@@ -4,13 +4,13 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include	<QThread>
-#include	<QElapsedTimer>
+#include    <QThread>
+#include    <QElapsedTimer>
 
-#include	<cstdlib>
+#include    <cstdlib>
 
-#include	"defs.h"
-#include	"timer.h"
+#include    "defs.h"
+#include    "timer.h"
 
 /* QElapsedTimer object
  */
@@ -19,21 +19,21 @@ static QElapsedTimer qtimer;
 /* By default, a second of game time lasts for 1000 milliseconds of
  * real time.
  */
-static int	mspertick = 1000 / TICKS_PER_SECOND;
+static int  mspertick = 1000 / TICKS_PER_SECOND;
 
 /* The tick counter.
  */
-static int	utick = 0;
+static int  utick = 0;
 
 /* The time of the next tick.
  */
-static int	nexttickat = 0;
+static int  nexttickat = 0;
 
 /* A histogram of how many milliseconds the program spends sleeping
  * per tick.
  */
 #ifndef NDEBUG
-static unsigned	hist[100];
+static unsigned hist[100];
 #endif
 
 /* Set the length (in real time) of a second of game time. A value of
@@ -41,7 +41,7 @@ static unsigned	hist[100];
  */
 void settimersecond(int ms)
 {
-	mspertick = (ms ? ms : 1000) / TICKS_PER_SECOND;
+    mspertick = (ms ? ms : 1000) / TICKS_PER_SECOND;
 }
 
 /* Change the current timer setting. If action is positive, the timer
@@ -52,25 +52,25 @@ void settimersecond(int ms)
  */
 void settimer(int action)
 {
-	if (action < 0) {
-		nexttickat = 0;
-		utick = 0;
-	} else if (action > 0) {
-		if (nexttickat < 0)
-			nexttickat = qtimer.elapsed() - nexttickat;
-		else
-			nexttickat = qtimer.elapsed() + mspertick;
-	} else {
-		if (nexttickat > 0)
-			nexttickat = qtimer.elapsed() - nexttickat;
-	}
+    if (action < 0) {
+        nexttickat = 0;
+        utick = 0;
+    } else if (action > 0) {
+        if (nexttickat < 0)
+            nexttickat = qtimer.elapsed() - nexttickat;
+        else
+            nexttickat = qtimer.elapsed() + mspertick;
+    } else {
+        if (nexttickat > 0)
+            nexttickat = qtimer.elapsed() - nexttickat;
+    }
 }
 
 /* Return the number of ticks since the timer was last reset.
  */
 int gettickcount(void)
 {
-	return (int)utick;
+    return (int)utick;
 }
 
 /* Put the program to sleep until the next timer tick. If we've
@@ -78,59 +78,59 @@ int gettickcount(void)
  */
 bool waitfortick()
 {
-	int	ms;
+    int ms;
 
-	ms = nexttickat - qtimer.elapsed();
+    ms = nexttickat - qtimer.elapsed();
 
 #ifndef NDEBUG
-	if (ms < (int)(sizeof hist / sizeof *hist))
-		++hist[ms >= 0 ? ms + 1 : 0];
+    if (ms < (int)(sizeof hist / sizeof *hist))
+        ++hist[ms >= 0 ? ms + 1 : 0];
 #endif
 
-	if (ms <= 0) {
-		++utick;
-		nexttickat += mspertick;
-		return false;
-	}
+    if (ms <= 0) {
+        ++utick;
+        nexttickat += mspertick;
+        return false;
+    }
 
-	while (ms < 0)
-		ms += mspertick;
+    while (ms < 0)
+        ms += mspertick;
 
-	QThread::usleep(ms * 1000);
+    QThread::usleep(ms * 1000);
 
-	++utick;
-	nexttickat += mspertick;
-	return true;
+    ++utick;
+    nexttickat += mspertick;
+    return true;
 }
 
 /* Move to the next timer tick without waiting.
  */
 int advancetick(void)
 {
-	return ++utick;
+    return ++utick;
 }
 
 /* At shutdown time, display the histogram data on stdout.
  */
 static void shutdown(void)
 {
-	settimer(-1);
+    settimer(-1);
 
 #ifndef NDEBUG
-	unsigned long	n;
-	int			i;
+    unsigned long   n;
+    int         i;
 
-	n = 0;
-	for (i = 0 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
-		n += hist[i];
-	if (n) {
-		puts("Histogram of idle time (ms/tick)");
-		if (hist[0])
-			printf("NEG: %.1f%%\n", (hist[0] * 100.0) / n);
-		for (i = 1 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
-			if (hist[i])
-				printf("%3d: %.1f%%\n", i - 1, (hist[i] * 100.0) / n);
-	}
+    n = 0;
+    for (i = 0 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
+        n += hist[i];
+    if (n) {
+        puts("Histogram of idle time (ms/tick)");
+        if (hist[0])
+            printf("NEG: %.1f%%\n", (hist[0] * 100.0) / n);
+        for (i = 1 ; i < (int)(sizeof hist / sizeof *hist) ; ++i)
+            if (hist[i])
+                printf("%3d: %.1f%%\n", i - 1, (hist[i] * 100.0) / n);
+    }
 #endif
 }
 
@@ -139,8 +139,8 @@ static void shutdown(void)
  */
 bool timerinitialize()
 {
-	atexit(shutdown);
-	qtimer.start();
-	settimer(-1);
-	return true;
+    atexit(shutdown);
+    qtimer.start();
+    settimer(-1);
+    return true;
 }

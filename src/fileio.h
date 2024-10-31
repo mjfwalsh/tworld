@@ -4,21 +4,21 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_fileio_h_
-#define	HEADER_fileio_h_
+#ifndef HEADER_fileio_h_
+#define HEADER_fileio_h_
 
 #include <cstdio>
 
 /* enum for different directories
  */
 enum {
-	RESDIR,
-	SERIESDIR,
-	USER_SERIESDATDIR,
-	GLOBAL_SERIESDATDIR,
-	SOLUTIONDIR,
-	SETTINGSDIR,
-	NUMBER_OF_DIRS
+    RESDIR,
+    SERIESDIR,
+    USER_SERIESDATDIR,
+    GLOBAL_SERIESDATDIR,
+    SOLUTIONDIR,
+    SETTINGSDIR,
+    NUMBER_OF_DIRS
 };
 
 /* Initialise the directories using Qt standard paths
@@ -51,88 +51,88 @@ extern char *getpathforfileindir(int dirInt, char const *filename);
  * examined.
  */
 extern bool findfiles(int dirInt, void *data,
-			 bool (*filecallback)(char const*, int, void*));
+             bool (*filecallback)(char const*, int, void*));
 
 class fileinfo
 {
 public:
-	fileinfo(int dirInt, char const *filename);
-	~fileinfo();
+    fileinfo(int dirInt, char const *filename);
+    ~fileinfo();
 
-	/* The following functions correspond directly to C's standard I/O
-	 * functions. If msg is NULL, no error will be displayed if
-	 * the operation fails. If msg points to a string, an error will
-	 * be displayed. The text of msg will be used only if errno is
-	 * zero; otherwise a message appropriate to the error will be used.
-	 */
-	void rewind();
-	bool read(void *data, unsigned long size, char const *msg = NULL);
-	bool write(void const *data, unsigned long size, char const *msg = NULL);
-	void close();
+    /* The following functions correspond directly to C's standard I/O
+     * functions. If msg is NULL, no error will be displayed if
+     * the operation fails. If msg points to a string, an error will
+     * be displayed. The text of msg will be used only if errno is
+     * zero; otherwise a message appropriate to the error will be used.
+     */
+    void rewind();
+    bool read(void *data, unsigned long size, char const *msg = NULL);
+    bool write(void const *data, unsigned long size, char const *msg = NULL);
+    void close();
 
-	/* testend() forces a check for EOF by attempting to read a byte
-	 * from the file, and ungetting the byte if one is successfully read.
-	 */
-	bool testend();
+    /* testend() forces a check for EOF by attempting to read a byte
+     * from the file, and ungetting the byte if one is successfully read.
+     */
+    bool testend();
 
-	/* The following functions read and write an unsigned integer value
-	 * from the current position in the given file. For the multi-byte
-	 * values, the value is assumed to be stored in little-endian.
-	 */
-	bool readint8(unsigned char *val8, char const *msg = NULL);
-	bool writeint8(unsigned char val8, char const *msg = NULL);
-	bool readint16(unsigned short *val16, char const *msg = NULL);
-	bool writeint16(unsigned short val16, char const *msg = NULL);
-	bool readint32(unsigned long *val32, char const *msg = NULL);
-	bool writeint32(unsigned long val32, char const *msg = NULL);
+    /* The following functions read and write an unsigned integer value
+     * from the current position in the given file. For the multi-byte
+     * values, the value is assumed to be stored in little-endian.
+     */
+    bool readint8(unsigned char *val8, char const *msg = NULL);
+    bool writeint8(unsigned char val8, char const *msg = NULL);
+    bool readint16(unsigned short *val16, char const *msg = NULL);
+    bool writeint16(unsigned short val16, char const *msg = NULL);
+    bool readint32(unsigned long *val32, char const *msg = NULL);
+    bool writeint32(unsigned long val32, char const *msg = NULL);
 
-	/* Read size bytes from the given file and return the bytes in a
-	 * newly allocated buffer.
-	 */
-	unsigned char *readbuf(unsigned long size, char const *msg);
+    /* Read size bytes from the given file and return the bytes in a
+     * newly allocated buffer.
+     */
+    unsigned char *readbuf(unsigned long size, char const *msg);
 
-	/* Read one full line from fp and store the first len characters,
-	 * including any trailing newline. len receives the length of the line
-	 * stored in buf, minus any trailing newline, upon return.
-	 */
-	bool getline(char *buf, int *len, char const *msg);
+    /* Read one full line from fp and store the first len characters,
+     * including any trailing newline. len receives the length of the line
+     * stored in buf, minus any trailing newline, upon return.
+     */
+    bool getline(char *buf, int *len, char const *msg);
 
-	/* Open a file using the given mode. FALSE is returned if the directory
-	 * could not be created.
-	 */
-	bool open(char const *mode, char const *msg);
+    /* Open a file using the given mode. FALSE is returned if the directory
+     * could not be created.
+     */
+    bool open(char const *mode, char const *msg);
 
-	/* Jump to a specific number of bytes from beginning of file
-	 */
-	bool seek(long int bytes);
+    /* Jump to a specific number of bytes from beginning of file
+     */
+    bool seek(long int bytes);
 
-	/* Test if the filehandle is open
-	 */
-	bool isopen();
+    /* Test if the filehandle is open
+     */
+    bool isopen();
 
-	/* Alias for printf
-	 */
-	bool writef(const char *format, ...);
+    /* Alias for printf
+     */
+    bool writef(const char *format, ...);
 
-	/* Display a simple error message prefixed by the name of the given
-	 * file. If errno is set, a message appropriate to the value is used;
-	 * otherwise the text pointed to by msg is used. If msg is NULL, the
-	 * function does nothing. The return value is always FALSE.
-	 */
-	bool fileerr_(char const *cfile, unsigned long lineno, char const *msg);
+    /* Display a simple error message prefixed by the name of the given
+     * file. If errno is set, a message appropriate to the value is used;
+     * otherwise the text pointed to by msg is used. If msg is NULL, the
+     * function does nothing. The return value is always FALSE.
+     */
+    bool fileerr_(char const *cfile, unsigned long lineno, char const *msg);
 
-	/* Access the name var
-	 */
-	inline const char *name() const
-		{return filename;}
+    /* Access the name var
+     */
+    inline const char *name() const
+        {return filename;}
 
 private:
 
-	char		*filename;		/* the name of the file */
-	int			dir;	/* the path of the file */
-	FILE		*fp  = NULL;		/* the real file handle */
+    char        *filename;      /* the name of the file */
+    int         dir;    /* the path of the file */
+    FILE        *fp  = NULL;        /* the real file handle */
 };
 
-#define	fileerr(file, msg)	((file)->fileerr_(__FILE__, __LINE__, (msg)))
+#define fileerr(file, msg)  ((file)->fileerr_(__FILE__, __LINE__, (msg)))
 
 #endif

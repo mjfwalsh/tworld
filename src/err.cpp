@@ -4,16 +4,16 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include	<cstdlib>
-#include	<cstdarg>
-#include	<cstdio>
+#include    <cstdlib>
+#include    <cstdarg>
+#include    <cstdio>
 
-#include	"err.h"
+#include    "err.h"
 
 /* "Hidden" arguments to warn_, and die_.
  */
 char const      *err_cfile_ = NULL;
-unsigned long	err_lineno_ = 0;
+unsigned long   err_lineno_ = 0;
 
 /* Values used for the first argument of usermessage().
  */
@@ -31,38 +31,38 @@ enum { NOTIFY_DIE, NOTIFY_ERR };
  * program is about to shut down.
  */
 static void usermessage(int action, char const *cfile, unsigned long lineno,
-	char const *fmt, va_list args)
+    char const *fmt, va_list args)
 {
-	fputs(action == NOTIFY_DIE ? "FATAL: " : "error: ", stderr);
-	if (fmt)
-		vfprintf(stderr, fmt, args);
-	if (cfile)
-		fprintf(stderr, " [%s:%lu] ", cfile, lineno);
-	fputc('\n', stderr);
-	fflush(stderr);
+    fputs(action == NOTIFY_DIE ? "FATAL: " : "error: ", stderr);
+    if (fmt)
+        vfprintf(stderr, fmt, args);
+    if (cfile)
+        fprintf(stderr, " [%s:%lu] ", cfile, lineno);
+    fputc('\n', stderr);
+    fflush(stderr);
 }
 
 /* Log a warning message.
  */
 void warn_(char const *fmt, ...)
 {
-	va_list	args;
+    va_list args;
 
-	va_start(args, fmt);
-	usermessage(NOTIFY_ERR, err_cfile_, err_lineno_, fmt, args);
-	va_end(args);
-	err_cfile_ = NULL;
-	err_lineno_ = 0;
+    va_start(args, fmt);
+    usermessage(NOTIFY_ERR, err_cfile_, err_lineno_, fmt, args);
+    va_end(args);
+    err_cfile_ = NULL;
+    err_lineno_ = 0;
 }
 
 /* Display an error message to the user and exit.
  */
 void die_(char const *fmt, ...)
 {
-	va_list	args;
+    va_list args;
 
-	va_start(args, fmt);
-	usermessage(NOTIFY_DIE, err_cfile_, err_lineno_, fmt, args);
-	va_end(args);
-	exit(EXIT_FAILURE);
+    va_start(args, fmt);
+    usermessage(NOTIFY_DIE, err_cfile_, err_lineno_, fmt, args);
+    va_end(args);
+    exit(EXIT_FAILURE);
 }

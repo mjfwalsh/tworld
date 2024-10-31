@@ -6,8 +6,8 @@
  * No warranty. See COPYING for details.
  */
 
-#include	"help.h"
-#include	"../obj/comptime.h"
+#include    "help.h"
+#include    "../obj/comptime.h"
 
 /* Version and Licence information.
  */

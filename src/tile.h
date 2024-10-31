@@ -3,8 +3,8 @@
  * See COPYING for details.
  */
 
-#ifndef	HEADER_tile_h_
-#define	HEADER_tile_h_
+#ifndef HEADER_tile_h_
+#define HEADER_tile_h_
 
 #include "oshwbind.h"
 
@@ -14,12 +14,12 @@
 
 /* The dimensions of the visible area of the map (in tiles).
  */
-#define	NXTILES		9
-#define	NYTILES		9
+#define NXTILES     9
+#define NYTILES     9
 
 /* The width/height of a tile in pixels at 100% zoom
  */
-#define DEFAULTTILE		48
+#define DEFAULTTILE     48
 
 /* Render the view of the visible area of the map to the display, with
  * the view position centered on the display as much as possible. The

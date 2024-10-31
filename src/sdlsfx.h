@@ -6,8 +6,8 @@
  * No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_sdlsfx_h_
-#define	HEADER_sdlsfx_h_
+#ifndef HEADER_sdlsfx_h_
+#define HEADER_sdlsfx_h_
 
 
 /* Activate or deactivate the sound system. The return value is TRUE

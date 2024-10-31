@@ -11,10 +11,10 @@ class QString;
 
 enum
 {
-	MessageWin,
-	MessageDie,
-	MessageTime,
-	MessageTypeCount
+    MessageWin,
+    MessageDie,
+    MessageTime,
+    MessageTypeCount
 };
 
 extern void loadmessagesfromfile(char const *filename);

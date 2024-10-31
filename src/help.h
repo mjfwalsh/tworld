@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_help_h_
-#define	HEADER_help_h_
+#ifndef HEADER_help_h_
+#define HEADER_help_h_
 
 /* Version and license information.
  */

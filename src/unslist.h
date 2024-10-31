@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_unslist_h_
-#define	HEADER_unslist_h_
+#ifndef HEADER_unslist_h_
+#define HEADER_unslist_h_
 
 /* Read the list of unsolvable levels from the given filename. If the
  * filename does not contain a path, then the function looks for the

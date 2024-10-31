@@ -3,8 +3,8 @@
  * See COPYING for details.
  */
 
-#ifndef	HEADER_timer_h_
-#define	HEADER_timer_h_
+#ifndef HEADER_timer_h_
+#define HEADER_timer_h_
 
 /* Control the timer depending on the value of action. A negative
  * value turns off the timer if it is running and resets the counter

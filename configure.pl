@@ -17,9 +17,9 @@ cxx => 'c++',
 
 # override default options which command line variables
 for my $k (keys %opt) {
-	if(defined $ENV{uc $k}) {
-		$opt{$k} = $ENV{uc $k};
-	}
+    if(defined $ENV{uc $k}) {
+        $opt{$k} = $ENV{uc $k};
+    }
 }
 
 GetOptions(
@@ -34,7 +34,7 @@ GetOptions(
 ) || usage(1);
 
 if($opt{help}) {
-	usage(0);
+    usage(0);
 }
 
 
@@ -50,26 +50,26 @@ my %qt_vars = map { split /:/, $_, 2 } get_command_safe($qmake, '-query');
 # major version
 my $major_qt_version;
 if($qt_vars{QT_VERSION} =~ /^5/) {
-	$major_qt_version = '';
+    $major_qt_version = '';
 } elsif($qt_vars{QT_VERSION} =~ /^6/) {
-	$major_qt_version = '6';
+    $major_qt_version = '6';
 } else {
-	say STDERR "QT version check failed: $qmake";
-	exit 1;
+    say STDERR "QT version check failed: $qmake";
+    exit 1;
 }
 
 # windows
 if(defined $ENV{OS} && $ENV{OS} eq 'Windows_NT') {
-	# fix qt paths on msys2
-	if(-d '/C') {
-		foreach my $v (values %qt_vars) {
-			$v =~ s|\\|/|g;
-			$v =~ s|^([A-Z]):|/$1|;
-		}
-	}
+    # fix qt paths on msys2
+    if(-d '/C') {
+        foreach my $v (values %qt_vars) {
+            $v =~ s|\\|/|g;
+            $v =~ s|^([A-Z]):|/$1|;
+        }
+    }
 
-	# windres
-	$vars{WINDRES} = get_cmd_path('windres');
+    # windres
+    $vars{WINDRES} = get_cmd_path('windres');
 }
 
 # add qt to path
@@ -93,7 +93,7 @@ $vars{CFLAGS} = '-std=gnu++17 -Wall -pedantic -DNDEBUG -O2 -I. -Werror -fPIC';
 # qt compiler flags (spaces after -isystem helps mingw gcc)
 $vars{CFLAGS} .= " -isystem $qt_vars{QT_INSTALL_HEADERS}";
 foreach my $module (@qt_modules) {
-	$vars{CFLAGS} .= " -isystem $qt_vars{QT_INSTALL_HEADERS}/$module";
+    $vars{CFLAGS} .= " -isystem $qt_vars{QT_INSTALL_HEADERS}/$module";
 }
 
 # sdl compiler flags
@@ -108,16 +108,16 @@ $vars{LDFLAGS} = $sdl2_config_libs;
 
 # frameworks on Mac, libraries on other systems
 if($^O eq 'darwin') {
-	$vars{LDFLAGS} .= " -F $qt_vars{QT_INSTALL_LIBS}";
-	foreach my $module (@qt_modules) {
-		$vars{LDFLAGS} .= " -framework $module";
-	}
+    $vars{LDFLAGS} .= " -F $qt_vars{QT_INSTALL_LIBS}";
+    foreach my $module (@qt_modules) {
+        $vars{LDFLAGS} .= " -framework $module";
+    }
 } else {
-	foreach my $module (@qt_modules) {
-		my $m = $module;
-		$m =~ s/Qt/-lQt$major_qt_version/;
-		$vars{LDFLAGS} .= " $m";
-	}
+    foreach my $module (@qt_modules) {
+        my $m = $module;
+        $m =~ s/Qt/-lQt$major_qt_version/;
+        $vars{LDFLAGS} .= " $m";
+    }
 }
 
 # create a list of source files
@@ -129,10 +129,10 @@ map { s|^src/(.*?)\.[a-z]+$|obj/$1.o| } @object_files;
 
 # use .exe filename extension on windows and add icon target
 if(defined $ENV{OS} && $ENV{OS} eq 'Windows_NT') {
-		$vars{TWORLD} = 'tworld.exe';
-		push @object_files, 'obj/icon_tworld.o';
+        $vars{TWORLD} = 'tworld.exe';
+        push @object_files, 'obj/icon_tworld.o';
 } else {
-		$vars{TWORLD} = 'tworld';
+        $vars{TWORLD} = 'tworld';
 }
 
 $vars{OBJ_FILES} = join ' ', @object_files;
@@ -144,7 +144,7 @@ open my $mkfile, '>', 'Makefile' || die "Failed to open Makefile";
 
 # print out vars
 foreach my $k (sort keys %vars) {
-	say $mkfile "$k := $vars{$k}";
+    say $mkfile "$k := $vars{$k}";
 }
 
 print $mkfile <<'MAKEFILE';
@@ -226,92 +226,92 @@ push @dep_command, split / +/, $vars{CFLAGS};
 push @dep_command, '-MM', '-MG', '-MT';
 
 foreach my $src (@source_files) {
-	my $obj = $src;
-	$obj =~ s|^src/(.*?)\.cpp$|obj/$1.o| || next;
+    my $obj = $src;
+    $obj =~ s|^src/(.*?)\.cpp$|obj/$1.o| || next;
 
-	say join ' ', @dep_command, $obj, '-c', $src, '-o', '-';
-	open(my $PIPE, '-|', @dep_command, $obj, '-c', $src, '-o', '-') || error("c++ failed to run");
-	my $deps = join '', <$PIPE>;
-	close $PIPE;
+    say join ' ', @dep_command, $obj, '-c', $src, '-o', '-';
+    open(my $PIPE, '-|', @dep_command, $obj, '-c', $src, '-o', '-') || error("c++ failed to run");
+    my $deps = join '', <$PIPE>;
+    close $PIPE;
 
-	# clean up bad paths
-	# changes "../obj/ui_TWMainWnd.h" to "obj/ui_TWMainWnd.h"
-	$deps =~ s![^ ]+(src|obj)/([^ ]+\.h)!$1/$2!g;
+    # clean up bad paths
+    # changes "../obj/ui_TWMainWnd.h" to "obj/ui_TWMainWnd.h"
+    $deps =~ s![^ ]+(src|obj)/([^ ]+\.h)!$1/$2!g;
 
-	# remove obj/comptime.h dep
-	$deps =~ s|obj/comptime.h||;
+    # remove obj/comptime.h dep
+    $deps =~ s|obj/comptime.h||;
 
-	print $mkfile "\n";
-	print $mkfile $deps;
+    print $mkfile "\n";
+    print $mkfile $deps;
 }
 
 close $mkfile;
 
 
 sub get_command {
-	open(my $fh, '-|', @_) || return '';
+    open(my $fh, '-|', @_) || return '';
 
-	my @out;
-	while(my $line = <$fh>) {
-		$line =~ s/[\012\015]+$//;
-		push @out, $line;
-	}
+    my @out;
+    while(my $line = <$fh>) {
+        $line =~ s/[\012\015]+$//;
+        push @out, $line;
+    }
 
-	return undef if @out == 0 || !close $fh || $? != 0;
+    return undef if @out == 0 || !close $fh || $? != 0;
 
-	return wantarray ? @out : $out[0];
+    return wantarray ? @out : $out[0];
 }
 
 sub get_command_safe {
-	my @r = get_command(@_);
+    my @r = get_command(@_);
 
-	if(!@r) {
-		say "Cmd failed: ", join ' ', @_;
-		exit 1;
-	}
+    if(!@r) {
+        say "Cmd failed: ", join ' ', @_;
+        exit 1;
+    }
 
-	return wantarray ? @r : $r[0];
+    return wantarray ? @r : $r[0];
 }
 
 sub get_cmd_path {
-	my $cmd = shift;
+    my $cmd = shift;
 
-	die $cmd unless defined $opt{$cmd};
-	$cmd = $opt{$cmd};
+    die $cmd unless defined $opt{$cmd};
+    $cmd = $opt{$cmd};
 
-	my $path;
-	if($cmd =~ m|^/|) {
-		$path = $cmd;
-	} else {
-		$path = get_command('which', $cmd);
-	}
+    my $path;
+    if($cmd =~ m|^/|) {
+        $path = $cmd;
+    } else {
+        $path = get_command('which', $cmd);
+    }
 
-	if(!$path || !-f $path) {
-		say STDERR "Failed to find $cmd";
-		exit 1;
-	}
-	return $path;
+    if(!$path || !-f $path) {
+        say STDERR "Failed to find $cmd";
+        exit 1;
+    }
+    return $path;
 }
 
 
 sub usage {
-	my $return_value = shift;
-	print <<"END_OF_USAGE";
+    my $return_value = shift;
+    print <<"END_OF_USAGE";
 Usage: ./configure.pl
 
 Options:
-	--qmake    name of or path to qmake executable
-	--sdl      name of or path to sdl config executable
-	--moc      name of or path to moc executable
-	--uic      name of or path to uic executable
-	--cxx      name of or path to c++ executable
-	--windres  name of or path to windres executable
+    --qmake    name of or path to qmake executable
+    --sdl      name of or path to sdl config executable
+    --moc      name of or path to moc executable
+    --uic      name of or path to uic executable
+    --cxx      name of or path to c++ executable
+    --windres  name of or path to windres executable
 
 These options can also be set using uppercase environmental
 variables eg QMAKE=/path/to/qmake ./configure.pl
 
 END_OF_USAGE
 
-	exit $return_value;
+    exit $return_value;
 }
 

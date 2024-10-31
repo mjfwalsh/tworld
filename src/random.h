@@ -4,8 +4,8 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_random_h_
-#define	HEADER_random_h_
+#ifndef HEADER_random_h_
+#define HEADER_random_h_
 
 /* Mark an existing PRNG as beginning a new sequence.
  */
@@ -17,7 +17,7 @@ extern void restartprng(prng *gen, unsigned long initial);
 
 /* Retrieve the original seed value of the current sequence.
  */
-#define	getinitialseed(gen)	((gen)->initial)
+#define getinitialseed(gen) ((gen)->initial)
 
 /* Return a random integer between zero and three, inclusive.
  */

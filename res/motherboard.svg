@@ -3,18 +3,18 @@
 <!-- Copyright (C) 2019 by Michael J. Walsh. Licenced under the GNU GPL, v 3. -->
 <style type="text/css">
 .mycircle {
-	opacity: 1;
-	fill-opacity: 0;
-	stroke: #000000;
-	stroke-width: 1.95;
+    opacity: 1;
+    fill-opacity: 0;
+    stroke: #000000;
+    stroke-width: 1.95;
 }
 
 .myline {
-	fill: none;
-	stroke: #000000;
-	stroke-width: 1.95;
-	stroke-linecap: butt;
-	stroke-linejoin: round;
+    fill: none;
+    stroke: #000000;
+    stroke-width: 1.95;
+    stroke-linecap: butt;
+    stroke-linejoin: round;
 }
 </style>
 <circle class="mycircle" cx="144.4992765" cy="58.122382" r="3.2715623"/>

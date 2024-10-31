@@ -4,25 +4,25 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#ifndef	HEADER_logic_h_
-#define	HEADER_logic_h_
+#ifndef HEADER_logic_h_
+#define HEADER_logic_h_
 
 /* Turning macros.
  */
-#define	left(dir)	((((dir) << 1) | ((dir) >> 3)) & 15)
-#define	back(dir)	((((dir) << 2) | ((dir) >> 2)) & 15)
-#define	right(dir)	((((dir) << 3) | ((dir) >> 1)) & 15)
+#define left(dir)   ((((dir) << 1) | ((dir) >> 3)) & 15)
+#define back(dir)   ((((dir) << 2) | ((dir) >> 2)) & 15)
+#define right(dir)  ((((dir) << 3) | ((dir) >> 1)) & 15)
 
 /* One game logic engine.
  */
-typedef	struct gamelogic gamelogic;
+typedef struct gamelogic gamelogic;
 struct gamelogic {
-	int		ruleset;		  /* the ruleset */
-	gamestate  *state;			  /* ptr to the current game state */
-	bool	  (*initgame)(gamelogic*);	  /* prepare to play a game */
-	int	      (*advancegame)(gamelogic*); /* advance the game one tick */
-	bool	  (*endgame)(gamelogic*);	  /* clean up after the game is done */
-	void      (*shutdown)(gamelogic*);	  /* turn off the logic engine */
+    int     ruleset;          /* the ruleset */
+    gamestate  *state;            /* ptr to the current game state */
+    bool      (*initgame)(gamelogic*);    /* prepare to play a game */
+    int       (*advancegame)(gamelogic*); /* advance the game one tick */
+    bool      (*endgame)(gamelogic*);     /* clean up after the game is done */
+    void      (*shutdown)(gamelogic*);    /* turn off the logic engine */
 };
 
 /* The available game logic engines.
@@ -34,6 +34,6 @@ extern gamelogic *mslogicstartup(void);
  * forgo "standard play" in favor of being as true as possible to the
  * original source material.
  */
-extern bool	pedanticmode;
+extern bool pedanticmode;
 
 #endif

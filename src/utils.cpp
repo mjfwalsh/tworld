@@ -11,12 +11,12 @@
 
 void stringcopy(char *dest, const char *source, short s)
 {
-	short l = strlen(source);
-	if(l < s) {
-		strcpy(dest, source);
-	} else {
-		s--;
-		memcpy(dest, source, s);
-		dest[s] = '\0';
-	}
+    short l = strlen(source);
+    if(l < s) {
+        strcpy(dest, source);
+    } else {
+        s--;
+        memcpy(dest, source, s);
+        dest[s] = '\0';
+    }
 }
