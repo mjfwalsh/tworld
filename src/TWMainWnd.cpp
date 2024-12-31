@@ -128,7 +128,15 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     m_playIcon = QIcon(appResDir + "/play.svg");
     m_pauseIcon = QIcon(appResDir + "/pause.svg");
 
-    // show window
+    // validate window size
+    layout()->activate();
+
+    // centre on screen
+    QRect screen = QGuiApplication::primaryScreen()->availableGeometry();
+    QRect w(screen.topLeft(), (screen.size() - frameSize()) / 2);
+    move(w.bottomRight());
+
+    // show the window
     show();
 
     // timer for display of volume widegt
