@@ -25,6 +25,8 @@ for my $k (keys %opt) {
 GetOptions(
 \%opt,
 "help!",
+"strict!",
+"debug!",
 "qmake=s",
 "sdl=s",
 "windres=s",
@@ -87,8 +89,14 @@ $vars{CXX} = get_cmd_path('cxx');
 # requires qt modules
 my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
 
-# generic compiler flags
-$vars{CFLAGS} = '-std=gnu++17 -Wall -pedantic -DNDEBUG -O2 -Werror -fPIC';
+# compiler flags
+$vars{CFLAGS} = '-std=gnu++17 -O2 -fPIC';
+if($opt{strict}) {
+    $vars{CFLAGS} .= ' -Wall -pedantic  -Werror';
+}
+if(!defined $opt{debug}) {
+    $vars{CFLAGS} .= ' -DNDEBUG';
+}
 
 # qt compiler flags (spaces after -isystem helps mingw gcc)
 $vars{CFLAGS} .= " -isystem $qt_vars{QT_INSTALL_HEADERS}";
@@ -308,6 +316,8 @@ Options:
     --uic      name of or path to uic executable
     --cxx      name of or path to c++ executable
     --windres  name of or path to windres executable
+    --strict   enable strict compiler rules
+    --debug    enable debugging mode in app
 
 These options can also be set using uppercase environmental
 variables eg QMAKE=/path/to/qmake ./configure.pl
