@@ -54,9 +54,9 @@ static void removefilenamesuffixes(std::vector<gameseries> &mapfile_list)
 
 /* Calculate a hash value for the given block of data.
  */
-static unsigned long hashvalue(unsigned char const *data, unsigned int size)
+static uint32_t hashvalue(unsigned char const *data, int size)
 {
-    static unsigned long remainders[256] = {
+    static uint32_t remainders[256] = {
     0x00000000, 0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
     0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6, 0x2B4BCB61,
     0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD, 0x4C11DB70, 0x48D0C6C7,
@@ -102,14 +102,14 @@ static unsigned long hashvalue(unsigned char const *data, unsigned int size)
     0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4
     };
 
-    unsigned long   accum;
-    unsigned int    i, j;
+    uint32_t   accum;
+    int        i, j;
 
-    for (j = 0, accum = 0xFFFFFFFFUL ; j < size ; ++j) {
+    for (j = 0, accum = 0xFFFFFFFF ; j < size ; ++j) {
         i = ((accum >> 24) ^ data[j]) & 0x000000FF;
         accum = (accum << 8) ^ remainders[i];
     }
-    return accum ^ 0xFFFFFFFFUL;
+    return accum ^ 0xFFFFFFFF;
 }
 
 /*

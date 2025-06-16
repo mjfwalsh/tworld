@@ -21,7 +21,7 @@ typedef struct unslistentry {
     int         setid;      /* the ID of the level set's name */
     int         levelnum;   /* the level's number */
     int         size;       /* the levels data's compressed size */
-    unsigned long   hashval;    /* the levels data's hash value */
+    uint32_t    hashval;    /* the levels data's hash value */
     int         note;       /* the entry's annotation ID, if any */
 } unslistentry;
 
@@ -116,7 +116,7 @@ static int lookupsetname(char const *name, bool add)
 /* Add a new entry with the given data to the list.
  */
 static bool addtounslist(int setid, int levelnum,
-    int size, unsigned long hashval, int note)
+    int size, uint32_t hashval, int note)
 {
     if (listcount == listallocated) {
         listallocated = listallocated ? listallocated * 2 : 16;
@@ -156,7 +156,7 @@ static bool readunslist(fileinfo *file)
 {
     char        buf[256], token[256];
     char const         *p;
-    unsigned long   hashval;
+    uint32_t    hashval;
     int         setid;
     unsigned int    size;
     int         lineno, levelnum, n;
@@ -173,7 +173,7 @@ static bool readunslist(fileinfo *file)
             setid = lookupsetname(token, true);
             continue;
         }
-        n = sscanf(p, "%5d: %04X%08lX: %200[^\n\r]",
+        n = sscanf(p, "%3d: %04X %08X: %200[^\n\r]",
             &levelnum, &size, &hashval, token);
         if (n > 0 && levelnum > 0 && levelnum < 65536 && setid) {
             if (n == 1) {
@@ -209,7 +209,7 @@ int markunsolvablelevels(gameseries *series)
     for (j = 0 ; j < series->count ; ++j)
         series->games[j].unsolvable = NULL;
 
-    setid = lookupsetname(series->name, false);
+    setid = lookupsetname(series->mapfilename, false);
     if (!setid)
         return 0;
 

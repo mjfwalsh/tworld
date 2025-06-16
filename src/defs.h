@@ -11,6 +11,7 @@
 
 #include    <ctime>
 #include    <vector>
+#include    <cstdint>
 
 /* The dimensions of a level.
  */
@@ -202,7 +203,7 @@ typedef struct gamesetup {
     int         solutionsize;   /* size of the saved solution data */
     unsigned char      *leveldata;  /* the data defining the level */
     unsigned char      *solutiondata;   /* the player's best solution so far */
-    unsigned long   levelhash;  /* the level data's hash value */
+    uint32_t           levelhash;  /* the level data's hash value */
     char const         *unsolvable; /* why level is unsolvable, or NULL */
     char        name[256];  /* name of the level */
     char        passwd[5];  /* the level's password */
