@@ -210,7 +210,7 @@ static void remembersurface(Qt_Surface * surface)
 {
     if (surfacesused >= surfacesallocated) {
         surfacesallocated += 256;
-        x_type_alloc(Qt_Surface *, surfaceheap, surfacesallocated * sizeof *surfaceheap);
+        safe_realloc(&surfaceheap, surfacesallocated * sizeof *surfaceheap);
     }
     surfaceheap[surfacesused++] = surface;
 }
@@ -994,7 +994,7 @@ static bool initlargetileset(Qt_Surface * tiles)
     if (!settilesize(w, h))
         return false;
 
-    x_type_alloc(TW_Rect, tilepos, (sizeof tileidmap / sizeof *tileidmap) * sizeof *tilepos);
+    safe_realloc(&tilepos, (sizeof tileidmap / sizeof *tileidmap) * sizeof *tilepos);
 
     row = 0;
     nextrow = geng.htile + 1;

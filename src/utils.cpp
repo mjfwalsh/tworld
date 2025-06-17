@@ -9,16 +9,13 @@
 
 #include "utils.h"
 
-void stringcopy(char *dest, const char *source, short s)
+void stringcopy(char *dest, const char *source, int c)
 {
-    short l = strlen(source);
-    if(l < s) {
-        strcpy(dest, source);
-    } else {
-        s--;
-        memcpy(dest, source, s);
-        dest[s] = '\0';
-    }
+    c--;
+    int l = strlen(source);
+    if(l < c) c = l;
+    memcpy(dest, source, c);
+    dest[c] = '\0';
 }
 
 // std::string::assign(const char*) may copy too many characters

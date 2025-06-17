@@ -21,14 +21,14 @@ static std::string dirs[NUMBER_OF_DIRS];
 
 /* The function used to display error messages relating to file I/O.
  */
-bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg)
+bool fileinfo::fileerr_(char const *msg, char const *cfile, unsigned long lineno)
 {
-    if (msg) {
-        err_cfile_ = cfile;
-        err_lineno_ = lineno;
-        warn_("%s: %s", m_filename.c_str(),
-            errno ? strerror(errno) : msg);
-    }
+    if(msg)
+        warn_("error: %s: %s [%s:%lu]\n",
+              m_filename.c_str(),
+              errno ? strerror(errno) : msg,
+              cfile,
+              lineno);
     return false;
 }
 

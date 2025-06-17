@@ -102,7 +102,7 @@ void loadgameresources(int ruleset)
     const char *resPath = getdir(RESDIR);
     resPathLen = strlen(resPath);
 
-    x_cmalloc(fpstring, resPathLen + FILENAME_LEN);
+    fpstring = new char[resPathLen + FILENAME_LEN];
     memcpy(fpstring, resPath, resPathLen);
 
     fpstring[resPathLen] = '/';
@@ -111,5 +111,5 @@ void loadgameresources(int ruleset)
     LoadImages(ruleset);
     LoadSounds(ruleset);
 
-    free(fpstring);
+    delete [] fpstring;
 }

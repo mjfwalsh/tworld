@@ -314,7 +314,7 @@ bool loadhistory(void)
             continue;
 
         ++historycount;
-        x_type_alloc(history, historylist, historycount * sizeof *historylist);
+        safe_realloc(&historylist, historycount * sizeof *historylist);
         h = historylist + historycount - 1;
         h->name = hname;
         stringcopy(h->passwd, hpasswd, (int)(sizeof h->passwd));
@@ -349,7 +349,7 @@ static void updatehistory(char const *name, char const *passwd, int number)
 
     if (i == historycount) {
         ++historycount;
-        x_type_alloc(history, historylist, historycount * sizeof *historylist);
+        safe_realloc(&historylist, historycount * sizeof *historylist);
     }
 
     for (j = i; j > 0; --j) {

@@ -119,7 +119,7 @@ public:
      * otherwise the text pointed to by msg is used. If msg is NULL, the
      * function does nothing. The return value is always FALSE.
      */
-    bool fileerr_(char const *cfile, unsigned long lineno, char const *msg);
+    bool fileerr_(char const *msg, char const *cfile, unsigned long lineno);
 
     /* Access the name var
      */
@@ -133,6 +133,7 @@ private:
     FILE        *m_fp  = NULL;        /* the real file handle */
 };
 
-#define fileerr(file, msg)  ((file)->fileerr_(__FILE__, __LINE__, (msg)))
+
+#define fileerr(file, msg)  ((file)->fileerr_(msg, __FILE__, __LINE__))
 
 #endif

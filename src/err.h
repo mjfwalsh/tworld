@@ -7,15 +7,6 @@
 #ifndef HEADER_err_h_
 #define HEADER_err_h_
 
-/* Simple macros for dealing with memory allocation simply.
- */
-#define memerrexit()    (die("out of memory"))
-#define x_alloc(p, n)   {void *oldp = p; if(!(p = realloc(p, n))) {free(oldp);memerrexit();}}
-#define x_type_alloc(t, p, n)   {t *oldp = p; if(!(p = (t *)realloc(p, n))) {free(oldp);memerrexit();}}
-#define x_malloc(p, n)  if(!(p = malloc(n))) memerrexit();
-#define x_type_malloc(t, p, n)  if(!(p = (t *)malloc(n))) memerrexit();
-#define x_cmalloc(p, n) if(!(p = (char *)malloc(n))) memerrexit();
-
 /* Log an error message and continue.
  */
 extern void warn_(char const *fmt, ...);
@@ -27,9 +18,23 @@ extern void die_(char const *fmt, ...) __attribute__((noreturn));
 /* A really ugly hack used to smuggle extra arguments into variadic
  * functions.
  */
-extern char const      *err_cfile_;
-extern unsigned long    err_lineno_;
-#define warn    (err_cfile_ = __FILE__, err_lineno_ = __LINE__, warn_)
-#define die (err_cfile_ = __FILE__, err_lineno_ = __LINE__, die_)
+#define warn(fmt, ...) warn_("error: " fmt " [%s:%lu]\n", ##__VA_ARGS__, __FILE__, __LINE__)
+#define  die(fmt, ...)  die_("FATAL: " fmt " [%s:%lu]\n", ##__VA_ARGS__, __FILE__, __LINE__)
+
+/* Simple functions for dealing with memory allocation simply.
+ */
+
+void inline memerrexit()
+{
+    die("out of memory");
+}
+
+template <typename T>
+inline void safe_realloc(T** p, size_t s)
+{
+    T *tmp = (T *)realloc(*p, s);
+    if(tmp == nullptr) memerrexit();
+    *p = tmp;
+}
 
 #endif

@@ -92,7 +92,7 @@ my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
 # compiler flags
 $vars{CFLAGS} = '-std=gnu++17 -O2 -fPIC';
 if($opt{strict}) {
-    $vars{CFLAGS} .= ' -Wall -pedantic  -Werror';
+    $vars{CFLAGS} .= ' -Wall -Werror';
 }
 if(!defined $opt{debug}) {
     $vars{CFLAGS} .= ' -DNDEBUG';

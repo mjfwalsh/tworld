@@ -10,7 +10,7 @@
 
 #include <string>
 
-void stringcopy(char *dest, const char *source, short s);
+void stringcopy(char *dest, const char *source, int capacity);
 void assignmax(std::string &dst, const unsigned char *src, int maxchars);
 
 #endif

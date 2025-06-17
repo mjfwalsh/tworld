@@ -325,7 +325,7 @@ bool readseriesfile(gameseries *series)
     if(series->lastlevel > 0 && series->lastlevel < series->count)
         series->count = series->lastlevel;
 
-    x_type_alloc(gamesetup, series->games, series->count * sizeof *series->games);
+    safe_realloc(&series->games, series->count * sizeof *series->games);
     memset(series->games + series->allocated, 0,
         (series->count - series->allocated) * sizeof *series->games);
     series->allocated = series->count;

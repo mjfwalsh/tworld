@@ -165,7 +165,7 @@ void initmovelist(actlist *list)
 {
     if (!list->allocated || !list->list) {
         list->allocated = 16;
-        x_type_alloc(action, list->list, list->allocated * sizeof *list->list);
+        safe_realloc(&list->list, list->allocated * sizeof *list->list);
     }
     list->count = 0;
 }
@@ -176,7 +176,7 @@ void addtomovelist(actlist *list, action move)
 {
     if (list->count >= list->allocated) {
         list->allocated *= 2;
-        x_type_alloc(action, list->list, list->allocated * sizeof *list->list);
+        safe_realloc(&list->list, list->allocated * sizeof *list->list);
     }
     list->list[list->count++] = move;
 }

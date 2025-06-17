@@ -203,15 +203,14 @@ static void freecreaturepool(void)
  */
 static creature *allocatecreature(void)
 {
-    crpoollump *next;
-    creature   *cr;
-
     if (!currentcrpoollump || currentcrpoollump->count == 0) {
         if (currentcrpoollump && currentcrpoollump->next) {
             currentcrpoollump = currentcrpoollump->next;
             currentcrpoollump->count = crpoollumpsize;
         } else {
-            x_type_malloc(crpoollump, next, sizeof *next);
+            crpoollump *next = (crpoollump *)malloc(sizeof *next);
+            if(next == NULL) memerrexit();
+
             next->count = crpoollumpsize;
             next->prev = currentcrpoollump;
             next->next = NULL;
@@ -222,7 +221,7 @@ static creature *allocatecreature(void)
     }
 
     --currentcrpoollump->count;
-    cr = currentcrpoollump->lump + currentcrpoollump->count;
+    creature   *cr = currentcrpoollump->lump + currentcrpoollump->count;
     cr->id = Nothing;
     cr->pos = -1;
     cr->dir = NIL;
@@ -247,7 +246,7 @@ static creature *addtocreaturelist(creature *cr)
 {
     if (creaturecount >= creaturesallocated) {
         creaturesallocated = creaturesallocated ? creaturesallocated * 2 : 16;
-        x_type_alloc(creature *, creatures, creaturesallocated * sizeof *creatures);
+        safe_realloc(&creatures, creaturesallocated * sizeof *creatures);
     }
     creatures[creaturecount++] = cr;
     return cr;
@@ -266,7 +265,7 @@ static creature *addtoblocklist(creature *cr)
 {
     if (blockcount >= blocksallocated) {
         blocksallocated = blocksallocated ? blocksallocated * 2 : 16;
-        x_type_alloc(creature *, blocks, blocksallocated * sizeof *blocks);
+        safe_realloc(&blocks, blocksallocated * sizeof *blocks);
     }
     blocks[blockcount++] = cr;
     return cr;
@@ -294,7 +293,7 @@ static creature *appendtosliplist(creature *cr, int dir)
 
     if (slipcount >= slipsallocated) {
         slipsallocated = slipsallocated ? slipsallocated * 2 : 16;
-        x_type_alloc(slipper, slips, slipsallocated * sizeof *slips);
+        safe_realloc(&slips, slipsallocated * sizeof *slips);
     }
     slips[slipcount].cr = cr;
     slips[slipcount].dir = dir;
@@ -315,7 +314,7 @@ static creature *prependtosliplist(creature *cr, int dir)
 
     if (slipcount >= slipsallocated) {
         slipsallocated = slipsallocated ? slipsallocated * 2 : 16;
-        x_type_alloc(slipper, slips, slipsallocated * sizeof *slips);
+        safe_realloc(&slips, slipsallocated * sizeof *slips);
     }
     for (n = slipcount ; n ; --n)
         slips[n] = slips[n - 1];
