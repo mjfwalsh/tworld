@@ -8,6 +8,9 @@
 #ifndef HEADER_utils_h_
 #define HEADER_utils_h_
 
+#include <string>
+
 void stringcopy(char *dest, const char *source, short s);
+void assignmax(std::string &dst, const unsigned char *src, int maxchars);
 
 #endif

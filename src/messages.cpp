@@ -28,9 +28,9 @@ void loadmessagesfromfile(char const *filename)
     }
 
     // get filename and open
-    char *fname = getpathforfileindir(RESDIR, filename);
-    QFile infile(fname);
-    free(fname);
+    std::string fname = getpathforfileindir(RESDIR, filename);
+    QFile infile(fname.c_str());
+
     if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         warn("%s: Failed to load messages file", filename);
         return;

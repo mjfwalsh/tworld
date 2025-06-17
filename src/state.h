@@ -241,7 +241,7 @@ typedef struct gamestate {
     xyconn      traps[256];     /* list of trap wirings */
     xyconn      cloners[256];       /* list of cloner wirings */
     short       crlist[256];        /* list of creatures */
-    char        hinttext[256];      /* text of the hint */
+    std::string hinttext;           /* text of the hint */
     mapcell     map[CXGRID * CYGRID];   /* the game's map */
 
     /* Ruleset specific state. A union could be used to reduce memory, but

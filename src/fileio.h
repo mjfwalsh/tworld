@@ -37,7 +37,7 @@ extern bool haspathname(char const *name);
  * algorithm to construct the path as open(). The caller must
  * free the returned buffer.
  */
-extern char *getpathforfileindir(int dirInt, char const *filename);
+extern std::string getpathforfileindir(int dirInt, char const *filename);
 
 
 /* Call filecallback once for every file in dir. The first argument to
@@ -56,7 +56,7 @@ extern bool findfiles(int dirInt, void *data,
 class fileinfo
 {
 public:
-    fileinfo(int dirInt, char const *filename);
+    fileinfo(int dirInt, const std::string &fn);
     ~fileinfo();
 
     /* The following functions correspond directly to C's standard I/O
@@ -124,11 +124,11 @@ public:
     /* Access the name var
      */
     inline const char *name() const
-        {return m_filename;}
+        {return m_filename.c_str();}
 
 private:
 
-    char        *m_filename;      /* the name of the file */
+    std::string  m_filename;      /* the name of the file */
     int          m_dir;    /* the path of the file */
     FILE        *m_fp  = NULL;        /* the real file handle */
 };

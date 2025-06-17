@@ -90,7 +90,7 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
         table->addCell(locale.toString(game->number), RightAlign);
 
         if (hassolution(game)) {
-            table->addCell(game->name);
+            table->addCell(game->name.c_str());
 
             if (game->sgflags & SGF_REPLACEABLE) {
                 table->addCell("", LeftAlign, 4);
@@ -117,7 +117,7 @@ void createscorelist(gameseries const *series, bool usepasswds, int **plevellist
             ++count;
         } else {
             if (!usepasswds || (game->sgflags & SGF_HASPASSWD)) {
-                table->addCell(game->name, LeftAlign, 5);
+                table->addCell(game->name.c_str(), LeftAlign, 5);
 
                 levellist[count] = j;
                 blankLines = 0;
@@ -184,7 +184,7 @@ QString leveltimes(gameseries const *series)
             int const besttime = starttime - game.besttime / TICKS_PER_SECOND;
             bool const timed = (game.time > 0);
             bool const bad = (game.sgflags & SGF_REPLACEABLE);
-            oss << timestring(game.number, game.name, besttime, timed, bad);
+            oss << timestring(game.number, game.name.c_str(), besttime, timed, bad);
         }
     }
 

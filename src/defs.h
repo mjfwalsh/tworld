@@ -204,8 +204,9 @@ typedef struct gamesetup {
     unsigned char      *leveldata;  /* the data defining the level */
     unsigned char      *solutiondata;   /* the player's best solution so far */
     uint32_t           levelhash;  /* the level data's hash value */
-    char const         *unsolvable; /* why level is unsolvable, or NULL */
-    char        name[256];  /* name of the level */
+    bool        unsolvable; /* is level unsolvable? */
+    std::string unsolvablereason; /* why level is unsolvable */
+    std::string name;  /* name of the level */
     char        passwd[5];  /* the level's password */
 } gamesetup;
 
@@ -218,7 +219,7 @@ typedef struct gamesetup {
 /* The history for the last time a levelset was played.
  */
 typedef struct history {
-    char        name[256];  /* the set filename minus any path */
+    std::string name;  /* the set filename minus any path */
     char        passwd[5];  /* password of the last played level */
     int         levelnumber;    /* number of the last played level */
     struct tm       dt;     /* date/time set was last played */
@@ -230,8 +231,8 @@ typedef struct dacfile {
     int         lastlevel;      /* number of the ending level */
     int         ruleset;        /* the ruleset for the game file */
     int         gsflags;        /* series flags (see below) */
-    char*       filename;       /* the filename minus any path */
-    char*       datfilename;    /* the filename minus any path */
+    std::string filename;       /* the filename minus any path */
+    std::string datfilename;    /* the filename minus any path */
 } dacfile;
 
 /* The collection of data maintained for each series.
@@ -243,11 +244,11 @@ typedef struct gameseries {
     int         ruleset;    /* the ruleset for the game file */
     int         gsflags;    /* series flags (see below) */
     gamesetup   *games;     /* the array of levels */
-    char        *mapfilename;   /* the name of map file */
+    std::string mapfilename;   /* the name of map file */
     int         mapfiledir; /* the dir the map file is in */
-    char        *savefilename;  /* name for solution file */
+    std::string savefilename;  /* name for solution file */
     int         solheadersize;  /* size of extra solution header */
-    char        name[256];  /* the filename minus any path */
+    std::string name;  /* the filename minus any path */
     unsigned char   solheader[256]; /* extra solution header bytes */
     std::vector<dacfile> dacfiles[Ruleset_Count]; /* list of dacfiles*/
 } gameseries;

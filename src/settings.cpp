@@ -25,15 +25,13 @@ void loadsettings()
         return;
     }
 
-    char *fname = getpathforfileindir(SETTINGSDIR, sfname);
-    QFile infile(fname);
+    std::string fname = getpathforfileindir(SETTINGSDIR, sfname);
+    QFile infile(fname.c_str());
 
     if (!infile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        warn("Failed to load settings file: %s", fname);
-        free(fname);
+        warn("Failed to load settings file: %s", fname.c_str());
         return;
     }
-    free(fname);
 
     while (!infile.atEnd()) {
         QByteArray line = infile.readLine().trimmed();
@@ -57,15 +55,13 @@ void loadsettings()
 
 void savesettings()
 {
-    char *fname = getpathforfileindir(SETTINGSDIR, sfname);
-    QFile outfile(fname);
+    std::string fname = getpathforfileindir(SETTINGSDIR, sfname);
+    QFile outfile(fname.c_str());
 
     if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        warn("Failed to save settings file: %s", fname);
-        free(fname);
+        warn("Failed to save settings file: %s", fname.c_str());
         return;
     }
-    free(fname);
 
     QTextStream s(&outfile);
 

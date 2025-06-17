@@ -11,12 +11,13 @@
 #include    <cstdio>
 #include    <cstdlib>
 #include    <cstring>
+#include    <string>
 #include    <cerrno>
 
 #include    "fileio.h"
 #include    "err.h"
 
-static char *dirs[NUMBER_OF_DIRS];
+static std::string dirs[NUMBER_OF_DIRS];
 
 /* The function used to display error messages relating to file I/O.
  */
@@ -25,7 +26,7 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
     if (msg) {
         err_cfile_ = cfile;
         err_lineno_ = lineno;
-        warn_("%s: %s", m_filename,
+        warn_("%s: %s", m_filename.c_str(),
             errno ? strerror(errno) : msg);
     }
     return false;
@@ -40,7 +41,6 @@ bool fileinfo::fileerr_(char const *cfile, unsigned long lineno, char const *msg
 fileinfo::~fileinfo()
 {
     if(m_fp) close();
-    free(m_filename);
 }
 
 /* Hack to get around MinGW (really msvcrt.dll) not supporting 'x' modifier
@@ -281,7 +281,7 @@ bool fileinfo::writef(const char *format, ...)
  */
 const char *getdir(int t)
 {
-    return dirs[t];
+    return dirs[t].c_str();
 }
 
 /* Return TRUE if name contains a path but is not a directory itself.
@@ -296,30 +296,19 @@ bool haspathname(char const *n)
 /* Return the pathname for a directory and/or filename, using the
  * same algorithm to construct the path as open().
  */
-char *getpathforfileindir(int dirInt, char const *filename)
+std::string getpathforfileindir(int dirInt, char const *filename)
 {
-    char       *path;
-    int     m, n;
-    char const *dir;
-    dir = getdir(dirInt);
-
-    m = strlen(filename);
-    n = strlen(dir);
-
-    x_cmalloc(path, m + n + 2);
-    memcpy(path, dir, n);
-    path[n++] = '/';
-    memcpy(path + n, filename, m + 1);
+    std::string path = getdir(dirInt);
+    path += '/';
+    path += filename;
     return path;
 }
 
-fileinfo::fileinfo(int d, char const *fn)
-{
-    x_cmalloc(m_filename, strlen(fn) + 1);
-    strcpy(m_filename, fn);
-
-    m_dir = d;
-}
+fileinfo::fileinfo(int d, const std::string &fn)
+:
+m_filename(fn),
+m_dir(d)
+{}
 
 /* Open a file from of the directories RESDIR, SERIESDIR, USER_SERIESDATDIR,
  * GLOBAL_SERIESDATDIR, SOLUTIONDIR, or SETTINGSDIR. If the fileinfo structure
@@ -330,9 +319,9 @@ bool fileinfo::open(char const *mode, char const *msg)
 {
     errno = 0;
 
-    char *fullpath = getpathforfileindir(m_dir, m_filename);
-    this->m_fp = FOPEN(fullpath, mode);
-    free(fullpath);
+    std::string fullpath = getpathforfileindir(m_dir, m_filename.c_str());
+    this->m_fp = FOPEN(fullpath.c_str(), mode);
+
     if (this->m_fp) return true;
     return fileerr(this, msg);
 }
@@ -366,25 +355,13 @@ bool findfiles(int dir, void *data, bool (*filecallback)(char const*, int, void*
  */
 static void savedir(int dir, QString path)
 {
-    x_cmalloc(dirs[dir], path.length() + 1);
-    strcpy(dirs[dir], path.toUtf8().constData());
-}
-
-/* free stuff
- */
-static void shutdown()
-{
-    for(int i = 0; i < NUMBER_OF_DIRS; i++) {
-        free(dirs[i]);
-    }
+    dirs[dir] = path.toStdString();
 }
 
 /* Initialise the directories using Qt standard paths
  */
 void initdirs()
 {
-    atexit(shutdown);
-
     auto checkDir = [](QString d)
     {
         QDir dir(d);

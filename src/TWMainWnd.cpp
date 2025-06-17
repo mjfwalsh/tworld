@@ -459,7 +459,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
         // set properties
         m_ruleset = pState->ruleset;
         m_levelNum = pState->game->number;
-        m_levelName = pState->game->name;
+        m_levelName = pState->game->name.c_str();
         m_timedLevel = bTimedLevel;
         m_problematic = false;
         m_bestTime = nBestTime;
@@ -548,7 +548,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
         // Hide hint and set text
         SetHintVisibility(false);
-        SetHintText(pState->hinttext);
+        SetHintText(pState->hinttext.c_str());
 
         // This sets m_problematic as true if there are any problems
         CheckForProblems(pState);
@@ -631,8 +631,8 @@ void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
         s = "This level cannot be played.";
     } else if (pState->game->unsolvable) {
         s = "This level is reported to be unsolvable";
-        if (*pState->game->unsolvable)
-            s += ": " + QString(pState->game->unsolvable);
+        if (!pState->game->unsolvablereason.empty())
+            s += ": " + QString(pState->game->unsolvablereason.c_str());
         s += ".";
     } else {
         CCX::RulesetCompatibility ruleCompat = m_ccxLevelset.vecLevels[m_levelNum].ruleCompat;
@@ -1083,7 +1083,7 @@ void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
     QDir dataDir;
     dataDir.setPath(getdir(pSeries->mapfiledir));
 
-    QString sSetName = QFileInfo(pSeries->mapfilename).completeBaseName();
+    QString sSetName = QFileInfo(pSeries->mapfilename.c_str()).completeBaseName();
     m_levelPackName = sSetName; // save for use on display
 
     QString sFilePath = dataDir.filePath(sSetName + ".ccx");

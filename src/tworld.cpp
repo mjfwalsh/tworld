@@ -182,10 +182,10 @@ static bool showsolutionfiles(gamespec *gs)
         return false;
     }
 
-    int current = filelist.indexOf(gs->series.savefilename);
+    int current = filelist.indexOf(gs->series.savefilename.c_str());
     int n = current == -1 ? 0 : current;
 
-    g_mainWindow->PushSubtitle(gs->series.name);
+    g_mainWindow->PushSubtitle(gs->series.name.c_str());
     for (;;) {
         int f = g_mainWindow->DisplayList(&table, &n, false);
         if (f == CmdProceed) {
@@ -199,9 +199,7 @@ static bool showsolutionfiles(gamespec *gs)
 
     if (n >= 0 && n != current) {
         clearsolutions(&gs->series);
-        int l = (sizeof(char*) * filelist[n].length()) + 1;
-        x_cmalloc(gs->series.savefilename, l);
-        strcpy(gs->series.savefilename, filelist[n].toUtf8().constData());
+        gs->series.savefilename = filelist[n].toStdString();
         if (!readsolutions(&gs->series)) {
             TileWorldApp::Bell();
         }
@@ -231,7 +229,7 @@ static int showscores(gamespec *gs)
         if (levellist[n] == gs->currentgame)
             break;
 
-    g_mainWindow->PushSubtitle(gs->series.name);
+    g_mainWindow->PushSubtitle(gs->series.name.c_str());
     for (;;) {
         int f = g_mainWindow->DisplayList(&table, &n, false);
         if (f == CmdProceed) {
@@ -318,7 +316,7 @@ bool loadhistory(void)
         ++historycount;
         x_type_alloc(history, historylist, historycount * sizeof *historylist);
         h = historylist + historycount - 1;
-        stringcopy(h->name, hname, (int)(sizeof h->name));
+        h->name = hname;
         stringcopy(h->passwd, hpasswd, (int)(sizeof h->passwd));
         h->levelnumber = (int)strtol(hnumber, NULL, 0);
         h->dt.tm_year  = hyear - 1900;
@@ -345,7 +343,7 @@ static void updatehistory(char const *name, char const *passwd, int number)
 
     h = historylist;
     for (i = 0; i < historycount; ++i, ++h) {
-        if (strcasecmp(h->name, name) == 0)
+        if (strcasecmp(h->name.c_str(), name) == 0)
             break;
     }
 
@@ -359,7 +357,7 @@ static void updatehistory(char const *name, char const *passwd, int number)
     }
 
     h = historylist;
-    stringcopy(h->name, name, (int)(sizeof h->name));
+    h->name = name;
     stringcopy(h->passwd, passwd, (int)(sizeof h->passwd));
     h->levelnumber = number;
     h->dt = *localtime(&t);
@@ -381,7 +379,7 @@ void savehistory(void)
         file.writef("%04d-%02d-%02d %02d:%02d:%02d\t%s\t%d\t%s\n",
             1900 + h->dt.tm_year, 1 + h->dt.tm_mon, h->dt.tm_mday,
             h->dt.tm_hour, h->dt.tm_min, h->dt.tm_sec,
-            h->passwd, h->levelnumber, h->name);
+            h->passwd, h->levelnumber, h->name.c_str());
     }
 
     file.close();
@@ -839,7 +837,7 @@ static int runcurrentlevel(gamespec *gs)
 
     g_mainWindow->SetPlayPauseButton(true);
 
-    name = gs->series.name;
+    name = gs->series.name.c_str();
 
     updatehistory(name,
         gs->series.games[gs->currentgame].passwd,
@@ -857,7 +855,7 @@ static int runcurrentlevel(gamespec *gs)
 
     valid = initgamestate(gs->series.games + gs->currentgame,
         gs->series.ruleset);
-    g_mainWindow->ChangeSubtitle(gs->series.games[gs->currentgame].name);
+    g_mainWindow->ChangeSubtitle(gs->series.games[gs->currentgame].name.c_str());
     passwordseen(gs, gs->currentgame);
     if (!islastinseries(gs, gs->currentgame))
         if (!valid || gs->series.games[gs->currentgame].unsolvable)
@@ -899,7 +897,7 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
 
     h = historylist;
     for (i = 0; i < historycount; ++i, ++h) {
-        if (strcasecmp(h->name, name) == 0) {
+        if (strcasecmp(h->name.c_str(), name) == 0) {
             n = findlevelinseries(&gs->series, h->levelnumber, h->passwd);
             if (n < 0)
                 n = findlevelinseries(&gs->series, 0, h->passwd);
@@ -914,12 +912,12 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
 }
 
 // Find the defaultseries in seriesdata
-static bool findseries(std::vector<gameseries> &serieslist, char const *defaultseries, uint *game, uint *ruleset, uint* dac)
+static bool findseries(std::vector<gameseries> &serieslist, const std::string &defaultseries, uint *game, uint *ruleset, uint* dac)
 {
     for(*game = 0; *game < serieslist.size(); (*game)++) {
         for (*ruleset = Ruleset_First; *ruleset < Ruleset_Count; (*ruleset)++) {
             for (*dac = 0; *dac < serieslist[*game].dacfiles[*ruleset].size(); (*dac)++) {
-                if (!strcmp(serieslist[*game].dacfiles[*ruleset][*dac].filename, defaultseries)) {
+                if (serieslist[*game].dacfiles[*ruleset][*dac].filename == defaultseries) {
                     return true;
                 }
             }
@@ -942,7 +940,7 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
     mftable.setCols(1);
     mftable.addCell("Levelset");
     for (uint y = 0 ; y < serieslist.size(); y++) {
-        mftable.addCell(serieslist[y].name);
+        mftable.addCell(serieslist[y].name.c_str());
     }
 
     restart:
@@ -961,7 +959,7 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
         gstable.setCols(1);
         gstable.addCell("Profile");
         for (uint y = 0; y < serieslist[*game].dacfiles[*ruleset].size(); y++) {
-            gstable.addCell(serieslist[*game].dacfiles[*ruleset][y].filename);
+            gstable.addCell(serieslist[*game].dacfiles[*ruleset][y].filename.c_str());
         }
 
         f = g_mainWindow->DisplayList(&gstable, (int *)dac, false);
@@ -986,7 +984,7 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
  * if an error occurred, or positive otherwise.
  */
 static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslist, bool autoplay,
-    char const *defaultseries)
+    const std::string &defaultseries)
 {
     uint game = 0;
     uint ruleset = Ruleset_First;
@@ -999,7 +997,7 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
 
     if (!autoplay || serieslist.size() > 1) {
         bool founddefault = false;
-        if (defaultseries) {
+        if (!defaultseries.empty()) {
             founddefault = findseries(serieslist, defaultseries, &game, &ruleset, &dac);
         }
 
@@ -1029,7 +1027,7 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
     gs->series = std::move(serieslist[game]);
 
     // copy some dac info over to gameseries
-    stringcopy(gs->series.name, gs->series.dacfiles[ruleset][dac].filename, (int)(sizeof gs->series.name));
+    gs->series.name = gs->series.dacfiles[ruleset][dac].filename;
     gs->series.lastlevel = gs->series.dacfiles[ruleset][dac].lastlevel;
     gs->series.ruleset = gs->series.dacfiles[ruleset][dac].ruleset;
     gs->series.gsflags = gs->series.dacfiles[ruleset][dac].gsflags;
@@ -1041,15 +1039,15 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
     freedacfilelist(gs->series.dacfiles);
 
     // change the selected series setting
-    setstringsetting("selectedseries", gs->series.name);
+    setstringsetting("selectedseries", gs->series.name.c_str());
 
     if (!readseriesfile(&gs->series)) {
-        warn("%s: cannot read data file", gs->series.name);
+        warn("%s: cannot read data file", gs->series.name.c_str());
         freeseriesdata(&gs->series);
         return -1;
     }
     if (gs->series.count < 1) {
-        warn("%s: no levels found in data file", gs->series.name);
+        warn("%s: no levels found in data file", gs->series.name.c_str());
         freeseriesdata(&gs->series);
         return -1;
     }
@@ -1060,7 +1058,7 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
     gs->currentgame = -1;
     gs->melindacount = 0;
 
-    findlevelfromhistory(gs, gs->series.name);
+    findlevelfromhistory(gs, gs->series.name.c_str());
 
     if (gs->currentgame < 0) {
         gs->currentgame = 0;
@@ -1080,7 +1078,7 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
  * The return value is zero if nothing was selected, negative if an
  * error occurred, or positive otherwise.
  */
-static int choosegame(gamespec *gs, char const *lastseries, bool startup)
+static int choosegame(gamespec *gs, const std::string &lastseries, bool startup)
 {
     std::vector<gameseries> serieslist;
 
@@ -1097,17 +1095,15 @@ static int choosegame(gamespec *gs, char const *lastseries, bool startup)
 int tworld()
 {
     gamespec    spec;
-    char    lastseries[sizeof spec.series.name];
+    std::string lastseries;
     int     f;
 
     atexit(shutdowngamestate);
 
     // determine the current selected series
-    char const *selectedseries = getstringsetting("selectedseries");
-    if (selectedseries)
-        strcpy(lastseries, selectedseries);
-    else
-        lastseries[0] = '\0';
+    std::string selectedseries = getstringsetting("selectedseries");
+    if (!selectedseries.empty())
+        lastseries = selectedseries;
 
     // Pick the level to play. Defaults to last played if available.
     f = choosegame(&spec, lastseries, true);
@@ -1119,7 +1115,7 @@ int tworld()
         savehistory();
         g_mainWindow->PopSubtitle();
         g_mainWindow->ClearDisplay();
-        strcpy(lastseries, spec.series.name);
+        lastseries = spec.series.name;
         freeseriesdata(&spec.series);
         f = choosegame(&spec, lastseries, false);
     };

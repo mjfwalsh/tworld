@@ -12,6 +12,7 @@
 #include    "series.h"
 #include    "solution.h"
 #include    "err.h"
+#include    "utils.h"
 
 /*
  * The following is a description of the solution file format. Note that
@@ -254,13 +255,13 @@ static bool writesolutionheader(fileinfo &file, int ruleset,
 
 /* Write the name of the level set to the given solution file.
  */
-static int writesolutionsetname(fileinfo &file, char const *setname)
+static int writesolutionsetname(fileinfo &file, const std::string &setname)
 {
     const char zeroes[16] = "";
-    const int n = strlen(setname) + 1;
+    const int n = setname.length() + 1;
     return file.writeint32(n + 16)
         && file.write(zeroes, 16)
-        && file.write(setname, n);
+        && file.write(setname.c_str(), n);
 }
 
 /*
@@ -507,8 +508,7 @@ static bool readsolution(fileinfo &file, gamesetup *game)
         game->sgflags |= SGF_SETNAME;
         if (size > 255)
             size = 255;
-        memcpy(game->name, game->solutiondata + 16, size);
-        game->name[size] = '\0';
+        assignmax(game->name, game->solutiondata + 16, size);
         free(game->solutiondata);
         game->solutionsize = 0;
         game->solutiondata = NULL;
@@ -545,11 +545,8 @@ static bool writesolution(fileinfo &file, gamesetup const *game)
  */
 static void setsolutionfilename(gameseries *series)
 {
-    if (!series->savefilename) {
-        int n = strlen(series->name);
-        x_cmalloc(series->savefilename, n + 5);
-        memcpy(series->savefilename, series->name, n);
-        memcpy(series->savefilename + n, ".tws", 5);
+    if (series->savefilename.empty()) {
+        series->savefilename = series->name + ".tws";
     }
 }
 
@@ -587,10 +584,10 @@ bool readsolutions(gameseries *series)
 
     while (readsolution(file, &gametmp)) {
         if (gametmp.sgflags & SGF_SETNAME) {
-            if (strcmp(gametmp.name, series->name)) {
+            if (gametmp.name != series->name) {
                 warn("%s: ignoring solution file %s as it was"
-                    " recorded for a different level set: %s", series->name,
-                    series->savefilename, gametmp.name);
+                    " recorded for a different level set: %s", series->name.c_str(),
+                    series->savefilename.c_str(), gametmp.name.c_str());
                 series->gsflags |= GSF_NOSAVING;
                 return false;
             }
@@ -671,9 +668,7 @@ void clearsolutions(gameseries *series)
         game->solutiondata = NULL;
     }
     series->solheadersize = 0;
-
-    if(series->savefilename)
-        free(series->savefilename);
+    series->savefilename.clear();
 }
 
 /*
@@ -715,8 +710,8 @@ bool createsolutionfilelist(gameseries const *series,
     solutiondata    s;
     int         n;
 
-    s.prefix = series->name;
-    s.prefixlen = n = strlen(series->name);
+    s.prefix = series->name.c_str();
+    s.prefixlen = n = series->name.length();
     if (n > 4 && s.prefix[n - 4] == '.' && tolower(s.prefix[n - 3]) == 'd'
             && tolower(s.prefix[n - 2]) == 'a'
             && tolower(s.prefix[n - 1]) == 't')

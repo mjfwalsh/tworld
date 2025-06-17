@@ -10,6 +10,7 @@
 #include    "state.h"
 #include    "encoding.h"
 #include    "err.h"
+#include    "utils.h"
 
 /* Read a 16-bit value, stored little-endian, from the level data
  * stream.
@@ -154,7 +155,7 @@ static bool expandmsdatlevel(gamestate *state)
     state->trapcount = 0;
     state->clonercount = 0;
     state->crlistcount = 0;
-    state->hinttext[0] = '\0';
+    state->hinttext.clear();
 
     setup = state->game;
     if (setup->levelsize < 10)
@@ -275,8 +276,7 @@ static bool expandmsdatlevel(gamestate *state)
                 /* passwd */
                 break;
             case 7:
-                memcpy(state->hinttext, data, size);
-                state->hinttext[size] = '\0';
+                assignmax(state->hinttext, data, size);
                 break;
             case 8:
                 /* field 8 passwd */
@@ -344,7 +344,7 @@ void getenddisplaysetup(gamestate *state)
     ending.leveldata = endingdata;
     ending.solutionsize = 0;
     ending.solutiondata = NULL;
-    strcpy(ending.name, "CONGRATULATIONS!");
+    ending.name = "CONGRATULATIONS!";
     ending.passwd[0] = '\0';
 
     state->game = &ending;
