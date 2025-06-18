@@ -546,7 +546,7 @@ static bool writesolution(fileinfo &file, gamesetup const *game)
 static void setsolutionfilename(gameseries *series)
 {
     if (series->savefilename.empty()) {
-        series->savefilename = series->name + ".tws";
+        series->savefilename = series->dacfilename + ".tws";
     }
 }
 
@@ -566,11 +566,6 @@ bool readsolutions(gameseries *series)
 {
     gamesetup   gametmp = {0};
 
-    if (series->gsflags & GSF_NODEFAULTSAVE) {
-        series->solheadersize = 0;
-        return true;
-    }
-
     setsolutionfilename(series);
     fileinfo file(SOLUTIONDIR, series->savefilename);
 
@@ -584,9 +579,9 @@ bool readsolutions(gameseries *series)
 
     while (readsolution(file, &gametmp)) {
         if (gametmp.sgflags & SGF_SETNAME) {
-            if (gametmp.name != series->name) {
+            if (gametmp.name != series->dacfilename) {
                 warn("%s: ignoring solution file %s as it was"
-                    " recorded for a different level set: %s", series->name.c_str(),
+                    " recorded for a different level set: %s", series->dacfilename.c_str(),
                     series->savefilename.c_str(), gametmp.name.c_str());
                 series->gsflags |= GSF_NOSAVING;
                 return false;
@@ -625,9 +620,6 @@ bool savesolutions(gameseries *series)
     if (readonly || (series->gsflags & GSF_NOSAVING))
         return true;
 
-    if (series->gsflags & GSF_NODEFAULTSAVE)
-        return true;
-
     setsolutionfilename(series);
 
     fileinfo file(SOLUTIONDIR, series->savefilename);
@@ -639,7 +631,7 @@ bool savesolutions(gameseries *series)
             series->solheadersize, series->solheader))
         return fileerr(&file,
             "saved-game file has become corrupted!");
-    if (!writesolutionsetname(file, series->name))
+    if (!writesolutionsetname(file, series->dacfilename))
         return fileerr(&file,
             "saved-game file has become corrupted!");
     for (i = 0, game = series->games ; i < series->count ; ++i, ++game) {
@@ -710,8 +702,8 @@ bool createsolutionfilelist(gameseries const *series,
     solutiondata    s;
     int         n;
 
-    s.prefix = series->name.c_str();
-    s.prefixlen = n = series->name.length();
+    s.prefix = series->dacfilename.c_str();
+    s.prefixlen = n = series->dacfilename.length();
     if (n > 4 && s.prefix[n - 4] == '.' && tolower(s.prefix[n - 3]) == 'd'
             && tolower(s.prefix[n - 2]) == 'a'
             && tolower(s.prefix[n - 1]) == 't')

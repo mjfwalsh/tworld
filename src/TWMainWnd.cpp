@@ -901,8 +901,8 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
-        bool showRulesetOptions, uint *ruleset /* = NULL */)
+int TileWorldMainWnd::DisplayList(TWTableSpec &table, int &pnIndex,
+        bool showRulesetOptions, int *ruleset /* = NULL */)
 {
     int nCmd = 0;
     QAction *actions[] = { action_Scores, action_SolutionFiles, action_TimesClipboard, 
@@ -922,17 +922,17 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 
     // dummy scope to force table spec destructors before ExitTWorld
     {
-        table->fixRows();
+        table.fixRows();
         QSortFilterProxyModel proxyModel;
         m_sortFilterProxyModel = &proxyModel;
         proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
         proxyModel.setFilterKeyColumn(-1);
-        proxyModel.setSourceModel(table);
+        proxyModel.setSourceModel(&table);
         m_tableList->setModel(&proxyModel);
 
-        m_tableList->horizontalHeader()->setStretchLastSection(table->cols() == 1);
+        m_tableList->horizontalHeader()->setStretchLastSection(table.cols() == 1);
 
-        QModelIndex index = proxyModel.mapFromSource(table->index(*pnIndex, 0));
+        QModelIndex index = proxyModel.mapFromSource(table.index(pnIndex, 0));
         m_tableList->setCurrentIndex(index);
         m_tableList->resizeColumnsToContents();
         m_tableList->resizeRowsToContents();
@@ -953,7 +953,7 @@ int TileWorldMainWnd::DisplayList(TWTableSpec* table, int* pnIndex,
 
         nCmd = g_app->exec();
 
-        *pnIndex = proxyModel.mapToSource(m_tableList->currentIndex()).row();
+        pnIndex = proxyModel.mapToSource(m_tableList->currentIndex()).row();
 
         SetCurrentPage(PAGE_GAME);
         m_tableList->setModel(0);

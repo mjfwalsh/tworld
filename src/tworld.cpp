@@ -89,7 +89,7 @@ static bool setcurrentgame(gamespec *gs, int n)
     if (n < 0 || n >= gs->series.count)
         return false;
 
-    if (gs->usepasswds)
+    if (usepasswds)
         if (n > 0 && !(gs->series.games[n].sgflags & SGF_HASPASSWD)
             && !issolved(gs, n -1))
             return false;
@@ -118,7 +118,7 @@ static bool changecurrentgame(gamespec *gs, int offset)
     if (offset == 0)
         return false;
 
-    if (gs->usepasswds && n > 0) {
+    if (usepasswds && n > 0) {
         int sign = offset < 0 ? -1 : +1;
         for ( ; n >= 0 && n < gs->series.count ; n += sign) {
             if (!n || (gs->series.games[n].sgflags & SGF_HASPASSWD)
@@ -153,7 +153,7 @@ static bool changecurrentgame(gamespec *gs, int offset)
  */
 static bool melindawatching(gamespec const *gs)
 {
-    if (!gs->usepasswds)
+    if (!usepasswds)
         return false;
     if (islastinseries(gs, gs->currentgame))
         return false;
@@ -187,7 +187,7 @@ static bool showsolutionfiles(gamespec *gs)
 
     g_mainWindow->PushSubtitle(gs->series.name.c_str());
     for (;;) {
-        int f = g_mainWindow->DisplayList(&table, &n, false);
+        int f = g_mainWindow->DisplayList(table, n, false);
         if (f == CmdProceed) {
             break;
         } else if (f == CmdQuitLevel) {
@@ -223,7 +223,7 @@ static int showscores(gamespec *gs)
     int        *levellist;
     int     count, n;
 
-    createscorelist(&gs->series, gs->usepasswds, &levellist, &count, &table);
+    createscorelist(&gs->series, usepasswds, &levellist, &count, &table);
 
     for (n = 0; n < count; ++n)
         if (levellist[n] == gs->currentgame)
@@ -231,7 +231,7 @@ static int showscores(gamespec *gs)
 
     g_mainWindow->PushSubtitle(gs->series.name.c_str());
     for (;;) {
-        int f = g_mainWindow->DisplayList(&table, &n, false);
+        int f = g_mainWindow->DisplayList(table, n, false);
         if (f == CmdProceed) {
             n = levellist[n];
             break;
@@ -837,7 +837,7 @@ static int runcurrentlevel(gamespec *gs)
 
     g_mainWindow->SetPlayPauseButton(true);
 
-    name = gs->series.name.c_str();
+    name = gs->series.dacfilename.c_str();
 
     updatehistory(name,
         gs->series.games[gs->currentgame].passwd,
@@ -903,7 +903,7 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
                 n = findlevelinseries(&gs->series, 0, h->passwd);
             if (n >= 0) {
                 gs->currentgame = n;
-                if (gs->usepasswds && !(gs->series.games[n].sgflags & SGF_HASPASSWD))
+                if (usepasswds && !(gs->series.games[n].sgflags & SGF_HASPASSWD))
                     changecurrentgame(gs, -1);
             }
             break;
@@ -912,30 +912,22 @@ static void findlevelfromhistory(gamespec *gs, char const *name)
 }
 
 // Find the defaultseries in seriesdata
-static bool findseries(std::vector<gameseries> &serieslist, const std::string &defaultseries, uint *game, uint *ruleset, uint* dac)
+static bool findseries(std::vector<gameseries> &serieslist, const std::string &defaultseries, int &game)
 {
-    for(*game = 0; *game < serieslist.size(); (*game)++) {
-        for (*ruleset = Ruleset_First; *ruleset < Ruleset_Count; (*ruleset)++) {
-            for (*dac = 0; *dac < serieslist[*game].dacfiles[*ruleset].size(); (*dac)++) {
-                if (serieslist[*game].dacfiles[*ruleset][*dac].filename == defaultseries) {
-                    return true;
-                }
-            }
+    for(game = 0; game < serieslist.size(); game++) {        
+        if (serieslist[game].mapfilename == defaultseries) {
+            return true;
         }
     }
 
     // reset if none found
-    *game = *dac = 0;
-    *ruleset = Ruleset_First;
+    game = 0;
     return false;
 }
 
 /* Helper function for selectseriesandlevel */
-static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *ruleset, uint *dac)
+static int chooseseries(std::vector<gameseries> &serieslist, int &game, int &ruleset)
 {
-    int orig_dac = *dac; // save for later
-    int f;
-
     TWTableSpec mftable;
     mftable.setCols(1);
     mftable.addCell("Levelset");
@@ -943,31 +935,18 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
         mftable.addCell(serieslist[y].name.c_str());
     }
 
-    restart:
-    unsigned int old_ruleset = *ruleset;
-    f = g_mainWindow->DisplayList(&mftable, (int *)game, true, ruleset);
-    if (f != CmdProceed)
-        return f;
+    return g_mainWindow->DisplayList(mftable, game, true, &ruleset);
+}
 
-    if (serieslist[*game].dacfiles[*ruleset].size() == 1) {
-        *dac = 0;
-    } else {
-        // if the chosen ruleset is different from lastseries
-        *dac = old_ruleset == *ruleset ? orig_dac : 0;
+/* We no longer use actual .dac files but...  */
+std::string generatedacfilename(const std::string &datfilename, int ruleset)
+{
+    std::string dacfile = datfilename;
 
-        TWTableSpec gstable;
-        gstable.setCols(1);
-        gstable.addCell("Profile");
-        for (uint y = 0; y < serieslist[*game].dacfiles[*ruleset].size(); y++) {
-            gstable.addCell(serieslist[*game].dacfiles[*ruleset][y].filename.c_str());
-        }
+    if(ruleset == Ruleset_Lynx) dacfile += "-lynx.dac";
+    else dacfile += "-ms.dac";
 
-        f = g_mainWindow->DisplayList(&gstable, (int *)dac, false);
-        if (f != CmdProceed)
-            goto restart;
-    }
-
-    return CmdProceed;
+    return dacfile;
 }
 
 /* Display the full selection of available series to the user as a
@@ -984,11 +963,9 @@ static int chooseseries(std::vector<gameseries> &serieslist, uint *game, uint *r
  * if an error occurred, or positive otherwise.
  */
 static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslist, bool autoplay,
-    const std::string &defaultseries)
+    const std::string &defaultseries, int &ruleset)
 {
-    uint game = 0;
-    uint ruleset = Ruleset_First;
-    uint dac = 0;
+    int game = 0;
 
     if (serieslist.size() < 1) {
         warn("no level sets found");
@@ -998,14 +975,14 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
     if (!autoplay || serieslist.size() > 1) {
         bool founddefault = false;
         if (!defaultseries.empty()) {
-            founddefault = findseries(serieslist, defaultseries, &game, &ruleset, &dac);
+            founddefault = findseries(serieslist, defaultseries, game);
         }
 
         if(!founddefault || !autoplay) {
             int preLevelSet = game;
 
             for (;;) {
-                int f = chooseseries(serieslist, &game, &ruleset, &dac);
+                int f = chooseseries(serieslist, game, ruleset);
                 if (f == CmdProceed) {
                     break;
                 } else if (f == CmdReloadLevelsets) {
@@ -1027,38 +1004,34 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
     gs->series = std::move(serieslist[game]);
 
     // copy some dac info over to gameseries
-    gs->series.name = gs->series.dacfiles[ruleset][dac].filename;
-    gs->series.lastlevel = gs->series.dacfiles[ruleset][dac].lastlevel;
-    gs->series.ruleset = gs->series.dacfiles[ruleset][dac].ruleset;
-    gs->series.gsflags = gs->series.dacfiles[ruleset][dac].gsflags;
+    gs->series.dacfilename = generatedacfilename(gs->series.mapfilename, ruleset);
+    gs->series.ruleset = ruleset;
+    gs->series.gsflags = 0;
 
     // free all the other series
     freeserieslist(serieslist, game);
 
-    // ... and gamespec's dacfilelist
-    freedacfilelist(gs->series.dacfiles);
-
     // change the selected series setting
-    setstringsetting("selectedseries", gs->series.name.c_str());
+    setstringsetting("selectedseries", gs->series.mapfilename.c_str());
+    setintsetting("selectedruleset", ruleset);
 
     if (!readseriesfile(&gs->series)) {
-        warn("%s: cannot read data file", gs->series.name.c_str());
+        warn("%s: cannot read data file", gs->series.dacfilename.c_str());
         freeseriesdata(&gs->series);
         return -1;
     }
     if (gs->series.count < 1) {
-        warn("%s: no levels found in data file", gs->series.name.c_str());
+        warn("%s: no levels found in data file", gs->series.dacfilename.c_str());
         freeseriesdata(&gs->series);
         return -1;
     }
 
     gs->enddisplay = false;
     gs->playmode = Play_None;
-    gs->usepasswds = usepasswds && !(gs->series.gsflags & GSF_IGNOREPASSWDS);
     gs->currentgame = -1;
     gs->melindacount = 0;
 
-    findlevelfromhistory(gs, gs->series.name.c_str());
+    findlevelfromhistory(gs, gs->series.dacfilename.c_str());
 
     if (gs->currentgame < 0) {
         gs->currentgame = 0;
@@ -1078,14 +1051,14 @@ static int selectseriesandlevel(gamespec *gs, std::vector<gameseries> &serieslis
  * The return value is zero if nothing was selected, negative if an
  * error occurred, or positive otherwise.
  */
-static int choosegame(gamespec *gs, const std::string &lastseries, bool startup)
+static int choosegame(gamespec *gs, const std::string &lastseries, int &ruleset, bool startup)
 {
     std::vector<gameseries> serieslist;
 
     if (!createserieslist(serieslist))
         die("Failed to create serieslist");
 
-    return selectseriesandlevel(gs, serieslist, startup, lastseries);
+    return selectseriesandlevel(gs, serieslist, startup, lastseries, ruleset);
 }
 
 /*
@@ -1096,17 +1069,17 @@ int tworld()
 {
     gamespec    spec;
     std::string lastseries;
-    int     f;
 
     atexit(shutdowngamestate);
 
     // determine the current selected series
-    std::string selectedseries = getstringsetting("selectedseries");
-    if (!selectedseries.empty())
+    const char *selectedseries = getstringsetting("selectedseries");
+    if (selectedseries)
         lastseries = selectedseries;
+    int ruleset = getintsetting("selectedruleset");
 
     // Pick the level to play. Defaults to last played if available.
-    f = choosegame(&spec, lastseries, true);
+    int f = choosegame(&spec, lastseries, ruleset, true);
 
     // plays the selected level
     while (f > 0) {
@@ -1115,9 +1088,9 @@ int tworld()
         savehistory();
         g_mainWindow->PopSubtitle();
         g_mainWindow->ClearDisplay();
-        lastseries = spec.series.name;
+        lastseries = spec.series.mapfilename;
         freeseriesdata(&spec.series);
-        f = choosegame(&spec, lastseries, false);
+        f = choosegame(&spec, lastseries, ruleset, false);
     };
 
     return (f == 0 ? EXIT_SUCCESS : EXIT_FAILURE);

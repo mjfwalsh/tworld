@@ -15,7 +15,6 @@ extern bool readseriesfile(gameseries *series);
 /* Release all resources associated with a gameseries structure.
  */
 extern void freeseriesdata(gameseries *series);
-extern void freedacfilelist(std::vector<dacfile> (&dacfiles)[Ruleset_Count]);
 
 /* Produce a list all available data files. pserieslist receives the
  * location of an array of gameseries structures, one per data file

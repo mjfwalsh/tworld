@@ -183,7 +183,7 @@ public:
     void ClearDisplay();
     void DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
     int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
-    int DisplayList(TWTableSpec* pTableSpec, int* pnIndex, bool showRulesetOptions, uint *ruleset = NULL);
+    int DisplayList(TWTableSpec &pTableSpec, int &pnIndex, bool showRulesetOptions, int *ruleset = NULL);
     bool DisplayYesNoPrompt(const char* prompt);
     void DisplayPasswordPrompt(char *passwd);
 

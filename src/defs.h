@@ -56,8 +56,6 @@ enum {
     Ruleset_None = -1,
     Ruleset_Lynx = 0,
     Ruleset_MS = 1,
-    Ruleset_Count,
-    Ruleset_First = Ruleset_Lynx
 };
 
 /* Pseudorandom number generators.
@@ -225,22 +223,11 @@ typedef struct history {
     struct tm       dt;     /* date/time set was last played */
 } history;
 
-/* The collection of data maintained for each dacfile.
- */
-typedef struct dacfile {
-    int         lastlevel;      /* number of the ending level */
-    int         ruleset;        /* the ruleset for the game file */
-    int         gsflags;        /* series flags (see below) */
-    std::string filename;       /* the filename minus any path */
-    std::string datfilename;    /* the filename minus any path */
-} dacfile;
-
 /* The collection of data maintained for each series.
  */
 typedef struct gameseries {
     int         count;      /* number of levels in the series */
     int         allocated;  /* number of elements allocated */
-    int         lastlevel;  /* number of the ending level */
     int         ruleset;    /* the ruleset for the game file */
     int         gsflags;    /* series flags (see below) */
     gamesetup   *games;     /* the array of levels */
@@ -248,9 +235,9 @@ typedef struct gameseries {
     int         mapfiledir; /* the dir the map file is in */
     std::string savefilename;  /* name for solution file */
     int         solheadersize;  /* size of extra solution header */
-    std::string name;  /* the filename minus any path */
+    std::string name;        /* the filename minus any path */
+    std::string dacfilename;        /* the filename minus any path */
     unsigned char   solheader[256]; /* extra solution header bytes */
-    std::vector<dacfile> dacfiles[Ruleset_Count]; /* list of dacfiles*/
 } gameseries;
 
 
@@ -258,8 +245,5 @@ typedef struct gameseries {
  */
 #define GSF_ALLMAPSREAD     0x0001  /* finished reading the data file */
 #define GSF_NOSAVING        0x0002  /* treat solution file as read-only */
-#define GSF_NODEFAULTSAVE   0x0004  /* don't use default tws filename */
-#define GSF_IGNOREPASSWDS   0x0008  /* don't require passwords */
-#define GSF_LYNXFIXES       0x0010  /* changes MS data into Lynx levels */
 
 #endif

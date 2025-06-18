@@ -19,7 +19,6 @@ typedef struct gamespec {
     gameseries  series;     /* the complete set of levels */
     int     currentgame;    /* which level is currently selected */
     int     playmode;   /* which mode to play */
-    bool    usepasswds; /* FALSE if passwords are to be ignored */
     int     status;     /* final status of last game played */
     bool    enddisplay; /* TRUE if the final level was completed */
     int     melindacount;   /* count for Melinda's free pass */

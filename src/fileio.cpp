@@ -310,7 +310,7 @@ m_filename(fn),
 m_dir(d)
 {}
 
-/* Open a file from of the directories RESDIR, SERIESDIR, USER_SERIESDATDIR,
+/* Open a file from of the directories RESDIR, USER_SERIESDATDIR,
  * GLOBAL_SERIESDATDIR, SOLUTIONDIR, or SETTINGSDIR. If the fileinfo structure
  * does not already have a filename assigned to it, use name (after making an
  * independent copy).
@@ -393,10 +393,6 @@ void initdirs()
     QString userDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     checkDir(userDir);
 
-    // ~/Library/Application Support/Tile World/sets
-    QString userSetsDir = QString(userDir + "/sets");
-    checkDir(userSetsDir);
-
     // ~/Library/Application Support/Tile World/data
     QString userDataDir = QString(userDir + "/data");
     checkDir(userDataDir);
@@ -406,7 +402,6 @@ void initdirs()
     checkDir(userSolDir);
 
     savedir(RESDIR, appResDir);
-    savedir(SERIESDIR, userSetsDir);
     savedir(USER_SERIESDATDIR, userDataDir);
     savedir(GLOBAL_SERIESDATDIR, appDataDir);
     savedir(SOLUTIONDIR, userSolDir);

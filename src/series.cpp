@@ -28,30 +28,6 @@
 #define SIG_DATFILE_MS      0x0002
 #define SIG_DATFILE_LYNX    0x0102
 
-/* The "signature bytes" of the configuration files.
- */
-#define SIG_DACFILE     0x656C6966
-
-/* A callback function to compare dacfile structs */
-static bool compare_dacfile(dacfile &a, dacfile &b)
-{
-    int r = strcasecmp(a.datfilename.c_str(), b.datfilename.c_str());
-    return r < 0;
-}
-
-/* Remove .dat and .ccl suffixes from the mapfilenames */
-static void removefilenamesuffixes(std::vector<gameseries> &mapfile_list)
-{
-    for (unsigned int n = 0; n < mapfile_list.size(); ++n) {
-        size_t const namelength = mapfile_list[n].name.length();
-        if (namelength > 4u) {
-            char *suffix = &mapfile_list[n].name[namelength - 4u];
-            if (!strcasecmp(suffix, ".dat") || !strcasecmp(suffix, ".ccl"))
-                mapfile_list[n].name.resize(namelength - 4u);
-        }
-    }
-}
-
 /* Calculate a hash value for the given block of data.
  */
 static uint32_t hashvalue(unsigned char const *data, int size)
@@ -322,9 +298,6 @@ bool readseriesfile(gameseries *series)
     if (!readseriesheader(series, file))
         return false;
 
-    if(series->lastlevel > 0 && series->lastlevel < series->count)
-        series->count = series->lastlevel;
-
     safe_realloc(&series->games, series->count * sizeof *series->games);
     memset(series->games + series->allocated, 0,
         (series->count - series->allocated) * sizeof *series->games);
@@ -338,7 +311,8 @@ bool readseriesfile(gameseries *series)
     }
     file.close();
     series->gsflags |= GSF_ALLMAPSREAD;
-    if (series->gsflags & GSF_LYNXFIXES)
+    if (series->ruleset == Ruleset_Lynx
+            && strcasecmp(series->mapfilename.c_str(), "CHIPS.DAT") == 0)
         undomschanges(series);
     markunsolvablelevels(series);
     readsolutions(series);
@@ -373,144 +347,18 @@ void freeseriesdata(gameseries *series)
     series->ruleset = Ruleset_None;
     series->gsflags = 0;
     series->name.clear();
-
-    freedacfilelist(series->dacfiles);
-}
-
-/*
- * Reading the configuration file.
- */
-
-/* Parse the lines of the given configuration file. The return value
- * is the name of the corresponding data file, or NULL if the
- * configuration file could not be read or contained a syntax error.
- */
-static bool readconfigfile(fileinfo *file, dacfile *d)
-{
-    static char datfilename[256];
-    char    buf[256];
-    char    name[256];
-    char    value[256];
-    char       *p;
-    int     lineno, n;
-
-    n = sizeof buf - 1;
-    if (!file->getline(buf, &n, "invalid configuration file"))
-        return false;
-    if (sscanf(buf, "file = %99[^\n\r]", datfilename) != 1) {
-        fileerr(file, "bad filename in configuration file");
-        return false;
-    }
-    if (haspathname(datfilename)) {
-        fileerr(file, "levelset filename may not contain a path");
-        return false;
-    }
-
-    d->datfilename = datfilename;
-
-    for (lineno = 2 ; ; ++lineno) {
-        n = sizeof buf - 1;
-        if (!file->getline(buf, &n, NULL))
-            break;
-        for (p = buf ; isspace(*p) ; ++p) ;
-        if (!*p || *p == '#')
-            continue;
-        if (sscanf(buf, "%99[^= \t] = %99s", name, value) != 2) {
-            fileerr(file, "invalid configuration file syntax");
-            return false;
-        }
-        for (p = name ; (*p = tolower(*p)) != '\0' ; ++p) ;
-        if (!strcmp(name, "lastlevel")) {
-            n = (int)strtol(value, &p, 10);
-            if (*p || n <= 0) {
-                fileerr(file, "invalid lastlevel in configuration file");
-                return false;
-            }
-            d->lastlevel = n;
-        } else if (!strcmp(name, "ruleset")) {
-            for (p = value ; (*p = tolower(*p)) != '\0' ; ++p) ;
-            if (strcmp(value, "ms") && strcmp(value, "lynx")) {
-                fileerr(file, "invalid ruleset in configuration file");
-                return false;
-            }
-            d->ruleset = *value == 'm' ? Ruleset_MS : Ruleset_Lynx;
-        } else if (!strcmp(name, "usepasswords")) {
-            if (tolower(*value) == 'n')
-                d->gsflags |= GSF_IGNOREPASSWDS;
-            else
-                d->gsflags &= ~GSF_IGNOREPASSWDS;
-        } else if (!strcmp(name, "fixlynx")) {
-            if (tolower(*value) == 'n')
-                d->gsflags &= ~GSF_LYNXFIXES;
-            else
-                d->gsflags |= GSF_LYNXFIXES;
-        } else {
-            warn("line %d: directive \"%s\" unknown", lineno, name);
-            fileerr(file, "unrecognized setting in configuration file");
-            return false;
-        }
-    }
-
-    return true;
+    series->dacfilename.clear();
 }
 
 /*
  * Functions to locate the series files.
  */
 
-/* Open the given file and read the information in the file header (or
- * the entire file if it is a configuration file), then allocate and
- * initialize a gameseries structure for the file and add it to the
- * list stored under the second argument. This function is used as a
- * findfiles() callback.
- */
-static bool getseriesfile(char const *filename, int curdir, void *data)
-{
-    std::vector<dacfile> *game_list = (std::vector<dacfile> *)data;
-    dacfile d;
-    unsigned long   magic;
-
-    // check is file is a dac file
-    fileinfo file(curdir, filename);
-    if (!file.open("rb", "unknown error"))
-        return false;
-    if (!file.readint32(&magic, "unexpected EOF")) {
-        file.close();
-        return false;
-    }
-    file.rewind();
-    if (magic != SIG_DACFILE) {
-        file.close();
-        return true;
-    }
-    file.close();
-
-    // init a blank decfile struct
-    d.lastlevel = 0;
-    d.ruleset = 0;
-    d.gsflags = 0;
-    d.filename = filename;
-
-    // read the dac file contents
-    if (!file.open("r", "unknown error"))
-        return false;
-    if(readconfigfile(&file, &d)) {
-        game_list->push_back(d);
-    } else {
-        warn("Unable to read dac file: %s", filename);
-    }
-    file.close();
-
-    return true;
-}
-
 /* Determine whether the file is a map file. If so, add it to the list of
  * available map files. This function is used as a findfiles() callback.
  */
 static bool getmapfile(char const *filename, int curdir, void *data)
 {
-    gameseries          s;
-    std::vector<gameseries> *mapfile_list = (std::vector<gameseries> *)data;
     unsigned long   magic;
 
     // return false on io errors but true otherwise
@@ -529,26 +377,33 @@ static bool getmapfile(char const *filename, int curdir, void *data)
     }
 
     // init an (almost) blank gameseries struct
+    std::vector<gameseries> *mapfile_list = (std::vector<gameseries> *)data;
+    gameseries &s = mapfile_list->emplace_back();
     s.mapfilename = filename;
     s.mapfiledir = curdir;
     s.gsflags = 0;
     s.allocated = 0;
     s.count = 0;
-    s.lastlevel = 0;
     s.ruleset = Ruleset_None;
     s.games = NULL;
 
-    // set the file name
+    // set the title
     s.name = filename;
+    const int namelength = s.name.length();
+    if (namelength > 4) {
+        char *suffix = &s.name[namelength - 4];
+        if (!strcasecmp(suffix, ".dat") || !strcasecmp(suffix, ".ccl"))
+            s.name.resize(namelength - 4);
+    }
 
     if (!readseriesheader(&s, file)) {
         fileerr(&file, "Failed to understand series header");
+        mapfile_list->pop_back();
         file.close();
         return false;
     }
 
     file.close();
-    mapfile_list->push_back(s);
     return true;
 }
 
@@ -560,98 +415,15 @@ static bool compare_gameseries(gameseries &a, gameseries &b)
     return r < 0;
 }
 
-/* The name we should use for a (currently) nonexisting .dac file */
-std::string generatenewdacname(const std::string &datfilename, int ruleset)
+/* We may have the same mapfile in two different directories. */
+static void removeduplicateserieses(std::vector<gameseries> &game_list)
 {
-    std::string dacfile = datfilename;
-
-    if(ruleset == Ruleset_Lynx) dacfile =+ "-lynx.dac";
-    else dacfile += "-ms.dac";
-
-    return dacfile;
-}
-
-/* Generate a new dac file. Return TRUE if successful. */
-static bool createnewdacfile(const std::string &name, const std::string &datfilename, int ruleset)
-{
-    fileinfo file(SERIESDIR, name);
-    if (!file.open("wx", "unknown error"))
-        return false;
-
-    char const *rulesetstr = (ruleset == Ruleset_MS ? "ms" : "lynx");
-    errno = 0;
-
-    if(!file.writef("file=%s\nruleset=%s\n", datfilename.c_str(), rulesetstr)) {
-        fileerr(&file, "write error");
-        return false;
-    }
-    file.close();
-
-    return true;
-}
-
-/* Try to create a new gameseries for the specified level file and ruleset. Also
- * attempt to create the .dac file. Fail if our chosen filename is taken. If
- * the filename wasn't taken but creation still failed for some reason, we
- * still create the gameseries. The gameseries is added to the seriesfiledata
- * struct. Returns the new gameseries if successful.
- */
-static bool createnewseries(std::vector<dacfile> &dacsub, const std::string &datfilename, int ruleset)
-{
-    std::string newdacname = generatenewdacname(datfilename, ruleset);
-    if (!createnewdacfile(newdacname, datfilename, ruleset)) {
-        // warn but make dacfile struct anyway
-        warn("%s: Attempt to create %s ruleset .dac for %s failed", newdacname.c_str(),
-            ruleset == Ruleset_MS ? "MS" : "Lynx", datfilename.c_str());
-    }
-
-    dacfile d;
-    d.lastlevel = 0;
-    d.ruleset = ruleset;
-    d.gsflags = 0;
-    d.filename = newdacname;
-    d.datfilename = datfilename;
-
-    dacsub.push_back(d);
-
-    return true;
-}
-
-/* For each map file present, ensure at least one gameseries exists for each
- * ruleset. We also populate the structures mapping mapfile/ruleset to
- * gameseries. */
-static void createallmissingseries(std::vector<dacfile> &dacfile_list, std::vector<gameseries> &game_list)
-{
-    int nseries = dacfile_list.size();
-    int m = 0;
-
     for (unsigned int n = 0; n < game_list.size(); ++n) {
-        // if game_list contains duplicates, remove them
         if(n < game_list.size() - 1 && !strcasecmp(game_list[n].mapfilename.c_str(), game_list[n+1].mapfilename.c_str())) {
             game_list.erase(game_list.begin()+n);
             n--;
             continue;
         }
-
-        // search for the dac files that match each dat file
-        // check for dac files with missing dat files
-        while (m < nseries) {
-            int cmp = strcasecmp(game_list[n].mapfilename.c_str(), dacfile_list[m].datfilename.c_str());
-
-            if (cmp == 0) {
-                game_list[n].dacfiles[dacfile_list[m].ruleset].push_back(std::move(dacfile_list[m]));
-            } else if(cmp > 0) {
-                warn("Cannot find dat file %s mentioned in %s", dacfile_list[m].datfilename.c_str(), dacfile_list[m].filename.c_str());
-            } else {
-                break;
-            }
-            ++m;
-        }
-
-        // create new dac files if necessary
-        for (int k = Ruleset_First; k < Ruleset_Count; ++k)
-            if (game_list[n].dacfiles[k].empty())
-                createnewseries(game_list[n].dacfiles[k], game_list[n].mapfilename, k);
     }
 }
 
@@ -664,35 +436,16 @@ static void createallmissingseries(std::vector<dacfile> &dacfile_list, std::vect
  */
 bool createserieslist(std::vector<gameseries> &serieslist)
 {
-    std::vector<dacfile> dacfile_list;
-
-    findfiles(SERIESDIR, &dacfile_list, getseriesfile);
-
     findfiles(GLOBAL_SERIESDATDIR, &serieslist, getmapfile);
     findfiles(USER_SERIESDATDIR, &serieslist, getmapfile);
-
-    std::sort(serieslist.begin(), serieslist.end(), compare_gameseries);
-    std::sort(dacfile_list.begin(), dacfile_list.end(), compare_dacfile);
-
-    createallmissingseries(dacfile_list, serieslist);
     if (serieslist.empty()) {
         warn("no series files found");
         return false;
     }
 
-    removefilenamesuffixes(serieslist);
-
+    std::sort(serieslist.begin(), serieslist.end(), compare_gameseries);
+    removeduplicateserieses(serieslist);
     return true;
-}
-
-
-/* Free all memory allocated by the createserieslist() table.
- */
-void freedacfilelist(std::vector<dacfile> (&dacfiles)[Ruleset_Count])
-{
-    for (int k = Ruleset_First; k < Ruleset_Count; ++k) {
-        dacfiles[k].clear();
-    }
 }
 
 
@@ -700,16 +453,11 @@ void freeserieslist(std::vector<gameseries> &l, unsigned int except)
 {
     for (unsigned int n = 0; n < l.size(); ++n) {
         if(n == except) continue;
-
-        freedacfilelist(l[n].dacfiles);
     }
 }
 
 void freeserieslist(std::vector<gameseries> &l)
 {
-    for (unsigned int n = 0; n < l.size(); ++n) {
-        freedacfilelist(l[n].dacfiles);
-    }
     l.clear();
 }
 
