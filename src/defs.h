@@ -121,7 +121,6 @@ enum {
     CmdCheckSolution,
     CmdDelSolution,
     CmdSeeScores,
-    CmdSeeSolutionFiles,
     CmdTimesClipboard,
     CmdProceed,
     CmdQuit,

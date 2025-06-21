@@ -804,7 +804,6 @@
      <string>Game</string>
     </property>
     <addaction name="action_Scores"/>
-    <addaction name="action_SolutionFiles"/>
     <addaction name="action_TimesClipboard"/>
     <addaction name="separator"/>
     <addaction name="action_Import"/>
@@ -879,11 +878,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="action_SolutionFiles">
-   <property name="text">
-    <string>Solution &amp;Files...</string>
    </property>
   </action>
   <action name="action_Levelsets">

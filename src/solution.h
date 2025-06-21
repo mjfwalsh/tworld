@@ -68,14 +68,4 @@ extern bool savesolutions(gameseries &series);
  */
 extern void clearsolutions(gameseries &series);
 
-/* Produce a list of available solution files associated with the
- * given series (i.e. that have the name of the series as their
- * prefix). An array of filenames is returned through pfilelist, the
- * array's size is returned through pcount, and the table of the
- * filenames is returned through table. FALSE is returned if no table
- * was returned.
- */
-extern bool createsolutionfilelist(gameseries const *series,
-    QStringList *filelist, TWTableSpec *table);
-
 #endif

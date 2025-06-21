@@ -484,7 +484,6 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
         // disable/enable menus
         action_Scores->setEnabled(true);
-        action_SolutionFiles->setEnabled(true);
         action_TimesClipboard->setEnabled(true);
         action_Import->setEnabled(true);
         action_Levelsets->setEnabled(true);
@@ -566,7 +565,6 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
         // disable menus
         action_Scores->setEnabled(false);
-        action_SolutionFiles->setEnabled(false);
         action_TimesClipboard->setEnabled(false);
         action_Import->setEnabled(false);
         action_Levelsets->setEnabled(false);
@@ -905,10 +903,10 @@ int TileWorldMainWnd::DisplayList(TWTableSpec &table, int &pnIndex,
         bool showRulesetOptions, int *ruleset /* = NULL */)
 {
     int nCmd = 0;
-    QAction *actions[] = { action_Scores, action_SolutionFiles, action_TimesClipboard, 
+    QAction *actions[] = { action_Scores, action_TimesClipboard,
                            action_Import, action_Levelsets};
-    bool action_status[5];
-    for(int i = 0; i < 5; i++) {
+    bool action_status[4];
+    for(int i = 0; i < 4; i++) {
         action_status[i] = actions[i]->isEnabled();
         actions[i]->setEnabled(false);
     }
@@ -967,7 +965,7 @@ int TileWorldMainWnd::DisplayList(TWTableSpec &table, int &pnIndex,
     if (m_windowClosed) g_app->ExitTWorld();
 
     // restore menus and menu items to previous value
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 4; i++) {
         actions[i]->setEnabled(action_status[i]);
     }
     for(int i = 0; i < 5; i++) {
@@ -1287,7 +1285,6 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
 {
     if (pAction == action_Scores) return TWC_SEESCORES;
-    if (pAction == action_SolutionFiles) return TWC_SEESOLUTIONFILES;
     if (pAction == action_TimesClipboard) return TWC_TIMESCLIPBOARD;
     if (pAction == action_Levelsets) return TWC_QUITLEVEL;
     if (pAction == action_Exit) return TWC_QUIT;

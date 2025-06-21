@@ -163,56 +163,6 @@ static bool melindawatching(const gamespec &gs)
     return true;
 }
 
-
-/* Display a scrolling list of the available solution files, and allow
- * the user to select one. Return TRUE if the user selected a solution
- * file different from the current one. Do nothing if there is only
- * one solution file available. (If for some reason the new solution
- * file cannot be read, TRUE will still be returned, as the list of
- * solved levels will still need to be updated.)
- */
-static bool showsolutionfiles(gamespec &gs)
-{
-    TWTableSpec     table;
-    QStringList       filelist;
-
-    if (!createsolutionfilelist(&gs.series, &filelist, &table)) {
-        TileWorldApp::Bell();
-        return false;
-    }
-
-    int current = filelist.indexOf(gs.series.savefilename.c_str());
-    int n = current == -1 ? 0 : current;
-
-    g_mainWindow->PushSubtitle(gs.series.name.c_str());
-    for (;;) {
-        int f = g_mainWindow->DisplayList(table, n, false);
-        if (f == CmdProceed) {
-            break;
-        } else if (f == CmdQuitLevel) {
-            n = -1;
-            break;
-        }
-    }
-    g_mainWindow->PopSubtitle();
-
-    if (n >= 0 && n != current) {
-        clearsolutions(gs.series);
-        gs.series.savefilename = filelist[n].toStdString();
-        if (!readsolutions(gs.series)) {
-            TileWorldApp::Bell();
-        }
-        n = gs.currentgame;
-        gs.currentgame = 0;
-        passwordseen(gs, 0);
-        changecurrentgame(gs, n);
-
-        return true;
-    }
-
-    return false;
-}
-
 /* Display the scrolling list of the user's current scores, and allow
  * the user to select a current level.
  */
@@ -430,10 +380,6 @@ static int startinput(gamespec &gs)
             if (showscores(gs))
                 return CmdNone;
             break;
-        case CmdSeeSolutionFiles:
-            if (showsolutionfiles(gs))
-                return CmdNone;
-            break;
         case CmdTimesClipboard:
             TileWorldApp::CopyToClipboard(leveltimes(&gs.series));
             break;
@@ -486,7 +432,6 @@ static bool endinput(gamespec &gs)
         case CmdGotoLevel:  selectlevelbypassword(gs);  return true;
         case CmdPlayback:                                   return true;
         case CmdSeeScores:  showscores(gs);             return true;
-        case CmdSeeSolutionFiles: showsolutionfiles(gs);    return true;
         case CmdQuitLevel:                  return false;
         case CmdQuit:                       exit(0);
         case CmdCheckSolution:

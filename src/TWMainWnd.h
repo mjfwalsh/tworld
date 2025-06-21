@@ -87,7 +87,6 @@ public:
         TWK_dummy,
 
         TWC_SEESCORES,
-        TWC_SEESOLUTIONFILES,
         TWC_TIMESCLIPBOARD,
         TWC_QUITLEVEL,
         TWC_QUIT,
@@ -129,7 +128,6 @@ public:
         {   TWK_RETURN,             CmdProceed,             false   },
 
         {   TWC_SEESCORES,          CmdSeeScores,           false   },
-        {   TWC_SEESOLUTIONFILES,   CmdSeeSolutionFiles,    false   },
         {   TWC_TIMESCLIPBOARD,     CmdTimesClipboard,      false   },
         {   TWC_QUITLEVEL,          CmdQuitLevel,           false   },
         {   TWC_QUIT,               CmdQuit,                false   },
