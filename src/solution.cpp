@@ -473,15 +473,15 @@ bool contractsolution(solutioninfo const *solution, gamesetup *game)
 /* Read the data of a one complete solution from the given file into
  * the appropriate fields of game.
  */
-static bool readsolution(fileinfo &file, gamesetup *game)
+static bool readsolution(fileinfo &file, gamesetup &game)
 {
     unsigned long   size;
 
-    game->number = 0;
-    game->sgflags = 0;
-    game->besttime = TIME_NIL;
-    game->solutionsize = 0;
-    game->solutiondata = NULL;
+    game.number = 0;
+    game.sgflags = 0;
+    game.besttime = TIME_NIL;
+    game.solutionsize = 0;
+    game.solutiondata = NULL;
     if (!file.isopen())
         return true;
 
@@ -489,29 +489,29 @@ static bool readsolution(fileinfo &file, gamesetup *game)
         return false;
     if (!size)
         return true;
-    game->solutionsize = size;
-    game->solutiondata = file.readbuf(size, "unexpected EOF");
-    if (!game->solutiondata || (size <= 16 && size != 6))
+    game.solutionsize = size;
+    game.solutiondata = file.readbuf(size, "unexpected EOF");
+    if (!game.solutiondata || (size <= 16 && size != 6))
         return fileerr(&file, "invalid data in solution file");
-    game->number = (game->solutiondata[1] << 8) | game->solutiondata[0];
-    memcpy(game->passwd, game->solutiondata + 2, 4);
-    game->passwd[4] = '\0';
-    game->sgflags |= SGF_HASPASSWD;
+    game.number = (game.solutiondata[1] << 8) | game.solutiondata[0];
+    memcpy(game.passwd, game.solutiondata + 2, 4);
+    game.passwd[4] = '\0';
+    game.sgflags |= SGF_HASPASSWD;
     if (size == 6)
         return true;
 
-    game->besttime = game->solutiondata[12] | (game->solutiondata[13] << 8)
-        | (game->solutiondata[14] << 16)
-        | (game->solutiondata[15] << 24);
+    game.besttime = game.solutiondata[12] | (game.solutiondata[13] << 8)
+        | (game.solutiondata[14] << 16)
+        | (game.solutiondata[15] << 24);
     size -= 16;
-    if (!game->number && !*game->passwd) {
-        game->sgflags |= SGF_SETNAME;
+    if (!game.number && !*game.passwd) {
+        game.sgflags |= SGF_SETNAME;
         if (size > 255)
             size = 255;
-        assignmax(game->name, game->solutiondata + 16, size);
-        free(game->solutiondata);
-        game->solutionsize = 0;
-        game->solutiondata = NULL;
+        assignmax(game.name, game.solutiondata + 16, size);
+        free(game.solutiondata);
+        game.solutionsize = 0;
+        game.solutiondata = NULL;
     }
 
     return true;
@@ -543,16 +543,16 @@ static bool writesolution(fileinfo &file, gamesetup const *game)
 
 /* The solution file is a based on the corresponding dac file
  */
-static void setsolutionfilename(gameseries *series)
+static void setsolutionfilename(gameseries &series)
 {
-    if (series->savefilename.empty()) {
-        series->savefilename = series->dacfilename + ".tws";
+    if (series.savefilename.empty()) {
+        series.savefilename = series.dacfilename + ".tws";
     }
 }
 
 /* Open the solution file.
  */
-static bool opensolutionfile(gameseries *series, fileinfo &file, bool writable)
+static bool opensolutionfile(fileinfo &file, bool writable)
 {
     if (writable && readonly)
         return false;
@@ -562,28 +562,28 @@ static bool opensolutionfile(gameseries *series, fileinfo &file, bool writable)
 
 /* Read the saved solution data for the given series into memory.
  */
-bool readsolutions(gameseries *series)
+bool readsolutions(gameseries &series)
 {
     gamesetup   gametmp = {0};
 
     setsolutionfilename(series);
-    fileinfo file(SOLUTIONDIR, series->savefilename);
+    fileinfo file(SOLUTIONDIR, series.savefilename);
 
-    if (!opensolutionfile(series, file, false)) {
-        series->solheadersize = 0;
+    if (!opensolutionfile(file, false)) {
+        series.solheadersize = 0;
         return true;
     }
 
-    if (!readsolutionheader(file, series->ruleset, &series->solheadersize, series->solheader))
+    if (!readsolutionheader(file, series.ruleset, &series.solheadersize, series.solheader))
         return false;
 
-    while (readsolution(file, &gametmp)) {
+    while (readsolution(file, gametmp)) {
         if (gametmp.sgflags & SGF_SETNAME) {
-            if (gametmp.name != series->dacfilename) {
+            if (gametmp.name != series.dacfilename) {
                 warn("%s: ignoring solution file %s as it was"
-                    " recorded for a different level set: %s", series->dacfilename.c_str(),
-                    series->savefilename.c_str(), gametmp.name.c_str());
-                series->gsflags |= GSF_NOSAVING;
+                    " recorded for a different level set: %s", series.dacfilename.c_str(),
+                    series.savefilename.c_str(), gametmp.name.c_str());
+                series.gsflags |= GSF_NOSAVING;
                 return false;
             }
             continue;
@@ -598,12 +598,12 @@ bool readsolutions(gameseries *series)
                 continue;
             }
             warn("level %d has been moved to level %d",
-                gametmp.number, series->games[n].number);
+                gametmp.number, series.games[n].number);
         }
-        series->games[n].besttime = gametmp.besttime;
-        series->games[n].sgflags = gametmp.sgflags;
-        series->games[n].solutionsize = gametmp.solutionsize;
-        series->games[n].solutiondata = gametmp.solutiondata;
+        series.games[n].besttime = gametmp.besttime;
+        series.games[n].sgflags = gametmp.sgflags;
+        series.games[n].solutionsize = gametmp.solutionsize;
+        series.games[n].solutiondata = gametmp.solutiondata;
     }
 
     file.close();
@@ -612,29 +612,29 @@ bool readsolutions(gameseries *series)
 
 /* Write out all the solutions for the given series.
  */
-bool savesolutions(gameseries *series)
+bool savesolutions(gameseries &series)
 {
     gamesetup  *game;
     int     i;
 
-    if (readonly || (series->gsflags & GSF_NOSAVING))
+    if (readonly || (series.gsflags & GSF_NOSAVING))
         return true;
 
     setsolutionfilename(series);
 
-    fileinfo file(SOLUTIONDIR, series->savefilename);
+    fileinfo file(SOLUTIONDIR, series.savefilename);
 
-    if (!opensolutionfile(series, file, true))
+    if (!opensolutionfile(file, true))
         return false;
 
-    if (!writesolutionheader(file, series->ruleset,
-            series->solheadersize, series->solheader))
+    if (!writesolutionheader(file, series.ruleset,
+            series.solheadersize, series.solheader))
         return fileerr(&file,
             "saved-game file has become corrupted!");
-    if (!writesolutionsetname(file, series->dacfilename))
+    if (!writesolutionsetname(file, series.dacfilename))
         return fileerr(&file,
             "saved-game file has become corrupted!");
-    for (i = 0, game = series->games ; i < series->count ; ++i, ++game) {
+    for (i = 0, game = series.games ; i < series.count ; ++i, ++game) {
         if (!writesolution(file, game))
             return fileerr(&file,
                 "saved-game file has become corrupted!");
@@ -647,20 +647,20 @@ bool savesolutions(gameseries *series)
 /* Free all memory allocated for storing the game's solutions, and mark
  * the levels as being unsolved.
  */
-void clearsolutions(gameseries *series)
+void clearsolutions(gameseries &series)
 {
     gamesetup  *game;
     int     n;
 
-    for (n = 0, game = series->games ; n < series->count ; ++n, ++game) {
+    for (n = 0, game = series.games ; n < series.count ; ++n, ++game) {
         free(game->solutiondata);
         game->besttime = TIME_NIL;
         game->sgflags = 0;
         game->solutionsize = 0;
         game->solutiondata = NULL;
     }
-    series->solheadersize = 0;
-    series->savefilename.clear();
+    series.solheadersize = 0;
+    series.savefilename.clear();
 }
 
 /*

@@ -187,7 +187,7 @@ public:
     bool DisplayYesNoPrompt(const char* prompt);
     void DisplayPasswordPrompt(char *passwd);
 
-    void ReadExtensions(gameseries* pSeries);
+    void ReadExtensions(gameseries &pSeries);
     void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
 
     void ShowAbout();

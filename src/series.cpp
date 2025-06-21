@@ -95,10 +95,10 @@ static uint32_t hashvalue(unsigned char const *data, int size)
 /* Examine the top of a data file and identify its type. FALSE is
  * returned if any header bytes appear to be invalid.
  */
-static bool readseriesheader(gameseries *series, fileinfo &file)
+static bool readseriesheader(gameseries &series, fileinfo &file)
 {
     // Skip forward when we've already read the header
-    if(series->count) {
+    if(series.count) {
         file.seek(6);
         return true;
     }
@@ -119,12 +119,12 @@ static bool readseriesheader(gameseries *series, fileinfo &file)
             fileerr(&file, "data file uses an unrecognized ruleset");
             return false;
     }
-    if (series->ruleset == Ruleset_None)
-        series->ruleset = ruleset;
+    if (series.ruleset == Ruleset_None)
+        series.ruleset = ruleset;
     if (!file.readint16(&val16, "not a valid data file"))
         return false;
-    series->count = val16;
-    if (!series->count) {
+    series.count = val16;
+    if (!series.count) {
         fileerr(&file, "file contains no maps");
         return false;
     }
@@ -135,33 +135,33 @@ static bool readseriesheader(gameseries *series, fileinfo &file)
 /* Read a single level out of the given data file. The level's name,
  * password, and time limit are extracted from the data.
  */
-static bool readleveldata(fileinfo *file, gamesetup *game)
+static bool readleveldata(fileinfo &file, gamesetup &game)
 {
     unsigned char          *data;
     unsigned char const        *dataend;
     unsigned short      size;
     int             n;
 
-    if (!file->readint16(&size))
+    if (!file.readint16(&size))
         return false;
-    data = file->readbuf(size, "missing or invalid level data");
+    data = file.readbuf(size, "missing or invalid level data");
     if (!data)
         return false;
     if (size < 2) {
-        fileerr(file, "invalid level data");
+        fileerr(&file, "invalid level data");
         free(data);
         return false;
     }
-    game->levelsize = size;
-    game->leveldata = data;
-    dataend = game->leveldata + game->levelsize;
+    game.levelsize = size;
+    game.leveldata = data;
+    dataend = game.leveldata + game.levelsize;
 
-    game->number = data[0] | (data[1] << 8);
+    game.number = data[0] | (data[1] << 8);
     if (size < 10)
         goto badlevel;
-    game->time = data[2] | (data[3] << 8);
-    game->besttime = TIME_NIL;
-    game->passwd[0] = '\0';
+    game.time = data[2] | (data[3] << 8);
+    game.besttime = TIME_NIL;
+    game.passwd[0] = '\0';
     data += data[8] | (data[9] << 8);
     data += 10;
     if (data + 2 >= dataend)
@@ -172,7 +172,7 @@ static bool readleveldata(fileinfo *file, gamesetup *game)
     data += 2;
     if (data + size != dataend)
         warn("level %d: inconsistent size data (%d vs %d)",
-            game->number, dataend - data, size);
+            game.number, dataend - data, size);
 
     while (data + 2 < dataend) {
         size = data[1];
@@ -182,33 +182,33 @@ static bool readleveldata(fileinfo *file, gamesetup *game)
         switch (data[-2]) {
         case 1:
             if (size > 1)
-                game->time = data[0] | (data[1] << 8);
+                game.time = data[0] | (data[1] << 8);
             break;
         case 3:
-            assignmax(game->name, data, size);
+            assignmax(game.name, data, size);
             break;
         case 6:
             for (n = 0 ; n < size && n < 4 && data[n] ; ++n)
-                game->passwd[n] = data[n] ^ 0x99;
-            game->passwd[n] = '\0';
+                game.passwd[n] = data[n] ^ 0x99;
+            game.passwd[n] = '\0';
             break;
         case 8:
-            warn("level %d: ignoring field 8 password", game->number);
+            warn("level %d: ignoring field 8 password", game.number);
             break;
         }
         data += size;
     }
-    if (!game->passwd[0] || strlen(game->passwd) != 4)
+    if (!game.passwd[0] || strlen(game.passwd) != 4)
         goto badlevel;
 
-    game->levelhash = hashvalue(game->leveldata, game->levelsize);
+    game.levelhash = hashvalue(game.leveldata, game.levelsize);
     return true;
 
 badlevel:
-    free(game->leveldata);
-    game->levelsize = 0;
-    game->leveldata = NULL;
-    warn("%s: level %d: invalid level data", file->name(), game->number);
+    free(game.leveldata);
+    game.levelsize = 0;
+    game.leveldata = NULL;
+    warn("%s: level %d: invalid level data", file.name(), game.number);
     return false;
 }
 
@@ -221,7 +221,7 @@ badlevel:
  * of levels 99 and 111 are fixed, the layout changes to 121 and 127
  * are undone, and level 145 is removed.
  */
-static bool undomschanges(gameseries *series)
+static bool undomschanges(gameseries &series)
 {
     struct { int num, pos, val; } *fixup, fixups[] = {
         {   5,  0x011D,  'P' ^ 0x99 },  {  95,  0x035F,  'W' ^ 0x99 },
@@ -245,31 +245,31 @@ static bool undomschanges(gameseries *series)
         { -1, -1, -1 }
     };
 
-    if (series->count != 149)
+    if (series.count != 149)
         return false;
     for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
-        if (series->games[fixup->num].levelsize <= fixup->pos)
+        if (series.games[fixup->num].levelsize <= fixup->pos)
             return false;
 
-    free(series->games[144].leveldata);
-    memmove(series->games + 144, series->games + 145,
-        4 * sizeof *series->games);
-    --series->count;
+    free(series.games[144].leveldata);
+    memmove(series.games + 144, series.games + 145,
+        4 * sizeof *series.games);
+    --series.count;
 
     for(int n = 144; n < 148; n++)
-        series->games[n].number = n+1;
+        series.games[n].number = n+1;
 
     for (fixup = fixups ; fixup->num >= 0 ; ++fixup)
-        series->games[fixup->num].leveldata[fixup->pos] = fixup->val;
+        series.games[fixup->num].leveldata[fixup->pos] = fixup->val;
 
-    series->games[5].passwd[3] = 'P';
-    series->games[9].passwd[0] = 'V';
-    series->games[9].passwd[1] = 'U';
-    series->games[27].passwd[3] = 'D';
-    series->games[95].passwd[0] = 'W';
-    series->games[95].passwd[1] = 'V';
-    series->games[95].passwd[2] = 'H';
-    series->games[95].passwd[3] = 'Y';
+    series.games[5].passwd[3] = 'P';
+    series.games[9].passwd[0] = 'V';
+    series.games[9].passwd[1] = 'U';
+    series.games[27].passwd[3] = 'D';
+    series.games[95].passwd[0] = 'W';
+    series.games[95].passwd[1] = 'V';
+    series.games[95].passwd[2] = 'H';
+    series.games[95].passwd[3] = 'Y';
 
     return true;
 }
@@ -281,38 +281,38 @@ static bool undomschanges(gameseries *series)
 /* Load all levels from the given data file, and all of the user's
  * saved solutions.
  */
-bool readseriesfile(gameseries *series)
+bool readseriesfile(gameseries &series)
 {
     int n;
 
-    if (series->gsflags & GSF_ALLMAPSREAD)
+    if (series.gsflags & GSF_ALLMAPSREAD)
         return true;
-    if (series->count <= 0) {
-        warn("%s: cannot read from empty level set", series->name.c_str());
+    if (series.count <= 0) {
+        warn("%s: cannot read from empty level set", series.name.c_str());
         return false;
     }
 
-    fileinfo file(series->mapfiledir, series->mapfilename);
+    fileinfo file(series.mapfiledir, series.mapfilename);
     if (!file.open("rb", "unknown error"))
         return false;
     if (!readseriesheader(series, file))
         return false;
 
-    safe_realloc(&series->games, series->count * sizeof *series->games);
-    memset(series->games + series->allocated, 0,
-        (series->count - series->allocated) * sizeof *series->games);
-    series->allocated = series->count;
+    safe_realloc(&series.games, series.count * sizeof *series.games);
+    memset(series.games + series.allocated, 0,
+        (series.count - series.allocated) * sizeof *series.games);
+    series.allocated = series.count;
     n = 0;
-    while (n < series->count && !file.testend()) {
-        if (readleveldata(&file, series->games + n))
+    while (n < series.count && !file.testend()) {
+        if (readleveldata(file, series.games[n]))
             ++n;
         else
-            --series->count;
+            --series.count;
     }
     file.close();
-    series->gsflags |= GSF_ALLMAPSREAD;
-    if (series->ruleset == Ruleset_Lynx
-            && strcasecmp(series->mapfilename.c_str(), "CHIPS.DAT") == 0)
+    series.gsflags |= GSF_ALLMAPSREAD;
+    if (series.ruleset == Ruleset_Lynx
+            && strcasecmp(series.mapfilename.c_str(), "CHIPS.DAT") == 0)
         undomschanges(series);
     markunsolvablelevels(series);
     readsolutions(series);
@@ -322,32 +322,32 @@ bool readseriesfile(gameseries *series)
 
 /* Free all memory allocated for the given gameseries.
  */
-void freeseriesdata(gameseries *series)
+void freeseriesdata(gameseries &series)
 {
     gamesetup  *game;
     int     n;
 
     clearsolutions(series);
-    series->mapfilename.clear();
-    series->mapfiledir = 0;
-    series->savefilename.clear();
-    series->gsflags = 0;
-    series->mapfiledir = 0;
+    series.mapfilename.clear();
+    series.mapfiledir = 0;
+    series.savefilename.clear();
+    series.gsflags = 0;
+    series.mapfiledir = 0;
 
-    for (n = 0, game = series->games ; n < series->count ; ++n, ++game) {
+    for (n = 0, game = series.games ; n < series.count ; ++n, ++game) {
         free(game->leveldata);
         game->leveldata = NULL;
         game->levelsize = 0;
     }
-    free(series->games);
-    series->games = NULL;
-    series->allocated = 0;
-    series->count = 0;
+    free(series.games);
+    series.games = NULL;
+    series.allocated = 0;
+    series.count = 0;
 
-    series->ruleset = Ruleset_None;
-    series->gsflags = 0;
-    series->name.clear();
-    series->dacfilename.clear();
+    series.ruleset = Ruleset_None;
+    series.gsflags = 0;
+    series.name.clear();
+    series.dacfilename.clear();
 }
 
 /*
@@ -396,7 +396,7 @@ static bool getmapfile(char const *filename, int curdir, void *data)
             s.name.resize(namelength - 4);
     }
 
-    if (!readseriesheader(&s, file)) {
+    if (!readseriesheader(s, file)) {
         fileerr(&file, "Failed to understand series header");
         mapfile_list->pop_back();
         file.close();
@@ -468,15 +468,15 @@ void freeserieslist(std::vector<gameseries> &l)
 /* A function for looking up a specific level in a series by number
  * and/or password.
  */
-int findlevelinseries(gameseries const *series, int number, char const *passwd)
+int findlevelinseries(gameseries const &series, int number, char const *passwd)
 {
     int i, n;
 
     n = -1;
     if (number) {
-        for (i = 0 ; i < series->count ; ++i) {
-            if (series->games[i].number == number) {
-                if (!passwd || !strcmp(series->games[i].passwd, passwd)) {
+        for (i = 0 ; i < series.count ; ++i) {
+            if (series.games[i].number == number) {
+                if (!passwd || !strcmp(series.games[i].passwd, passwd)) {
                     if (n >= 0)
                         return -1;
                     n = i;
@@ -484,8 +484,8 @@ int findlevelinseries(gameseries const *series, int number, char const *passwd)
             }
         }
     } else if (passwd) {
-        for (i = 0 ; i < series->count ; ++i) {
-            if (!strcmp(series->games[i].passwd, passwd)) {
+        for (i = 0 ; i < series.count ; ++i) {
+            if (!strcmp(series.games[i].passwd, passwd)) {
                 if (n >= 0)
                     return -1;
                 n = i;

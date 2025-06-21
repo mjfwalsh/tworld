@@ -177,14 +177,14 @@ static bool readunslist(fileinfo *file)
  * levels appear in the list. Those that do will have the unsolvable
  * field in the gamesetup structure initialized.
  */
-int markunsolvablelevels(gameseries *series)
+int markunsolvablelevels(gameseries &series)
 {
     int     count = 0;
 
-    for (int j = 0 ; j < series->count ; ++j)
-        series->games[j].unsolvable = false;
+    for (int j = 0 ; j < series.count ; ++j)
+        series.games[j].unsolvable = false;
 
-    int setid = lookupsetname(series->mapfilename, false);
+    int setid = lookupsetname(series.mapfilename, false);
     if (!setid)
         return 0;
     
@@ -192,12 +192,12 @@ int markunsolvablelevels(gameseries *series)
         if (unslevel.setid != setid)
             continue;
         
-        for (int j = 0 ; j < series->count ; ++j) {
-            if (series->games[j].number == unslevel.levelnum
-                    && series->games[j].levelsize == unslevel.size
-                    && series->games[j].levelhash == unslevel.hashval) {
-                series->games[j].unsolvable = true;
-                series->games[j].unsolvablereason = getstring(unslevel.note);
+        for (int j = 0 ; j < series.count ; ++j) {
+            if (series.games[j].number == unslevel.levelnum
+                    && series.games[j].levelsize == unslevel.size
+                    && series.games[j].levelhash == unslevel.hashval) {
+                series.games[j].unsolvable = true;
+                series.games[j].unsolvablereason = getstring(unslevel.note);
                 ++count;
                 break;
             }

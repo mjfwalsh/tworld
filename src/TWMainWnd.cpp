@@ -1078,23 +1078,23 @@ void TileWorldMainWnd::SetSubtitle(QString subtitle)
 
 /* Read any additional data for the series.
  */
-void TileWorldMainWnd::ReadExtensions(gameseries* pSeries)
+void TileWorldMainWnd::ReadExtensions(gameseries &pSeries)
 {
     QDir dataDir;
-    dataDir.setPath(getdir(pSeries->mapfiledir));
+    dataDir.setPath(getdir(pSeries.mapfiledir));
 
-    QString sSetName = QFileInfo(pSeries->mapfilename.c_str()).completeBaseName();
+    QString sSetName = QFileInfo(pSeries.mapfilename.c_str()).completeBaseName();
     m_levelPackName = sSetName; // save for use on display
 
     QString sFilePath = dataDir.filePath(sSetName + ".ccx");
 
     m_ccxLevelset.Clear();
-    if (!m_ccxLevelset.ReadFile(sFilePath, pSeries->count))
+    if (!m_ccxLevelset.ReadFile(sFilePath, pSeries.count))
         warn("%s: failed to read file", sFilePath.toUtf8().constData());
 
-    for (int i = 1; i <= pSeries->count; ++i) {
+    for (int i = 1; i <= pSeries.count; ++i) {
         CCX::Level& rCCXLevel = m_ccxLevelset.vecLevels[i];
-        rCCXLevel.txtPrologue.bSeen = false;    // @#$ (pSeries->games[i-1].sgflags & SGF_HASPASSWD) != 0;
+        rCCXLevel.txtPrologue.bSeen = false;    // @#$ (pSeries.games[i-1].sgflags & SGF_HASPASSWD) != 0;
         rCCXLevel.txtEpilogue.bSeen = false;
     }
 }

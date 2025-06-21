@@ -53,7 +53,7 @@ extern bool contractsolution(solutioninfo const *solution, gamesetup *game);
  * returned if an error occurs. Note that it is not an error for the
  * solution file to not exist.
  */
-extern bool readsolutions(gameseries *series);
+extern bool readsolutions(gameseries &series);
 
 /* Write out all the solutions for the given series. The solution file
  * is created if it does not currently exist. The solution file's
@@ -61,12 +61,12 @@ extern bool readsolutions(gameseries *series);
  * is done if the directory's name has been unset, however.) FALSE is
  * returned if an error occurs.
  */
-extern bool savesolutions(gameseries *series);
+extern bool savesolutions(gameseries &series);
 
 /* Free all memory allocated for storing the game's solutions, and mark
  * the levels as being unsolved.
  */
-extern void clearsolutions(gameseries *series);
+extern void clearsolutions(gameseries &series);
 
 /* Produce a list of available solution files associated with the
  * given series (i.e. that have the name of the series as their

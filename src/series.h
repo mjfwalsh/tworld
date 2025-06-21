@@ -10,11 +10,11 @@
 
 /* Load all levels of the given series.
  */
-extern bool readseriesfile(gameseries *series);
+extern bool readseriesfile(gameseries &series);
 
 /* Release all resources associated with a gameseries structure.
  */
-extern void freeseriesdata(gameseries *series);
+extern void freeseriesdata(gameseries &series);
 
 /* Produce a list all available data files. pserieslist receives the
  * location of an array of gameseries structures, one per data file
@@ -49,7 +49,7 @@ extern void freeserieslist(std::vector<gameseries> &s);
  * data could not be matched, or if it matched more than one level
  * (ugh).
  */
-extern int findlevelinseries(gameseries const *series,
+extern int findlevelinseries(const gameseries &series,
                  int number, char const *passwd);
 
 #endif

@@ -19,6 +19,6 @@ extern void loadunslistfromfile(char const *filename);
  * their unsolvable fields explicitly set to NULL. The number of
  * unsolvable levels is returned.
  */
-extern int markunsolvablelevels(gameseries *series);
+extern int markunsolvablelevels(gameseries &series);
 
 #endif
