@@ -14,66 +14,64 @@ namespace CCX
 
 
 template <typename T>
-static bool ReadElmAttr(QDomElement elm, QString sAttr, T (*pf)(QString), T& rValue)
+static void ReadElmAttr(QDomElement elm, const QString &sAttr, T (&pf)(const QString &s), T& rValue)
 {
-    if (!elm.hasAttribute(sAttr))
-        return false;
-    rValue = (*pf)(elm.attribute(sAttr));
-    return true;
+    if (elm.hasAttribute(sAttr))
+        rValue = pf(elm.attribute(sAttr));
 }
 
 
-inline static QString ParseString(QString s)
+inline static QString ParseString(const QString &s)
 {
     return s;
 }
 
-inline static int ParseInt(QString s)
+inline static unsigned int ParseUInt(const QString &s)
 {
-    return s.toInt();
+    return s.toUInt();
 }
 
-inline static QColor ParseColor(QString s)
+inline static QColor ParseColor(const QString &s)
 {
     return QColor(s);
 }
 
-static Qt::AlignmentFlag ParseHAlign(QString s)
+static Qt::AlignmentFlag ParseHAlign(const QString &s)
 {
-    return (s == "right") ? Qt::AlignRight : (s == "center") ? Qt::AlignHCenter : Qt::AlignLeft;
+    return s == "right" ? Qt::AlignRight : (s == "center" ? Qt::AlignHCenter : Qt::AlignLeft);
 }
 
-static Qt::AlignmentFlag ParseVAlign(QString s)
+static Qt::AlignmentFlag ParseVAlign(const QString &s)
 {
-    return (s == "bottom") ? Qt::AlignBottom : (s == "middle") ? Qt::AlignVCenter : Qt::AlignTop;
+    return s == "bottom" ? Qt::AlignBottom : (s == "middle" ? Qt::AlignVCenter : Qt::AlignTop);
 }
 
-static Compatibility ParseCompat(QString s)
+static Compatibility ParseCompat(const QString &s)
 {
-    return (s == "yes") ? COMPAT_YES : (s == "no") ? COMPAT_NO : COMPAT_UNKNOWN;
+    return s == "yes" ? COMPAT_YES : (s == "no" ? COMPAT_NO : COMPAT_UNKNOWN);
 }
 
-static TextFormat ParseFormat(QString s)
+static TextFormat ParseFormat(const QString &s)
 {
-    return (s == "html") ? TEXT_HTML : TEXT_PLAIN;
+    return s == "html" ? TEXT_HTML : TEXT_PLAIN;
 }
 
 
 void RulesetCompatibility::ReadXML(QDomElement elm)
 {
-    ReadElmAttr(elm, "ms",       &ParseCompat, eMS);
-    ReadElmAttr(elm, "lynx",     &ParseCompat, eLynx);
-    ReadElmAttr(elm, "pedantic", &ParseCompat, ePedantic);
+    ReadElmAttr(elm, "ms",       ParseCompat, eMS);
+    ReadElmAttr(elm, "lynx",     ParseCompat, eLynx);
+    ReadElmAttr(elm, "pedantic", ParseCompat, ePedantic);
 }
 
 
 void PageProperties::ReadXML(QDomElement elm)
 {
-    ReadElmAttr(elm, "format",  &ParseFormat, eFormat);
-    ReadElmAttr(elm, "align",   &ParseHAlign, align);
-    ReadElmAttr(elm, "valign",  &ParseVAlign, valign);
-    ReadElmAttr(elm, "color",   &ParseColor , color);
-    ReadElmAttr(elm, "bgcolor", &ParseColor , bgcolor);
+    ReadElmAttr(elm, "format",  ParseFormat, eFormat);
+    ReadElmAttr(elm, "align",   ParseHAlign, align);
+    ReadElmAttr(elm, "valign",  ParseVAlign, valign);
+    ReadElmAttr(elm, "color",   ParseColor , color);
+    ReadElmAttr(elm, "bgcolor", ParseColor , bgcolor);
 }
 
 
@@ -90,7 +88,7 @@ void Text::ReadXML(QDomElement elm, const Levelset& levelset)
 {
     vecPages.clear();
     QDomNodeList lstElmPages = elm.elementsByTagName("page");
-    for (int i = 0; i < int(lstElmPages.length()); ++i) {
+    for (int i = 0; i < lstElmPages.length(); ++i) {
         QDomElement elmPage = lstElmPages.item(i).toElement();
         Page page;
         page.ReadXML(elmPage, levelset);
@@ -102,7 +100,7 @@ void Text::ReadXML(QDomElement elm, const Levelset& levelset)
 void Level::ReadXML(QDomElement elm, const Levelset& levelset)
 {
     sAuthor = levelset.sAuthor;
-    ReadElmAttr(elm, "author", &ParseString, sAuthor);
+    ReadElmAttr(elm, "author", ParseString, sAuthor);
 
     ruleCompat = levelset.ruleCompat;
     ruleCompat.ReadXML(elm);
@@ -119,30 +117,28 @@ void Level::ReadXML(QDomElement elm, const Levelset& levelset)
 
 void Levelset::ReadXML(QDomElement elm)
 {
-    ReadElmAttr(elm, "description", &ParseString, sDescription);
-    ReadElmAttr(elm, "copyright",   &ParseString, sCopyright);
-    ReadElmAttr(elm, "author",      &ParseString, sAuthor);
+    ReadElmAttr(elm, "description", ParseString, sDescription);
+    ReadElmAttr(elm, "copyright",   ParseString, sCopyright);
+    ReadElmAttr(elm, "author",      ParseString, sAuthor);
 
     ruleCompat.ReadXML(elm);
     pageProps.ReadXML(elm);
 
-    for (int i = 0; i < int(vecLevels.size()); ++i) {
-        Level& rLevel = vecLevels[i];
+    for (Level& rLevel : vecLevels) {
         rLevel.sAuthor = sAuthor;
         rLevel.ruleCompat = ruleCompat;
     }
 
     // vecLevels.clear();
     QDomNodeList lstElmLevels = elm.elementsByTagName("level");
-    for (int i = 0; i < int(lstElmLevels.length()); ++i) {
+    for (int i = 0; i < lstElmLevels.length(); ++i) {
         QDomElement elmLevel = lstElmLevels.item(i).toElement();
-        int nNumber = 0;
-        if (!ReadElmAttr(elmLevel, "number", &ParseInt, nNumber))
-            continue;
-        if ( ! (nNumber >= 1  &&  nNumber < int(vecLevels.size())) )
-            continue;
-        Level& rLevel = vecLevels[nNumber];
-        rLevel.ReadXML(elmLevel, *this);
+        unsigned int nNumber = 0;
+        ReadElmAttr(elmLevel, "number", ParseUInt, nNumber);
+        if (nNumber >= 1 && nNumber < vecLevels.size()) {
+            Level& rLevel = vecLevels[nNumber];
+            rLevel.ReadXML(elmLevel, *this);
+        }
     }
 
     QDomNodeList lstElmStyle = elm.elementsByTagName("style");
@@ -154,7 +150,7 @@ void Levelset::ReadXML(QDomElement elm)
 }
 
 
-bool Levelset::ReadFile(QString sFilePath, int nLevels)
+bool Levelset::ReadFile(const QString &sFilePath, int nLevels)
 {
     Clear();
 

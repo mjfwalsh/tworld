@@ -53,8 +53,8 @@ void loadmessagesfromfile(char const *filename)
             line.remove(0, 1); // Discard ':'
 
             QStringList types = line.split(' ');
-            for(int i=0; i<types.size(); i++) {
-                int typenum = messageTypeNames.indexOf(types[i]);
+            for (const QString &token : types) {
+                int typenum = messageTypeNames.indexOf(token);
                 if (typenum > -1)
                     isactive.setBit(typenum);
             }
@@ -70,7 +70,7 @@ void loadmessagesfromfile(char const *filename)
     }
 }
 
-QString getmessage(int type, QString alt)
+QString getmessage(int type, const char *alt)
 {
     if (type < 0 || type >= MessageTypeCount || typeindex[type].size() == 0)
         return alt;

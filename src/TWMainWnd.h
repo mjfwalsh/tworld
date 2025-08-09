@@ -179,9 +179,9 @@ public:
 
     void CreateGameDisplay();
     void ClearDisplay();
-    void DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime);
+    void DisplayGame(gamestate &state, int nTimeLeft, int nBestTime);
     int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
-    int DisplayList(TWTableSpec &pTableSpec, int &pnIndex, bool showRulesetOptions, int *ruleset = NULL);
+    int DisplayList(TWTableSpec &pTableSpec, int &pnIndex, bool showRulesetOptions, int *ruleset = nullptr);
     bool DisplayYesNoPrompt(const char* prompt);
     void DisplayPasswordPrompt(char *passwd);
 
@@ -194,9 +194,9 @@ public:
     bool SetKeyboardArrowsRepeat(bool enable);
     void ReleaseAllKeys();
 
-    void ChangeSubtitle(QString subtitle);
+    void ChangeSubtitle(const QString &subtitle);
     void PopSubtitle();
-    void PushSubtitle(QString subtitle);
+    void PushSubtitle(const QString &subtitle);
 
 public slots:
     void HideVolumeWidget();
@@ -222,8 +222,8 @@ private:
     bool HandleKeyEvent(QObject* pObject, QEvent* pEvent);
     bool HandleMouseEvent(QObject* pObject, QEvent* pEvent);
     void SetCurrentPage(Page ePage);
-    void CheckForProblems(const gamestate* pState);
-    void DisplayMapView(const gamestate* pState);
+    void CheckForProblems(const gamestate &state);
+    void DisplayMapView(gamestate &state);
     void DisplayShutter();
     void SetSpeed(int nValue);
     void PulseKey(int nTWKey);
@@ -250,7 +250,7 @@ private:
     int m_mergeable[CmdKeyMoveLast + 1];
 
     void ResizeHintFont();
-    void SetHintText(QString hint);
+    void SetHintText(const QString &hint);
     void SetHintVisibility(bool newmode);
     void SetScale(int s, bool checkPrevScale = true);
 
@@ -263,9 +263,6 @@ private:
     double m_scale = 1;
 
     bool m_keyState[TWK_LAST];
-
-    struct MessageData{ QString sMsg; uint32_t nMsgUntil, nMsgBoldUntil; };
-    QVector<MessageData> m_shortMessages;
 
     bool m_kbdRepeatEnabled;
 

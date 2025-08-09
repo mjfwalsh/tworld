@@ -117,7 +117,7 @@
 
 /* The signature bytes of the solution files.
  */
-#define CSSIG       0x999B3335UL
+#define CSSIG       0x999B3335U
 
 /* The signature bytes for each ruleset.
  */
@@ -188,7 +188,7 @@ void destroymovelist(actlist *list)
     if (list->list)
         free(list->list);
     list->allocated = 0;
-    list->list = NULL;
+    list->list = nullptr;
 }
 
 /*
@@ -201,15 +201,15 @@ void destroymovelist(actlist *list)
 static bool readsolutionheader(fileinfo &file, int ruleset,
     int *extrasize, unsigned char *extra)
 {
-    unsigned long   sig;
-    unsigned short  f;
+    uint32_t        sig;
+    uint16_t        f;
     unsigned char   n;
 
-    if (!file.readint32(&sig, "not a valid solution file"))
+    if (!file.readint32(sig, "not a valid solution file"))
         return false;
     if (sig != CSSIG)
         return fileerr(&file, "not a valid solution file");
-    if (!file.readint8(&n, "not a valid solution file"))
+    if (!file.readint8(n, "not a valid solution file"))
         return false;
 
     switch (n) {
@@ -221,11 +221,11 @@ static bool readsolutionheader(fileinfo &file, int ruleset,
     if (n != ruleset)
         return fileerr(&file, "solution file is for a different ruleset"
             " than the level set file");
-    if (!file.readint16(&f, "not a valid solution file"))
+    if (!file.readint16(f, "not a valid solution file"))
         return false;
     (void)f; // ignored at moment
 
-    if (!file.readint8(&n, "not a valid solution file"))
+    if (!file.readint8(n, "not a valid solution file"))
         return false;
     *extrasize = n;
     if (n)
@@ -258,7 +258,7 @@ static bool writesolutionheader(fileinfo &file, int ruleset,
 static int writesolutionsetname(fileinfo &file, const std::string &setname)
 {
     const char zeroes[16] = "";
-    const int n = setname.length() + 1;
+    const uint32_t n = setname.length() + 1;
     return file.writeint32(n + 16)
         && file.write(zeroes, 16)
         && file.write(setname.c_str(), n);
@@ -363,7 +363,7 @@ bool contractsolution(solutioninfo const *solution, gamesetup *game)
 
     free(game->solutiondata);
     game->solutionsize = 0;
-    game->solutiondata = NULL;
+    game->solutiondata = nullptr;
     if (!solution->moves.count)
         return true;
 
@@ -475,17 +475,17 @@ bool contractsolution(solutioninfo const *solution, gamesetup *game)
  */
 static bool readsolution(fileinfo &file, gamesetup &game)
 {
-    unsigned long   size;
+    uint32_t size;
 
     game.number = 0;
     game.sgflags = 0;
     game.besttime = TIME_NIL;
     game.solutionsize = 0;
-    game.solutiondata = NULL;
+    game.solutiondata = nullptr;
     if (!file.isopen())
         return true;
 
-    if (!file.readint32(&size) || size == 0xFFFFFFFF)
+    if (!file.readint32(size) || size == 0xFFFFFFFF)
         return false;
     if (!size)
         return true;
@@ -511,7 +511,7 @@ static bool readsolution(fileinfo &file, gamesetup &game)
         assignmax(game.name, game.solutiondata + 16, size);
         free(game.solutiondata);
         game.solutionsize = 0;
-        game.solutiondata = NULL;
+        game.solutiondata = nullptr;
     }
 
     return true;
@@ -520,17 +520,17 @@ static bool readsolution(fileinfo &file, gamesetup &game)
 /* Write the data of one complete solution from the appropriate fields
  * of game to the given file.
  */
-static bool writesolution(fileinfo &file, gamesetup const *game)
+static bool writesolution(fileinfo &file, const gamesetup &game)
 {
-    if (game->solutionsize && (game->sgflags & SGF_REPLACEABLE) == 0) {
-        if (!file.writeint32(game->solutionsize, "write error")
-            || !file.write(game->solutiondata,
-                game->solutionsize, "write error"))
+    if (game.solutionsize && (game.sgflags & SGF_REPLACEABLE) == 0) {
+        if (!file.writeint32(game.solutionsize, "write error")
+            || !file.write(game.solutiondata,
+                game.solutionsize, "write error"))
             return false;
-    } else if (game->sgflags & SGF_HASPASSWD) {
+    } else if (game.sgflags & SGF_HASPASSWD) {
         if (!file.writeint32(6, "write error")
-            || !file.writeint16(game->number, "write error")
-            || !file.write(game->passwd, 4, "write error"))
+            || !file.writeint16(game.number, "write error")
+            || !file.write(game.passwd, 4, "write error"))
             return false;
     }
 
@@ -541,23 +541,15 @@ static bool writesolution(fileinfo &file, gamesetup const *game)
  * File I/O for solution files.
  */
 
-/* The solution file is a based on the corresponding dac file
- */
-static void setsolutionfilename(gameseries &series)
-{
-    if (series.savefilename.empty()) {
-        series.savefilename = series.dacfilename + ".tws";
-    }
-}
 
 /* Open the solution file.
  */
 static bool opensolutionfile(fileinfo &file, bool writable)
 {
-    if (writable && readonly)
-        return false;
-
-    return file.open(writable ? "wb" : "rb", writable ? "can't access file" : NULL);
+    if (writable)
+        return file.open("wb", "can't access file");
+    else
+        return file.open("rb", nullptr);
 }
 
 /* Read the saved solution data for the given series into memory.
@@ -566,8 +558,7 @@ bool readsolutions(gameseries &series)
 {
     gamesetup   gametmp = {0};
 
-    setsolutionfilename(series);
-    fileinfo file(SOLUTIONDIR, series.savefilename);
+    fileinfo file(SOLUTIONDIR, series.dacfilename + ".tws");
 
     if (!opensolutionfile(file, false)) {
         series.solheadersize = 0;
@@ -580,9 +571,9 @@ bool readsolutions(gameseries &series)
     while (readsolution(file, gametmp)) {
         if (gametmp.sgflags & SGF_SETNAME) {
             if (gametmp.name != series.dacfilename) {
-                warn("%s: ignoring solution file %s as it was"
+                warn("%s: ignoring solution file %s.tws as it was"
                     " recorded for a different level set: %s", series.dacfilename.c_str(),
-                    series.savefilename.c_str(), gametmp.name.c_str());
+                    series.dacfilename.c_str(), gametmp.name.c_str());
                 series.gsflags |= GSF_NOSAVING;
                 return false;
             }
@@ -612,17 +603,12 @@ bool readsolutions(gameseries &series)
 
 /* Write out all the solutions for the given series.
  */
-bool savesolutions(gameseries &series)
+bool savesolutions(const gameseries &series)
 {
-    gamesetup  *game;
-    int     i;
-
     if (readonly || (series.gsflags & GSF_NOSAVING))
         return true;
 
-    setsolutionfilename(series);
-
-    fileinfo file(SOLUTIONDIR, series.savefilename);
+    fileinfo file(SOLUTIONDIR, series.dacfilename + ".tws");
 
     if (!opensolutionfile(file, true))
         return false;
@@ -634,7 +620,7 @@ bool savesolutions(gameseries &series)
     if (!writesolutionsetname(file, series.dacfilename))
         return fileerr(&file,
             "saved-game file has become corrupted!");
-    for (i = 0, game = series.games ; i < series.count ; ++i, ++game) {
+    for (const gamesetup &game : series.games) {
         if (!writesolution(file, game))
             return fileerr(&file,
                 "saved-game file has become corrupted!");
@@ -644,21 +630,3 @@ bool savesolutions(gameseries &series)
     return true;
 }
 
-/* Free all memory allocated for storing the game's solutions, and mark
- * the levels as being unsolved.
- */
-void clearsolutions(gameseries &series)
-{
-    gamesetup  *game;
-    int     n;
-
-    for (n = 0, game = series.games ; n < series.count ; ++n, ++game) {
-        free(game->solutiondata);
-        game->besttime = TIME_NIL;
-        game->sgflags = 0;
-        game->solutionsize = 0;
-        game->solutiondata = NULL;
-    }
-    series.solheadersize = 0;
-    series.savefilename.clear();
-}

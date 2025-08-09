@@ -19,7 +19,7 @@ extern void freeseriesdata(gameseries &series);
 /* Produce a list all available data files. pserieslist receives the
  * location of an array of gameseries structures, one per data file
  * successfully found. pcount points to a value that is filled in with
- * the number of the data files. table, if it is not NULL, is filled
+ * the number of the data files. table, if it is not nullptr, is filled
  * in with a tabular representation of the list of data files, showing
  * the names of the files and which ruleset each uses, with the first
  * row of the table containing column headres. preferredfile
@@ -28,23 +28,11 @@ extern void freeseriesdata(gameseries &series);
  * returned. FALSE is returned if no series files are found. An
  * unrecoverable error will cause the function to abort the program.
  */
-extern bool createserieslist(std::vector<gameseries> &series);
-
-/* Make an independent copy of a single gameseries structure from
- * a list obtained from createserieslist().
- */
-extern void getseriesfromlist(gameseries *dest,
-                  gameseries const *list, int index);
-
-/* Free the memory used by the table created in createserieslist().
- * The pointers can be NULL.
- */
-extern void freeserieslist(std::vector<gameseries> &s, unsigned int except);
-extern void freeserieslist(std::vector<gameseries> &s);
+extern void createserieslist(std::vector<gameseries> &series);
 
 /* A function for looking up a specific level in a series by number
  * and/or password. If number is -1, only the password will be
- * searched for; if passwd is NULL, only the number will be used.  The
+ * searched for; if passwd is nullptr, only the number will be used.  The
  * function returns the index of the game in the series, or -1 if the
  * data could not be matched, or if it matched more than one level
  * (ugh).

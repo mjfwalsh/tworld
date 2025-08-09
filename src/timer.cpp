@@ -137,10 +137,9 @@ static void shutdown(void)
 
 /* Initialize and reset the timer.
  */
-bool timerinitialize()
+void timerinitialize()
 {
     atexit(shutdown);
     qtimer.start();
     settimer(-1);
-    return true;
 }

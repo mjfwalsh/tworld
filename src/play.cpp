@@ -28,7 +28,7 @@ static gamestate    state;
 
 /* The current logic module.
  */
-static gamelogic       *logic = NULL;
+static gamelogic       *logic = nullptr;
 
 /* TRUE if the program is running without a user interface.
  */
@@ -55,7 +55,7 @@ static bool setrulesetbehavior(int ruleset)
         if (ruleset == logic->ruleset)
             return true;
         (*logic->shutdown)(logic);
-        logic = NULL;
+        logic = nullptr;
     }
     if (ruleset == Ruleset_None)
         return true;
@@ -115,7 +115,7 @@ bool initgamestate(gamesetup *game, int ruleset)
     initmovelist(&state.moves);
     resetprng(&state.mainprng);
 
-    if (!expandleveldata(&state))
+    if (!expandleveldata(state))
         return false;
 
     return (*logic->initgame)(logic);
@@ -129,7 +129,7 @@ bool prepareplayback(void)
 
     if (!state.game->solutionsize)
         return false;
-    solution.moves.list = NULL;
+    solution.moves.list = nullptr;
     solution.moves.allocated = 0;
     if (!expandsolution(&solution, state.game) || !solution.moves.count)
         return false;
@@ -279,7 +279,7 @@ void drawscreen(bool showframe)
         timeleft = 0;
     }
 
-    g_mainWindow->DisplayGame(&state, timeleft, besttime);
+    g_mainWindow->DisplayGame(state, timeleft, besttime);
 }
 
 /* Stop game play and clean up.
@@ -319,7 +319,7 @@ void setenddisplay(void)
     state.currentinput = NIL;
     state.statusflags = 0;
     state.soundeffects = 0;
-    getenddisplaysetup(&state);
+    getenddisplaysetup(state);
     (*logic->initgame)(logic);
 }
 

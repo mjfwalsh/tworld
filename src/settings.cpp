@@ -93,7 +93,7 @@ char const *getstringsetting(char const *name)
     if(settings_string.contains(name)) {
         return settings_string[name].data();
     } else {
-        return NULL;
+        return "";
     }
 }
 

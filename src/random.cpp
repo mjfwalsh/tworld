@@ -52,7 +52,7 @@ static void nextrandom(prng *gen)
 void resetprng(prng *gen)
 {
     if (lastvalue > 0x7FFFFFFFUL)
-        lastvalue = nextvalue(nextvalue(nextvalue(nextvalue(time(NULL)))));
+        lastvalue = nextvalue(nextvalue(nextvalue(nextvalue(time(nullptr)))));
     gen->value = gen->initial = lastvalue;
     gen->shared = true;
 }

@@ -50,7 +50,7 @@ fileinfo::~fileinfo()
 #include <fcntl.h>
 static FILE *FOPEN(char const *n, char const *mode)
 {
-    FILE * file = NULL;
+    FILE * file = nullptr;
     if (!strcmp(mode, "wx")) {
         int fd = open(n, O_WRONLY | O_CREAT | O_EXCL);
         if (fd != -1) file = fdopen(fd, "w");
@@ -72,8 +72,8 @@ void fileinfo::close()
     errno = 0;
     if (this->m_fp) {
         if (fclose(this->m_fp) == EOF)
-            fileerr(this, NULL);
-        this->m_fp = NULL;
+            fileerr(this, nullptr);
+        this->m_fp = nullptr;
     }
 }
 
@@ -119,7 +119,7 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
 
     if (!(buf = (unsigned char *)malloc(size))) {
         fileerr(this, msg);
-        return NULL;
+        return nullptr;
     }
     if (!size)
         return buf;
@@ -127,7 +127,7 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
     if (fread(buf, size, 1, this->m_fp) != 1) {
         fileerr(this, msg);
         free(buf);
-        return NULL;
+        return nullptr;
     }
     return buf;
 }
@@ -135,24 +135,19 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
 /* Read one full line from m_fp and store the first len characters,
  * including any trailing newline.
  */
-bool fileinfo::getline(char *buf, int *len, char const *msg)
+bool fileinfo::getline(char *buf, const int len)
 {
-    if (!*len) {
-        *buf = '\0';
-        return true;
-    }
     errno = 0;
-    if (!fgets(buf, *len, this->m_fp))
-        return fileerr(this, msg);
+    if (!fgets(buf, len, this->m_fp))
+        return fileerr(this, nullptr);
     int n = strlen(buf);
-    if (n == *len - 1 && buf[n] != '\n') {
+    if (n == len - 1 && buf[n] != '\n') {
         int ch;
         do
             ch = fgetc(this->m_fp);
         while (ch != EOF && ch != '\n');
     } else
         buf[n--] = '\0';
-    *len = n;
     return true;
 }
 
@@ -170,20 +165,20 @@ bool fileinfo::write(void const *data, unsigned long size, char const *msg)
 
 /* Read one byte as an unsigned integer value.
  */
-bool fileinfo::readint8(unsigned char *val8, char const *msg)
+bool fileinfo::readint8(uint8_t &val8, char const *msg)
 {
     int byte;
 
     errno = 0;
     if ((byte = fgetc(this->m_fp)) == EOF)
         return fileerr(this, msg);
-    *val8 = (unsigned char)byte;
+    val8 = (uint8_t)byte;
     return true;
 }
 
 /* Write one byte as an unsigned integer value.
  */
-bool fileinfo::writeint8(unsigned char val8, char const *msg)
+bool fileinfo::writeint8(uint8_t val8, char const *msg)
 {
     errno = 0;
     if (fputc(val8, this->m_fp) != EOF)
@@ -193,15 +188,15 @@ bool fileinfo::writeint8(unsigned char val8, char const *msg)
 
 /* Read two bytes as an unsigned integer value stored in little-endian.
  */
-bool fileinfo::readint16(unsigned short *val16, char const *msg)
+bool fileinfo::readint16(uint16_t &val16, char const *msg)
 {
     int byte;
 
     errno = 0;
     if ((byte = fgetc(this->m_fp)) != EOF) {
-        *val16 = (unsigned char)byte;
+        val16 = (unsigned char)byte;
         if ((byte = fgetc(this->m_fp)) != EOF) {
-            *val16 |= (unsigned char)byte << 8;
+            val16 |= (unsigned char)byte << 8;
             return true;
         }
     }
@@ -210,7 +205,7 @@ bool fileinfo::readint16(unsigned short *val16, char const *msg)
 
 /* Write two bytes as an unsigned integer value in little-endian.
  */
-bool fileinfo::writeint16(unsigned short val16, char const *msg)
+bool fileinfo::writeint16(uint16_t val16, char const *msg)
 {
     errno = 0;
     if (fputc(val16 & 0xFF, this->m_fp) != EOF
@@ -221,30 +216,23 @@ bool fileinfo::writeint16(unsigned short val16, char const *msg)
 
 /* Read four bytes as an unsigned integer value stored in little-endian.
  */
-bool fileinfo::readint32(unsigned long *val32, char const *msg)
+bool fileinfo::readint32(uint32_t &val32, char const *msg)
 {
     int byte;
-
-    errno = 0;
-    if ((byte = fgetc(this->m_fp)) != EOF) {
-        *val32 = (unsigned int)byte;
-        if ((byte = fgetc(this->m_fp)) != EOF) {
-            *val32 |= (unsigned int)byte << 8;
-            if ((byte = fgetc(this->m_fp)) != EOF) {
-                *val32 |= (unsigned int)byte << 16;
-                if ((byte = fgetc(this->m_fp)) != EOF) {
-                    *val32 |= (unsigned int)byte << 24;
-                    return true;
-                }
-            }
-        }
+    int shift = 0;
+    errno = val32 = 0;
+    while (shift <= 24 && (byte = fgetc(this->m_fp)) != EOF) {
+        val32 |= (uint32_t)byte << shift;
+        shift += 8;
     }
+    
+    if (shift == 32) return true;
     return fileerr(this, msg);
 }
 
 /* Write four bytes as an unsigned integer value in little-endian.
  */
-bool fileinfo::writeint32(unsigned long val32, char const *msg)
+bool fileinfo::writeint32(uint32_t val32, char const *msg)
 {
     errno = 0;
     if (fputc(val32 & 0xFF, this->m_fp) != EOF
@@ -331,29 +319,9 @@ bool fileinfo::seek(long int bytes)
     return fseek(this->m_fp, bytes, SEEK_SET);
 }
 
-/* Read the given directory and call filecallback once for each file
- * contained in it.
- */
-bool findfiles(int dir, void *data, bool (*filecallback)(char const*, int, void*))
-{
-    QStringList files = QDir(getdir(dir)).entryList();
-
-    for(int i = 0; i < files.size(); i++) {
-        QByteArray ba = files[i].toUtf8();
-        const char *n = ba.constData();
-
-        if (n[0] == '.') continue; // hidden files and dirs
-
-        bool r = (*filecallback)(n, dir, data);
-        if (!r) return false;
-    }
-
-    return true;
-}
-
 /* Save a dir path.
  */
-static void savedir(int dir, QString path)
+static void savedir(int dir, QString &path)
 {
     dirs[dir] = path.toStdString();
 }
@@ -362,7 +330,7 @@ static void savedir(int dir, QString path)
  */
 void initdirs()
 {
-    auto checkDir = [](QString d)
+    auto checkDir = [](QString &d)
     {
         QDir dir(d);
         if (!dir.exists() && !dir.mkpath(".")) {

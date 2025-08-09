@@ -74,7 +74,7 @@ static int      laststepping = 0;
 
 /* The memory used to hold the list of creatures.
  */
-static creature        *creaturearray = NULL;
+static creature        *creaturearray = nullptr;
 
 /* A pointer to the game state, used so that it doesn't have to be
  * passed to every single function.
@@ -177,7 +177,7 @@ static short *_possession(int obj)
     }
     warn("Invalid object %d handed to possession()\n", obj);
     _assert(!"possession() called with an invalid object");
-    return NULL;
+    return nullptr;
 }
 
 /* The pseudorandom number generator, used by walkers and blobs. This
@@ -366,7 +366,7 @@ static creature *lookupcreature(int pos, bool includechip)
     for ( ; cr->id ; ++cr)
         if (cr->pos == pos && !cr->hidden && !isanimation(cr->id))
             return cr;
-    return NULL;
+    return nullptr;
 }
 
 /* Return a fresh creature.
@@ -381,10 +381,10 @@ static creature *newcreature(void)
     }
     if (cr - creaturelist() >= MAX_CREATURES) {
         warn("Ran out of room in the creatures array!");
-        return NULL;
+        return nullptr;
     }
     if (pedanticmode && cr - creaturelist() >= PMAX_CREATURES)
-        return NULL;
+        return nullptr;
 
     cr->hidden = true;
     cr[1].id = Nothing;
@@ -461,7 +461,7 @@ static bool stopanimationat(int pos)
 }
 
 /* What happens when Chip dies. reason indicates the cause of death.
- * also is either NULL or points to a creature that dies with Chip.
+ * also is either nullptr or points to a creature that dies with Chip.
  */
 static void removechip(int reason, creature *also)
 {
@@ -1048,12 +1048,12 @@ static void checkmovingto(void)
     dir = cr->tdir;
     if (dir == NIL || isdiagonal(dir)) {
         chiptopos() = -1;
-        chiptocr() = NULL;
+        chiptocr() = nullptr;
         return;
     }
 
     chiptopos() = cr->pos + delta[dir];
-    chiptocr() = NULL;
+    chiptocr() = nullptr;
 }
 
 /*
@@ -1320,14 +1320,14 @@ static bool endmovement(creature *cr, bool stationary)
         switch (floor) {
             case Water:
                 if (!possession(Boots_Water)) {
-                    removechip(CHIP_DROWNED, NULL);
+                    removechip(CHIP_DROWNED, nullptr);
                     survived = false;
                 }
                 break;
             case Fire:
                 if (stationary) break;
                 if (!possession(Boots_Fire)) {
-                    removechip(CHIP_BURNED, NULL);
+                    removechip(CHIP_BURNED, nullptr);
                     survived = false;
                 }
                 break;
@@ -1427,7 +1427,7 @@ static bool endmovement(creature *cr, bool stationary)
         case Bomb:
             floorat(cr->pos) = Empty;
             if (cr->id == Chip) {
-                removechip(CHIP_BOMBED, NULL);
+                removechip(CHIP_BOMBED, nullptr);
             } else {
                 addsoundeffect(SND_BOMB_EXPLODES);
                 removecreature(cr, Bomb_Explosion);
@@ -1621,7 +1621,7 @@ static void initialhousekeeping(void)
             startendgametimer();
             timeoffset() = 1;
         } else if (timelimit() && currenttime() >= timelimit()) {
-            removechip(CHIP_OUTOFTIME, NULL);
+            removechip(CHIP_OUTOFTIME, nullptr);
         }
     }
 
@@ -1684,7 +1684,7 @@ static void initialhousekeeping(void)
 #endif
 
     chiptopos() = -1;
-    chiptocr() = NULL;
+    chiptocr() = nullptr;
 }
 
 /* Actions and checks that occur at the end of every tick.
@@ -1896,7 +1896,7 @@ static bool initgame(gamelogic *logic)
     mapbreached() = false;
     completed() = false;
     chiptopos() = -1;
-    chiptocr() = NULL;
+    chiptocr() = nullptr;
     putwall() = -1;
     prngvalue1() = 0;
     prngvalue2() = 0;
@@ -2007,7 +2007,7 @@ static void shutdown(gamelogic *logic)
 {
     (void)logic;
     free(creaturearray);
-    creaturearray = NULL;
+    creaturearray = nullptr;
 }
 
 /* The exported function: Initialize and return the module's gamelogic

@@ -16,7 +16,7 @@ extern void loadunslistfromfile(char const *filename);
 /* Look up all the levels in the given series, and mark the ones that
  * appear in the list of unsolvable levels by initializing the
  * unsolvable field. Levels that do not appear in the list will have
- * their unsolvable fields explicitly set to NULL. The number of
+ * their unsolvable fields explicitly set to nullptr. The number of
  * unsolvable levels is returned.
  */
 extern int markunsolvablelevels(gameseries &series);

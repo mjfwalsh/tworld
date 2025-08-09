@@ -61,11 +61,6 @@ extern bool readsolutions(gameseries &series);
  * is done if the directory's name has been unset, however.) FALSE is
  * returned if an error occurs.
  */
-extern bool savesolutions(gameseries &series);
-
-/* Free all memory allocated for storing the game's solutions, and mark
- * the levels as being unsolved.
- */
-extern void clearsolutions(gameseries &series);
+extern bool savesolutions(const gameseries &series);
 
 #endif

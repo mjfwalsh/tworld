@@ -189,29 +189,36 @@ enum {
  * Structures for defining the games proper.
  */
 
-/* The collection of data maintained for each level.
- */
-typedef struct gamesetup {
-    int         number;     /* numerical ID of the level */
-    int         time;       /* no. of seconds allotted */
-    int         besttime;   /* time (in ticks) of best solution */
-    int         sgflags;    /* saved-game flags (see below) */
-    int         levelsize;  /* size of the level data */
-    int         solutionsize;   /* size of the saved solution data */
-    unsigned char      *leveldata;  /* the data defining the level */
-    unsigned char      *solutiondata;   /* the player's best solution so far */
-    uint32_t           levelhash;  /* the level data's hash value */
-    bool        unsolvable; /* is level unsolvable? */
-    std::string unsolvablereason; /* why level is unsolvable */
-    std::string name;  /* name of the level */
-    char        passwd[5];  /* the level's password */
-} gamesetup;
-
 /* Flags associated with a saved game.
  */
 #define SGF_HASPASSWD       0x0001  /* player knows the level's password */
 #define SGF_REPLACEABLE     0x0002  /* solution is marked as replaceable */
-#define SGF_SETNAME     0x0004  /* internal to solution.c */
+#define SGF_SETNAME         0x0004  /* internal to solution.c */
+#define SGF_DONT_FREE       0x0008  /* internal to solution.c */
+
+/* The collection of data maintained for each level.
+ */
+typedef struct gamesetup {
+    int             number = 0;               /* numerical ID of the level */
+    int             time = 0;                 /* no. of seconds allotted */
+    int             besttime = 0;             /* time (in ticks) of best solution */
+    int             sgflags = 0;              /* saved-game flags (see above) */
+    int             levelsize = 0;            /* size of the level data */
+    int             solutionsize = 0;         /* size of the saved solution data */
+    unsigned char   *leveldata = NULL;        /* the data defining the level */
+    unsigned char   *solutiondata = NULL;     /* the player's best solution so far */
+    bool            unsolvable = false;       /* is level unsolvable? */
+    std::string     unsolvablereason;         /* why level is unsolvable */
+    std::string     name;                     /* name of the level */
+    char            passwd[5] = "\0\0\0\0";   /* the level's password */
+
+    ~gamesetup() {
+        if (!(sgflags & SGF_DONT_FREE)) {
+            free(leveldata);
+            free(solutiondata);
+        }
+    };
+} gamesetup;
 
 /* The history for the last time a levelset was played.
  */
@@ -226,13 +233,11 @@ typedef struct history {
  */
 typedef struct gameseries {
     int         count;      /* number of levels in the series */
-    int         allocated;  /* number of elements allocated */
     int         ruleset;    /* the ruleset for the game file */
     int         gsflags;    /* series flags (see below) */
-    gamesetup   *games;     /* the array of levels */
+    std::vector<gamesetup> games;     /* the array of levels */
     std::string mapfilename;   /* the name of map file */
     int         mapfiledir; /* the dir the map file is in */
-    std::string savefilename;  /* name for solution file */
     int         solheadersize;  /* size of extra solution header */
     std::string name;        /* the filename minus any path */
     std::string dacfilename;        /* the filename minus any path */

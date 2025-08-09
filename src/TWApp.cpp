@@ -19,39 +19,15 @@
 #include "unslist.h"
 #include "err.h"
 
-TileWorldApp* g_app = 0;
-TileWorldMainWnd* g_mainWindow = 0;
+TileWorldApp* g_app = nullptr;
+TileWorldMainWnd* g_mainWindow = nullptr;
 
 TileWorldApp::TileWorldApp(int& argc, char** argv)
     :
     QApplication(argc, argv)
 {
     g_app = this;
-}
 
-
-TileWorldApp::~TileWorldApp()
-{
-    delete g_mainWindow;
-    g_mainWindow = 0;
-
-    g_app = 0;
-}
-
-
-/* Process all pending events. If wait is TRUE and no events are
- * currently pending, the function blocks until an event arrives.
- */
-void eventupdate(bool wait)
-{
-    QApplication::processEvents(wait ? QEventLoop::WaitForMoreEvents : QEventLoop::AllEvents);
-}
-
-
-/* Main initialisation function
- */
-bool TileWorldApp::Initialize()
-{
     // set the application name - needed by initdirs
     setApplicationName("Tile World");
 
@@ -75,10 +51,7 @@ bool TileWorldApp::Initialize()
     g_mainWindow->SetKeyboardRepeat(true);
 
     // initialise timer
-    if (!timerinitialize()) {
-        warn("failed to initialise timer");
-        return false;
-    }
+    timerinitialize();
 
     // initialise tiles
     tileinitialize();
@@ -91,8 +64,23 @@ bool TileWorldApp::Initialize()
     // initial setup of resource system
     loadmessagesfromfile("messages.txt");
     loadunslistfromfile("unslist.txt");
+}
 
-    return true;
+
+TileWorldApp::~TileWorldApp()
+{
+    delete g_mainWindow;
+    g_mainWindow = nullptr;
+    g_app = nullptr;
+}
+
+
+/* Process all pending events. If wait is TRUE and no events are
+ * currently pending, the function blocks until an event arrives.
+ */
+void eventupdate(bool wait)
+{
+    QApplication::processEvents(wait ? QEventLoop::WaitForMoreEvents : QEventLoop::AllEvents);
 }
 
 
@@ -100,7 +88,7 @@ bool TileWorldApp::Initialize()
  * Copy text to clipboard
  */
 
-void TileWorldApp::CopyToClipboard(QString text)
+void TileWorldApp::CopyToClipboard(const QString &text)
 {
     QClipboard* pClipboard = QApplication::clipboard();
     if (pClipboard == 0) return;
@@ -140,6 +128,5 @@ void TileWorldApp::ExitTWorld()
 int main(int argc, char *argv[])
 {
     TileWorldApp app(argc, argv);
-    if(!app.Initialize()) return 1;
     return tworld();
 }

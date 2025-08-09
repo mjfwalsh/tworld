@@ -25,7 +25,7 @@ extern bool getscoresforlevel(gameseries const *series, int level,
  * is returned if an error occurs.
  */
 extern void createscorelist(gameseries const *series, bool usepasswds,
-               int **plevellist, int *pcount, TWTableSpec *table);
+               std::vector<int> &levellist, TWTableSpec *table);
 
 
 /* Free all memory allocated by the above functions.
@@ -33,12 +33,12 @@ extern void createscorelist(gameseries const *series, bool usepasswds,
 extern void freescorelist(int *plevellist);
 
 /* Create a string representing the level time achieved for a level. */
-QString timestring(int lvlnum,  QString lvltitle, int besttime,
+QString timestring(int lvlnum,  const QString &lvltitle, int besttime,
     int timed, int bad);
 
 /* Create a list of timestrings for all levels with solutions in the
- * gameseries. */
-QString leveltimes(gameseries const *series);
+ * gameseries, and copy it to the clipboard. */
+void copyleveltimestoclipboard(const gameseries *series);
 
 
 #endif

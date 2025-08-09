@@ -26,7 +26,7 @@
  * gamestate's map and the list of creatures are consulted to
  * determine what to render.
  */
-extern void displaymapview(struct gamestate const *state, TW_Rect disploc);
+extern void displaymapview(const struct gamestate &state, TW_Rect disploc);
 
 /* Draw a tile of the given id at the position (xpos, ypos).
  */

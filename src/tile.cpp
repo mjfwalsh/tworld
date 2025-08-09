@@ -192,7 +192,7 @@ static tileidinfo const tileidmap[NTILES] = {
 
 /* The heap of remembered surfaces.
  */
-static Qt_Surface **surfaceheap = NULL;
+static Qt_Surface **surfaceheap = nullptr;
 static int surfacesused = 0;
 static int surfacesallocated = 0;
 
@@ -202,7 +202,7 @@ static tilemap tileptr[NTILES];
 
 /* An internal buffer surface.
  */
-static Qt_Surface *opaquetile = NULL;
+static Qt_Surface *opaquetile = nullptr;
 
 /* Add the given surface to the heap of remembered surfaces.
  */
@@ -225,7 +225,7 @@ static void freerememberedsurfaces(void)
         if (surfaceheap[n])
             delete surfaceheap[n];
     free(surfaceheap);
-    surfaceheap = NULL;
+    surfaceheap = nullptr;
     surfacesused = 0;
     surfacesallocated = 0;
 }
@@ -263,7 +263,7 @@ static void addtransparenttile(Qt_Surface * dest, int id, int index)
         rect.x += geng.wtile;
     if (tileptr[id].transpsize & SIZE_EXTUP)
         rect.y += geng.htile;
-    Qt_Surface::BlitSurface(src, &rect, dest, NULL);
+    Qt_Surface::BlitSurface(src, &rect, dest, nullptr);
 }
 
 /* Return a surface for the given creature or animation. rect is
@@ -319,7 +319,7 @@ static Qt_Surface *getcreatureimage(TW_Rect *rect,
  * transparent, the appropriate composite image is constructed in the
  * overlay buffer. (If the top tile is opaque but has transparent
  * pixels, the image returned is constructed in a private surface). If
- * rect is not NULL, the width and height fields are filled in.
+ * rect is not nullptr, the width and height fields are filled in.
  */
 static Qt_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
 {
@@ -338,7 +338,7 @@ static Qt_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
     if (bot == Nothing || bot == Empty || !tileptr[top].transp[0]) {
         if (tileptr[top].opaque[nt])
             return tileptr[top].opaque[nt];
-        Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], NULL, opaquetile, NULL);
+        Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], nullptr, opaquetile, nullptr);
         addtransparenttile(opaquetile, top, nt);
         return opaquetile;
     }
@@ -348,9 +348,9 @@ static Qt_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
     nb = (timerval + 1) % tileptr[bot].celcount;
     dest = tileptr[Overlay_Buffer].opaque[0];
     if (tileptr[bot].opaque[nb]) {
-        Qt_Surface::BlitSurface(tileptr[bot].opaque[nb], NULL, dest, NULL);
+        Qt_Surface::BlitSurface(tileptr[bot].opaque[nb], nullptr, dest, nullptr);
     } else {
-        Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
+        Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], nullptr, dest, nullptr);
         addtransparenttile(dest, bot, nb);
     }
     addtransparenttile(dest, top, nt);
@@ -360,7 +360,7 @@ static Qt_Surface *getcellimage(TW_Rect * rect, int top, int bot, int timerval)
 
 /* Get a generic tile image.
  */
-#define gettileimage(id)    (getcellimage(NULL, (id), Empty, -1))
+#define gettileimage(id)    (getcellimage(nullptr, (id), Empty, -1))
 
 /*
  * Tile rendering functions.
@@ -373,7 +373,7 @@ static void drawfulltile(Qt_Surface * dest, int xpos, int ypos,
 {
     TW_Rect rect(xpos, ypos, src->w, src->h);
 
-    Qt_Surface::BlitSurface(src, NULL, dest, &rect);
+    Qt_Surface::BlitSurface(src, nullptr, dest, &rect);
 }
 
 /* Draw a tile of the given id at the position (xpos, ypos).
@@ -420,7 +420,7 @@ extern bool pedanticmode;
  * gamestate's map and the list of creatures are consulted to
  * determine what to render.
  */
-void displaymapview(gamestate const *state, TW_Rect displayloc)
+void displaymapview(const gamestate &state, TW_Rect displayloc)
 {
     TW_Rect rect;
     Qt_Surface *s;
@@ -430,8 +430,8 @@ void displaymapview(gamestate const *state, TW_Rect displayloc)
     int lmap, tmap, rmap, bmap;
     int pos, x, y;
 
-    xdisppos = state->xviewpos / 2 - (NXTILES / 2) * 4;
-    ydisppos = state->yviewpos / 2 - (NYTILES / 2) * 4;
+    xdisppos = state.xviewpos / 2 - (NXTILES / 2) * 4;
+    ydisppos = state.yviewpos / 2 - (NYTILES / 2) * 4;
     if (xdisppos < 0)
         xdisppos = 0;
     if (ydisppos < 0)
@@ -459,10 +459,10 @@ void displaymapview(gamestate const *state, TW_Rect displayloc)
             rect.x = xorigin + x * geng.wtile;
             rect.y = yorigin + y * geng.htile;
             s = getcellimage(&rect,
-                state->map[pos].top.id,
-                state->map[pos].bot.id,
-                (state->statusflags & SF_NOANIMATION) ?
-                -1 : state->currenttime);
+                state.map[pos].top.id,
+                state.map[pos].bot.id,
+                (state.statusflags & SF_NOANIMATION) ?
+                -1 : state.currenttime);
             drawclippedtile(&rect, s, displayloc);
         }
     }
@@ -471,9 +471,9 @@ void displaymapview(gamestate const *state, TW_Rect displayloc)
     tmap -= 2;
     rmap += 2;
     bmap += 2;
-    for (cr = state->creatures; cr->id; ++cr) {
+    for (cr = state.creatures; cr->id; ++cr) {
         if (pedanticmode) {
-            if (cr->id == Ball && state->map[cr->pos].top.id == HintButton)
+            if (cr->id == Ball && state.map[cr->pos].top.id == HintButton)
                 continue;
         }
         if (cr->hidden)
@@ -502,7 +502,7 @@ static Qt_Surface *extractopaquetile(Qt_Surface * src,
     Qt_Surface *dest = new Qt_Surface(wimg, himg, false);
     TW_Rect rect(ximg, yimg, wimg, himg);
 
-    Qt_Surface::BlitSurface(src, &rect, dest, NULL);
+    Qt_Surface::BlitSurface(src, &rect, dest, nullptr);
     return dest;
 }
 
@@ -515,11 +515,11 @@ static Qt_Surface *extractkeyedtile(Qt_Surface * src,
     Qt_Surface *dest = new Qt_Surface(wimg, himg, true);
     Qt_Surface *temp;
 
-    dest->FillRect(NULL, TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT));
+    dest->FillRect(nullptr, TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT));
     src->SetColorKey(transpclr);
     TW_Rect rect(ximg, yimg, dest->w, dest->h);
 
-    Qt_Surface::BlitSurface(src, &rect, dest, NULL);
+    Qt_Surface::BlitSurface(src, &rect, dest, nullptr);
     src->ResetColorKey();
 
     temp = dest;
@@ -541,10 +541,10 @@ static Qt_Surface *extractemptytile(Qt_Surface * src,
     Qt_Surface *temp;
 
     if (tileptr[Empty].opaque[0])
-        Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], NULL, dest, NULL);
+        Qt_Surface::BlitSurface(tileptr[Empty].opaque[0], nullptr, dest, nullptr);
     src->SetColorKey(transpclr);
     TW_Rect rect(ximg, yimg, dest->w, dest->h);
-    Qt_Surface::BlitSurface(src, &rect, dest, NULL);
+    Qt_Surface::BlitSurface(src, &rect, dest, nullptr);
     src->ResetColorKey();
 
     temp = dest;
@@ -569,7 +569,7 @@ static Qt_Surface *extractmaskedtile(Qt_Surface * src,
     TW_Rect rect(ximg, yimg, wimg, himg);
 
     Qt_Surface *dest = new Qt_Surface(rect.w, rect.h, true);
-    Qt_Surface::BlitSurface(src, &rect, dest, NULL);
+    Qt_Surface::BlitSurface(src, &rect, dest, nullptr);
 
     black = TW_MapRGB(0, 0, 0);
     transp = TW_MapRGBA(0, 0, 0, TW_ALPHA_TRANSPARENT);
@@ -612,8 +612,8 @@ static bool initsmalltileset(Qt_Surface * tiles)
 
     for (int n = 0; n < (int)(sizeof tileidmap / sizeof *tileidmap); ++n) {
         int id = tileidmap[n].id;
-        tileptr[id].opaque[0] = NULL;
-        tileptr[id].transp[0] = NULL;
+        tileptr[id].opaque[0] = nullptr;
+        tileptr[id].transp[0] = nullptr;
         tileptr[id].celcount = 0;
         tileptr[id].transpsize = 0;
         if (tileidmap[n].xtransp >= 0) {
@@ -624,7 +624,7 @@ static bool initsmalltileset(Qt_Surface * tiles)
                 return false;
             remembersurface(s);
             tileptr[id].celcount = 1;
-            tileptr[id].opaque[0] = NULL;
+            tileptr[id].opaque[0] = nullptr;
             tileptr[id].transp[0] = s;
         } else if (tileidmap[n].xopaque >= 0) {
             s = extractopaquetile(tiles, tileidmap[n].xopaque * geng.wtile,
@@ -634,7 +634,7 @@ static bool initsmalltileset(Qt_Surface * tiles)
             remembersurface(s);
             tileptr[id].celcount = 1;
             tileptr[id].opaque[0] = s;
-            tileptr[id].transp[0] = NULL;
+            tileptr[id].transp[0] = nullptr;
         }
     }
 
@@ -658,8 +658,8 @@ static bool initmaskedtileset(Qt_Surface * tiles)
     for (n = 0; n < (int)(sizeof tileidmap / sizeof *tileidmap); ++n) {
         id = tileidmap[n].id;
         tileptr[id].celcount = 0;
-        tileptr[id].opaque[0] = NULL;
-        tileptr[id].transp[0] = NULL;
+        tileptr[id].opaque[0] = nullptr;
+        tileptr[id].transp[0] = nullptr;
         tileptr[id].transpsize = 0;
         if (tileidmap[n].xopaque >= 0) {
             s = extractopaquetile(tiles, tileidmap[n].xopaque * geng.wtile,
@@ -946,13 +946,13 @@ static void freetileset(void)
         tileptr[n].celcount = 0;
         tileptr[n].transpsize = 0;
         for (m = 0; m < 16; ++m) {
-            tileptr[n].opaque[m] = NULL;
-            tileptr[n].transp[m] = NULL;
+            tileptr[n].opaque[m] = nullptr;
+            tileptr[n].transp[m] = nullptr;
         }
     }
     geng.wtile = 0;
     geng.htile = 0;
-    opaquetile = NULL;
+    opaquetile = nullptr;
     freerememberedsurfaces();
 }
 
@@ -963,7 +963,7 @@ static void freetileset(void)
  */
 static bool initlargetileset(Qt_Surface * tiles)
 {
-    TW_Rect *tilepos = NULL;
+    TW_Rect *tilepos = nullptr;
     uint32_t transpclr;
     int row, nextrow;
     int n, x, y, w, h;
@@ -1046,7 +1046,7 @@ static bool initlargetileset(Qt_Surface * tiles)
     tileptr[Empty].celcount = 1;
     tileptr[Empty].opaque[0] = extractopaquetile(tiles, 1, 1,
         geng.wtile, geng.htile);
-    tileptr[Empty].transp[0] = NULL;
+    tileptr[Empty].transp[0] = nullptr;
     remembersurface(tileptr[Empty].opaque[0]);
 
     for (n = 1; n < (int)(sizeof tileidmap / sizeof *tileidmap); ++n) {
@@ -1063,7 +1063,7 @@ static bool initlargetileset(Qt_Surface * tiles)
         TILEIMG_SINGLEOPAQUE, transpclr);
     tileptr[Block_Static].celcount = 1;
     tileptr[Block_Static].opaque[0] = tileptr[Block].transp[0];
-    tileptr[Block_Static].transp[0] = NULL;
+    tileptr[Block_Static].transp[0] = nullptr;
     tileptr[HiddenWall_Perm] = tileptr[Empty];
     tileptr[HiddenWall_Temp] = tileptr[Empty];
     tileptr[BlueWall_Fake] = tileptr[BlueWall_Real];
@@ -1088,37 +1088,30 @@ static bool initlargetileset(Qt_Surface * tiles)
  */
 bool loadtileset(char const *filename, bool complain)
 {
-    Qt_Surface *tiles = new Qt_Surface(filename);
+    Qt_Surface tiles(filename);
     bool f;
     int w, h;
 
-    if (!tiles) {
-        if (complain)
-            warn("%s: cannot read bitmap: unspecified error", filename);
-        return false;
-    }
-
-    if (tiles->w % 2 != 0) {
+    if (tiles.w % 2 != 0) {
         freetileset();
-        f = initlargetileset(tiles);
-    } else if (tiles->w % 13 == 0 && tiles->h % 16 == 0) {
-        w = tiles->w / 13;
-        h = tiles->h / 16;
+        f = initlargetileset(&tiles);
+    } else if (tiles.w % 13 == 0 && tiles.h % 16 == 0) {
+        w = tiles.w / 13;
+        h = tiles.h / 16;
         freetileset();
-        f = settilesize(w, h) && initmaskedtileset(tiles);
-    } else if (tiles->w % 7 == 0 && tiles->h % 16 == 0) {
-        w = tiles->w / 7;
-        h = tiles->h / 16;
+        f = settilesize(w, h) && initmaskedtileset(&tiles);
+    } else if (tiles.w % 7 == 0 && tiles.h % 16 == 0) {
+        w = tiles.w / 7;
+        h = tiles.h / 16;
         freetileset();
-        f = settilesize(w, h) && initsmalltileset(tiles);
+        f = settilesize(w, h) && initsmalltileset(&tiles);
     } else {
         if (complain)
             warn("%s: image file has invalid dimensions (%dx%d)", filename,
-                tiles->w, tiles->h);
+                tiles.w, tiles.h);
         f = false;
     }
 
-    delete tiles;
     return f;
 }
 

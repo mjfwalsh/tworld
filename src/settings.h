@@ -18,7 +18,7 @@ int getintsetting(char const * name);
 void setintsetting(char const * name, int val);
 
 /* Obtain a string setting. Returned pointer is good until the setting is
-   modified. Returns NULL if the setting doesn't exist. */
+   modified. Returns nullptr if the setting doesn't exist. */
 char const * getstringsetting(char const * name);
 void setstringsetting(char const * name, char const * val);
 

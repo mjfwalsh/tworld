@@ -33,6 +33,6 @@ extern int advancetick(void);
 /* Initialisation function
  */
 
-extern bool timerinitialize();
+extern void timerinitialize();
 
 #endif

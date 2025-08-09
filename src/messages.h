@@ -19,7 +19,7 @@ enum
 
 extern void loadmessagesfromfile(char const *filename);
 
-extern QString getmessage(int type, QString alt);
+extern QString getmessage(int type, const char *alt);
 
 
 #endif

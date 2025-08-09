@@ -17,10 +17,9 @@ public:
     ~TileWorldApp();
 
     void ExitTWorld();
-    bool Initialize();
 
     // Copy text to clipboard.
-    static void CopyToClipboard(QString text);
+    static void CopyToClipboard(const QString &text);
 
     // Beep
     static void Bell();

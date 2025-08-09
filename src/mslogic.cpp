@@ -125,7 +125,7 @@ static short *_possession(int obj)
     }
     warn("Invalid object %d handed to possession()", obj);
     _assert(!"possession() called with an invalid object");
-    return NULL;
+    return nullptr;
 }
 
 /*
@@ -156,23 +156,23 @@ typedef struct slipper {
 
 /* The linked list of creature pools, forming the creature arena.
  */
-static crpoollump      *currentcrpoollump = NULL;
+static crpoollump      *currentcrpoollump = nullptr;
 
 /* The list of active creatures.
  */
-static creature       **creatures = NULL;
+static creature       **creatures = nullptr;
 static int      creaturecount = 0;
 static int      creaturesallocated = 0;
 
 /* The list of "active" blocks.
  */
-static creature       **blocks = NULL;
+static creature       **blocks = nullptr;
 static int      blockcount = 0;
 static int      blocksallocated = 0;
 
 /* The list of sliding creatures.
  */
-static slipper         *slips = NULL;
+static slipper         *slips = nullptr;
 static int      slipcount = 0;
 static int      slipsallocated = 0;
 
@@ -209,11 +209,11 @@ static creature *allocatecreature(void)
             currentcrpoollump->count = crpoollumpsize;
         } else {
             crpoollump *next = (crpoollump *)malloc(sizeof *next);
-            if(next == NULL) memerrexit();
+            if(next == nullptr) memerrexit();
 
             next->count = crpoollumpsize;
             next->prev = currentcrpoollump;
-            next->next = NULL;
+            next->next = nullptr;
             if (currentcrpoollump)
                 currentcrpoollump->next = next;
             currentcrpoollump = next;
@@ -543,14 +543,14 @@ static void togglewalls(void)
 #define CS_MUTANT       0x80    /* block is mutant, looks like Chip */
 
 /* Return the creature located at pos. Ignores Chip unless includechip
- * is TRUE. Return NULL if no such creature is present.
+ * is TRUE. Return nullptr if no such creature is present.
  */
 static creature *lookupcreature(int pos, bool includechip)
 {
     int n;
 
     if (!creatures)
-        return NULL;
+        return nullptr;
     for (n = 0 ; n < creaturecount ; ++n) {
         if (creatures[n]->hidden)
             continue;
@@ -558,7 +558,7 @@ static creature *lookupcreature(int pos, bool includechip)
             if (creatures[n]->id != Chip || includechip)
                 return creatures[n];
     }
-    return NULL;
+    return nullptr;
 }
 
 /* Return the block located at pos. If the block in question is not
@@ -645,7 +645,7 @@ static creature *awakencreature(int pos)
 
     tileid = cellat(pos)->top.id;
     if (!iscreature(tileid) || creatureid(tileid) == Chip)
-        return NULL;
+        return nullptr;
     n = allocatecreature();
     n->id = creatureid(tileid);
     n->dir = creaturedirid(tileid);
@@ -1413,7 +1413,7 @@ static void handlebuttons(void)
         switch (id) {
             case Button_Blue:
                 addsoundeffect(SND_BUTTON_PUSHED);
-                turntanks(NULL);
+                turntanks(nullptr);
                 break;
             case Button_Green:
                 togglewalls();
@@ -2204,15 +2204,15 @@ static void shutdown(gamelogic *logic)
     (void)logic;
 
     free(creatures);
-    creatures = NULL;
+    creatures = nullptr;
     creaturecount = 0;
     creaturesallocated = 0;
     free(blocks);
-    blocks = NULL;
+    blocks = nullptr;
     blockcount = 0;
     blocksallocated = 0;
     free(slips);
-    slips = NULL;
+    slips = nullptr;
     slipcount = 0;
     slipsallocated = 0;
 

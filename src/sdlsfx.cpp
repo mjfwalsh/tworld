@@ -57,7 +57,7 @@ static void freesfx(int index)
     if (sounds[index].wave) {
         SDL_LockAudio();
         free(sounds[index].wave);
-        sounds[index].wave = NULL;
+        sounds[index].wave = nullptr;
         sounds[index].pos = 0;
         sounds[index].playing = false;
         SDL_UnlockAudio();
@@ -140,7 +140,7 @@ bool setaudiosystem(bool active)
     des.format = DEFAULT_SND_FMT;
     des.channels = DEFAULT_SND_CHAN;
     des.callback = sfxcallback;
-    des.userdata = NULL;
+    des.userdata = nullptr;
     for (n = 1 ; n <= des.freq / TICKS_PER_SECOND ; n <<= 1) ;
     des.samples = (n << soundbufsize) >> 2;
     if (SDL_OpenAudio(&des, &spec) < 0) {

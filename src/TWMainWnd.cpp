@@ -445,21 +445,21 @@ void TileWorldMainWnd::ClearDisplay()
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int nBestTime)
+void TileWorldMainWnd::DisplayGame(gamestate &state, int nTimeLeft, int nBestTime)
 {
-    bool const bTimedLevel = (pState->game->time > 0);
+    bool const bTimedLevel = (state.game->time > 0);
 
     m_timeLeft = nTimeLeft;
 
     bool const bForceShowTimer = action_forceShowTimer->isChecked();
 
-    bool bParBad = (pState->game->sgflags & SGF_REPLACEABLE) != 0;
+    bool bParBad = (state.game->sgflags & SGF_REPLACEABLE) != 0;
 
-    if (pState->currenttime == -1) {
+    if (state.currenttime == -1) {
         // set properties
-        m_ruleset = pState->ruleset;
-        m_levelNum = pState->game->number;
-        m_levelName = pState->game->name.c_str();
+        m_ruleset = state.ruleset;
+        m_levelNum = state.game->number;
+        m_levelName = state.game->name.c_str();
         m_timedLevel = bTimedLevel;
         m_problematic = false;
         m_bestTime = nBestTime;
@@ -468,9 +468,9 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
         // gui stuff
         m_gameWidget->setCursor(m_ruleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
-        m_pLCDNumber->display(pState->game->number);
+        m_pLCDNumber->display(state.game->number);
         m_labelTitle->setText(m_levelPackName + " - " + m_levelName);
-        m_labelPassword->setText(pState->game->passwd);
+        m_labelPassword->setText(state.game->passwd);
         m_slideSeek->setValue(0);
         action_Pause->setText("Start");
 
@@ -478,8 +478,8 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
         m_oFNT = (m_levelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 
         // show/hide controls pane
-        bool bHasSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) == 0));
-        bool bHasDeletedSolution = (hassolution(pState->game) && ((pState->game->sgflags & SGF_REPLACEABLE) != 0));
+        bool bHasSolution = (hassolution(state.game) && ((state.game->sgflags & SGF_REPLACEABLE) == 0));
+        bool bHasDeletedSolution = (hassolution(state.game) && ((state.game->sgflags & SGF_REPLACEABLE) != 0));
         m_controlsFrame->setVisible(bHasSolution);
 
         // disable/enable menus
@@ -491,7 +491,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
         action_GoTo->setEnabled(true);
         action_Playback->setEnabled(bHasSolution);
         action_Verify->setEnabled(bHasSolution);
-        action_Delete->setEnabled(hassolution(pState->game));
+        action_Delete->setEnabled(hassolution(state.game));
 
         // pedantic mode
         action_PedanticMode->setVisible(m_ruleset == Ruleset_Lynx);
@@ -538,7 +538,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
         }
 
         // set time limits
-        int timeLimit = bTimedLevel ? pState->game->time : 999;
+        int timeLimit = bTimedLevel ? state.game->time : 999;
         if (nBestTime != TIME_NIL) {
             m_slideSeek->setMaximum(timeLimit - nBestTime);
         }
@@ -547,16 +547,16 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
 
         // Hide hint and set text
         SetHintVisibility(false);
-        SetHintText(pState->hinttext.c_str());
+        SetHintText(state.hinttext.c_str());
 
         // This sets m_problematic as true if there are any problems
-        CheckForProblems(pState);
+        CheckForProblems(state);
 
         Narrate(&CCX::Level::txtPrologue);
     }
     // do these on play start - they only need to be done once
     else if(action_Levelsets->isEnabled()) {
-        m_replay = (pState->replay >= 0);
+        m_replay = (state.replay >= 0);
         m_controlsFrame->setVisible(m_replay);
         if (m_problematic) {
             SetHintVisibility(false);
@@ -581,23 +581,23 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
     }
 
     // display blank pause screen in ms mode
-    if (pState->statusflags & SF_SHUTTERED) {
+    if (state.statusflags & SF_SHUTTERED) {
         DisplayShutter();
     } else {
-        DisplayMapView(pState);
+        DisplayMapView(state);
     }
 
     // draw objects widget
     for (int i = 0; i < 4; ++i) {
         drawfulltileid(m_invSurface, i*geng.wtile, 0,
-            (pState->keys[i] ? Key_Red+i : Empty));
+            (state.keys[i] ? Key_Red+i : Empty));
         drawfulltileid(m_invSurface, i*geng.wtile, geng.htile,
-            (pState->boots[i] ? Boots_Ice+i : Empty));
+            (state.boots[i] ? Boots_Ice+i : Empty));
     }
     m_objectsWidget->setPixmap(m_invSurface->GetPixmap());
 
     // chips left
-    m_pLCDChipsLeft->display(pState->chipsneeded);
+    m_pLCDChipsLeft->display(state.chipsneeded);
 
     // time left
     m_progressTime->setValue(nTimeLeft);
@@ -605,7 +605,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
     // move progress slider in replay mode
     if (m_replay && !m_slideSeek->isSliderDown()) {
         m_slideSeek->blockSignals(true);
-        m_slideSeek->setValue(pState->currenttime / TICKS_PER_SECOND);
+        m_slideSeek->setValue(state.currenttime / TICKS_PER_SECOND);
         m_slideSeek->blockSignals(false);
     }
 
@@ -613,7 +613,7 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
     if (!m_problematic) {
         // Call setText / clear only when really required
         // See comments about QLabel in TWDisplayWidget.h
-        if ((pState->statusflags & SF_SHOWHINT) != 0) {
+        if ((state.statusflags & SF_SHOWHINT) != 0) {
             SetHintVisibility(true);
         } else {
             SetHintVisibility(false);
@@ -621,16 +621,16 @@ void TileWorldMainWnd::DisplayGame(const gamestate* pState, int nTimeLeft, int n
     }
 }
 
-void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
+void TileWorldMainWnd::CheckForProblems(const gamestate &state)
 {
     QString s;
 
-    if (pState->statusflags & SF_INVALID) {
+    if (state.statusflags & SF_INVALID) {
         s = "This level cannot be played.";
-    } else if (pState->game->unsolvable) {
+    } else if (state.game->unsolvable) {
         s = "This level is reported to be unsolvable";
-        if (!pState->game->unsolvablereason.empty())
-            s += ": " + QString(pState->game->unsolvablereason.c_str());
+        if (!state.game->unsolvablereason.empty())
+            s += ": " + QString(state.game->unsolvablereason.c_str());
         s += ".";
     } else {
         CCX::RulesetCompatibility ruleCompat = m_ccxLevelset.vecLevels[m_levelNum].ruleCompat;
@@ -656,17 +656,17 @@ void TileWorldMainWnd::CheckForProblems(const gamestate* pState)
     }
 }
 
-void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
+void TileWorldMainWnd::DisplayMapView(gamestate &state)
 {
-    short xviewpos = pState->xviewpos;
-    short yviewpos = pState->yviewpos;
+    short xviewpos = state.xviewpos;
+    short yviewpos = state.yviewpos;
     bool bFrogShow = (m_oFNT  &&  m_replay  &&
                     xviewpos/8 == 14  &&  yviewpos/8 == 9);
     if (bFrogShow) {
         int x = xviewpos, y = yviewpos;
         if (m_ruleset == Ruleset_MS) {
             for (int pos = 0; pos < CXGRID*CYGRID; ++pos) {
-                int id = pState->map[pos].top.id;
+                int id = state.map[pos].top.id;
                 if ( ! (id >= Teeth && id < Teeth+4) )
                     continue;
                 x = (pos % CXGRID) * 8;
@@ -674,7 +674,7 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
                 break;
             }
         } else {
-            for (const creature* p = pState->creatures; p->id != 0; ++p) {
+            for (const creature* p = state.creatures; p->id != 0; ++p) {
                 if ( ! (p->id >= Teeth && p->id < Teeth+4) )
                     continue;
                 x = (p->pos % CXGRID) * 8;
@@ -690,16 +690,16 @@ void TileWorldMainWnd::DisplayMapView(const gamestate* pState)
                 break;
             }
         }
-        const_cast<gamestate*>(pState)->xviewpos = x;
-        const_cast<gamestate*>(pState)->yviewpos = y;
+        state.xviewpos = x;
+        state.yviewpos = y;
     }
 
-    displaymapview(pState, m_disploc);
+    displaymapview(state, m_disploc);
     m_gameWidget->setPixmap(m_surface->GetPixmap());
 
     if (bFrogShow) {
-        const_cast<gamestate*>(pState)->xviewpos = xviewpos;
-        const_cast<gamestate*>(pState)->yviewpos = yviewpos;
+        state.xviewpos = xviewpos;
+        state.yviewpos = yviewpos;
     }
 }
 
@@ -900,7 +900,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * stored in the integer will become displaylist()'s return value.
  */
 int TileWorldMainWnd::DisplayList(TWTableSpec &table, int &pnIndex,
-        bool showRulesetOptions, int *ruleset /* = NULL */)
+        bool showRulesetOptions, int *ruleset /* = nullptr */)
 {
     int nCmd = 0;
     QAction *actions[] = { action_Scores, action_TimesClipboard,
@@ -942,7 +942,7 @@ int TileWorldMainWnd::DisplayList(TWTableSpec &table, int &pnIndex,
         m_radioLynx->setVisible(showRulesetOptions);
         m_goButton->setVisible(showRulesetOptions);
 
-        if(ruleset != NULL) {
+        if(ruleset != nullptr) {
             if(*ruleset == Ruleset_MS)
                 m_radioMS->setChecked(true);
             else
@@ -957,7 +957,7 @@ int TileWorldMainWnd::DisplayList(TWTableSpec &table, int &pnIndex,
         m_tableList->setModel(0);
         m_sortFilterProxyModel = 0;
 
-        if(ruleset != NULL) {
+        if(ruleset != nullptr) {
             *ruleset = m_radioMS->isChecked() ? Ruleset_MS : Ruleset_Lynx;
         }
     }
@@ -1034,7 +1034,7 @@ void TileWorldMainWnd::DisplayPasswordPrompt(char *passwd)
 /*
  * The subtitle stack
  */
-void TileWorldMainWnd::PushSubtitle(QString subtitle)
+void TileWorldMainWnd::PushSubtitle(const QString &subtitle)
 {
     m_subtitlestack.append(subtitle);
     SetSubtitle(subtitle);
@@ -1053,7 +1053,7 @@ void TileWorldMainWnd::PopSubtitle()
     }
 }
 
-void TileWorldMainWnd::ChangeSubtitle(QString subtitle)
+void TileWorldMainWnd::ChangeSubtitle(const QString &subtitle)
 {
     if(!m_subtitlestack.isEmpty()) {
         m_subtitlestack.last() = subtitle;
@@ -1062,7 +1062,7 @@ void TileWorldMainWnd::ChangeSubtitle(QString subtitle)
 }
 
 
-/* Set the program's subtitle. A NULL subtitle is equivalent to the
+/* Set the program's subtitle. A nullptr subtitle is equivalent to the
  * empty string. The subtitle is displayed in the window dressing (if
  * any).
  */
@@ -1307,7 +1307,7 @@ void TileWorldMainWnd::ResizeHintFont()
     SetHintText(m_labelHint->text());
 }
 
-void TileWorldMainWnd::SetHintText(QString hint)
+void TileWorldMainWnd::SetHintText(const QString &hint)
 {
     // Calculate available dimensions for hint
     int availableHeight = m_labelTitle->geometry().bottom() - m_objectsContainer->geometry().y();

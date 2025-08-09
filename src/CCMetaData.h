@@ -99,7 +99,7 @@ struct Levelset
     QVector<Level> vecLevels;
 
     void ReadXML(QDomElement elm);
-    bool ReadFile(QString sFilePath, int nLevels);
+    bool ReadFile(const QString &sFilePath, int nLevels);
     void Clear();
 };
 
