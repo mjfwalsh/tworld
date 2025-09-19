@@ -172,7 +172,7 @@ static bool melindawatching()
  */
 static int showscores()
 {
-    TWTableSpec table;
+    TWTableSpec table(g_mainWindow);
     std::vector<int> levellist;
     int     n;
 
@@ -183,14 +183,18 @@ static int showscores()
             break;
 
     g_mainWindow->PushSubtitle(gs.series.name.c_str());
+    g_mainWindow->DisplayList(table, n, Ruleset_None);
     for (;;) {
-        int f = g_mainWindow->DisplayList(table, n, false);
+        int f = g_mainWindow->Input(true);
         if (f == CmdProceed) {
+            n = g_mainWindow->GetSelectedRow();
             n = levellist[n];
             break;
         } else if (f == CmdQuitLevel) {
             n = -1;
             break;
+        } else if (f == CmdQuit) {
+            exit(0);
         }
     }
     g_mainWindow->PopSubtitle();
@@ -849,18 +853,6 @@ static int findseries(std::vector<gameseries> &serieslist, const std::string &cu
     return -1;
 }
 
-/* Helper function for selectseriesandlevel */
-static int chooseseries(std::vector<gameseries> &serieslist, int &levelset)
-{
-    TWTableSpec mftable;
-    mftable.setCols(1);
-    mftable.addCell("Levelset");
-    for (const gameseries &series : serieslist) {
-        mftable.addCell(series.name.c_str());
-    }
-
-    return g_mainWindow->DisplayList(mftable, levelset, true, &gs.series.ruleset);
-}
 
 /* We no longer use actual .dac files but...  */
 static std::string generatedacfilename()
@@ -889,17 +881,31 @@ static std::string generatedacfilename()
 static void selectseriesandlevel(std::vector<gameseries> &serieslist, int &levelset)
 {
     int preLevelSet = levelset;
+again:
+    TWTableSpec mftable(g_mainWindow);
+    mftable.setCols(1);
+    mftable.addCell("Levelset");
+    for (const gameseries &series : serieslist) {
+        mftable.addCell(series.name.c_str());
+    }
+
+    g_mainWindow->DisplayList(mftable, levelset, gs.series.ruleset);
 
     for (;;) {
-        int f = chooseseries(serieslist, levelset);
+        int f = g_mainWindow->Input(true);
         if (f == CmdProceed) {
-            break;
+            gs.series.ruleset = g_mainWindow->GetSelectedRuleSet();
+            levelset = g_mainWindow->GetSelectedRow();
+            return;
         } else if (f == CmdReloadLevelsets) {
             createserieslist(serieslist);
+            goto again;
+        } else if (f == CmdQuit) {
+            exit(0);
         } else if (f == CmdQuitLevel) {
-            if(preLevelSet != -1) {
+            if (preLevelSet != -1) {
                 levelset = preLevelSet;
-                break;
+                return;
             } else {
                 TileWorldApp::Bell();
             }

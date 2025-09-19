@@ -6,10 +6,12 @@
 #include <QtCore/QString>
 
 #include "TWTableSpec.h"
+#include "TWMainWnd.h"
 
-TWTableSpec::TWTableSpec()
+TWTableSpec::TWTableSpec(TileWorldMainWnd *parent)
     :
     QAbstractTableModel(0),
+    m_parent(parent),
     m_rows(0), m_cols(0)
 {
 }
@@ -78,4 +80,31 @@ void TWTableSpec::fixRows()
 void TWTableSpec::trimRows(int num)
 {
     m_vecItems.erase(m_vecItems.end() - (num * m_cols), m_vecItems.end());
+}
+
+void TWTableSpec::hideMenu(QMenu *menu)
+{
+    if (menu->isEnabled()) {
+        m_hiddenmenus.emplace_back(menu);
+        menu->setEnabled(false);
+    }
+}
+
+void TWTableSpec::hideAction(QAction *action)
+{
+    if (action->isEnabled()) {
+        m_hiddenactions.emplace_back(action);
+        action->setEnabled(false);
+    }
+}
+
+TWTableSpec::~TWTableSpec()
+{
+    for (QAction *action : m_hiddenactions)
+        action->setEnabled(true);
+
+    for (QMenu *menu : m_hiddenmenus)
+        menu->setEnabled(true);
+
+    m_parent->HideList();
 }

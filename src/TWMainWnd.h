@@ -145,7 +145,11 @@ public:
     void StartGame(gamestate &state);
     void DisplayGame(gamestate &state, int nTimeLeft);
     int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
-    int DisplayList(TWTableSpec &pTableSpec, int &pnIndex, bool showRulesetOptions, int *ruleset = nullptr);
+    void DisplayList(TWTableSpec &pTableSpec, int pnIndex, int ruleset);
+    void HideList();
+    int GetSelectedRuleSet();
+    int GetSelectedRow();
+
     bool DisplayYesNoPrompt(const char* prompt);
     void DisplayPasswordPrompt(char *passwd);
 

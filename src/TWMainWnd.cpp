@@ -75,7 +75,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     m_timeLeft(TIME_NIL),
     m_timedLevel(false),
     m_replay(false),
-    m_sortFilterProxyModel(0)
+    m_sortFilterProxyModel(nullptr)
 {
     memset(m_keyState, 0, TWK_LAST*sizeof(uint8_t));
 
@@ -165,11 +165,7 @@ void TileWorldMainWnd::closeEvent(QCloseEvent* pCloseEvent)
 {
     QMainWindow::closeEvent(pCloseEvent);
     m_windowClosed = true;
-
-    if (m_mainWidget->currentIndex() == PAGE_GAME)
-        g_app->ExitTWorld();
-    else
-        g_app->quit();
+    g_app->ExitTWorld();
 }
 
 bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
@@ -262,12 +258,12 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QKeyEvent* pKeyEvent)
                 case Qt::Key_Return:
                 case Qt::Key_Enter:
                     if (m_tableList->selectionModel()->currentIndex().row() >= 0)
-                        g_app->exit(CmdProceed);
+                        PulseKey(CmdProceed);
                     return STOP_PROPRGATION;
                     break;
 
                 case Qt::Key_Escape:
-                    g_app->exit(CmdQuitLevel);
+                    PulseKey(CmdQuitLevel);
                     return STOP_PROPRGATION;
                     break;
             }
@@ -327,7 +323,7 @@ void TileWorldMainWnd::OnPlayback()
 
 void TileWorldMainWnd::OnBackButton()
 {
-    g_app->exit(CmdQuitLevel);
+    PulseKey(CmdQuitLevel);
 }
 
 void TileWorldMainWnd::OnImportButton()
@@ -377,7 +373,7 @@ void TileWorldMainWnd::OnImportButton()
     }
 
     if (success > 0) {
-        g_app->exit(CmdReloadLevelsets);
+        PulseKey(CmdReloadLevelsets);
     }
 }
 
@@ -917,85 +913,79 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
  * returns FALSE, the table is removed from the display, and the value
  * stored in the integer will become displaylist()'s return value.
  */
-int TileWorldMainWnd::DisplayList(TWTableSpec &table, int &pnIndex,
-        bool showRulesetOptions, int *ruleset /* = nullptr */)
+void TileWorldMainWnd::DisplayList(TWTableSpec &table, int pnIndex, int ruleset)
 {
-    int nCmd = 0;
     QAction *actions[] = { action_Scores, action_TimesClipboard,
                            action_Import, action_Levelsets};
-    bool action_status[4];
     for(int i = 0; i < 4; i++) {
-        action_status[i] = actions[i]->isEnabled();
-        actions[i]->setEnabled(false);
+        table.hideAction(actions[i]);
     }
 
     QMenu *menus[] = { menu_Level, menu_Solution, menu_Options, menu_Zoom, menu_Solution};
-    bool menu_status[5];
     for(int i = 0; i < 5; i++) {
-        menu_status[i] = menus[i]->isEnabled();
-        menus[i]->setEnabled(false);
+        table.hideMenu(menus[i]);
     }
 
-    // dummy scope to force table spec destructors before ExitTWorld
-    {
-        table.fixRows();
-        QSortFilterProxyModel proxyModel;
-        m_sortFilterProxyModel = &proxyModel;
-        proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
-        proxyModel.setFilterKeyColumn(-1);
-        proxyModel.setSourceModel(&table);
-        m_tableList->setModel(&proxyModel);
+    table.fixRows();
+    m_sortFilterProxyModel = new QSortFilterProxyModel;
+    m_sortFilterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_sortFilterProxyModel->setFilterKeyColumn(-1);
+    m_sortFilterProxyModel->setSourceModel(&table);
+    m_tableList->setModel(m_sortFilterProxyModel);
 
-        m_tableList->horizontalHeader()->setStretchLastSection(table.cols() == 1);
+    m_tableList->horizontalHeader()->setStretchLastSection(table.cols() == 1);
 
-        QModelIndex index = proxyModel.mapFromSource(table.index(pnIndex, 0));
-        m_tableList->setCurrentIndex(index);
-        m_tableList->resizeColumnsToContents();
-        m_tableList->resizeRowsToContents();
-        m_textFind->clear();
-        SetCurrentPage(PAGE_TABLE);
-        m_tableList->setFocus();
+    QModelIndex index = m_sortFilterProxyModel->mapFromSource(table.index(pnIndex, 0));
+    m_tableList->setCurrentIndex(index);
+    m_tableList->resizeColumnsToContents();
+    m_tableList->resizeRowsToContents();
+    m_textFind->clear();
+    SetCurrentPage(PAGE_TABLE);
+    m_tableList->setFocus();
 
-        m_radioMS->setVisible(showRulesetOptions);
-        m_radioLynx->setVisible(showRulesetOptions);
-        m_goButton->setVisible(showRulesetOptions);
+    bool showRulesetOptions;
+    switch(ruleset) {
+        default:
+            showRulesetOptions = false;
+            break;
 
-        if(ruleset != nullptr) {
-            if(*ruleset == Ruleset_MS)
-                m_radioMS->setChecked(true);
-            else
-                m_radioLynx->setChecked(true);
-        }
+        case Ruleset_MS:
+            showRulesetOptions = true;
+            m_radioMS->setChecked(true);
+            break;
 
-        nCmd = g_app->exec();
-
-        pnIndex = proxyModel.mapToSource(m_tableList->currentIndex()).row();
-
-        SetCurrentPage(PAGE_GAME);
-        m_tableList->setModel(0);
-        m_sortFilterProxyModel = 0;
-
-        if(ruleset != nullptr) {
-            *ruleset = m_radioMS->isChecked() ? Ruleset_MS : Ruleset_Lynx;
-        }
+        case Ruleset_Lynx:
+            showRulesetOptions = true;
+            m_radioLynx->setChecked(true);
+            break;
     }
 
-    if (m_windowClosed) g_app->ExitTWorld();
+    m_radioMS->setVisible(showRulesetOptions);
+    m_radioLynx->setVisible(showRulesetOptions);
+    m_goButton->setVisible(showRulesetOptions);
+}
 
-    // restore menus and menu items to previous value
-    for(int i = 0; i < 4; i++) {
-        actions[i]->setEnabled(action_status[i]);
-    }
-    for(int i = 0; i < 5; i++) {
-        menus[i]->setEnabled(menu_status[i]);
-    }
+void TileWorldMainWnd::HideList()
+{
+    SetCurrentPage(PAGE_GAME);
+    m_tableList->setModel(nullptr);
+    delete m_sortFilterProxyModel;
+    m_sortFilterProxyModel = nullptr;
+}
 
-    return nCmd;
+int TileWorldMainWnd::GetSelectedRow()
+{
+    return m_sortFilterProxyModel->mapToSource(m_tableList->currentIndex()).row();
+}
+
+int TileWorldMainWnd::GetSelectedRuleSet()
+{
+    return m_radioMS->isChecked() ? Ruleset_MS : Ruleset_Lynx;
 }
 
 void TileWorldMainWnd::OnListItemActivated()
 {
-    g_app->exit(CmdProceed);
+    PulseKey(CmdProceed);
 }
 
 void TileWorldMainWnd::OnFindTextChanged(const QString& sText)
@@ -1026,7 +1016,7 @@ void TileWorldMainWnd::OnFindReturnPressed()
         m_tableList->selectRow(0);
 
     if (n == 1)
-        g_app->exit(CmdProceed);
+        PulseKey(CmdProceed);
 }
 
 /* Display an input prompt to the user. prompt supplies the prompt to

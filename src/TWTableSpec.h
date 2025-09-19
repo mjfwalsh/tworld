@@ -10,6 +10,10 @@
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QString>
 #include <QtCore/QVector>
+#include <QtGui/QAction>
+#include <QtWidgets/QMenu>
+
+class TileWorldMainWnd;
 
 /* Qt align values.
  */
@@ -20,7 +24,8 @@ const int CenterAlign = (Qt::AlignHCenter | Qt::AlignVCenter);
 class TWTableSpec : public QAbstractTableModel
 {
 public:
-    explicit TWTableSpec();
+    TWTableSpec(TileWorldMainWnd *parent);
+    ~TWTableSpec();
 
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
@@ -37,16 +42,23 @@ public:
     inline int cols() const
         {return m_cols;}
 
+    void hideMenu(QMenu *menu);
+    void hideAction(QAction *action);
+
 protected:
     struct ItemInfo {
         int align;
         QString sText;
     };
 
+    TileWorldMainWnd *m_parent;
     int m_rows, m_cols;
     QVector<ItemInfo> m_vecItems;
 
     QVariant GetData(int row, int col, int role) const;
+
+    QVector<QAction*> m_hiddenactions;
+    QVector<QMenu*> m_hiddenmenus;
 };
 
 #endif
