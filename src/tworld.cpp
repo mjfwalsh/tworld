@@ -334,6 +334,7 @@ static int startinput()
         lastlevel = gs.currentgame;
         setstepping(0);
     }
+    initgamescreen();
     drawscreen(true);
     gs.playmode = Play_None;
     for (;;) {
@@ -390,7 +391,6 @@ static int startinput()
         default:
             continue;
         }
-        drawscreen(true);
     }
 }
 
@@ -520,6 +520,7 @@ static bool playgame(int firstcmd)
 
     bool gamepaused = false;
     g_mainWindow->SetPlayPauseButton(gamepaused);
+    startgame();
     for (;;) {
         if (gamepaused)
             cmd = g_mainWindow->Input(true);
@@ -590,7 +591,7 @@ quitloop:
 
 /* Skip past secondstoskip seconds from the beginning of the solution.
  */
-static int hideandseek(int secondstoskip)
+static int hideandseek(int secondstoskip, bool initgame = false)
 {
     int n = 0;
 
@@ -610,6 +611,9 @@ static int hideandseek(int secondstoskip)
             break;
         advancetick();
     }
+
+    if(initgame) startgame();
+
     drawscreen(true);
     setsoundeffects(-1);
     setgameplaymode(NormalPlay);
@@ -628,13 +632,14 @@ static bool playbackgame()
     int n = 0, cmd;
     int secondstoskip;
     bool gamepaused = false;
-    g_mainWindow->SetPlayPauseButton(gamepaused);
 
     secondstoskip = g_mainWindow->GetReplaySecondsToSkip();
     if (secondstoskip > 0) {
-        n = hideandseek(secondstoskip);
+        n = hideandseek(secondstoskip, true);
         SETPAUSED(true, false);
     } else {
+        g_mainWindow->SetPlayPauseButton(false);
+        startgame();
         drawscreen(true);
         gs.status = 0;
         setgameplaymode(NormalPlay);

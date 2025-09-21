@@ -56,6 +56,14 @@ extern int secondsplayed(void);
  */
 extern int doturn(int cmd);
 
+/* Initialise the game display
+ */
+void initgamescreen();
+
+/* Hide menus during game play
+ */
+void startgame();
+
 /* Update the display during game play. If showframe is FALSE, then
  * nothing is actually displayed.
  */

@@ -451,144 +451,152 @@ void TileWorldMainWnd::ClearDisplay()
 }
 
 
-/* Display the current game state. timeleft and besttime provide the
+/* Initial the window for a game. timeleft and besttime provide the
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-void TileWorldMainWnd::DisplayGame(gamestate &state, int nTimeLeft, int nBestTime)
+void TileWorldMainWnd::InitGame(gamestate &state, int nBestTime)
 {
     bool const bTimedLevel = (state.game->time > 0);
-
-    m_timeLeft = nTimeLeft;
-
     bool const bForceShowTimer = action_forceShowTimer->isChecked();
-
     bool bParBad = (state.game->sgflags & SGF_REPLACEABLE) != 0;
 
-    if (state.currenttime == -1) {
-        // set properties
-        m_ruleset = state.ruleset;
-        m_levelNum = state.game->number;
-        m_levelName = state.game->name.c_str();
-        m_timedLevel = bTimedLevel;
-        m_problematic = false;
-        m_bestTime = nBestTime;
-        m_replay = false;  // IMPORTANT for OnSpeedValueChanged
-        SetSpeed(0);    // IMPORTANT
+    // set properties
+    m_ruleset = state.ruleset;
+    m_levelNum = state.game->number;
+    m_levelName = state.game->name.c_str();
+    m_timedLevel = bTimedLevel;
+    m_problematic = false;
+    m_bestTime = nBestTime;
+    m_replay = false;  // IMPORTANT for OnSpeedValueChanged
+    SetSpeed(0);    // IMPORTANT
 
-        // gui stuff
-        m_gameWidget->setCursor(m_ruleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
-        m_pLCDNumber->display(state.game->number);
-        m_labelTitle->setText(m_levelPackName + " - " + m_levelName);
-        m_labelPassword->setText(state.game->passwd);
-        m_slideSeek->setValue(0);
-        action_Pause->setText("Start");
+    // gui stuff
+    m_gameWidget->setCursor(m_ruleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
+    m_pLCDNumber->display(state.game->number);
+    m_labelTitle->setText(m_levelPackName + " - " + m_levelName);
+    m_labelPassword->setText(state.game->passwd);
+    m_slideSeek->setValue(0);
+    action_Pause->setText("Start");
 
-        // easter egg
-        m_oFNT = (m_levelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
+    // easter egg
+    m_oFNT = (m_levelName.toUpper() == "YOU CAN'T TEACH AN OLD FROG NEW TRICKS");
 
-        // show/hide controls pane
-        bool bHasSolution = (hassolution(state.game) && ((state.game->sgflags & SGF_REPLACEABLE) == 0));
-        bool bHasDeletedSolution = (hassolution(state.game) && ((state.game->sgflags & SGF_REPLACEABLE) != 0));
-        m_controlsFrame->setVisible(bHasSolution);
+    // show/hide controls pane
+    bool bHasSolution = (hassolution(state.game) && ((state.game->sgflags & SGF_REPLACEABLE) == 0));
+    bool bHasDeletedSolution = (hassolution(state.game) && ((state.game->sgflags & SGF_REPLACEABLE) != 0));
+    m_controlsFrame->setVisible(bHasSolution);
 
-        // disable/enable menus
-        action_Scores->setEnabled(true);
-        action_TimesClipboard->setEnabled(true);
-        action_Import->setEnabled(true);
-        action_Levelsets->setEnabled(true);
-        action_About->setEnabled(true);
-        action_GoTo->setEnabled(true);
-        action_Playback->setEnabled(bHasSolution);
-        action_Verify->setEnabled(bHasSolution);
-        action_Delete->setEnabled(hassolution(state.game));
+    // disable/enable menus
+    action_Scores->setEnabled(true);
+    action_TimesClipboard->setEnabled(true);
+    action_Import->setEnabled(true);
+    action_Levelsets->setEnabled(true);
+    action_About->setEnabled(true);
+    action_GoTo->setEnabled(true);
+    action_Playback->setEnabled(bHasSolution);
+    action_Verify->setEnabled(bHasSolution);
+    action_Delete->setEnabled(hassolution(state.game));
 
-        // pedantic mode
-        action_PedanticMode->setVisible(m_ruleset == Ruleset_Lynx);
-        action_PedanticMode->setEnabled(m_ruleset == Ruleset_Lynx);
+    // pedantic mode
+    action_PedanticMode->setVisible(m_ruleset == Ruleset_Lynx);
+    action_PedanticMode->setEnabled(m_ruleset == Ruleset_Lynx);
 
-        // Change delete menu option as appropriate
-        if(bHasDeletedSolution) action_Delete->setText("Undelete");
-        else action_Delete->setText("Delete");
+    // Change delete menu option as appropriate
+    if(bHasDeletedSolution) action_Delete->setText("Undelete");
+    else action_Delete->setText("Delete");
 
-        // pro- and epilogue
-        CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_levelNum]);
-        bool hasPrologue(!currLevel.txtPrologue.vecPages.empty());
-        bool hasEpilogue(!currLevel.txtEpilogue.vecPages.empty());
-        action_Prologue->setEnabled(hasPrologue);
-        action_Epilogue->setEnabled(hasEpilogue && bHasSolution);
+    // pro- and epilogue
+    CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_levelNum]);
+    bool hasPrologue(!currLevel.txtPrologue.vecPages.empty());
+    bool hasEpilogue(!currLevel.txtEpilogue.vecPages.empty());
+    action_Prologue->setEnabled(hasPrologue);
+    action_Epilogue->setEnabled(hasEpilogue && bHasSolution);
 
-        // time
-        m_progressTime->setPar(nBestTime == TIME_NIL ? -1 : nBestTime);
-        m_progressTime->setParBad(bParBad);
+    // time
+    m_progressTime->setPar(nBestTime == TIME_NIL ? -1 : nBestTime);
+    m_progressTime->setParBad(bParBad);
 
-        // set time formatting
-        if (bTimedLevel) {
-            if (bParBad || nBestTime == TIME_NIL) {
-                m_progressTime->setFormat("%v");
-                m_timeFormat  = "%v";
-            } else {
-                m_progressTime->setFormat("%b / %v");
-                m_timeFormat  = "%v (%d)";
-            }
-            m_progressTime->setFullBar(false);
-        } else if(bForceShowTimer) {
-            if (bParBad || nBestTime == TIME_NIL) {
-                m_progressTime->setFormat("[%v]");
-                m_timeFormat  = "[%v]";
-            } else {
-                m_progressTime->setFormat("[%b] / [%v]");
-                m_timeFormat  = "[%v] (%d)";
-            }
-            m_progressTime->setFullBar(false);
+    // set time formatting
+    if (bTimedLevel) {
+        if (bParBad || nBestTime == TIME_NIL) {
+            m_progressTime->setFormat("%v");
+            m_timeFormat  = "%v";
         } else {
-            m_progressTime->setFormat("---");
-            m_timeFormat  = "---";
-            m_progressTime->setFullBar(true);
+            m_progressTime->setFormat("%b / %v");
+            m_timeFormat  = "%v (%d)";
         }
-
-        // set time limits
-        int timeLimit = bTimedLevel ? state.game->time : 999;
-        if (nBestTime != TIME_NIL) {
-            m_slideSeek->setMaximum(timeLimit - nBestTime);
+        m_progressTime->setFullBar(false);
+    } else if(bForceShowTimer) {
+        if (bParBad || nBestTime == TIME_NIL) {
+            m_progressTime->setFormat("[%v]");
+            m_timeFormat  = "[%v]";
+        } else {
+            m_progressTime->setFormat("[%b] / [%v]");
+            m_timeFormat  = "[%v] (%d)";
         }
-        m_progressTime->setMaximum(timeLimit);
-        m_progressTime->setValue(timeLimit);
+        m_progressTime->setFullBar(false);
+    } else {
+        m_progressTime->setFormat("---");
+        m_timeFormat  = "---";
+        m_progressTime->setFullBar(true);
+    }
 
-        // Hide hint and set text
+    // set time limits
+    int timeLimit = bTimedLevel ? state.game->time : 999;
+    if (nBestTime != TIME_NIL) {
+        m_slideSeek->setMaximum(timeLimit - nBestTime);
+    }
+    m_progressTime->setMaximum(timeLimit);
+    m_progressTime->setValue(timeLimit);
+
+    // Hide hint and set text
+    SetHintVisibility(false);
+    SetHintText(state.hinttext.c_str());
+
+    // This sets m_problematic as true if there are any problems
+    CheckForProblems(state);
+
+    Narrate(&CCX::Level::txtPrologue);
+}
+
+/* Initial the window for a game. timeleft and besttime provide the
+ * current time on the clock and the best time recorded for the level,
+ * measured in seconds.
+ */
+void TileWorldMainWnd::StartGame(gamestate &state)
+{
+    m_replay = (state.replay >= 0);
+    m_controlsFrame->setVisible(m_replay);
+    if (m_problematic) {
         SetHintVisibility(false);
-        SetHintText(state.hinttext.c_str());
-
-        // This sets m_problematic as true if there are any problems
-        CheckForProblems(state);
-
-        Narrate(&CCX::Level::txtPrologue);
+        m_problematic = false;
     }
-    // do these on play start - they only need to be done once
-    else if(action_Levelsets->isEnabled()) {
-        m_replay = (state.replay >= 0);
-        m_controlsFrame->setVisible(m_replay);
-        if (m_problematic) {
-            SetHintVisibility(false);
-            m_problematic = false;
-        }
 
-        // disable menus
-        action_Scores->setEnabled(false);
-        action_TimesClipboard->setEnabled(false);
-        action_Import->setEnabled(false);
-        action_Levelsets->setEnabled(false);
-        action_Playback->setEnabled(false);
-        action_Verify->setEnabled(false);
-        action_Delete->setEnabled(false);
-        action_About->setEnabled(false);
-        action_GoTo->setEnabled(false);
-        action_Prologue->setEnabled(false);
-        action_Epilogue->setEnabled(false);
-        action_PedanticMode->setEnabled(false);
+    // disable menus
+    action_Scores->setEnabled(false);
+    action_TimesClipboard->setEnabled(false);
+    action_Import->setEnabled(false);
+    action_Levelsets->setEnabled(false);
+    action_Playback->setEnabled(false);
+    action_Verify->setEnabled(false);
+    action_Delete->setEnabled(false);
+    action_About->setEnabled(false);
+    action_GoTo->setEnabled(false);
+    action_Prologue->setEnabled(false);
+    action_Epilogue->setEnabled(false);
+    action_PedanticMode->setEnabled(false);
 
-        m_progressTime->setFormat(m_timeFormat);
-    }
+    m_progressTime->setFormat(m_timeFormat);
+}
+
+
+/* Display the current game state. timeleft provide the
+ * current time on the clock.
+ */
+void TileWorldMainWnd::DisplayGame(gamestate &state, int nTimeLeft)
+{
+    m_timeLeft = nTimeLeft;
 
     // display blank pause screen in ms mode
     if (state.statusflags & SF_SHUTTERED) {

@@ -141,7 +141,9 @@ public:
 
     void CreateGameDisplay();
     void ClearDisplay();
-    void DisplayGame(gamestate &state, int nTimeLeft, int nBestTime);
+    void InitGame(gamestate &state, int nBestTime);
+    void StartGame(gamestate &state);
+    void DisplayGame(gamestate &state, int nTimeLeft);
     int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
     int DisplayList(TWTableSpec &pTableSpec, int &pnIndex, bool showRulesetOptions, int *ruleset = nullptr);
     bool DisplayYesNoPrompt(const char* prompt);

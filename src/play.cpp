@@ -255,31 +255,40 @@ int doturn(int cmd)
  * effects, if any). If showframe is FALSE, then nothing is actually
  * displayed.
  */
+void initgamescreen()
+{
+    int besttime;
+    if (hassolution(state.game)) {
+        int duration = (state.game->time ? state.game->time : 999);
+        besttime = duration - state.game->besttime / TICKS_PER_SECOND;
+    } else {
+        besttime = TIME_NIL;
+    }
+
+    g_mainWindow->InitGame(state, besttime);
+}
+void startgame()
+{
+    g_mainWindow->StartGame(state);
+}
 void drawscreen(bool showframe)
 {
-    int currenttime;
-    int timeleft, besttime;
-
     playsoundeffects(state.soundeffects);
     state.soundeffects &= ~((1 << SND_ONESHOT_COUNT) - 1);
 
     if (!showframe)
         return;
 
-    currenttime = state.currenttime + state.timeoffset;
+    int currenttime = state.currenttime + state.timeoffset;
 
-    int const starttime = (state.game->time ? state.game->time : 999);
-    if (hassolution(state.game))
-        besttime = starttime - state.game->besttime / TICKS_PER_SECOND;
-    else
-        besttime = TIME_NIL;
+    int duration = (state.game->time ? state.game->time : 999);
 
-    timeleft = starttime - currenttime / TICKS_PER_SECOND;
+    int timeleft = duration - currenttime / TICKS_PER_SECOND;
     if (state.game->time && timeleft <= 0) {
         timeleft = 0;
     }
 
-    g_mainWindow->DisplayGame(state, timeleft, besttime);
+    g_mainWindow->DisplayGame(state, timeleft);
 }
 
 /* Stop game play and clean up.
