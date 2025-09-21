@@ -29,7 +29,7 @@ extern void setgameplaymode(int mode);
 /* Initialize the current state to the starting position of the
  * given level.
  */
-extern bool initgamestate(gamesetup *game, int ruleset);
+extern bool initgamestate(gameseries &series, int currentgame);
 
 /* Set up the current state to play from its prerecorded solution.
  * FALSE is returned if no solution is available for playback.
@@ -58,7 +58,7 @@ extern int doturn(int cmd);
 
 /* Initialise the game display
  */
-void initgamescreen();
+void initgamescreen(gameseries &series);
 
 /* Hide menus during game play
  */

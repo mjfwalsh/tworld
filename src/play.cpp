@@ -94,14 +94,14 @@ static bool setrulesetbehavior(int ruleset)
 /* Initialize the current state to the starting position of the
  * given level.
  */
-bool initgamestate(gamesetup *game, int ruleset)
+bool initgamestate(gameseries &series, int currentgame)
 {
-    if (!setrulesetbehavior(ruleset))
+    if (!setrulesetbehavior(series.ruleset))
         die("unable to initialize the system for the requested ruleset");
 
     memset(state.map, 0, sizeof state.map);
-    state.game = game;
-    state.ruleset = ruleset;
+    state.game = &series.games[currentgame];
+    state.ruleset = series.ruleset;
     state.replay = -1;
     state.currenttime = -1;
     state.timeoffset = 0;
@@ -111,9 +111,15 @@ bool initgamestate(gamesetup *game, int ruleset)
     state.stepping = -1;
     state.statusflags = 0;
     state.soundeffects = 0;
-    state.timelimit = game->time * TICKS_PER_SECOND;
+    state.timelimit = state.game->time * TICKS_PER_SECOND;
     initmovelist(&state.moves);
     resetprng(&state.mainprng);
+
+    CCX::Level const &currLevel = series.ccxLevelset.vecLevels[state.game->number];
+    if (!currLevel.txtPrologue.vecPages.empty())
+        state.statusflags |= SF_HASPROLOGUE;
+    if (!currLevel.txtEpilogue.vecPages.empty())
+        state.statusflags |= SF_HASEPILOGUE;
 
     if (!expandleveldata(state))
         return false;
@@ -255,7 +261,7 @@ int doturn(int cmd)
  * effects, if any). If showframe is FALSE, then nothing is actually
  * displayed.
  */
-void initgamescreen()
+void initgamescreen(gameseries &series)
 {
     int besttime;
     if (hassolution(state.game)) {
@@ -265,7 +271,39 @@ void initgamescreen()
         besttime = TIME_NIL;
     }
 
-    g_mainWindow->InitGame(state, besttime);
+    // check for problems
+    QString problem;
+    if (state.statusflags & SF_INVALID) {
+        problem = "This level cannot be played.";
+    } else if (state.game->unsolvable) {
+        problem = "This level is reported to be unsolvable";
+        if (!state.game->unsolvablereason.empty())
+            problem += ": " + QString(state.game->unsolvablereason.c_str());
+        problem += ".";
+    } else {
+        CCX::RulesetCompatibility ruleCompat = series.ccxLevelset.vecLevels[state.game->number].ruleCompat;
+        CCX::Compatibility compat = CCX::COMPAT_UNKNOWN;
+        if (state.ruleset == Ruleset_Lynx) {
+            if (pedanticmode)
+                compat = ruleCompat.ePedantic;
+            else
+                compat = ruleCompat.eLynx;
+        } else if (state.ruleset == Ruleset_MS) {
+            compat = ruleCompat.eMS;
+        }
+
+        if (compat == CCX::COMPAT_NO){
+            problem = "This level is flagged as being incompatible with the current ruleset.";
+        }
+    }
+
+    g_mainWindow->InitGame(
+        state,
+        besttime,
+        series.name.c_str(),
+        series.ccxLevelset.vecLevels[state.game->number].sAuthor,
+        problem
+    );
 }
 void startgame()
 {

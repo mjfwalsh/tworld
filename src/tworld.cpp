@@ -328,6 +328,74 @@ void savehistory(void)
 
 #define leveldelta(n)   if (!changecurrentgame((n))) { TileWorldApp::Bell(); continue; }
 
+/* Show narration text
+ */
+static int narrate(int cmd)
+{
+    int levelnum = gs.series.games[gs.currentgame].number;
+
+    CCX::Text *doc;
+    switch (cmd) {
+        case CmdNarratePrologue:
+        case CmdNarratePrologueForced:
+            doc = &gs.series.ccxLevelset.vecLevels[levelnum].txtPrologue;
+            break;
+
+        case CmdNarrateEpilogue:
+        case CmdNarrateEpilogueForced:
+            doc = &gs.series.ccxLevelset.vecLevels[levelnum].txtEpilogue;
+            break;
+
+        default:
+            return cmd;
+    }
+
+    switch (cmd) {
+        case CmdNarratePrologue:
+        case CmdNarrateEpilogue:
+            if (doc->bSeen || doc->vecPages.empty() || !g_mainWindow->GetAutoShowNarration())
+                return CmdNone;
+    }
+
+    doc->bSeen = true;
+
+    TileWorldMainWnd::Narration narrate(g_mainWindow, *doc, gs.series.ccxLevelset.sStyleSheet);
+    for (;;) {
+        cmd = g_mainWindow->Input(true);
+        switch(cmd) {
+        case CmdWest:
+            if(narrate.ChangePage(-1))
+                continue;
+            else
+                return CmdNone;
+
+        case CmdEast:
+            if(narrate.ChangePage(1))
+                continue;
+            else
+                return CmdNone;
+
+        case CmdProceed:
+            return CmdNone;
+
+        case CmdQuit:
+            exit(0);
+
+        case CmdPrevLevel:
+        case CmdNextLevel:
+        case CmdSameLevel:
+        case CmdQuitLevel:
+        case CmdGotoLevel:
+        case CmdCheckSolution:
+        case CmdDelSolution:
+        case CmdSeeScores:
+        case CmdTimesClipboard:
+            // let menu events close the narration
+            return cmd;
+        }
+    }
+}
+
 /* Get a key command from the user at the start of the current level.
  */
 static int startinput()
@@ -338,11 +406,14 @@ static int startinput()
         lastlevel = gs.currentgame;
         setstepping(0);
     }
-    initgamescreen();
+
+    initgamescreen(gs.series);
+    int cmd = narrate(CmdNarratePrologue);
     drawscreen(true);
     gs.playmode = Play_None;
     for (;;) {
-        int cmd = g_mainWindow->Input(true);
+        if (cmd == CmdNone)
+            cmd = g_mainWindow->Input(true);
         if (cmd >= CmdMoveFirst && cmd <= CmdMoveLast) {
             gs.playmode = Play_Normal;
             return cmd;
@@ -392,9 +463,18 @@ static int startinput()
         case CmdGotoLevel:
             if (selectlevelbypassword())
                 return CmdNone;
+            break;
+        case CmdNarratePrologue:
+        case CmdNarratePrologueForced:
+        case CmdNarrateEpilogue:
+        case CmdNarrateEpilogueForced:
+            cmd = narrate(cmd);
+            if (cmd == CmdNone) return CmdNone;
+            else break;
         default:
-            continue;
+            break;
         }
+        cmd = CmdNone;
     }
 }
 
@@ -440,6 +520,10 @@ static bool endinput()
         case CmdQuitLevel:                  return false;
         case CmdQuit:                       exit(0);
         case CmdCheckSolution:
+        case CmdNarrateEpilogue:
+            cmd = narrate(CmdNarrateEpilogue);
+            if (cmd != CmdNone) continue;
+            // fall through
         case CmdProceed:
             if (gs.status > 0) {
                 if (islastinseries(gs.currentgame))
@@ -603,7 +687,7 @@ static int hideandseek(int secondstoskip, bool initgame = false)
     setgameplaymode(EndPlay);
     gs.playmode = Play_None;
     endgamestate();
-    initgamestate(&gs.series.games[gs.currentgame], gs.series.ruleset);
+    initgamestate(gs.series, gs.currentgame);
     prepareplayback();
     gs.playmode = Play_Back;
     gs.status = 0;
@@ -783,7 +867,7 @@ static int runcurrentlevel()
         return finalinput();
     }
 
-    valid = initgamestate(&gs.series.games[gs.currentgame], gs.series.ruleset);
+    valid = initgamestate(gs.series, gs.currentgame);
     g_mainWindow->ChangeSubtitle(gs.series.games[gs.currentgame].name.c_str());
     passwordseen(gs.currentgame);
     if (!islastinseries(gs.currentgame))

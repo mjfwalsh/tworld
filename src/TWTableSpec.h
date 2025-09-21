@@ -10,10 +10,10 @@
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QString>
 #include <QtCore/QVector>
-#include <QtGui/QAction>
-#include <QtWidgets/QMenu>
 
 class TileWorldMainWnd;
+class QAction;
+class QMenu;
 
 /* Qt align values.
  */

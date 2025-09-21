@@ -141,7 +141,7 @@ public:
 
     void CreateGameDisplay();
     void ClearDisplay();
-    void InitGame(gamestate &state, int nBestTime);
+    void InitGame(gamestate &state, int nBestTime, const char *levelPackName, const QString &author, const QString &problem);
     void StartGame(gamestate &state);
     void DisplayGame(gamestate &state, int nTimeLeft);
     int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
@@ -154,7 +154,6 @@ public:
     void DisplayPasswordPrompt(char *passwd);
 
     void ReadExtensions(gameseries &pSeries);
-    void Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce = false);
 
     void ShowAbout();
     void SetPlayPauseButton(bool p);
@@ -165,6 +164,56 @@ public:
     void ChangeSubtitle(const QString &subtitle);
     void PopSubtitle();
     void PushSubtitle(const QString &subtitle);
+    bool GetAutoShowNarration();
+
+    class Narration
+    {
+    public:
+        Narration(TileWorldMainWnd *p, CCX::Text &t, QString &styleSheet)
+        :
+          parent(p),
+          text(t)
+        {
+              parent->PushSubtitle("");
+              parent->SetCurrentPage(PAGE_TEXT);
+              parent->m_buttonTextNext->setFocus();
+
+              QTextDocument* pDoc = parent->m_textBrowser->document();
+              if (!styleSheet.isEmpty())
+                  pDoc->setDefaultStyleSheet(styleSheet);
+              pDoc->setDocumentMargin(16);
+              ChangePage(0);
+        }
+
+        ~Narration()
+        {
+              parent->PopSubtitle();
+              parent->SetCurrentPage(PAGE_GAME);
+        }
+
+        bool ChangePage(int delta)
+        {
+            page += delta;
+            if (page < 0 || page >= text.vecPages.size())
+                return false;
+
+            parent->m_buttonTextPrev->setVisible(page > 0);
+
+            CCX::Page &rPage = text.vecPages[page];
+
+            if (rPage.pageProps.eFormat == CCX::TEXT_PLAIN)
+                parent->m_textBrowser->setPlainText(rPage.sText);
+            else
+                parent->m_textBrowser->setHtml(rPage.sText);
+
+            return true;
+        }
+
+    private:
+        TileWorldMainWnd *parent;
+        CCX::Text &text;
+        int page = 0;
+    };
 
 public slots:
     void HideVolumeWidget();
@@ -191,7 +240,6 @@ private:
     bool HandleKeyEvent(QObject* pObject, QKeyEvent* pEvent);
     void HandleMouseEvent(QMouseEvent* pEvent);
     void SetCurrentPage(Page ePage);
-    void CheckForProblems(const gamestate &state);
     void DisplayMapView(gamestate &state);
     void DisplayShutter();
     void SetSpeed(int nValue);
@@ -249,11 +297,10 @@ private:
     int m_timeLeft;
     bool m_timedLevel;
     bool m_replay;
+    QString m_author;
 
     QSortFilterProxyModel* m_sortFilterProxyModel;
     QLocale m_locale;
-
-    CCX::Levelset m_ccxLevelset;
 
     QString m_textToCopy;
 

@@ -12,6 +12,7 @@
 #include    <ctime>
 #include    <vector>
 #include    <cstdint>
+#include    "CCMetaData.h"
 
 /* The dimensions of a level.
  */
@@ -126,6 +127,10 @@ enum {
     CmdQuit,
     CmdPreserve,
     CmdSeek,
+    CmdNarratePrologue,
+    CmdNarratePrologueForced,
+    CmdNarrateEpilogue,
+    CmdNarrateEpilogueForced,
 #ifndef NDEBUG
     CmdDebugCmd1,
     CmdDebugCmd2,
@@ -242,6 +247,7 @@ typedef struct gameseries {
     std::string name;        /* the filename minus any path */
     std::string dacfilename;        /* the filename minus any path */
     unsigned char   solheader[256]; /* extra solution header bytes */
+    CCX::Levelset   ccxLevelset;              /* narration data */
 } gameseries;
 
 

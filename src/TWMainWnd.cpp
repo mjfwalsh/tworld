@@ -272,14 +272,22 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QKeyEvent* pKeyEvent)
 
         case PAGE_TEXT:
             switch (pKeyEvent->key()) {
-                case Qt::Key_Return:
-                case Qt::Key_Enter:
-                    g_app->exit(+1);
+                case Qt::Key_Left:
+                    PulseKey(CmdWest);
                     return STOP_PROPRGATION;
                     break;
 
+                case Qt::Key_Right:
+                    PulseKey(CmdEast);
+                    return STOP_PROPRGATION;
+                    break;
+
+                case Qt::Key_Up:
+                case Qt::Key_Down:
+                case Qt::Key_Return:
+                case Qt::Key_Enter:
                 case Qt::Key_Escape:
-                    g_app->exit(CmdQuitLevel);
+                    PulseKey(CmdProceed);
                     return STOP_PROPRGATION;
                     break;
             }
@@ -451,7 +459,7 @@ void TileWorldMainWnd::ClearDisplay()
  * current time on the clock and the best time recorded for the level,
  * measured in seconds.
  */
-void TileWorldMainWnd::InitGame(gamestate &state, int nBestTime)
+void TileWorldMainWnd::InitGame(gamestate &state, int nBestTime, const char *levelPackName, const QString &author, const QString &problem)
 {
     bool const bTimedLevel = (state.game->time > 0);
     bool const bForceShowTimer = action_forceShowTimer->isChecked();
@@ -466,6 +474,8 @@ void TileWorldMainWnd::InitGame(gamestate &state, int nBestTime)
     m_bestTime = nBestTime;
     m_replay = false;  // IMPORTANT for OnSpeedValueChanged
     SetSpeed(0);    // IMPORTANT
+    m_levelPackName = levelPackName;
+    m_author = author;
 
     // gui stuff
     m_gameWidget->setCursor(m_ruleset==Ruleset_MS ? Qt::CrossCursor : Qt::ArrowCursor);
@@ -503,9 +513,8 @@ void TileWorldMainWnd::InitGame(gamestate &state, int nBestTime)
     else action_Delete->setText("Delete");
 
     // pro- and epilogue
-    CCX::Level const & currLevel(m_ccxLevelset.vecLevels[m_levelNum]);
-    bool hasPrologue(!currLevel.txtPrologue.vecPages.empty());
-    bool hasEpilogue(!currLevel.txtEpilogue.vecPages.empty());
+    bool hasPrologue = state.statusflags & SF_HASPROLOGUE;
+    bool hasEpilogue = state.statusflags & SF_HASEPILOGUE;
     action_Prologue->setEnabled(hasPrologue);
     action_Epilogue->setEnabled(hasEpilogue && bHasSolution);
 
@@ -546,14 +555,15 @@ void TileWorldMainWnd::InitGame(gamestate &state, int nBestTime)
     m_progressTime->setMaximum(timeLimit);
     m_progressTime->setValue(timeLimit);
 
-    // Hide hint and set text
-    SetHintVisibility(false);
-    SetHintText(state.hinttext.c_str());
-
-    // This sets m_problematic as true if there are any problems
-    CheckForProblems(state);
-
-    Narrate(&CCX::Level::txtPrologue);
+    // deal with hints and problems
+    if (!problem.isEmpty()) {
+        m_problematic = true;
+        SetHintText(problem);
+        SetHintVisibility(true);
+    } else {
+        SetHintVisibility(false);
+        SetHintText(state.hinttext.c_str());
+    }
 }
 
 /* Initial the window for a game. timeleft and besttime provide the
@@ -632,41 +642,6 @@ void TileWorldMainWnd::DisplayGame(gamestate &state, int nTimeLeft)
         } else {
             SetHintVisibility(false);
         }
-    }
-}
-
-void TileWorldMainWnd::CheckForProblems(const gamestate &state)
-{
-    QString s;
-
-    if (state.statusflags & SF_INVALID) {
-        s = "This level cannot be played.";
-    } else if (state.game->unsolvable) {
-        s = "This level is reported to be unsolvable";
-        if (!state.game->unsolvablereason.empty())
-            s += ": " + QString(state.game->unsolvablereason.c_str());
-        s += ".";
-    } else {
-        CCX::RulesetCompatibility ruleCompat = m_ccxLevelset.vecLevels[m_levelNum].ruleCompat;
-        CCX::Compatibility compat = CCX::COMPAT_UNKNOWN;
-        if (m_ruleset == Ruleset_Lynx) {
-            if (pedanticmode)
-                compat = ruleCompat.ePedantic;
-            else
-                compat = ruleCompat.eLynx;
-        } else if (m_ruleset == Ruleset_MS) {
-            compat = ruleCompat.eMS;
-        }
-
-        if (compat == CCX::COMPAT_NO){
-            s = "This level is flagged as being incompatible with the current ruleset.";
-        }
-    }
-
-    m_problematic = !s.isEmpty();
-    if (m_problematic) {
-        SetHintText(s);
-        SetHintVisibility(true);
     }
 }
 
@@ -795,9 +770,8 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
         strm.setLocale(m_locale);
         strm << "<big><b>" << m_levelName << "</b></big><br>";
 
-        QString sAuthor = m_ccxLevelset.vecLevels[m_levelNum].sAuthor;
-        if (!sAuthor.isEmpty())
-            strm << "by " << sAuthor;
+        if (!m_author.isEmpty())
+            strm << "by " << m_author;
 
         strm << "<hr><br><big><b>";
         if (m_replay) {
@@ -852,7 +826,7 @@ int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTo
         if (msgBox.clickedButton() == pBtnRestart)
             return CmdSameLevel;
 
-        Narrate(&CCX::Level::txtEpilogue);
+        return CmdNarrateEpilogue;
     } else {    // Failure
         bool bTimeout = (m_timedLevel  &&  m_timeLeft <= 0);
         if (m_replay) {
@@ -1082,78 +1056,6 @@ void TileWorldMainWnd::SetSubtitle(QString subtitle)
     setWindowTitle(sTitle);
 }
 
-/* Read any additional data for the series.
- */
-void TileWorldMainWnd::ReadExtensions(gameseries &pSeries)
-{
-    QDir dataDir;
-    dataDir.setPath(getdir(pSeries.mapfiledir));
-
-    QString sSetName = QFileInfo(pSeries.mapfilename.c_str()).completeBaseName();
-    m_levelPackName = sSetName; // save for use on display
-
-    QString sFilePath = dataDir.filePath(sSetName + ".ccx");
-
-    m_ccxLevelset.Clear();
-    if (!m_ccxLevelset.ReadFile(sFilePath, pSeries.count))
-        warn("%s: failed to read file", sFilePath.toUtf8().constData());
-
-    for (int i = 1; i <= pSeries.count; ++i) {
-        CCX::Level& rCCXLevel = m_ccxLevelset.vecLevels[i];
-        rCCXLevel.txtPrologue.bSeen = false;    // @#$ (pSeries.games[i-1].sgflags & SGF_HASPASSWD) != 0;
-        rCCXLevel.txtEpilogue.bSeen = false;
-    }
-}
-
-
-void TileWorldMainWnd::Narrate(CCX::Text CCX::Level::*pmTxt, bool bForce)
-{
-    CCX::Text& rText = m_ccxLevelset.vecLevels[m_levelNum].*pmTxt;
-    if ((rText.bSeen || !action_displayCCX->isChecked()) && !bForce)
-        return;
-    rText.bSeen = true;
-
-    if (rText.vecPages.empty())
-        return;
-    int n = rText.vecPages.size();
-
-    QString sWindowTitle = this->windowTitle();
-    SetSubtitle("");    // TODO: set name
-    SetCurrentPage(PAGE_TEXT);
-    m_buttonTextNext->setFocus();
-
-    int d = +1;
-    for (int nPage = 0; nPage < n; nPage += d) {
-        m_buttonTextPrev->setVisible(nPage > 0);
-
-        CCX::Page& rPage = rText.vecPages[nPage];
-
-        QTextDocument* pDoc = m_textBrowser->document();
-        if (pDoc != 0) {
-            if (!m_ccxLevelset.sStyleSheet.isEmpty())
-                pDoc->setDefaultStyleSheet(m_ccxLevelset.sStyleSheet);
-            pDoc->setDocumentMargin(16);
-        }
-
-        QString sText = rPage.sText;
-        if (rPage.pageProps.eFormat == CCX::TEXT_PLAIN) {
-            m_textBrowser->setPlainText(sText);
-        } else {
-            m_textBrowser->setHtml(sText);
-        }
-
-        d = g_app->exec();
-        if (m_windowClosed) g_app->ExitTWorld();
-        if (d == 0) // Return
-            break;
-        if (nPage+d < 0)
-            d = 0;
-    }
-
-    SetCurrentPage(PAGE_GAME);
-    setWindowTitle(sWindowTitle);
-}
-
 void TileWorldMainWnd::ShowAbout()
 {
     QMessageBox *msgBox = new QMessageBox(this);
@@ -1167,17 +1069,17 @@ void TileWorldMainWnd::ShowAbout()
 
 void TileWorldMainWnd::OnTextNext()
 {
-    g_app->exit(+1);
+    PulseKey(CmdEast);
 }
 
 void TileWorldMainWnd::OnTextPrev()
 {
-    g_app->exit(-1);
+    PulseKey(CmdWest);
 }
 
 void TileWorldMainWnd::OnTextReturn()
 {
-    g_app->exit(0);
+    PulseKey(CmdProceed);
 }
 
 
@@ -1196,12 +1098,12 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
     }
 
     if (pAction == action_Prologue) {
-        Narrate(&CCX::Level::txtPrologue, true);
+        PulseKey(CmdNarratePrologueForced);
         return;
     }
 
     if (pAction == action_Epilogue) {
-        Narrate(&CCX::Level::txtEpilogue, true);
+        PulseKey(CmdNarrateEpilogueForced);
         return;
     }
 
@@ -1595,4 +1497,9 @@ bool TileWorldMainWnd::SetKeyboardArrowsRepeat(bool enable)
     m_joystickstyle = enable;
     RestartKeystates();
     return true;
+}
+
+bool TileWorldMainWnd::GetAutoShowNarration()
+{
+    return action_displayCCX->isChecked();
 }

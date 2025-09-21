@@ -85,7 +85,7 @@ void TWTableSpec::trimRows(int num)
 void TWTableSpec::hideMenu(QMenu *menu)
 {
     if (menu->isEnabled()) {
-        m_hiddenmenus.emplace_back(menu);
+        m_hiddenmenus.push_back(menu);
         menu->setEnabled(false);
     }
 }
@@ -93,7 +93,7 @@ void TWTableSpec::hideMenu(QMenu *menu)
 void TWTableSpec::hideAction(QAction *action)
 {
     if (action->isEnabled()) {
-        m_hiddenactions.emplace_back(action);
+        m_hiddenactions.push_back(action);
         action->setEnabled(false);
     }
 }

@@ -218,6 +218,27 @@ static bool undomschanges(gameseries &series)
  * Functions to read the data files.
  */
 
+/* Read any additional data for the series.
+ */
+static void readextensions(gameseries &series)
+{
+    QDir dataDir;
+    dataDir.setPath(getdir(series.mapfiledir));
+
+    QString sSetName = QFileInfo(series.mapfilename.c_str()).completeBaseName();
+
+    QString sFilePath = dataDir.filePath(sSetName + ".ccx");
+
+    series.ccxLevelset.Clear();
+    if (!series.ccxLevelset.ReadFile(sFilePath, series.count))
+        warn("%s: failed to read file", sFilePath.toUtf8().constData());
+
+    for (CCX::Level &rCCXLevel : series.ccxLevelset.vecLevels) {
+        rCCXLevel.txtPrologue.bSeen = false;
+        rCCXLevel.txtEpilogue.bSeen = false;
+    }
+}
+
 /* Load all levels from the given data file, and all of the user's
  * saved solutions.
  */
@@ -254,7 +275,7 @@ bool readseriesfile(gameseries &series)
         undomschanges(series);
     markunsolvablelevels(series);
     readsolutions(series);
-    g_mainWindow->ReadExtensions(series);
+    readextensions(series);
     return true;
 }
 

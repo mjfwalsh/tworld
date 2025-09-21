@@ -258,5 +258,7 @@ typedef struct gamestate {
 #define SF_SHOWHINT     0x0008      /* display the hint text */
 #define SF_NOANIMATION      0x0010      /* suppress tile animation */
 #define SF_SHUTTERED        0x0020      /* hide map view */
+#define SF_HASPROLOGUE      0x0040      /* level has prologue */
+#define SF_HASEPILOGUE      0x0080      /* level has epilogue */
 
 #endif
