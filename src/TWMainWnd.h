@@ -15,6 +15,7 @@
 
 class TWTableSpec;
 struct gamestate;
+class QWindow;
 
 class QSortFilterProxyModel;
 
@@ -61,7 +62,6 @@ public:
         TWK_RIGHT,
         TWK_DOWN,
     #ifndef NDEBUG
-        // NB: position important
         TWK_LEFT_CHEAT,
         TWK_UP_CHEAT,
         TWK_RIGHT_CHEAT,
@@ -83,26 +83,6 @@ public:
         TWK_FIRE,
         TWK_WATER,
     #endif
-
-        TWK_dummy,
-
-        TWC_SEESCORES,
-        TWC_TIMESCLIPBOARD,
-        TWC_QUITLEVEL,
-        TWC_QUIT,
-
-        TWC_PAUSEGAME,
-        TWC_LOSEFOCUS,
-
-        TWC_SAMELEVEL,
-        TWC_NEXTLEVEL,
-        TWC_PREVLEVEL,
-        TWC_GOTOLEVEL,
-
-        TWC_PLAYBACK,
-        TWC_CHECKSOLUTION,
-        TWC_DELSOLUTION,
-        TWC_SEEK,
 
         TWK_LAST
     };
@@ -126,24 +106,6 @@ public:
         {   TWK_DOWN,               CmdSouth,               true    },
         {   TWK_RIGHT,              CmdEast,                true    },
         {   TWK_RETURN,             CmdProceed,             false   },
-
-        {   TWC_SEESCORES,          CmdSeeScores,           false   },
-        {   TWC_TIMESCLIPBOARD,     CmdTimesClipboard,      false   },
-        {   TWC_QUITLEVEL,          CmdQuitLevel,           false   },
-        {   TWC_QUIT,               CmdQuit,                false   },
-
-        {   TWC_PAUSEGAME,          CmdPauseGame,           false   },
-        {   TWC_LOSEFOCUS,          CmdLostFocus,           false   },
-
-        {   TWC_SAMELEVEL,          CmdSameLevel,           false   },
-        {   TWC_NEXTLEVEL,          CmdNextLevel,           false   },
-        {   TWC_PREVLEVEL,          CmdPrevLevel,           false   },
-        {   TWC_GOTOLEVEL,          CmdGotoLevel,           false   },
-
-        {   TWC_PLAYBACK,           CmdPlayback,            false   },
-        {   TWC_CHECKSOLUTION,      CmdCheckSolution,       false   },
-        {   TWC_DELSOLUTION,        CmdDelSolution,         false   },
-        {   TWC_SEEK,               CmdSeek,                false   },
 
 #ifndef NDEBUG
         {   TWK_DEBUG1,             CmdDebugCmd1,           false   },
@@ -200,6 +162,7 @@ public:
 
 public slots:
     void HideVolumeWidget();
+    void FocusChanged(QWindow *w);
 
 private slots:
     void OnListItemActivated();
@@ -219,15 +182,15 @@ private slots:
     void SetSubtitle(QString subtitle);
 
 private:
-    bool HandleKeyEvent(QObject* pObject, QEvent* pEvent);
-    bool HandleMouseEvent(QObject* pObject, QEvent* pEvent);
+    bool HandleKeyEvent(QObject* pObject, QKeyEvent* pEvent);
+    void HandleMouseEvent(QMouseEvent* pEvent);
     void SetCurrentPage(Page ePage);
     void CheckForProblems(const gamestate &state);
     void DisplayMapView(gamestate &state);
     void DisplayShutter();
     void SetSpeed(int nValue);
     void PulseKey(int nTWKey);
-    int GetTWKeyForAction(QAction* pAction) const;
+    int GetCmdForAction(QAction* pAction) const;
     void ChangeVolume(int volume);
 
     int RetrieveMouseCommand(void);
@@ -238,6 +201,8 @@ private:
 
     // The complete array of key states.
     char m_keystates[TWK_LAST];
+
+    int m_nextcommand = CmdNone;
 
     // The last mouse action.
     mouseaction m_mouseinfo;

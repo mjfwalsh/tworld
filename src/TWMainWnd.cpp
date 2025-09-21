@@ -25,6 +25,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QFontMetrics>
 #include <QtCore/QRect>
+#include <QtGui/QWindow>
 
 #include <cstring>
 #include <cmath>
@@ -115,6 +116,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     connect( m_menuBar, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuActionTriggered(QAction*)) );
     connect( m_backButton, SIGNAL(clicked()), this, SLOT(OnBackButton()) );
     connect( m_goButton, SIGNAL(clicked()), this, SLOT(OnListItemActivated()) );
+    connect( qGuiApp, SIGNAL(focusWindowChanged(QWindow*)), this, SLOT(FocusChanged(QWindow*))),
 
     // change menu to reflect settings
     action_displayCCX->setChecked(getintsetting("displayccx"));
@@ -176,14 +178,16 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
         switch(pEvent->type()) {
             case QEvent::KeyPress:
             case QEvent::KeyRelease:
-                return HandleKeyEvent(pObject, pEvent);
+                return HandleKeyEvent(pObject, static_cast<QKeyEvent*>(pEvent));
             case QEvent::MouseButtonPress:
+                if(pObject == m_gameWidget) {
+                    HandleMouseEvent(static_cast<QMouseEvent*>(pEvent));
+                    return STOP_PROPRGATION;
+                }
             case QEvent::MouseButtonRelease:
-                return HandleMouseEvent(pObject, pEvent);
-            case QEvent::FocusOut:
-                if(action_BlurPause->isChecked())
-                    PulseKey(TWC_LOSEFOCUS);
-                break;
+                if(pObject == m_gameWidget) {
+                    return STOP_PROPRGATION;
+                }
             default: break;
         }
     }
@@ -191,88 +195,104 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
     return CONTINUE_PROPRGATION;
 }
 
-bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
+void TileWorldMainWnd::FocusChanged(QWindow *w)
+{
+    if(!w && action_BlurPause->isChecked())
+        PulseKey(CmdLostFocus);
+}
+
+bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QKeyEvent* pKeyEvent)
 {
     // ignore keystrokes when dialogs are active
     if(QApplication::activeModalWidget() != 0) return CONTINUE_PROPRGATION;
 
-    QEvent::Type eType = pEvent->type();
+    int nTWKey;
+    switch(m_mainWidget->currentIndex()) {
+        case PAGE_GAME:
+            if (!m_kbdRepeatEnabled && pKeyEvent->isAutoRepeat())
+                return STOP_PROPRGATION;
 
-    QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+            switch (pKeyEvent->key()) {
+                case Qt::Key_Return:
+                case Qt::Key_Enter:  nTWKey = TWK_RETURN; break;
+                case Qt::Key_Escape: nTWKey = TWK_ESCAPE; break;
+                case Qt::Key_Up:     nTWKey = TWK_UP;     break;
+                case Qt::Key_Left:   nTWKey = TWK_LEFT;   break;
+                case Qt::Key_Down:   nTWKey = TWK_DOWN;   break;
+                case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
+#ifndef NDEBUG
+                case Qt::Key_D:      nTWKey = TWK_DEBUG1; break;
+                case Qt::Key_E:      nTWKey = TWK_DEBUG2; break;
 
-    int nQtKey = pKeyEvent->key();
+                case Qt::Key_C:      nTWKey = TWK_CHIP;   break;
+                case Qt::Key_R:      nTWKey = TWK_RED;    break;
+                case Qt::Key_B:      nTWKey = TWK_BLUE;   break;
+                case Qt::Key_Y:      nTWKey = TWK_YELLOW; break;
+                case Qt::Key_G:      nTWKey = TWK_GREEN;  break;
+
+                case Qt::Key_I:      nTWKey = TWK_ICE;    break;
+                case Qt::Key_S:      nTWKey = TWK_SLIDE;  break;
+                case Qt::Key_F:      nTWKey = TWK_FIRE;   break;
+                case Qt::Key_W:      nTWKey = TWK_WATER;  break;
+#endif
+                default: return CONTINUE_PROPRGATION;
+            }
 
 #ifndef NDEBUG
-    if(nQtKey < Qt::Key_A || (nQtKey > Qt::Key_Z && nQtKey < Qt::Key_Escape) || nQtKey > Qt::Key_Down)
-        return CONTINUE_PROPRGATION;
-#else
-    if (nQtKey < Qt::Key_Escape || nQtKey > Qt::Key_Down)
-        return CONTINUE_PROPRGATION;
+            if(pKeyEvent->modifiers() & Qt::ShiftModifier) {
+                switch (nTWKey) {
+                    case TWK_UP:     nTWKey = TWK_UP_CHEAT; break;
+                    case TWK_LEFT:   nTWKey = TWK_LEFT_CHEAT; break;
+                    case TWK_DOWN:   nTWKey = TWK_DOWN_CHEAT; break;
+                    case TWK_RIGHT:  nTWKey = TWK_RIGHT_CHEAT; break;
+                }
+            }
 #endif
 
-    int nTWKey = -1;
-    switch (nQtKey) {
-        case Qt::Key_Return:
-        case Qt::Key_Enter:  nTWKey = TWK_RETURN; break;
-        case Qt::Key_Escape: nTWKey = TWK_ESCAPE; break;
-        case Qt::Key_Up:     nTWKey = TWK_UP;     break;
-        case Qt::Key_Left:   nTWKey = TWK_LEFT;   break;
-        case Qt::Key_Down:   nTWKey = TWK_DOWN;   break;
-        case Qt::Key_Right:  nTWKey = TWK_RIGHT;  break;
-#ifndef NDEBUG
-        case Qt::Key_D:      nTWKey = TWK_DEBUG1; break;
-        case Qt::Key_E:      nTWKey = TWK_DEBUG2; break;
-
-        case Qt::Key_C:      nTWKey = TWK_CHIP;   break;
-        case Qt::Key_R:      nTWKey = TWK_RED;    break;
-        case Qt::Key_B:      nTWKey = TWK_BLUE;   break;
-        case Qt::Key_Y:      nTWKey = TWK_YELLOW; break;
-        case Qt::Key_G:      nTWKey = TWK_GREEN;  break;
-
-        case Qt::Key_I:      nTWKey = TWK_ICE;    break;
-        case Qt::Key_S:      nTWKey = TWK_SLIDE;  break;
-        case Qt::Key_F:      nTWKey = TWK_FIRE;   break;
-        case Qt::Key_W:      nTWKey = TWK_WATER;  break;
-#endif
-        default: return CONTINUE_PROPRGATION;
-    }
-
-#ifndef NDEBUG
-    if(pKeyEvent->modifiers() & Qt::ShiftModifier && nTWKey < 5)
-        nTWKey += 4;
-#endif
-
-    // record key state
-    bool bPress = (eType == QEvent::KeyPress);
-
-    // List view
-    QObjectList const & tableWidgets = m_tablePage->children();
-    if (bPress && tableWidgets.contains(pObject)) {
-        int currentrow = m_tableList->selectionModel()->currentIndex().row();
-        if ((nTWKey == TWK_RETURN) && currentrow >= 0) {
-            g_app->exit(CmdProceed);
+            // send keystroke
+            KeyEventCallback(nTWKey, pKeyEvent->type() == QEvent::KeyPress);
             return STOP_PROPRGATION;
-        } else if(nTWKey == TWK_ESCAPE) {
-            g_app->exit(CmdQuitLevel);
-            return STOP_PROPRGATION;
-        } else {
+
+        case PAGE_TABLE:
+            if (pKeyEvent->type() != QEvent::KeyPress
+                    || !m_tablePage->children().contains(pObject))
+                return CONTINUE_PROPRGATION;
+
+            switch (pKeyEvent->key()) {
+                case Qt::Key_Return:
+                case Qt::Key_Enter:
+                    if (m_tableList->selectionModel()->currentIndex().row() >= 0)
+                        g_app->exit(CmdProceed);
+                    return STOP_PROPRGATION;
+                    break;
+
+                case Qt::Key_Escape:
+                    g_app->exit(CmdQuitLevel);
+                    return STOP_PROPRGATION;
+                    break;
+            }
+
             return CONTINUE_PROPRGATION;
-        }
-    }
 
-    // Text view
-    if(m_mainWidget->currentIndex() == PAGE_TEXT) {
-        if (nTWKey == TWK_RETURN) g_app->exit(+1);
-        else if(nTWKey == TWK_ESCAPE) g_app->exit(CmdQuitLevel);
-        return STOP_PROPRGATION;
-    }
+        case PAGE_TEXT:
+            switch (pKeyEvent->key()) {
+                case Qt::Key_Return:
+                case Qt::Key_Enter:
+                    g_app->exit(+1);
+                    return STOP_PROPRGATION;
+                    break;
 
-    if (m_kbdRepeatEnabled || !pKeyEvent->isAutoRepeat()) {
-        KeyEventCallback(nTWKey, bPress);
-    }
+                case Qt::Key_Escape:
+                    g_app->exit(CmdQuitLevel);
+                    return STOP_PROPRGATION;
+                    break;
+            }
 
-    // Stop propagating events when the PAGE_GAME is active
-    return (m_mainWidget->currentIndex() == PAGE_GAME);
+            return CONTINUE_PROPRGATION;
+
+        default:
+            return CONTINUE_PROPRGATION;
+    }
 }
 
 
@@ -280,39 +300,29 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QEvent* pEvent)
  * mouse buttons. Up events are ignored. Down events are stored to
  * be examined later.
  */
-bool TileWorldMainWnd::HandleMouseEvent(QObject* pObject, QEvent* pEvent)
+void TileWorldMainWnd::HandleMouseEvent(QMouseEvent* pMouseEvent)
 {
-    if(pObject != m_gameWidget) return CONTINUE_PROPRGATION;
-
-    if(pEvent->type() == QEvent::MouseButtonPress) {
-        QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
-
-        m_mouseinfo.state = KS_PRESSED;
+    m_mouseinfo.state = KS_PRESSED;
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-        m_mouseinfo.x = pMouseEvent->position().x();
-        m_mouseinfo.y = pMouseEvent->position().y();
+    m_mouseinfo.x = pMouseEvent->position().x();
+    m_mouseinfo.y = pMouseEvent->position().y();
 #else
-        m_mouseinfo.x = pMouseEvent->x();
-        m_mouseinfo.y = pMouseEvent->y();
+    m_mouseinfo.x = pMouseEvent->x();
+    m_mouseinfo.y = pMouseEvent->y();
 #endif
-        m_mouseinfo.button = pMouseEvent->button();
-    }
-
-    return STOP_PROPRGATION;
+    m_mouseinfo.button = pMouseEvent->button();
 }
 
 
-void TileWorldMainWnd::PulseKey(int nTWKey)
+void TileWorldMainWnd::PulseKey(int cmd)
 {
-    KeyEventCallback(nTWKey, true);
-    KeyEventCallback(nTWKey, false);
+    m_nextcommand = cmd;
 }
 
 
 void TileWorldMainWnd::OnPlayback()
 {
-    int nTWKey = m_replay ? TWC_PAUSEGAME : TWC_PLAYBACK;
-    PulseKey(nTWKey);
+    PulseKey(m_replay ? CmdPauseGame : CmdPlayback);
 }
 
 void TileWorldMainWnd::OnBackButton()
@@ -755,7 +765,7 @@ int TileWorldMainWnd::GetReplaySecondsToSkip() const
 
 void TileWorldMainWnd::OnSeekPosChanged(int nValue)
 {
-    PulseKey(TWC_SEEK);
+    PulseKey(CmdSeek);
 }
 
 
@@ -1277,29 +1287,29 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
         return;
     }
 
-    int nTWKey = GetTWKeyForAction(pAction);
-    if (nTWKey == TWK_dummy) return;
-    PulseKey(nTWKey);
+    int cmd = GetCmdForAction(pAction);
+    if (cmd == CmdNone) return;
+    PulseKey(cmd);
 }
 
-int TileWorldMainWnd::GetTWKeyForAction(QAction* pAction) const
+int TileWorldMainWnd::GetCmdForAction(QAction* pAction) const
 {
-    if (pAction == action_Scores) return TWC_SEESCORES;
-    if (pAction == action_TimesClipboard) return TWC_TIMESCLIPBOARD;
-    if (pAction == action_Levelsets) return TWC_QUITLEVEL;
-    if (pAction == action_Exit) return TWC_QUIT;
+    if (pAction == action_Scores) return CmdSeeScores;
+    if (pAction == action_TimesClipboard) return CmdTimesClipboard;
+    if (pAction == action_Levelsets) return CmdQuitLevel;
+    if (pAction == action_Exit) return CmdQuit;
 
-    if (pAction == action_Pause) return TWC_PAUSEGAME;
-    if (pAction == action_Restart) return TWC_SAMELEVEL;
-    if (pAction == action_Next) return TWC_NEXTLEVEL;
-    if (pAction == action_Previous) return TWC_PREVLEVEL;
-    if (pAction == action_GoTo) return TWC_GOTOLEVEL;
+    if (pAction == action_Pause) return CmdPauseGame;
+    if (pAction == action_Restart) return CmdSameLevel;
+    if (pAction == action_Next) return CmdNextLevel;
+    if (pAction == action_Previous) return CmdPrevLevel;
+    if (pAction == action_GoTo) return CmdGotoLevel;
 
-    if (pAction == action_Playback) return TWC_PLAYBACK;
-    if (pAction == action_Verify) return TWC_CHECKSOLUTION;
-    if (pAction == action_Delete) return TWC_DELSOLUTION;
+    if (pAction == action_Playback) return CmdPlayback;
+    if (pAction == action_Verify) return CmdCheckSolution;
+    if (pAction == action_Delete) return CmdDelSolution;
 
-    return TWK_dummy;
+    return CmdNone;
 }
 
 void TileWorldMainWnd::ResizeHintFont()
@@ -1533,6 +1543,12 @@ int TileWorldMainWnd::Input(bool wait)
     for (;;) {
         ResetKeyStates();
         eventupdate(wait);
+
+        if (m_nextcommand != CmdNone) {
+            int nextcommand = m_nextcommand;
+            m_nextcommand = CmdNone;
+            return nextcommand;
+        }
 
         cmd1 = cmd = 0;
         for (kc = keycmds ; kc->scancode ; ++kc) {

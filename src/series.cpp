@@ -5,8 +5,8 @@
  * See COPYING for details.
  */
 
-#include    <QDir>
-#include    <QString>
+#include    <QtCore/QDir>
+#include    <QtCore/QString>
 
 #include    <algorithm>
 #include    <vector>
