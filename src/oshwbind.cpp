@@ -28,11 +28,11 @@ Qt_Surface::Qt_Surface(int w, int h, bool bTransparent)
     if (bTransparent) {
         QImage image(w, h, QImage::Format_ARGB32);
         image.fill(0);
-        this->SetImage(image);
+        SetImage(image);
     } else {
         QPixmap pixmap(w, h);
         pixmap.fill(Qt::black);
-        this->SetPixmap(pixmap);
+        SetPixmap(pixmap);
     }
 }
 
@@ -48,10 +48,10 @@ Qt_Surface::Qt_Surface(const char* szFilename)
     image = image.convertToFormat(QImage::Format_ARGB32);
     // Doesn't seem to be necessary, but just in case...
 
-    this->SetImage(image);
+    SetImage(image);
 
     // https://stackoverflow.com/questions/6157286/checking-if-a-qimage-has-an-alpha-channel
-    this->hasAlphaChannel = 0;
+    hasAlphaChannel = 0;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
     int bytes = image.sizeInBytes();
@@ -61,7 +61,7 @@ Qt_Surface::Qt_Surface(const char* szFilename)
     const void* image_pixels = image.bits();
     for (const QRgb* pixel = reinterpret_cast<const QRgb*>(image_pixels); bytes > 0; pixel++, bytes -= sizeof(QRgb)) {
         if (qAlpha(*pixel) != UCHAR_MAX) {
-            this->hasAlphaChannel = 1;
+            hasAlphaChannel = 1;
             break;
         }
     }

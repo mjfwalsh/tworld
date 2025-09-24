@@ -52,7 +52,7 @@ protected:
     };
 
     TileWorldMainWnd *m_parent;
-    int m_rows, m_cols;
+    int m_rows, m_cols = 0;
     QVector<ItemInfo> m_vecItems;
 
     QVariant GetData(int row, int col, int role) const;

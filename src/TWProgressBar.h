@@ -42,9 +42,10 @@ protected:
     void paintBox(QPainter *p, int width, QColor bgcl, QColor fgcl, QString t);
     virtual void paintEvent(QPaintEvent* pPaintEvent);
 
-    int m_value, m_par;
-    bool m_parBad;
-    bool m_fullBar;
+    int m_value = 0;
+    int m_par = -1;
+    bool m_parBad = false;
+    bool m_fullBar = false;
     int m_leftLine = 0;
 };
 

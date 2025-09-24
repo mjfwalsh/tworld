@@ -143,7 +143,7 @@ static int const fileids[] = {
 /* Initialize the gamestate by reading the level data, in MS dat-file
  * format, from the state's setup.
  */
-static bool expandmsdatlevel(gamestate &state)
+bool readleveldata(gamestate &state)
 {
     gamesetup              *setup;
     unsigned char const        *data;
@@ -304,13 +304,6 @@ badlevel:
     return false;
 }
 
-/* Exported interface.
- */
-int expandleveldata(gamestate &state)
-{
-    return expandmsdatlevel(state);
-}
-
 /* Return the setup for a small level to display at the completion of
  * a series.
  */
@@ -348,6 +341,6 @@ void getenddisplaysetup(gamestate &state)
     ending.passwd[0] = '\0';
 
     state.game = &ending;
-    expandmsdatlevel(state);
+    readleveldata(state);
     ending.number = 0;
 }

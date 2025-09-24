@@ -10,9 +10,7 @@
 
 TWTableSpec::TWTableSpec(TileWorldMainWnd *parent)
     :
-    QAbstractTableModel(0),
-    m_parent(parent),
-    m_rows(0), m_cols(0)
+    m_parent(parent)
 {
 }
 

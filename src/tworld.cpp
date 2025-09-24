@@ -414,11 +414,10 @@ static int startinput()
     for (;;) {
         if (cmd == CmdNone)
             cmd = g_mainWindow->Input(true);
-        if (cmd >= CmdMoveFirst && cmd <= CmdMoveLast) {
+        switch (cmd) {
+        case CmdMoveFirst...CmdMoveLast:
             gs.playmode = Play_Normal;
             return cmd;
-        }
-        switch (cmd) {
         case CmdPauseGame:
         case CmdProceed:    gs.playmode = Play_Normal; return CmdProceed;
         case CmdQuitLevel:                  return cmd;
@@ -567,20 +566,18 @@ static bool finalinput()
     }
 }
 
-#define SETPAUSED(paused, shutter) do { \
-    if(!paused) { \
-        setgameplaymode(NormalPlay); \
-        gamepaused = false; \
-    } else if(shutter) { \
-        setgameplaymode(SuspendPlayShuttered); \
-        drawscreen(true); \
-        gamepaused = true; \
-    } else { \
-        setgameplaymode(SuspendPlay); \
-        gamepaused = true; \
-    } \
-    g_mainWindow->SetPlayPauseButton(gamepaused); \
-} while (0)
+static void setpaused(bool &gamepaused, bool shutter)
+{
+    gamepaused = !gamepaused;
+    if(!gamepaused)
+        setgameplaymode(NormalPlay);
+    else if(shutter)
+        setgameplaymode(SuspendPlayShuttered);
+    else
+        setgameplaymode(SuspendPlay);
+
+    g_mainWindow->SetPlayPauseButton(gamepaused);
+}
 
 /* Play the current level, using firstcmd as the initial key command,
  * and returning when the level's play ends. The return value is FALSE
@@ -621,43 +618,47 @@ static bool playgame(int firstcmd)
             render = waitfortick() || noframeskip;
             cmd = g_mainWindow->Input(false);
         }
-        if (cmd == CmdQuitLevel) {
+
+        switch (cmd) {
+        case CmdMoveFirst...CmdMoveLast:
+            continue;
+
+        case CmdQuitLevel:
             quitgamestate();
             n = -2;
+            goto exitloop;
+
+        case CmdPreserve:                   break;
+        case CmdPrevLevel:      n = -1;     goto endgame;
+        case CmdNextLevel:      n = +1;     goto endgame;
+        case CmdSameLevel:      n = 0;      goto endgame;
+        case CmdQuit:                   exit(0);
+        case CmdLostFocus:
+            if(gamepaused) break;
+        case CmdPauseGame:
+            setpaused(gamepaused, true);
+            if (!gamepaused)
+                cmd = CmdNone;
+            break;
+#ifndef NDEBUG
+        case CmdDebugCmd1:              break;
+        case CmdDebugCmd2:              break;
+        case CmdCheatNorth:     case CmdCheatWest:  break;
+        case CmdCheatSouth:     case CmdCheatEast:  break;
+        case CmdCheatHome:              break;
+        case CmdCheatKeyRed:    case CmdCheatKeyBlue:   break;
+        case CmdCheatKeyYellow: case CmdCheatKeyGreen:  break;
+        case CmdCheatBootsIce:  case CmdCheatBootsSlide:    break;
+        case CmdCheatBootsFire: case CmdCheatBootsWater:    break;
+        case CmdCheatICChip:                break;
+#endif
+        default:
+            cmd = CmdNone;
             break;
         }
-        if (!(cmd >= CmdMoveFirst && cmd <= CmdMoveLast)) {
-            switch (cmd) {
-            case CmdPreserve:                   break;
-            case CmdPrevLevel:      n = -1;     goto quitloop;
-            case CmdNextLevel:      n = +1;     goto quitloop;
-            case CmdSameLevel:      n = 0;      goto quitloop;
-            case CmdQuit:                   exit(0);
-            case CmdLostFocus:
-                if(gamepaused) break;
-            case CmdPauseGame:
-                SETPAUSED(!gamepaused, true);
-                if (!gamepaused)
-                    cmd = CmdNone;
-                break;
-#ifndef NDEBUG
-            case CmdDebugCmd1:              break;
-            case CmdDebugCmd2:              break;
-            case CmdCheatNorth:     case CmdCheatWest:  break;
-            case CmdCheatSouth:     case CmdCheatEast:  break;
-            case CmdCheatHome:              break;
-            case CmdCheatKeyRed:    case CmdCheatKeyBlue:   break;
-            case CmdCheatKeyYellow: case CmdCheatKeyGreen:  break;
-            case CmdCheatBootsIce:  case CmdCheatBootsSlide:    break;
-            case CmdCheatBootsFire: case CmdCheatBootsWater:    break;
-            case CmdCheatICChip:                break;
-#endif
-            default:
-                cmd = CmdNone;
-                break;
-            }
-        }
     }
+
+exitloop:
     if (!lastrendered)
         drawscreen(true);
     setgameplaymode(EndPlay);
@@ -667,7 +668,7 @@ static bool playgame(int firstcmd)
     gs.status = n;
     return true;
 
-quitloop:
+endgame:
     if (!lastrendered)
         drawscreen(true);
     quitgamestate();
@@ -723,15 +724,17 @@ static bool playbackgame()
 
     secondstoskip = g_mainWindow->GetReplaySecondsToSkip();
     if (secondstoskip > 0) {
+        gamepaused = true;
         n = hideandseek(secondstoskip, true);
-        SETPAUSED(true, false);
+        setgameplaymode(SuspendPlay);
     } else {
-        g_mainWindow->SetPlayPauseButton(false);
+        gamepaused = false;
         startgame();
         drawscreen(true);
         gs.status = 0;
         setgameplaymode(NormalPlay);
     }
+    g_mainWindow->SetPlayPauseButton(gamepaused);
 
     render = lastrendered = true;
 
@@ -769,7 +772,7 @@ static bool playbackgame()
         case CmdLostFocus:
             if(gamepaused) break;
         case CmdPauseGame:
-            SETPAUSED(!gamepaused, false);
+            setpaused(gamepaused, false);
             break;
         }
     }
@@ -795,7 +798,6 @@ quitloop:
     return false;
 }
 
-#undef SETPAUSED
 
 /* Quickly play back the user's best solution for the current level
  * without rendering and without using the timer the keyboard. The

@@ -58,24 +58,7 @@ constexpr TileWorldMainWnd::keycmdmap TileWorldMainWnd::keycmds[];
 
 TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     :
-    QMainWindow(pParent),
-    m_windowClosed(false),
-    m_surface(0),
-    m_invSurface(0),
-    m_kbdRepeatEnabled(true),
-    m_ruleset(Ruleset_None),
-    m_levelNum(0),
-    m_levelName(""),
-    m_levelPackName(""),
-    m_timeFormat("%v"),
-    m_problematic(false),
-    m_oFNT(false),
-    m_bestTime(TIME_NIL),
-    m_hintVisible(false),
-    m_timeLeft(TIME_NIL),
-    m_timedLevel(false),
-    m_replay(false),
-    m_sortFilterProxyModel(nullptr)
+    QMainWindow(pParent)
 {
     memset(m_keyState, 0, TWK_LAST*sizeof(uint8_t));
 
@@ -97,7 +80,7 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     QFile File(appResDir + "/stylesheet.qss");
     File.open(QFile::ReadOnly);
     QString StyleSheet(File.readAll());
-    this->setStyleSheet(StyleSheet);
+    setStyleSheet(StyleSheet);
 
     // initalise blank mouseinfo status before applying event filter
     m_mouseinfo.state = 0;
@@ -147,7 +130,6 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
     // keyboard stuff
     m_mergeable[CmdNorth] = m_mergeable[CmdSouth] = CmdWest | CmdEast;
     m_mergeable[CmdWest] = m_mergeable[CmdEast] = CmdNorth | CmdSouth;
-    SetKeyboardRepeat(true);
 }
 
 
@@ -509,41 +491,36 @@ void TileWorldMainWnd::InitGame(gamestate &state, int nBestTime, const char *lev
     action_PedanticMode->setEnabled(m_ruleset == Ruleset_Lynx);
 
     // Change delete menu option as appropriate
-    if(bHasDeletedSolution) action_Delete->setText("Undelete");
-    else action_Delete->setText("Delete");
+    action_Delete->setText(bHasDeletedSolution ? "Undelete" : "Delete");
 
     // pro- and epilogue
-    bool hasPrologue = state.statusflags & SF_HASPROLOGUE;
-    bool hasEpilogue = state.statusflags & SF_HASEPILOGUE;
-    action_Prologue->setEnabled(hasPrologue);
-    action_Epilogue->setEnabled(hasEpilogue && bHasSolution);
+    action_Prologue->setEnabled(state.statusflags & SF_HASPROLOGUE);
+    action_Epilogue->setEnabled(bHasSolution && (state.statusflags & SF_HASEPILOGUE));
 
     // time
     m_progressTime->setPar(nBestTime == TIME_NIL ? -1 : nBestTime);
     m_progressTime->setParBad(bParBad);
 
     // set time formatting
+    m_runningTimeFormat  = nullptr;
     if (bTimedLevel) {
         if (bParBad || nBestTime == TIME_NIL) {
             m_progressTime->setFormat("%v");
-            m_timeFormat  = "%v";
         } else {
             m_progressTime->setFormat("%b / %v");
-            m_timeFormat  = "%v (%d)";
+            m_runningTimeFormat  = "%v (%d)";
         }
         m_progressTime->setFullBar(false);
     } else if(bForceShowTimer) {
         if (bParBad || nBestTime == TIME_NIL) {
             m_progressTime->setFormat("[%v]");
-            m_timeFormat  = "[%v]";
         } else {
             m_progressTime->setFormat("[%b] / [%v]");
-            m_timeFormat  = "[%v] (%d)";
+            m_runningTimeFormat  = "[%v] (%d)";
         }
         m_progressTime->setFullBar(false);
     } else {
         m_progressTime->setFormat("---");
-        m_timeFormat  = "---";
         m_progressTime->setFullBar(true);
     }
 
@@ -593,7 +570,8 @@ void TileWorldMainWnd::StartGame(gamestate &state)
     action_Epilogue->setEnabled(false);
     action_PedanticMode->setEnabled(false);
 
-    m_progressTime->setFormat(m_timeFormat);
+    if (m_runningTimeFormat)
+        m_progressTime->setFormat(m_runningTimeFormat);
 }
 
 
@@ -1146,17 +1124,17 @@ void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
         }
 
         setintsetting("zoom", s);
-        this->SetScale(s);
+        SetScale(s);
         return;
     }
 
     if (pAction == action_VolumeUp) {
-        this->ChangeVolume(+1);
+        ChangeVolume(+1);
         return;
     }
 
     if (pAction == action_VolumeDown) {
-        this->ChangeVolume(-1);
+        ChangeVolume(-1);
         return;
     }
 
@@ -1262,7 +1240,7 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
     // set the property
     m_scale = sqrt(newScale);
 
-    if(m_surface == 0 || m_invSurface == 0 || geng.wtile < 1) {
+    if(m_surface == nullptr || m_invSurface == nullptr || geng.wtile < 1) {
         warn("Attempt to set pixmap and m_scale without setting pixmap first");
         return;
     }

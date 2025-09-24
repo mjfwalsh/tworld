@@ -273,33 +273,33 @@ private:
     void SetHintVisibility(bool newmode);
     void SetScale(int s, bool checkPrevScale = true);
 
-    bool m_windowClosed;
+    bool m_windowClosed = false;
 
-    Qt_Surface* m_surface;
-    Qt_Surface* m_invSurface;
+    Qt_Surface* m_surface = nullptr;
+    Qt_Surface* m_invSurface = nullptr;
     TW_Rect m_disploc;
 
-    double m_scale = 1;
+    double m_scale;
 
     bool m_keyState[TWK_LAST];
 
-    bool m_kbdRepeatEnabled;
+    bool m_kbdRepeatEnabled = true;
 
-    int m_ruleset;
-    int m_levelNum;
+    int m_ruleset = Ruleset_None;
+    int m_levelNum = 0;
     QString m_levelName;
     QString m_levelPackName;
-    QString m_timeFormat;
-    bool m_problematic;
-    bool m_oFNT;
-    int m_bestTime;
-    bool m_hintVisible;
-    int m_timeLeft;
-    bool m_timedLevel;
-    bool m_replay;
+    const char *m_runningTimeFormat = nullptr;
+    bool m_problematic = false;
+    bool m_oFNT = false;
+    int m_bestTime = TIME_NIL;
+    bool m_hintVisible = false;
+    int m_timeLeft = TIME_NIL;
+    bool m_timedLevel = false;
+    bool m_replay = false;
     QString m_author;
 
-    QSortFilterProxyModel* m_sortFilterProxyModel;
+    QSortFilterProxyModel* m_sortFilterProxyModel = nullptr;
     QLocale m_locale;
 
     QString m_textToCopy;

@@ -9,11 +9,7 @@
 
 TWProgressBar::TWProgressBar(QWidget* pParent)
     :
-    QProgressBar(pParent),
-    m_value(0),
-    m_par(-1),
-    m_parBad(false),
-    m_fullBar(false)
+    QProgressBar(pParent)
 {
 }
 

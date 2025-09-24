@@ -121,7 +121,7 @@ bool initgamestate(gameseries &series, int currentgame)
     if (!currLevel.txtEpilogue.vecPages.empty())
         state.statusflags |= SF_HASEPILOGUE;
 
-    if (!expandleveldata(state))
+    if (!readleveldata(state))
         return false;
 
     return (*logic->initgame)(logic);
@@ -177,8 +177,11 @@ void setgameplaymode(int mode)
             setsoundeffects(0);
             break;
         case SuspendPlayShuttered:
-            if (state.ruleset == Ruleset_MS)
+            if (state.ruleset == Ruleset_MS) {
                 state.statusflags |= SF_SHUTTERED;
+                drawscreen(true);
+            }
+            // fall through
         case SuspendPlay:
             g_mainWindow->SetKeyboardRepeat(true);
             settimer(0);

@@ -70,10 +70,10 @@ static FILE *FOPEN(char const *n, char const *mode)
 void fileinfo::close()
 {
     errno = 0;
-    if (this->m_fp) {
-        if (fclose(this->m_fp) == EOF)
+    if (m_fp) {
+        if (fclose(m_fp) == EOF)
             fileerr(this, nullptr);
-        this->m_fp = nullptr;
+        m_fp = nullptr;
     }
 }
 
@@ -81,7 +81,7 @@ void fileinfo::close()
  */
 void fileinfo::rewind()
 {
-    ::rewind(this->m_fp);
+    ::rewind(m_fp);
 }
 
 /* feof().
@@ -90,12 +90,12 @@ bool fileinfo::testend()
 {
     int ch;
 
-    if (feof(this->m_fp))
+    if (feof(m_fp))
         return true;
-    ch = fgetc(this->m_fp);
+    ch = fgetc(m_fp);
     if (ch == EOF)
         return true;
-    ungetc(ch, this->m_fp);
+    ungetc(ch, m_fp);
     return false;
 }
 
@@ -106,7 +106,7 @@ bool fileinfo::read(void *data, unsigned long size, char const *msg)
     if (!size)
         return true;
     errno = 0;
-    if (fread(data, size, 1, this->m_fp) == 1)
+    if (fread(data, size, 1, m_fp) == 1)
         return true;
     return fileerr(this, msg);
 }
@@ -124,7 +124,7 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
     if (!size)
         return buf;
     errno = 0;
-    if (fread(buf, size, 1, this->m_fp) != 1) {
+    if (fread(buf, size, 1, m_fp) != 1) {
         fileerr(this, msg);
         free(buf);
         return nullptr;
@@ -138,13 +138,13 @@ unsigned char *fileinfo::readbuf(unsigned long size, char const *msg)
 bool fileinfo::getline(char *buf, const int len)
 {
     errno = 0;
-    if (!fgets(buf, len, this->m_fp))
+    if (!fgets(buf, len, m_fp))
         return fileerr(this, nullptr);
     int n = strlen(buf);
     if (n == len - 1 && buf[n] != '\n') {
         int ch;
         do
-            ch = fgetc(this->m_fp);
+            ch = fgetc(m_fp);
         while (ch != EOF && ch != '\n');
     } else
         buf[n--] = '\0';
@@ -158,7 +158,7 @@ bool fileinfo::write(void const *data, unsigned long size, char const *msg)
     if (!size)
         return true;
     errno = 0;
-    if (fwrite(data, size, 1, this->m_fp) == 1)
+    if (fwrite(data, size, 1, m_fp) == 1)
         return true;
     return fileerr(this, msg);
 }
@@ -170,7 +170,7 @@ bool fileinfo::readint8(uint8_t &val8, char const *msg)
     int byte;
 
     errno = 0;
-    if ((byte = fgetc(this->m_fp)) == EOF)
+    if ((byte = fgetc(m_fp)) == EOF)
         return fileerr(this, msg);
     val8 = (uint8_t)byte;
     return true;
@@ -181,7 +181,7 @@ bool fileinfo::readint8(uint8_t &val8, char const *msg)
 bool fileinfo::writeint8(uint8_t val8, char const *msg)
 {
     errno = 0;
-    if (fputc(val8, this->m_fp) != EOF)
+    if (fputc(val8, m_fp) != EOF)
         return true;
     return fileerr(this, msg);
 }
@@ -193,9 +193,9 @@ bool fileinfo::readint16(uint16_t &val16, char const *msg)
     int byte;
 
     errno = 0;
-    if ((byte = fgetc(this->m_fp)) != EOF) {
+    if ((byte = fgetc(m_fp)) != EOF) {
         val16 = (unsigned char)byte;
-        if ((byte = fgetc(this->m_fp)) != EOF) {
+        if ((byte = fgetc(m_fp)) != EOF) {
             val16 |= (unsigned char)byte << 8;
             return true;
         }
@@ -208,8 +208,8 @@ bool fileinfo::readint16(uint16_t &val16, char const *msg)
 bool fileinfo::writeint16(uint16_t val16, char const *msg)
 {
     errno = 0;
-    if (fputc(val16 & 0xFF, this->m_fp) != EOF
-        && fputc((val16 >> 8) & 0xFF, this->m_fp) != EOF)
+    if (fputc(val16 & 0xFF, m_fp) != EOF
+        && fputc((val16 >> 8) & 0xFF, m_fp) != EOF)
         return true;
     return fileerr(this, msg);
 }
@@ -221,7 +221,7 @@ bool fileinfo::readint32(uint32_t &val32, char const *msg)
     int byte;
     int shift = 0;
     errno = val32 = 0;
-    while (shift <= 24 && (byte = fgetc(this->m_fp)) != EOF) {
+    while (shift <= 24 && (byte = fgetc(m_fp)) != EOF) {
         val32 |= (uint32_t)byte << shift;
         shift += 8;
     }
@@ -235,10 +235,10 @@ bool fileinfo::readint32(uint32_t &val32, char const *msg)
 bool fileinfo::writeint32(uint32_t val32, char const *msg)
 {
     errno = 0;
-    if (fputc(val32 & 0xFF, this->m_fp) != EOF
-            && fputc((val32 >> 8) & 0xFF, this->m_fp) != EOF
-            && fputc((val32 >> 16) & 0xFF, this->m_fp) != EOF
-            && fputc((val32 >> 24) & 0xFF, this->m_fp) != EOF)
+    if (fputc(val32 & 0xFF, m_fp) != EOF
+            && fputc((val32 >> 8) & 0xFF, m_fp) != EOF
+            && fputc((val32 >> 16) & 0xFF, m_fp) != EOF
+            && fputc((val32 >> 24) & 0xFF, m_fp) != EOF)
         return true;
     return fileerr(this, msg);
 }
@@ -247,7 +247,7 @@ bool fileinfo::writeint32(uint32_t val32, char const *msg)
  */
 bool fileinfo::isopen()
 {
-    return (bool)this->m_fp;
+    return (bool)m_fp;
 }
 
 /* Write a formatted line
@@ -256,7 +256,7 @@ bool fileinfo::writef(const char *format, ...)
 {
     va_list argp;
     va_start(argp, format);
-    int wchars = vfprintf(this->m_fp, format, argp);
+    int wchars = vfprintf(m_fp, format, argp);
     va_end(argp);
     return wchars > 0;
 }
@@ -308,15 +308,15 @@ bool fileinfo::open(char const *mode, char const *msg)
     errno = 0;
 
     std::string fullpath = getpathforfileindir(m_dir, m_filename.c_str());
-    this->m_fp = FOPEN(fullpath.c_str(), mode);
+    m_fp = FOPEN(fullpath.c_str(), mode);
 
-    if (this->m_fp) return true;
+    if (m_fp) return true;
     return fileerr(this, msg);
 }
 
 bool fileinfo::seek(long int bytes)
 {
-    return fseek(this->m_fp, bytes, SEEK_SET);
+    return fseek(m_fp, bytes, SEEK_SET);
 }
 
 /* Save a dir path.
