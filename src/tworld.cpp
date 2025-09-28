@@ -477,10 +477,6 @@ static int startinput()
  */
 static int endinput()
 {
-    int     bscore = 0, tscore = 0;
-    long    gscore = 0;
-    int     cmd = CmdNone;
-
     if (gs.status < 0) {
         if (melindawatching() && secondsplayed() >= 10) {
             ++gs.melindacount;
@@ -494,49 +490,33 @@ static int endinput()
                 return CmdSameLevel;
             }
         }
+
+        g_mainWindow->DisplayEndMessageFailure();
+        return CmdSameLevel;
     } else {
+        int     bscore = 0, tscore = 0;
+        long    gscore = 0;
+
         getscoresforlevel(&gs.series, gs.currentgame,
             &bscore, &tscore, &gscore);
-    }
 
-    cmd = g_mainWindow->DisplayEndMessage(bscore, tscore, gscore, gs.status);
+        int cmd = g_mainWindow->DisplayEndMessageSuccess(bscore, tscore, gscore);
+        if(cmd == CmdSameLevel) return CmdSameLevel;
 
-    for (;;) {
-        if (cmd == CmdNone)
-            cmd = g_mainWindow->Input(true);
-        switch (cmd) {
-        case CmdPrevLevel:  changecurrentgame(-1);  return CmdSameLevel;
-        case CmdSameLevel:                              return CmdSameLevel;
-        case CmdNextLevel:  changecurrentgame(+1);  return CmdSameLevel;
-        case CmdGotoLevel:  selectlevelbypassword();  return CmdSameLevel;
-        case CmdPlayback:                                   return CmdSameLevel;
-        case CmdSeeScores:
-            return showscores() == CmdQuit ? CmdQuit : CmdSameLevel;
-        case CmdChooseLevelset:                  return CmdChooseLevelset;
-        case CmdQuit:                       return CmdQuit;
-        case CmdCheckSolution:
-        case CmdNarrateEpilogue:
-            cmd = narrate(CmdNarrateEpilogue);
-            if (cmd != CmdNone) continue;
-            // fall through
-        case CmdProceed:
-            if (gs.status > 0) {
-                if (islastinseries(gs.currentgame))
-                    gs.enddisplay = true;
-                else
-                    changecurrentgame(+1);
-            }
-            return CmdSameLevel;
-        case CmdDelSolution:
-            if (issolved(gs.currentgame)) {
-                replaceablesolution(-1);
-                savesolutions(gs.series);
-            } else {
-                TileWorldApp::Bell();
-            }
+        // display narration (if any)
+        cmd = narrate(CmdNarrateEpilogue);
+
+        // move to next level
+        if (cmd == CmdNone) {
+            if (islastinseries(gs.currentgame))
+                gs.enddisplay = true;
+            else
+                changecurrentgame(+1);
+
             return CmdSameLevel;
         }
-        cmd = CmdNone;
+
+        return cmd;
     }
 }
 

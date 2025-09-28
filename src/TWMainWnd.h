@@ -144,7 +144,8 @@ public:
     void InitGame(gamestate &state, int nBestTime, const char *levelPackName, const QString &author, const QString &problem);
     void StartGame(gamestate &state);
     void DisplayGame(gamestate &state, int nTimeLeft);
-    int DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted);
+    int DisplayEndMessageSuccess(int nBaseScore, int nTimeScore, long lTotalScore);
+    void DisplayEndMessageFailure();
     void DisplayList(TWTableSpec &pTableSpec, int pnIndex, int ruleset);
     void HideList();
     int GetSelectedRuleSet();

@@ -732,121 +732,118 @@ void TileWorldMainWnd::OnSeekPosChanged(int nValue)
  * for the level, and the user's total score for the series; these
  * scores will be displayed to the user.
  */
-int TileWorldMainWnd::DisplayEndMessage(int nBaseScore, int nTimeScore, long lTotalScore, int nCompleted)
+int TileWorldMainWnd::DisplayEndMessageSuccess(int nBaseScore, int nTimeScore, long lTotalScore)
 {
-    if (nCompleted == 0)
-        return CmdNone;
-
-    if (nCompleted == -2)   // abandoned
-        return CmdNone;
-
     QMessageBox msgBox(this);
 
-    if (nCompleted > 0)  { // Success
-        QString sText;
-        QTextStream strm(&sText);
-        strm.setLocale(m_locale);
-        strm << "<big><b>" << m_levelName << "</b></big><br>";
+    QString sText;
+    QTextStream strm(&sText);
+    strm.setLocale(m_locale);
+    strm << "<big><b>" << m_levelName << "</b></big><br>";
 
-        if (!m_author.isEmpty())
-            strm << "by " << m_author;
+    if (!m_author.isEmpty())
+        strm << "by " << m_author;
 
-        strm << "<hr><br><big><b>";
-        if (m_replay) {
-            strm << "Alright!";
-        } else {
-            strm << getmessage(MessageWin, "You won!");
-        }
-        strm << "</b></big><br>";
+    strm << "<hr><br><big><b>";
+    if (m_replay) {
+        strm << "Alright!";
+    } else {
+        strm << getmessage(MessageWin, "You won!");
+    }
+    strm << "</b></big><br>";
 
-        if (!m_replay) {
-            if (m_timedLevel && m_bestTime != TIME_NIL) {
-                int diff = m_timeLeft - m_bestTime;
+    if (!m_replay) {
+        if (m_timedLevel && m_bestTime != TIME_NIL) {
+            int diff = m_timeLeft - m_bestTime;
 
-                if (diff == 0)
-                    strm << "You scored " << m_bestTime << " yet again.";
-                else if (diff == 1)
-                    strm << "You made it 1 second faster this time!";
-                else if (diff > 0)
-                    strm << "You made it " << diff << " seconds faster this time!";
-                else
-                    strm << "But not as quick as your previous score of " << m_bestTime << "...";
-            }
-
-            strm << "<br><table width='100%'>"
-            << "<tr><td>Time Bonus:</td><td align='right'>"  << nTimeScore << "</td></tr>"
-            << "<tr><td>Level Bonus:</td><td align='right'>" << nBaseScore << "</td></tr>"
-            << "<tr><td>Level Score:</td><td align='right'>" << (nTimeScore + nBaseScore) << "</td></tr>"
-            << "<tr><td colspan='2'><hr></td></tr>"
-            << "<tr><td>Total Score:</td><td align='right'>" << lTotalScore << "</td></tr>"
-            << "</table>";
-        }
-
-        msgBox.setTextFormat(Qt::RichText);
-        msgBox.setText(sText);
-
-        Qt_Surface* pSurface = new Qt_Surface(geng.wtile, geng.htile, false);
-        drawfulltileid(pSurface, 0, 0, Exited_Chip);
-        msgBox.setIconPixmap(pSurface->GetPixmap());
-        delete pSurface;
-
-        msgBox.setWindowTitle(m_replay ? "Replay Completed" : "Level Completed");
-
-        m_textToCopy = timestring(m_levelNum, m_levelName, m_timeLeft, m_timedLevel, false);
-
-        msgBox.addButton("&Onward!", QMessageBox::AcceptRole);
-        QPushButton* pBtnRestart = msgBox.addButton("&Restart", QMessageBox::AcceptRole);
-        QPushButton* pBtnCopyScore = msgBox.addButton("&Copy Score", QMessageBox::ActionRole);
-        connect( pBtnCopyScore, SIGNAL(clicked()), this, SLOT(OnCopyText()) );
-
-        msgBox.exec();
-        ReleaseAllKeys();
-        if (msgBox.clickedButton() == pBtnRestart)
-            return CmdSameLevel;
-
-        return CmdNarrateEpilogue;
-    } else {    // Failure
-        bool bTimeout = (m_timedLevel  &&  m_timeLeft <= 0);
-        if (m_replay) {
-            QString sMsg = "Whoa! Chip ";
-            if (bTimeout)
-                sMsg += "ran out of time";
+            if (diff == 0)
+                strm << "You scored " << m_bestTime << " yet again.";
+            else if (diff == 1)
+                strm << "You made it 1 second faster this time!";
+            else if (diff > 0)
+                strm << "You made it " << diff << " seconds faster this time!";
             else
-                sMsg += "ran into some trouble";
-            // TODO: What about when Chip just doesn't reach the exit or reaches the exit too early?
-            sMsg += " there.\nIt looks like the level has changed after that solution was recorded.";
-            msgBox.setText(sMsg);
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle("Replay Failed");
-        } else {
-            QString szMsg;
-            if (bTimeout) {
-                szMsg = getmessage(MessageTime, "You ran out of time.");
-            } else {
-                szMsg = getmessage(MessageDie, "You died.");
-            }
-
-            msgBox.setTextFormat(Qt::PlainText);
-            msgBox.setText(szMsg);
-            // On Windows, using setIcon with QMessageBox::Warning causes the corresponding
-            // system sound to play. Using setIconPixmap avoids this. But avoid doing this
-            // on Linux as it can produce a style warning.
-            #if defined(Q_OS_WIN)
-                QStyle* pStyle = g_app->style();
-                if (pStyle != 0) {
-                    QIcon icon = pStyle->standardIcon(QStyle::SP_MessageBoxWarning);
-                    msgBox.setIconPixmap(icon.pixmap(48));
-                }
-            #else
-                msgBox.setIcon(QMessageBox::Warning);
-            #endif
-            msgBox.setWindowTitle("Oops.");
+                strm << "But not as quick as your previous score of " << m_bestTime << "...";
         }
-        msgBox.exec();
-        ReleaseAllKeys();
+
+        strm << "<br><table width='100%'>"
+        << "<tr><td>Time Bonus:</td><td align='right'>"  << nTimeScore << "</td></tr>"
+        << "<tr><td>Level Bonus:</td><td align='right'>" << nBaseScore << "</td></tr>"
+        << "<tr><td>Level Score:</td><td align='right'>" << (nTimeScore + nBaseScore) << "</td></tr>"
+        << "<tr><td colspan='2'><hr></td></tr>"
+        << "<tr><td>Total Score:</td><td align='right'>" << lTotalScore << "</td></tr>"
+        << "</table>";
     }
 
-    return CmdProceed;
+    msgBox.setTextFormat(Qt::RichText);
+    msgBox.setText(sText);
+
+    Qt_Surface* pSurface = new Qt_Surface(geng.wtile, geng.htile, false);
+    drawfulltileid(pSurface, 0, 0, Exited_Chip);
+    msgBox.setIconPixmap(pSurface->GetPixmap());
+    delete pSurface;
+
+    msgBox.setWindowTitle(m_replay ? "Replay Completed" : "Level Completed");
+
+    m_textToCopy = timestring(m_levelNum, m_levelName, m_timeLeft, m_timedLevel, false);
+
+    msgBox.addButton("&Onward!", QMessageBox::AcceptRole);
+    QPushButton* pBtnRestart = msgBox.addButton("&Restart", QMessageBox::AcceptRole);
+    QPushButton* pBtnCopyScore = msgBox.addButton("&Copy Score", QMessageBox::ActionRole);
+    connect( pBtnCopyScore, SIGNAL(clicked()), this, SLOT(OnCopyText()) );
+
+    msgBox.exec();
+    ReleaseAllKeys();
+    if (msgBox.clickedButton() == pBtnRestart)
+        return CmdSameLevel;
+
+    return CmdNarrateEpilogue;
+}
+
+/* Display a short message when Chip has failed to complete the level
+ */
+void TileWorldMainWnd::DisplayEndMessageFailure()
+{
+    QMessageBox msgBox(this);
+
+    bool bTimeout = (m_timedLevel  &&  m_timeLeft <= 0);
+    if (m_replay) {
+        QString sMsg = "Whoa! Chip ";
+        if (bTimeout)
+            sMsg += "ran out of time";
+        else
+            sMsg += "ran into some trouble";
+        // TODO: What about when Chip just doesn't reach the exit or reaches the exit too early?
+        sMsg += " there.\nIt looks like the level has changed after that solution was recorded.";
+        msgBox.setText(sMsg);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowTitle("Replay Failed");
+    } else {
+        QString szMsg;
+        if (bTimeout) {
+            szMsg = getmessage(MessageTime, "You ran out of time.");
+        } else {
+            szMsg = getmessage(MessageDie, "You died.");
+        }
+
+        msgBox.setTextFormat(Qt::PlainText);
+        msgBox.setText(szMsg);
+        // On Windows, using setIcon with QMessageBox::Warning causes the corresponding
+        // system sound to play. Using setIconPixmap avoids this. But avoid doing this
+        // on Linux as it can produce a style warning.
+        #if defined(Q_OS_WIN)
+            QStyle* pStyle = g_app->style();
+            if (pStyle != 0) {
+                QIcon icon = pStyle->standardIcon(QStyle::SP_MessageBoxWarning);
+                msgBox.setIconPixmap(icon.pixmap(48));
+            }
+        #else
+            msgBox.setIcon(QMessageBox::Warning);
+        #endif
+        msgBox.setWindowTitle("Oops.");
+    }
+    msgBox.exec();
+    ReleaseAllKeys();
 }
 
 
