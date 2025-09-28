@@ -16,8 +16,6 @@ public:
     TileWorldApp(int& argc, char** argv);
     ~TileWorldApp();
 
-    void ExitTWorld();
-
     // Copy text to clipboard.
     static void CopyToClipboard(const QString &text);
 

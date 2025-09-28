@@ -41,6 +41,7 @@ static bool usepasswds = true;
  */
 static bool noframeskip = false;
 
+
 /*
  * Basic game activities.
  */
@@ -189,19 +190,18 @@ static int showscores()
         if (f == CmdProceed) {
             n = g_mainWindow->GetSelectedRow();
             n = levellist[n];
-            break;
-        } else if (f == CmdQuitLevel) {
+            if (n >= 0 && setcurrentgame(n))
+                break;
+        } else if (f == CmdChooseLevelset) {
             n = -1;
             break;
         } else if (f == CmdQuit) {
-            exit(0);
+            return CmdQuit;
         }
     }
     g_mainWindow->PopSubtitle();
 
-    if (n < 0)
-        return 0;
-    return setcurrentgame(n);
+    return CmdNone;
 }
 
 /* Obtain a password from the user and move to the requested level.
@@ -219,7 +219,7 @@ static bool selectlevelbypassword()
     if (n < 0) goto fail;
 
     passwordseen(n);
-    return setcurrentgame(n);
+    if (setcurrentgame(n)) return true;
 
 fail:
     TileWorldApp::Bell();
@@ -305,7 +305,7 @@ static void updatehistory()
 
 /* Save the levelset history.
  */
-void savehistory(void)
+static void savehistory(void)
 {
     fileinfo    file(SETTINGSDIR, "history");
 
@@ -325,8 +325,6 @@ void savehistory(void)
 /*
  * The game-playing functions.
  */
-
-#define leveldelta(n)   if (!changecurrentgame((n))) { TileWorldApp::Bell(); continue; }
 
 /* Show narration text
  */
@@ -378,19 +376,7 @@ static int narrate(int cmd)
         case CmdProceed:
             return CmdNone;
 
-        case CmdQuit:
-            exit(0);
-
-        case CmdPrevLevel:
-        case CmdNextLevel:
-        case CmdSameLevel:
-        case CmdQuitLevel:
-        case CmdGotoLevel:
-        case CmdCheckSolution:
-        case CmdDelSolution:
-        case CmdSeeScores:
-        case CmdTimesClipboard:
-            // let menu events close the narration
+        default:
             return cmd;
         }
     }
@@ -420,22 +406,30 @@ static int startinput()
             return cmd;
         case CmdPauseGame:
         case CmdProceed:    gs.playmode = Play_Normal; return CmdProceed;
-        case CmdQuitLevel:                  return cmd;
-        case CmdPrevLevel:  leveldelta(-1);         return CmdNone;
-        case CmdNextLevel:  leveldelta(+1);         return CmdNone;
-        case CmdQuit:                       exit(0);
+        case CmdPrevLevel:
+        case CmdNextLevel:
+            if (changecurrentgame(cmd == CmdPrevLevel ? -1 : +1))
+                return CmdNone;
+            TileWorldApp::Bell();
+            cmd = CmdNone;
+            break;
+        case CmdChooseLevelset:
+        case CmdQuit:
+            return cmd;
         case CmdPlayback:
             if (prepareplayback()) {
                 gs.playmode = Play_Back;
                 return cmd;
             }
             TileWorldApp::Bell();
+            cmd = CmdNone;
             break;
         case CmdSeek:
             if (g_mainWindow->GetReplaySecondsToSkip() > 0) {
                 gs.playmode = Play_Back;
                 return CmdProceed;
             }
+            cmd = CmdNone;
             break;
         case CmdCheckSolution:
             if (prepareplayback()) {
@@ -443,6 +437,7 @@ static int startinput()
                 return CmdProceed;
             }
             TileWorldApp::Bell();
+            cmd = CmdNone;
             break;
         case CmdDelSolution:
             if (issolved(gs.currentgame)) {
@@ -451,36 +446,36 @@ static int startinput()
             } else {
                 TileWorldApp::Bell();
             }
+            cmd = CmdNone;
             break;
         case CmdSeeScores:
-            if (showscores())
-                return CmdNone;
-            break;
+            return showscores();
         case CmdTimesClipboard:
             copyleveltimestoclipboard(&gs.series);
+            cmd = CmdNone;
             break;
         case CmdGotoLevel:
             if (selectlevelbypassword())
                 return CmdNone;
+            cmd = CmdNone;
             break;
         case CmdNarratePrologue:
         case CmdNarratePrologueForced:
         case CmdNarrateEpilogue:
         case CmdNarrateEpilogueForced:
             cmd = narrate(cmd);
-            if (cmd == CmdNone) return CmdNone;
-            else break;
+            break;
         default:
+            cmd = CmdNone;
             break;
         }
-        cmd = CmdNone;
     }
 }
 
 /* Get a key command from the user at the completion of the current
  * level.
  */
-static bool endinput()
+static int endinput()
 {
     int     bscore = 0, tscore = 0;
     long    gscore = 0;
@@ -496,7 +491,7 @@ static bool endinput()
                     changecurrentgame(+1);
                 }
                 gs.melindacount = 0;
-                return true;
+                return CmdSameLevel;
             }
         }
     } else {
@@ -510,14 +505,15 @@ static bool endinput()
         if (cmd == CmdNone)
             cmd = g_mainWindow->Input(true);
         switch (cmd) {
-        case CmdPrevLevel:  changecurrentgame(-1);  return true;
-        case CmdSameLevel:                              return true;
-        case CmdNextLevel:  changecurrentgame(+1);  return true;
-        case CmdGotoLevel:  selectlevelbypassword();  return true;
-        case CmdPlayback:                                   return true;
-        case CmdSeeScores:  showscores();             return true;
-        case CmdQuitLevel:                  return false;
-        case CmdQuit:                       exit(0);
+        case CmdPrevLevel:  changecurrentgame(-1);  return CmdSameLevel;
+        case CmdSameLevel:                              return CmdSameLevel;
+        case CmdNextLevel:  changecurrentgame(+1);  return CmdSameLevel;
+        case CmdGotoLevel:  selectlevelbypassword();  return CmdSameLevel;
+        case CmdPlayback:                                   return CmdSameLevel;
+        case CmdSeeScores:
+            return showscores() == CmdQuit ? CmdQuit : CmdSameLevel;
+        case CmdChooseLevelset:                  return CmdChooseLevelset;
+        case CmdQuit:                       return CmdQuit;
         case CmdCheckSolution:
         case CmdNarrateEpilogue:
             cmd = narrate(CmdNarrateEpilogue);
@@ -530,7 +526,7 @@ static bool endinput()
                 else
                     changecurrentgame(+1);
             }
-            return true;
+            return CmdSameLevel;
         case CmdDelSolution:
             if (issolved(gs.currentgame)) {
                 replaceablesolution(-1);
@@ -538,7 +534,7 @@ static bool endinput()
             } else {
                 TileWorldApp::Bell();
             }
-            return true;
+            return CmdSameLevel;
         }
         cmd = CmdNone;
     }
@@ -547,21 +543,21 @@ static bool endinput()
 /* Get a key command from the user at the completion of the current
  * series.
  */
-static bool finalinput()
+static int finalinput()
 {
     for (;;) {
         int cmd = g_mainWindow->Input(true);
         switch (cmd) {
         case CmdSameLevel:
-            return true;
+            return CmdSameLevel;
         case CmdPrevLevel:
         case CmdNextLevel:
             setcurrentgame(0);
-            return true;
+            return CmdSameLevel;
         case CmdQuit:
-            exit(0);
+            return CmdQuit;
         default:
-            return false;
+            return CmdChooseLevelset;
         }
     }
 }
@@ -590,7 +586,7 @@ static void setpaused(bool &gamepaused, bool shutter)
  * the gamespec structure will be updated if the user ended play by
  * changing the current level.
  */
-static bool playgame(int firstcmd)
+static int playgame(int firstcmd)
 {
     bool    render, lastrendered;
     int cmd, n;
@@ -623,7 +619,7 @@ static bool playgame(int firstcmd)
         case CmdMoveFirst...CmdMoveLast:
             continue;
 
-        case CmdQuitLevel:
+        case CmdChooseLevelset:
             quitgamestate();
             n = -2;
             goto exitloop;
@@ -632,7 +628,7 @@ static bool playgame(int firstcmd)
         case CmdPrevLevel:      n = -1;     goto endgame;
         case CmdNextLevel:      n = +1;     goto endgame;
         case CmdSameLevel:      n = 0;      goto endgame;
-        case CmdQuit:                   exit(0);
+        case CmdQuit:                   return CmdQuit;
         case CmdLostFocus:
             if(gamepaused) break;
         case CmdPauseGame:
@@ -666,7 +662,7 @@ exitloop:
         if (replacesolution())
             savesolutions(gs.series);
     gs.status = n;
-    return true;
+    return endinput();
 
 endgame:
     if (!lastrendered)
@@ -675,7 +671,7 @@ endgame:
     setgameplaymode(EndPlay);
     if (n)
         changecurrentgame(n);
-    return false;
+    return CmdRestartLevel;
 }
 
 /* Skip past secondstoskip seconds from the beginning of the solution.
@@ -715,7 +711,7 @@ static int hideandseek(int secondstoskip, bool initgame = false)
  * prerecorded series of moves, it has the same behavior as
  * playgame().
  */
-static bool playbackgame()
+static int playbackgame()
 {
     bool    render, lastrendered;
     int n = 0, cmd;
@@ -767,8 +763,8 @@ static bool playbackgame()
         case CmdNextLevel:  changecurrentgame(+1);  goto quitloop;
         case CmdSameLevel:
         case CmdPlayback:
-        case CmdQuitLevel:  goto quitloop;
-        case CmdQuit:           exit(0);
+        case CmdChooseLevelset:  goto quitloop;
+        case CmdQuit:           return CmdQuit;
         case CmdLostFocus:
             if(gamepaused) break;
         case CmdPauseGame:
@@ -787,7 +783,7 @@ static bool playbackgame()
             savesolutions(gs.series);
     }
     gs.status = n;
-    return true;
+    return endinput();
 
 quitloop:
     if (!lastrendered)
@@ -795,7 +791,7 @@ quitloop:
     quitgamestate();
     setgameplaymode(EndPlay);
     gs.playmode = Play_None;
-    return false;
+    return CmdRestartLevel;
 }
 
 
@@ -804,7 +800,7 @@ quitloop:
  * playback stops when the solution is finished or gameplay has
  * ended.
  */
-static bool verifyplayback()
+static int verifyplayback()
 {
     int n;
 
@@ -820,8 +816,8 @@ static bool verifyplayback()
         case CmdNextLevel:  changecurrentgame(+1);  goto quitloop;
         case CmdSameLevel:                  goto quitloop;
         case CmdPlayback:                   goto quitloop;
-        case CmdQuitLevel:                  goto quitloop;
-        case CmdQuit:                       exit(0);
+        case CmdChooseLevelset:                  goto quitloop;
+        case CmdQuit:                       return CmdQuit;
         }
     }
     gs.playmode = Play_None;
@@ -836,12 +832,12 @@ static bool verifyplayback()
             savesolutions(gs.series);
     }
     gs.status = n;
-    return true;
+    return endinput();
 
 quitloop:
     gs.playmode = Play_None;
     setgameplaymode(EndPlay);
-    return false;
+    return CmdRestartLevel;
 }
 
 /* Manage a single session of playing the current level, from start to
@@ -851,10 +847,9 @@ quitloop:
  */
 static int runcurrentlevel()
 {
-    bool ret = true;
+    int ret = CmdSameLevel;
     int cmd;
     int valid;
-    bool f;
 
     g_mainWindow->SetPlayPauseButton(true);
 
@@ -878,22 +873,20 @@ static int runcurrentlevel()
 
     cmd = startinput();
 
-    if (cmd == CmdQuitLevel) {
-        ret = false;
-    } else {
-        if (cmd != CmdNone) {
-            if (valid) {
-                switch (gs.playmode) {
-                case Play_Normal:   f = playgame(cmd);      break;
-                case Play_Back: f = playbackgame();   break;
-                case Play_Verify:   f = verifyplayback();     break;
-                default:            f = false;          break;
-                }
-                if (f)
-                    ret = endinput();
-            } else
-                TileWorldApp::Bell();
-        }
+    if (cmd == CmdChooseLevelset) {
+        ret = CmdChooseLevelset;
+    } else if (cmd == CmdQuit) {
+        ret = CmdQuit;
+    } else if (cmd != CmdNone) {
+        if (valid) {
+            switch (gs.playmode) {
+            case Play_Normal:   ret = playgame(cmd);      break;
+            case Play_Back: ret = playbackgame();   break;
+            case Play_Verify:   ret = verifyplayback();     break;
+            default:            ret = CmdRestartLevel;          break;
+            }
+        } else
+            TileWorldApp::Bell();
     }
 
     endgamestate();
@@ -961,10 +954,10 @@ static std::string generatedacfilename()
  * initialized with that series selected. If defaultlevel is not zero,
  * and a level in the selected series that the user is permitted to
  * access matches it, then that level will be the initial current
- * level. The return value is zero if nothing was selected, negative
- * if an error occurred, or positive otherwise.
+ * level. The return value is false is the user closes the window,
+ * otherwise true.
  */
-static void selectseriesandlevel(std::vector<gameseries> &serieslist, int &levelset)
+static bool selectseriesandlevel(std::vector<gameseries> &serieslist, int &levelset)
 {
     int preLevelSet = levelset;
 again:
@@ -982,16 +975,16 @@ again:
         if (f == CmdProceed) {
             gs.series.ruleset = g_mainWindow->GetSelectedRuleSet();
             levelset = g_mainWindow->GetSelectedRow();
-            return;
+            return true;
         } else if (f == CmdReloadLevelsets) {
             createserieslist(serieslist);
             goto again;
         } else if (f == CmdQuit) {
-            exit(0);
-        } else if (f == CmdQuitLevel) {
+            return false;
+        } else if (f == CmdChooseLevelset) {
             if (preLevelSet != -1) {
                 levelset = preLevelSet;
-                return;
+                return true;
             } else {
                 TileWorldApp::Bell();
             }
@@ -1043,7 +1036,7 @@ static void selectlevelset(std::vector<gameseries> &serieslist, int levelset)
     }
 }
 
-static void chooselevelset(bool alwaysshowlist) {
+static bool chooselevelset(bool alwaysshowlist) {
     std::vector<gameseries> serieslist;
 
     // create a list of all the available levelsets
@@ -1058,10 +1051,13 @@ static void chooselevelset(bool alwaysshowlist) {
 
     // display a scrolling list
     if (alwaysshowlist || levelset == -1)
-        selectseriesandlevel(serieslist, levelset);
+        if(!selectseriesandlevel(serieslist, levelset))
+            return false;
 
     // Pick the level to play. Defaults to last played if available.
     selectlevelset(serieslist, levelset);
+
+    return true;
 }
 
 
@@ -1079,18 +1075,34 @@ int tworld()
     if (gs.series.ruleset == -1)
         gs.series.ruleset = Ruleset_Lynx;
 
-    chooselevelset(false);
+    if(!chooselevelset(false))
+        return 0;
 
-    // plays the selected level
-    for (;;) {
-        g_mainWindow->PushSubtitle("");
-        while (runcurrentlevel()) { }
-        savehistory();
-        g_mainWindow->PopSubtitle();
-        g_mainWindow->ClearDisplay();
-        freeseriesdata(gs.series);
-        chooselevelset(true);
+    g_mainWindow->PushSubtitle("");
+
+    // plays the game
+    while (true) {
+        int cmd = runcurrentlevel();
+        switch(cmd) {
+
+        case CmdQuit:
+            savesettings();
+            savehistory();
+            return EXIT_SUCCESS;
+
+        case CmdChooseLevelset:
+            savehistory();
+            g_mainWindow->PopSubtitle();
+            g_mainWindow->ClearDisplay();
+            freeseriesdata(gs.series);
+            if(!chooselevelset(true))
+                return EXIT_SUCCESS;
+
+            g_mainWindow->PushSubtitle("");
+            break;
+
+        default:
+            break;
+        }
     }
-
-    return EXIT_SUCCESS;
 }

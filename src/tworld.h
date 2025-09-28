@@ -32,8 +32,4 @@ extern int tworld();
  */
 extern bool loadhistory();
 
-/* Save history file
- */
-extern void savehistory();
-
 #endif

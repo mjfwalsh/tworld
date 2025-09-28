@@ -147,7 +147,7 @@ void TileWorldMainWnd::closeEvent(QCloseEvent* pCloseEvent)
 {
     QMainWindow::closeEvent(pCloseEvent);
     m_windowClosed = true;
-    g_app->ExitTWorld();
+    PulseKey(CmdQuit);
 }
 
 bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
@@ -175,7 +175,7 @@ bool TileWorldMainWnd::eventFilter(QObject* pObject, QEvent* pEvent)
 
 void TileWorldMainWnd::FocusChanged(QWindow *w)
 {
-    if(!w && action_BlurPause->isChecked())
+    if(!m_windowClosed && !w && action_BlurPause->isChecked())
         PulseKey(CmdLostFocus);
 }
 
@@ -245,7 +245,7 @@ bool TileWorldMainWnd::HandleKeyEvent(QObject* pObject, QKeyEvent* pKeyEvent)
                     break;
 
                 case Qt::Key_Escape:
-                    PulseKey(CmdQuitLevel);
+                    PulseKey(CmdChooseLevelset);
                     return STOP_PROPRGATION;
                     break;
             }
@@ -313,7 +313,7 @@ void TileWorldMainWnd::OnPlayback()
 
 void TileWorldMainWnd::OnBackButton()
 {
-    PulseKey(CmdQuitLevel);
+    PulseKey(CmdChooseLevelset);
 }
 
 void TileWorldMainWnd::OnImportButton()
@@ -1034,6 +1034,7 @@ void TileWorldMainWnd::SetSubtitle(QString subtitle)
     setWindowTitle(sTitle);
 }
 
+
 void TileWorldMainWnd::ShowAbout()
 {
     QMessageBox *msgBox = new QMessageBox(this);
@@ -1071,7 +1072,7 @@ void TileWorldMainWnd::OnCopyText()
 void TileWorldMainWnd::OnMenuActionTriggered(QAction* pAction)
 {
     if (pAction == action_Exit) {
-        g_app->ExitTWorld();
+        close();
         return;
     }
 
@@ -1174,7 +1175,7 @@ int TileWorldMainWnd::GetCmdForAction(QAction* pAction) const
 {
     if (pAction == action_Scores) return CmdSeeScores;
     if (pAction == action_TimesClipboard) return CmdTimesClipboard;
-    if (pAction == action_Levelsets) return CmdQuitLevel;
+    if (pAction == action_Levelsets) return CmdChooseLevelset;
     if (pAction == action_Exit) return CmdQuit;
 
     if (pAction == action_Pause) return CmdPauseGame;

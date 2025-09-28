@@ -103,26 +103,6 @@ void TileWorldApp::Bell(void)
     if(v > 0) QApplication::beep();
 }
 
-/* Exit gracefully. Called when the user closes the window.
- */
-void TileWorldApp::ExitTWorld()
-{
-    // These functions should only be run when exiting gracefully
-    savesettings();
-    savehistory();
-
-    // Attempt to gracefully destroy application objects
-
-    // throw 1;
-    // Can't throw C++ exceptions through C code
-
-    // longjmp(m_jmpBuf, 1);
-    // Works, but needs to be cleaner
-    ::exit(0);
-    // Live with this for now...
-}
-
-
 /* The real main().
  */
 int main(int argc, char *argv[])
