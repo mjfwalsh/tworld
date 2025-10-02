@@ -80,29 +80,8 @@ void TWTableSpec::trimRows(int num)
     m_vecItems.erase(m_vecItems.end() - (num * m_cols), m_vecItems.end());
 }
 
-void TWTableSpec::hideMenu(QMenu *menu)
-{
-    if (menu->isEnabled()) {
-        m_hiddenmenus.push_back(menu);
-        menu->setEnabled(false);
-    }
-}
-
-void TWTableSpec::hideAction(QAction *action)
-{
-    if (action->isEnabled()) {
-        m_hiddenactions.push_back(action);
-        action->setEnabled(false);
-    }
-}
 
 TWTableSpec::~TWTableSpec()
 {
-    for (QAction *action : m_hiddenactions)
-        action->setEnabled(true);
-
-    for (QMenu *menu : m_hiddenmenus)
-        menu->setEnabled(true);
-
     m_parent->HideList();
 }

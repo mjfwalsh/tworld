@@ -173,6 +173,7 @@ static bool melindawatching()
  */
 static int showscores()
 {
+    TileWorldMainWnd::HideMenus hm(g_mainWindow);
     TWTableSpec table(g_mainWindow);
     std::vector<int> levellist;
     int     n;
@@ -504,6 +505,7 @@ static int endinput()
         if(cmd == CmdSameLevel) return CmdSameLevel;
 
         // display narration (if any)
+        TileWorldMainWnd::HideMenus hm(g_mainWindow);
         cmd = narrate(CmdNarrateEpilogue);
 
         // move to next level
@@ -940,6 +942,7 @@ static std::string generatedacfilename()
 static bool selectseriesandlevel(std::vector<gameseries> &serieslist, int &levelset)
 {
     int preLevelSet = levelset;
+    TileWorldMainWnd::HideMenus hm(g_mainWindow);
 again:
     TWTableSpec mftable(g_mainWindow);
     mftable.setCols(1);

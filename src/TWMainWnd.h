@@ -8,6 +8,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtCore/QLocale>
+#include <QtCore/QVector>
 
 #include "../obj/ui_TWMainWnd.h"
 #include "CCMetaData.h"
@@ -214,6 +215,17 @@ public:
         TileWorldMainWnd *parent;
         CCX::Text &text;
         int page = 0;
+    };
+
+    class HideMenus
+    {
+    public:
+        HideMenus(TileWorldMainWnd *parent);
+        ~HideMenus();
+
+    protected:
+        QVector<QAction*> m_hiddenactions;
+        QVector<QMenu*> m_hiddenmenus;
     };
 
 public slots:

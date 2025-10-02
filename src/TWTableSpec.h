@@ -42,9 +42,6 @@ public:
     inline int cols() const
         {return m_cols;}
 
-    void hideMenu(QMenu *menu);
-    void hideAction(QAction *action);
-
 protected:
     struct ItemInfo {
         int align;
@@ -56,9 +53,6 @@ protected:
     QVector<ItemInfo> m_vecItems;
 
     QVariant GetData(int row, int col, int role) const;
-
-    QVector<QAction*> m_hiddenactions;
-    QVector<QMenu*> m_hiddenmenus;
 };
 
 #endif

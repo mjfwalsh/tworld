@@ -864,17 +864,6 @@ void TileWorldMainWnd::DisplayEndMessageFailure()
  */
 void TileWorldMainWnd::DisplayList(TWTableSpec &table, int pnIndex, int ruleset)
 {
-    QAction *actions[] = { action_Scores, action_TimesClipboard,
-                           action_Import, action_Levelsets};
-    for(int i = 0; i < 4; i++) {
-        table.hideAction(actions[i]);
-    }
-
-    QMenu *menus[] = { menu_Level, menu_Solution, menu_Options, menu_Zoom, menu_Solution};
-    for(int i = 0; i < 5; i++) {
-        table.hideMenu(menus[i]);
-    }
-
     table.fixRows();
     m_sortFilterProxyModel = new QSortFilterProxyModel;
     m_sortFilterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -1478,4 +1467,33 @@ bool TileWorldMainWnd::SetKeyboardArrowsRepeat(bool enable)
 bool TileWorldMainWnd::GetAutoShowNarration()
 {
     return action_displayCCX->isChecked();
+}
+
+TileWorldMainWnd::HideMenus::HideMenus(TileWorldMainWnd *p)
+{
+    QAction *actions[] = { p->action_Scores, p->action_TimesClipboard,
+                           p->action_Import, p->action_Levelsets};
+    for(QAction *action : actions) {
+        if (action->isEnabled()) {
+            m_hiddenactions.push_back(action);
+            action->setEnabled(false);
+        }
+    }
+
+    QMenu *menus[] = { p->menu_Level, p->menu_Solution, p->menu_Options, p->menu_Zoom, p->menu_Solution };
+    for(QMenu *menu : menus) {
+        if (menu->isEnabled()) {
+            m_hiddenmenus.push_back(menu);
+            menu->setEnabled(false);
+        }
+    }
+}
+
+TileWorldMainWnd::HideMenus::~HideMenus()
+{
+    for (QAction *action : m_hiddenactions)
+        action->setEnabled(true);
+
+    for (QMenu *menu : m_hiddenmenus)
+        menu->setEnabled(true);
 }
