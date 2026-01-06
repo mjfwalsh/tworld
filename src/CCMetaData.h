@@ -6,11 +6,11 @@
 #define CCMETADATA_H
 
 
-#include <Qt>
-#include <QString>
-#include <QColor>
-#include <QDomElement>
-#include <QVector>
+#include <QtCore/Qt>
+#include <QtCore/QString>
+#include <QtGui/QColor>
+#include <QtXml/QDomElement>
+#include <QtCore/QVector>
 
 
 namespace CCX

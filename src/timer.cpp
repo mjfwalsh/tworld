@@ -4,8 +4,8 @@
  * under the GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include    <QThread>
-#include    <QElapsedTimer>
+#include    <QtCore/QThread>
+#include    <QtCore/QElapsedTimer>
 
 #include    <cstdlib>
 

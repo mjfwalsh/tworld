@@ -4,7 +4,7 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include    <QStringList>
+#include    <QtCore/QStringList>
 
 #include    "TWTableSpec.h"
 #include    "defs.h"

@@ -4,10 +4,10 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include <QStringList>
-#include <QFile>
-#include <QBitArray>
-#include <QVector>
+#include <QtCore/QStringList>
+#include <QtCore/QFile>
+#include <QtCore/QBitArray>
+#include <QtCore/QVector>
 
 #include "messages.h"
 #include "fileio.h"

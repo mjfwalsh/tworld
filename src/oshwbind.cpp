@@ -5,8 +5,8 @@
  * No warranty. See COPYING for details.
  */
 
-#include <QBitmap>
-#include <QPainter>
+#include <QtGui/QBitmap>
+#include <QtGui/QPainter>
 
 #include "oshwbind.h"
 

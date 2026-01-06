@@ -5,9 +5,9 @@
  * See COPYING for details.
  */
 
-#include    <QString>
-#include    <QLocale>
-#include    <QTextStream>
+#include    <QtCore/QString>
+#include    <QtCore/QLocale>
+#include    <QtCore/QTextStream>
 
 #include    "TWTableSpec.h"
 #include    "defs.h"

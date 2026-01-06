@@ -6,8 +6,8 @@
 #ifndef TWMAINWND_H
 #define TWMAINWND_H
 
-#include <QMainWindow>
-#include <QLocale>
+#include <QtWidgets/QMainWindow>
+#include <QtCore/QLocale>
 
 #include "../obj/ui_TWMainWnd.h"
 #include "CCMetaData.h"

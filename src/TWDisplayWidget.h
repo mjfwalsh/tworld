@@ -7,8 +7,8 @@
 #define TWDISPLAYWIDGET_H
 
 
-#include <QWidget>
-#include <QPixmap>
+#include <QtWidgets/QWidget>
+#include <QtGui/QPixmap>
 
 
 // QLabel's setPixmap seems to trigger a re-layout of the parent

@@ -88,12 +88,14 @@ $vars{CXX} = get_cmd_path('cxx');
 my @qt_modules = qw|QtCore QtGui QtXml QtWidgets|;
 
 # generic compiler flags
-$vars{CFLAGS} = '-std=gnu++17 -Wall -pedantic -DNDEBUG -O2 -I. -Werror -fPIC';
+$vars{CFLAGS} = '-std=gnu++17 -Wall -pedantic -DNDEBUG -O2 -Werror -fPIC';
 
 # qt compiler flags (spaces after -isystem helps mingw gcc)
 $vars{CFLAGS} .= " -isystem $qt_vars{QT_INSTALL_HEADERS}";
-foreach my $module (@qt_modules) {
-    $vars{CFLAGS} .= " -isystem $qt_vars{QT_INSTALL_HEADERS}/$module";
+
+# include frameworks on mac
+if($^O eq 'darwin') {
+    $vars{CFLAGS} .= " -iframework $qt_vars{QT_INSTALL_LIBS}";
 }
 
 # sdl compiler flags
@@ -108,7 +110,7 @@ $vars{LDFLAGS} = $sdl2_config_libs;
 
 # frameworks on Mac, libraries on other systems
 if($^O eq 'darwin') {
-    $vars{LDFLAGS} .= " -F $qt_vars{QT_INSTALL_LIBS}";
+    $vars{LDFLAGS} .= " -iframework $qt_vars{QT_INSTALL_LIBS}";
     foreach my $module (@qt_modules) {
         $vars{LDFLAGS} .= " -framework $module";
     }

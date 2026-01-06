@@ -3,7 +3,7 @@
  * See COPYING for details.
  */
 
-#include <QClipboard>
+#include <QtGui/QClipboard>
 #include <SDL.h>
 #include <cstdlib>
 

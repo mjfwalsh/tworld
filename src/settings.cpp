@@ -4,10 +4,10 @@
  * License. No warranty. See COPYING for details.
  */
 
-#include <QMap>
-#include <QFile>
-#include <QTextStream>
-#include <QMapIterator>
+#include <QtCore/QMap>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QMapIterator>
 
 #include "settings.h"
 #include "fileio.h"

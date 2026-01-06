@@ -3,28 +3,28 @@
  * See COPYING for details.
  */
 
-#include <QApplication>
-#include <QClipboard>
-#include <QEvent>
-#include <QKeyEvent>
-#include <QMouseEvent>
-#include <QMessageBox>
-#include <QInputDialog>
-#include <QPushButton>
-#include <QTextDocument>
-#include <QSortFilterProxyModel>
-#include <QFileDialog>
+#include <QtWidgets/QApplication>
+#include <QtGui/QClipboard>
+#include <QtCore/QEvent>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMouseEvent>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QInputDialog>
+#include <QtWidgets/QPushButton>
+#include <QtGui/QTextDocument>
+#include <QtCore/QSortFilterProxyModel>
+#include <QtWidgets/QFileDialog>
 #if defined(Q_OS_WIN)
-#include <QStyle>
+#include <QtWidgets/QStyle>
 #endif
-#include <QPainter>
-#include <QDir>
-#include <QFileInfo>
-#include <QString>
-#include <QTextStream>
-#include <QTimer>
-#include <QFontMetrics>
-#include <QRect>
+#include <QtGui/QPainter>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QString>
+#include <QtCore/QTextStream>
+#include <QtCore/QTimer>
+#include <QtGui/QFontMetrics>
+#include <QtCore/QRect>
 
 #include <cstring>
 #include <cmath>

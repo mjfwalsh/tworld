@@ -7,8 +7,8 @@
 #define TWPROGRESSBAR_H
 
 
-#include <QProgressBar>
-#include <qdrawutil.h>
+#include <QtWidgets/QProgressBar>
+#include <QtWidgets/qdrawutil.h>
 
 
 // QProgressBar's setValue is slow enough to cause glitchy movement

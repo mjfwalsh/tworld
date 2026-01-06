@@ -6,10 +6,10 @@
 #ifndef HEADER_TWTableSpec_h_
 #define HEADER_TWTableSpec_h_
 
-#include <Qt>
-#include <QAbstractTableModel>
-#include <QString>
-#include <QVector>
+#include <QtCore/Qt>
+#include <QtCore/QAbstractTableModel>
+#include <QtCore/QString>
+#include <QtCore/QVector>
 
 /* Qt align values.
  */

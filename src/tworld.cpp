@@ -6,7 +6,7 @@
  * No warranty. See COPYING for details.
  */
 
-#include    <QString>
+#include    <QtCore/QString>
 #include    <vector>
 
 #include    "TWApp.h"

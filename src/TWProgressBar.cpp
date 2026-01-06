@@ -3,7 +3,7 @@
  * See COPYING for details.
  */
 
-#include <QPainter>
+#include <QtGui/QPainter>
 
 #include "TWProgressBar.h"
 

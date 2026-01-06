@@ -4,9 +4,9 @@
  * GNU General Public License. No warranty. See COPYING for details.
  */
 
-#include    <QDir>
-#include    <QApplication>
-#include    <QStandardPaths>
+#include    <QtCore/QDir>
+#include    <QtWidgets/QApplication>
+#include    <QtCore/QStandardPaths>
 
 #include    <cstdio>
 #include    <cstdlib>

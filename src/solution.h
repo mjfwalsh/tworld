@@ -7,7 +7,7 @@
 #ifndef HEADER_solution_h_
 #define HEADER_solution_h_
 
-#include <QStringList>
+#include <QtCore/QStringList>
 
 class TWTableSpec;
 

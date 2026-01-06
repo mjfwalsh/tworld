@@ -8,7 +8,7 @@
 
 class TileWorldMainWnd;
 
-#include <QApplication>
+#include <QtWidgets/QApplication>
 
 class TileWorldApp : public QApplication
 {

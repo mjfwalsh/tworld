@@ -4,9 +4,9 @@
 
 #include "CCMetaData.h"
 
-#include <QFile>
-#include <QDomDocument>
-#include <QDomElement>
+#include <QtCore/QFile>
+#include <QtXml/QDomDocument>
+#include <QtXml/QDomElement>
 
 
 namespace CCX
