@@ -49,18 +49,20 @@ void setpedanticmode(bool v)
  * required for the given ruleset. Do nothing if the requested ruleset
  * is already the current ruleset.
  */
-static bool setrulesetbehavior(int ruleset)
+static bool setrulesetbehavior(gameseries &series)
 {
     if (logic) {
-        if (ruleset == logic->ruleset)
+        if (series.ruleset == logic->ruleset)
             return true;
         (*logic->shutdown)(logic);
         logic = nullptr;
     }
-    if (ruleset == Ruleset_None)
-        return true;
 
-    switch (ruleset) {
+    switch (series.ruleset) {
+        default:
+            series.ruleset = Ruleset_Lynx;
+            // fallthrough
+
         case Ruleset_Lynx:
             logic = lynxlogicstartup();
             if (!logic)
@@ -77,13 +79,10 @@ static bool setrulesetbehavior(int ruleset)
                 g_mainWindow->SetKeyboardArrowsRepeat(false);
             settimersecond(1100 * mudsucking);
             break;
-        default:
-            warn("unknown ruleset requested (ruleset=%d)", ruleset);
-            return false;
     }
 
     if (!batchmode) {
-        loadgameresources(ruleset);
+        loadgameresources(series.ruleset);
         g_mainWindow->CreateGameDisplay();
     }
 
@@ -96,7 +95,7 @@ static bool setrulesetbehavior(int ruleset)
  */
 bool initgamestate(gameseries &series, int currentgame)
 {
-    if (!setrulesetbehavior(series.ruleset))
+    if (!setrulesetbehavior(series))
         die("unable to initialize the system for the requested ruleset");
 
     memset(state.map, 0, sizeof state.map);
@@ -352,7 +351,11 @@ bool endgamestate()
  */
 void shutdowngamestate(void)
 {
-    setrulesetbehavior(Ruleset_None);
+    if (logic) {
+        (*logic->shutdown)(logic);
+        logic = nullptr;
+    }
+
     destroymovelist(&state.moves);
 }
 

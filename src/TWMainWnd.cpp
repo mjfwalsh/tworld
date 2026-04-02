@@ -26,6 +26,7 @@
 #include <QtGui/QFontMetrics>
 #include <QtCore/QRect>
 #include <QtGui/QWindow>
+#include <QtGui/QScreen>
 
 #include <cstring>
 #include <cmath>
@@ -78,9 +79,10 @@ TileWorldMainWnd::TileWorldMainWnd(QWidget* pParent)
 
     // load style sheet
     QFile File(appResDir + "/stylesheet.qss");
-    File.open(QFile::ReadOnly);
-    QString StyleSheet(File.readAll());
-    setStyleSheet(StyleSheet);
+    if(File.open(QFile::ReadOnly)) {
+        QString StyleSheet(File.readAll());
+        setStyleSheet(StyleSheet);
+    }
 
     // initalise blank mouseinfo status before applying event filter
     m_mouseinfo.state = 0;
@@ -1219,13 +1221,13 @@ void TileWorldMainWnd::SetHintVisibility(bool newmode)
     }
 }
 
-void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
+void TileWorldMainWnd::SetScale(int s)
 {
-    double newScale = (double)s / 100;
-    if(checkPrevScale && newScale == m_scale) return;
+    double newScale = sqrt((double)s / 100);
+    if(newScale == m_scale) return;
 
     // set the property
-    m_scale = sqrt(newScale);
+    m_scale = newScale;
 
     if(m_surface == nullptr || m_invSurface == nullptr || geng.wtile < 1) {
         warn("Attempt to set pixmap and m_scale without setting pixmap first");
@@ -1233,7 +1235,7 @@ void TileWorldMainWnd::SetScale(int s, bool checkPrevScale)
     }
 
     // Hide the hint to avoid knock-on layout issues
-    if(m_hintVisible == true) {
+    if(m_hintVisible) {
         SetHintVisibility(false);
     }
 

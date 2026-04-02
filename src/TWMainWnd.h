@@ -284,7 +284,7 @@ private:
     void ResizeHintFont();
     void SetHintText(const QString &hint);
     void SetHintVisibility(bool newmode);
-    void SetScale(int s, bool checkPrevScale = true);
+    void SetScale(int s);
 
     bool m_windowClosed = false;
 

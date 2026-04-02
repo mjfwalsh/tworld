@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 by Michael J. Walsh. Licenced under the GNU GPL, v 3. */
+/* Copyright (C) 2026 by Michael J. Walsh. Licenced under the GNU GPL, v 3. */
 
 #m_mainWidget {
     background-image:url("res/motherboard.svg"); background-position: center;
@@ -12,8 +12,12 @@
     border-bottom: 5px outset rgb(55,55,55);
 }
 
-#m_infoFrame {
+#m_infoFrame, #m_labelTitle, #m_labelPassword {
     background-color: rgb(236,236,236);
+}
+
+#m_infoFrame QLabel, #m_labelTitle, #m_labelPassword {
+    color: black;
 }
 
 QLCDNumber {
@@ -41,7 +45,10 @@ QTableView, QHeaderView {
     margin-bottom: 10px;
     margin-right: 25px;
     margin-left: 25px;
+}
 
+#m_progressVolume::chunk {
+    background-color: #000000;
 }
 
 #m_buttonPlay {
