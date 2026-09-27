@@ -556,7 +556,7 @@ static bool opensolutionfile(fileinfo &file, bool writable)
  */
 bool readsolutions(gameseries &series)
 {
-    gamesetup   gametmp = {0};
+    gamesetup   gametmp;
 
     fileinfo file(SOLUTIONDIR, series.dacfilename + ".tws");
 

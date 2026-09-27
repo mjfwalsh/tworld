@@ -218,6 +218,36 @@ typedef struct gamesetup {
     std::string     name;                     /* name of the level */
     char            passwd[5] = "\0\0\0\0";   /* the level's password */
 
+    gamesetup() {}
+    gamesetup(const gamesetup &other) = delete;
+    gamesetup &operator=(const gamesetup &other) = delete;
+
+    void move(gamesetup &other) {
+        number = other.number;
+        time = other.time;
+        besttime = other.besttime;
+        sgflags = other.sgflags;
+        levelsize = other.levelsize;
+        solutionsize = other.solutionsize;
+        leveldata = other.leveldata;
+        solutiondata = other.solutiondata;
+        unsolvable = other.unsolvable;
+        unsolvablereason = other.unsolvablereason;
+        name = other.name;
+        memcpy(passwd, other.passwd, 4);
+
+        other.leveldata = NULL;
+        other.solutiondata = NULL;
+    }
+
+    gamesetup &operator=(gamesetup &&other) noexcept {
+        move(other);
+        return *this;
+    }
+    gamesetup(gamesetup &&other) noexcept {
+        move(other);
+    }
+
     ~gamesetup() {
         if (!(sgflags & SGF_DONT_FREE)) {
             free(leveldata);
